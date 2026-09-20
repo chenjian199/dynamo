@@ -512,6 +512,7 @@ class DecodeWorkerHandler(BaseWorkerHandler):
 
         priority_kwargs = self._priority_kwargs(priority)
         sampling_params = self._build_sampling_params(request)
+        logging.debug("SGLang sampling params: %s", sampling_params)
         logprob_kwargs = self._build_logprob_kwargs(request)
         metadata_uploader = self._metadata_uploader_from_request(request)
 
