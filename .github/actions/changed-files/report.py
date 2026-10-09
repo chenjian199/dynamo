@@ -46,6 +46,7 @@ TRTLLM_DISAGG_CHANGE_CLASS = {
 SGLANG_UNRELATED_CHANGE_CLASSES = (
     OPERATOR_ONLY_FILES,
     {"components/src/dynamo/frontend/tests/test_vllm_processor_unit.py"},
+    TRTLLM_DISAGG_CHANGE_CLASS,
 )
 
 
