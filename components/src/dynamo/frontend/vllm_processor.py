@@ -45,7 +45,10 @@ from dynamo.llm.exceptions import HttpError
 from dynamo.vllm.errors import vllm_client_error_to_http_error
 
 from .prepost import StreamingPostProcessor, preprocess_chat_request
-from .structural_tag_policy import runtime_structural_tag_options
+from .structural_tag_policy import (
+    runtime_structural_tag_excludes_reasoning,
+    runtime_structural_tag_options,
+)
 from .thinking import runtime_default_thinking_mode
 from .utils import (
     as_error_envelope,
@@ -692,6 +695,7 @@ class VllmProcessor:
         structural_tag_mode: str = "off",
         structural_tag_scope: str = "auto",
         structural_tag_schema: str = "auto",
+        structural_tag_excludes_reasoning: bool = False,
     ):
         self.tokenizer = tokenizer
         self.input_processor = input_processor
@@ -707,6 +711,7 @@ class VllmProcessor:
         self.structural_tag_mode = structural_tag_mode
         self.structural_tag_scope = structural_tag_scope
         self.structural_tag_schema = structural_tag_schema
+        self.structural_tag_excludes_reasoning = structural_tag_excludes_reasoning
         # Sender for mm_kwargs transfer — instantiated lazily on first MM request.
         # MmKwargsShmSender for same-node transfers (default), MmKwargsNixlSender
         # for cross-node RDMA. Controlled by DYNAMO_MM_TRANSFER env var.
@@ -941,6 +946,7 @@ class VllmProcessor:
                 structural_tag_mode=self.structural_tag_mode,
                 structural_tag_scope=self.structural_tag_scope,
                 structural_tag_schema=self.structural_tag_schema,
+                structural_tag_excludes_reasoning=self.structural_tag_excludes_reasoning,
             )
 
         request_for_sampling = pre.request_for_sampling
@@ -1593,6 +1599,9 @@ class EngineFactory:
             structural_tag_scope,
             structural_tag_schema,
         ) = runtime_structural_tag_options(mdc.runtime_config())
+        structural_tag_excludes_reasoning = runtime_structural_tag_excludes_reasoning(
+            mdc.runtime_config()
+        )
 
         block_size = self.config.kv_cache_block_size or 16
 
@@ -1612,6 +1621,7 @@ class EngineFactory:
             structural_tag_mode=structural_tag_mode,
             structural_tag_scope=structural_tag_scope,
             structural_tag_schema=structural_tag_schema,
+            structural_tag_excludes_reasoning=structural_tag_excludes_reasoning,
         )
         gen.exclude_tools_when_tool_choice_none = (
             self.config.exclude_tools_when_tool_choice_none
