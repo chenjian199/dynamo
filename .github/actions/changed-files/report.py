@@ -70,6 +70,7 @@ def modified_only_files(output_dir: Path, all_files: set[str]) -> set[str]:
 def runtime_test_outputs(output_dir: Path, all_files: set[str]) -> dict[str, bool]:
     modified = modified_only_files(output_dir, all_files)
     return {
+        "trtllm_runtime": not (modified and modified <= OPERATOR_ONLY_FILES),
         "sglang_runtime": not (
             modified
             and any(modified <= allowed for allowed in SGLANG_UNRELATED_CHANGE_CLASSES)

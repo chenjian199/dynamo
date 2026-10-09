@@ -171,18 +171,33 @@ class ChangedFilesTests(unittest.TestCase):
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.outputs["sglang_runtime"], expected)
+                self.assertEqual(result.outputs["trtllm_runtime"], "true")
 
     def test_operator_admission_retains_unlisted_and_mixed_inputs(self):
         files = sorted(OPERATOR_ONLY_FILES)
-        for extra, expected in (
-            ([], "false"),
-            (["deploy/operator/api/v1beta2/unreviewed.go"], "true"),
+        cases = [
+            ([], "", "false"),
+            (["deploy/operator/api/v1beta2/unreviewed.go"], "", "true"),
             (
                 ["components/src/dynamo/frontend/tests/test_vllm_processor_unit.py"],
+                "",
                 "true",
             ),
-            (["components/src/dynamo/common/utils.py"], "true"),
-        ):
+            (["components/src/dynamo/common/utils.py"], "", "true"),
+        ]
+        cases += [
+            ([], status, "true")
+            for status in (
+                "added",
+                "copied",
+                "deleted",
+                "renamed",
+                "type_changed",
+                "unmerged",
+                "unknown",
+            )
+        ]
+        for extra, rejected_status, expected in cases:
             changed = files + extra
             outputs = {
                 f"all_{name}_files.json": "[]"
@@ -198,37 +213,50 @@ class ChangedFilesTests(unittest.TestCase):
             }
             outputs["all_modified_files.json"] = json.dumps(changed)
             outputs["all_all_changed_and_modified_files.json"] = json.dumps(changed)
-            with self.subTest(extra=extra):
+            if rejected_status:
+                outputs[f"all_{rejected_status}_files.json"] = json.dumps([files[0]])
+            with self.subTest(extra=extra, rejected_status=rejected_status):
                 result = self.run_report(
                     {"all": changed, "deploy": changed}, extra_outputs=outputs
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.outputs["sglang_runtime"], expected)
+                self.assertEqual(result.outputs["trtllm_runtime"], expected)
 
     def test_runtime_gate_defaults_full_and_supports_force_full(self):
         workflow = yaml.safe_load(
             (ACTION_DIR.parents[1] / "workflows/pr.yaml").read_text()
         )
         jobs = workflow["jobs"]
-        output = jobs["changed-files"]["outputs"]["sglang_runtime"]
-        for value, force, expected in (
-            ("false", "", False),
-            ("false", "true", True),
-            ("", "", True),
-            ("true", "", True),
+        for backend, value, force, expected in (
+            ("sglang", "false", "", False),
+            ("sglang", "false", "true", True),
+            ("sglang", "", "", True),
+            ("sglang", "true", "", True),
+            ("trtllm", "false", "", False),
+            ("trtllm", "false", "true", True),
+            ("trtllm", "", "", True),
+            ("trtllm", "true", "", True),
         ):
+            output = jobs["changed-files"]["outputs"][f"{backend}_runtime"]
             expression = output.removeprefix("${{").removesuffix("}}")
             expression = expression.replace("vars.FORCE_FULL_CI", repr(force))
             expression = expression.replace(
-                "steps.changes.outputs.sglang_runtime", repr(value)
+                f"steps.changes.outputs.{backend}_runtime", repr(value)
             )
             required = eval(expression.replace("||", "or"), {"__builtins__": {}})
-            for job in ("sglang-test", "sglang-multi-gpu-test"):
+            for job in (f"{backend}-test", f"{backend}-multi-gpu-test"):
                 condition = jobs[job]["if"].replace(
-                    "needs.changed-files.outputs.sglang_runtime",
+                    f"needs.changed-files.outputs.{backend}_runtime",
                     repr(str(required).lower()),
                 )
-                for name in ("core", "sglang", "deploy", "run_multigpu_tests"):
+                for name in (
+                    "core",
+                    "sglang",
+                    "trtllm",
+                    "deploy",
+                    "run_multigpu_tests",
+                ):
                     condition = condition.replace(
                         f"needs.changed-files.outputs.{name}", repr("true")
                     )
