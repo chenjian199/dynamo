@@ -35,6 +35,12 @@ OPERATOR_ONLY_FILES = {
     "recipes/templates/kustomize/components/dynamo-openapi/dynamo-openapi.json",
 }
 
+TRTLLM_DISAGG_CHANGE_CLASS = {
+    "examples/backends/trtllm/launch/disagg.sh",
+    "examples/backends/trtllm/launch/disagg_router.sh",
+    "tests/serve/test_trtllm.py",
+}
+
 # Each class must independently contain the entire modified-file set. Do not
 # union classes: mixed changes require the existing full runtime selection.
 SGLANG_UNRELATED_CHANGE_CLASSES = (
@@ -70,6 +76,9 @@ def modified_only_files(output_dir: Path, all_files: set[str]) -> set[str]:
 def runtime_test_outputs(output_dir: Path, all_files: set[str]) -> dict[str, bool]:
     modified = modified_only_files(output_dir, all_files)
     return {
+        "trtllm_disagg_router": bool(
+            modified and modified <= TRTLLM_DISAGG_CHANGE_CLASS
+        ),
         "trtllm_runtime": not (modified and modified <= OPERATOR_ONLY_FILES),
         "vllm_runtime": not (modified and modified <= OPERATOR_ONLY_FILES),
         "sglang_runtime": not (
