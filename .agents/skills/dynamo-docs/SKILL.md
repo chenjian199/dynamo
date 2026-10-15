@@ -15,7 +15,9 @@ metadata:
 
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: CC-BY-4.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 Unified skill for adding, updating, moving, and removing content on the Dynamo Fern documentation
@@ -39,8 +41,11 @@ Every page under `docs/` (and the READMEs under `examples/` and `recipes/`) foll
 writing content. The `Docs Lint` job (`docs/fern/scripts/docs_lint.py`) enforces a **must-fix** subset on every
 PR — get these right or the checks fail:
 
-- **SPDX header** on every file, copyright range `2025-2026`. Fern pages put the two `#` lines
-  *inside* the `---` frontmatter; plain READMEs use an HTML-comment block.
+- **SPDX header** on every file. Follow the root `AGENTS.md` HEYI policy and
+  [heyi-copyright](../heyi-copyright/SKILL.md): preserve upstream notices for derived
+  files and add HEYI modification attribution; new original files belong to HEYI.
+  Fern pages put all header comment lines *inside* the `---` frontmatter; plain
+  READMEs use an HTML-comment block.
 - **Frontmatter with at least one metadata key** (`title`/`subtitle`/`sidebar-title`) and **no body
   `# H1`**. Fern renders the page H1 from the nav `page:` value, so a body `# H1` produces a
   duplicate title — and a bare `#` SPDX line left in the body also renders as an H1. Start the body
@@ -121,7 +126,7 @@ Pick your operation:
 
 ```markdown
 ---
-# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 title: <Page Title>
 subtitle: <One-line description of the page>

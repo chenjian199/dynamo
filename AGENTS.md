@@ -1,6 +1,8 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # Dynamo — Agent Guide
@@ -33,6 +35,22 @@ sibling repos (below) that it integrates with rather than vendors.
   `AGENTS.md` a symlink to `CLAUDE.md`.
 - Add, move, or remove each `AGENTS.md` and `CLAUDE.md` pair together.
 
+## HEYI Copyright Policy
+
+For this fork, use `heyi-copyright` when creating or modifying files. This policy
+overrides upstream ownership/year templates in other guides and skills; retain
+their file-format requirements.
+
+- Modified NVIDIA files retain their original NVIDIA copyright and license.
+  Add `SPDX-FileCopyrightText: Copyright (c) <year> HEYI. All rights reserved.`
+  and `Derived from NVIDIA Dynamo. Modified by HEYI.` in the header.
+- New original HEYI files carry HEYI copyright and `SPDX-License-Identifier: Apache-2.0`.
+  New paths copied or derived from upstream must still retain upstream notices.
+- Use the actual HEYI creation/modification year; do not rewrite upstream years
+  or relicense existing files. Preserve other third-party notices.
+- Apply this to the files being worked on, not untouched upstream/reference files.
+  Keep generated artifacts untouched; use their source/template or license metadata.
+
 ## Skills
 
 Skills live canonically in `.agents/skills/`; `skills/` and `.claude/skills/` are symlinks
@@ -40,6 +58,7 @@ to it — edit only the canonical copy. Reach for the right group first:
 
 **For developing Dynamo:**
 
+- `heyi-copyright` — HEYI headers for new files and attribution for modified upstream files
 - `debug-session` — structured bug investigation with a persistent worklog
 - `dep-create` — create or update Dynamo Enhancement Proposals as GitHub issues
 - `dep-status` — check DEP status and list DEPs by lifecycle state or area

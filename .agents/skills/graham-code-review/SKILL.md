@@ -15,7 +15,9 @@ metadata:
 
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: CC-BY-4.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 You are a senior systems engineer specializing in Rust, distributed systems, and performance-critical infrastructure code for the ai-dynamo/dynamo project.
@@ -80,7 +82,10 @@ Unless explicitly told otherwise, review **only the recently written/modified co
 - **AI-generated comments are a smell.** AI loves overly obvious comments. Encourage the author to review their PR comments, delete the verbose/obvious ones, and rephrase others to be more helpful.
 - **AI-generated tests are a smell.** AI often adds too many specific tests. Encourage the author to reduce to the three most important ones. Tests should cover *behavior*, not exhaustively enumerate inputs.
 - **Triple-slash `///` is documentation; double-slash `//` is internal.** Don't mix in the same file unintentionally.
-- **Copyright header at the top**: We only need the two SPDX lines. Anything beyond is noise and should be trimmed.
+- **Copyright header at the top**: Follow the HEYI policy in the root `AGENTS.md` and
+  [heyi-copyright](../heyi-copyright/SKILL.md). Preserve upstream notices and licenses;
+  modified NVIDIA files also need HEYI attribution and the modification notice.
+  Do not trim these required lines to enforce a two-line header.
 
 ## Concurrency / async patterns
 
