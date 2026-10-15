@@ -1,0 +1,655 @@
+{
+  "passed": true,
+  "date_utc": "2026-10-15T07:44:13Z",
+  "source_commit": "8bb9bd25ca889e66da119457902655c802c915f9",
+  "source_sha256": {
+    "components/src/dynamo/vllm/instrumented_scheduler.py": "84a60384683f65261233755f6d5d7d731925ab5e160a3d3ee372895ee4867c3e",
+    "adapt/metax/metax-kv-serve.sh": "ec1a575ef3bcadd4c3b09df5722d057cfe2d40d236b2d0a828bf5ec71f00b358",
+    "adapt/metax/metax-kv-smoke.py": "a966cd6b13e4afdc89a2b2f9587317ca28e94da41967189a59fe6318057b6699"
+  },
+  "config": {
+    "url": "http://127.0.0.1:8001",
+    "worker_urls": [
+      "http://127.0.0.1:8082",
+      "http://127.0.0.1:8083"
+    ],
+    "event_endpoints": [
+      "tcp://127.0.0.1:20082",
+      "tcp://127.0.0.1:20083"
+    ],
+    "namespace": "metax-kv",
+    "discovery_dir": "/tmp/dynamo-metax-kv",
+    "model": "Qwen3-0.6B",
+    "block_size": 64,
+    "seed": 20261015,
+    "output": "/workspace/dynamo/adapt/metax/metax-kv-results.json"
+  },
+  "packages": {
+    "ai-dynamo": "1.5.1",
+    "ai-dynamo-runtime": "1.5.1",
+    "vllm": "0.26.0",
+    "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0",
+    "torch": "2.10.0+metax3.8.2.2"
+  },
+  "ready": {
+    "model": "Qwen3-0.6B",
+    "ready": true,
+    "namespaces": {
+      "metax-kv": {
+        "ready": true,
+        "worker_types": {
+          "aggregated": {
+            "workers": 2,
+            "needs": []
+          }
+        },
+        "present": [
+          "aggregated"
+        ],
+        "missing_worker_types": []
+      }
+    }
+  },
+  "workers": [
+    {
+      "id": 5739256696762899659,
+      "url": "http://127.0.0.1:8082",
+      "blocks": 146
+    },
+    {
+      "id": 18352708973533137395,
+      "url": "http://127.0.0.1:8083",
+      "blocks": 146
+    }
+  ],
+  "seeds": [
+    {
+      "worker": {
+        "prefill_worker_id": 5739256696762899659,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 5739256696762899659,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050254857,
+        "prefill_wait_time_ms": 3.246634,
+        "prefill_time_ms": 54.496818000000005,
+        "ttft_ms": 57.743452,
+        "total_time_ms": 58.046925,
+        "kv_hit_rate": 0.0,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 129,
+        "completion_tokens": 1,
+        "total_tokens": 130,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 5739256696762899659,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 5739256696762899659,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050254924,
+        "prefill_wait_time_ms": 1.934594,
+        "prefill_time_ms": 49.915815,
+        "ttft_ms": 51.850409,
+        "total_time_ms": 52.155931,
+        "kv_hit_rate": 0.25,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 193,
+        "completion_tokens": 1,
+        "total_tokens": 194,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 64
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 18352708973533137395,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 18352708973533137395,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050254985,
+        "prefill_wait_time_ms": 2.588139,
+        "prefill_time_ms": 62.71531900000001,
+        "ttft_ms": 65.30345799999999,
+        "total_time_ms": 65.532519,
+        "kv_hit_rate": 0.0,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 193,
+        "completion_tokens": 1,
+        "total_tokens": 194,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "branches": [
+    {
+      "overlap": {
+        "block_size": 64,
+        "num_blocks": 4,
+        "workers": [
+          {
+            "worker_id": 5739256696762899659,
+            "dp_rank": 0,
+            "device_blocks": 3,
+            "host_pinned_blocks": 3,
+            "disk_blocks": 3,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 3.0
+          },
+          {
+            "worker_id": 18352708973533137395,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "worker": {
+          "prefill_worker_id": 5739256696762899659,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 5739256696762899659,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1792050255062,
+          "prefill_wait_time_ms": 4.08647,
+          "prefill_time_ms": 54.979302000000004,
+          "ttft_ms": 59.065772,
+          "total_time_ms": 59.386704,
+          "kv_hit_rate": 0.6,
+          "router_queue_depth": 0
+        },
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 192
+          }
+        }
+      }
+    },
+    {
+      "overlap": {
+        "block_size": 64,
+        "num_blocks": 4,
+        "workers": [
+          {
+            "worker_id": 5739256696762899659,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          },
+          {
+            "worker_id": 18352708973533137395,
+            "dp_rank": 0,
+            "device_blocks": 3,
+            "host_pinned_blocks": 3,
+            "disk_blocks": 3,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 3.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "worker": {
+          "prefill_worker_id": 18352708973533137395,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 18352708973533137395,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1792050255131,
+          "prefill_wait_time_ms": 1.797763,
+          "prefill_time_ms": 56.998947,
+          "ttft_ms": 58.796710000000004,
+          "total_time_ms": 59.037982,
+          "kv_hit_rate": 0.6,
+          "router_queue_depth": 0
+        },
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 192
+          }
+        }
+      }
+    }
+  ],
+  "repeats": [
+    {
+      "worker": {
+        "prefill_worker_id": 5739256696762899659,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 5739256696762899659,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050255201,
+        "prefill_wait_time_ms": 1.733883,
+        "prefill_time_ms": 48.186082,
+        "ttft_ms": 49.919965,
+        "total_time_ms": 50.123356,
+        "kv_hit_rate": 0.8,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 256
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 18352708973533137395,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 18352708973533137395,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050255263,
+        "prefill_wait_time_ms": 2.5854290000000004,
+        "prefill_time_ms": 52.200361,
+        "ttft_ms": 54.78579,
+        "total_time_ms": 55.292164,
+        "kv_hit_rate": 0.8,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 256
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 5739256696762899659,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 5739256696762899659,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050255331,
+        "prefill_wait_time_ms": 2.375597,
+        "prefill_time_ms": 49.388381,
+        "ttft_ms": 51.763978,
+        "total_time_ms": 52.220281,
+        "kv_hit_rate": 0.8,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 256
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 18352708973533137395,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 18352708973533137395,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050255395,
+        "prefill_wait_time_ms": 2.262496,
+        "prefill_time_ms": 49.804955,
+        "ttft_ms": 52.067451,
+        "total_time_ms": 52.504563999999995,
+        "kv_hit_rate": 0.8,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 256
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 5739256696762899659,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 5739256696762899659,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050255458,
+        "prefill_wait_time_ms": 1.721182,
+        "prefill_time_ms": 49.490491999999996,
+        "ttft_ms": 51.211674,
+        "total_time_ms": 51.488666,
+        "kv_hit_rate": 0.8,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 256
+        }
+      }
+    },
+    {
+      "worker": {
+        "prefill_worker_id": 18352708973533137395,
+        "prefill_dp_rank": 0,
+        "decode_worker_id": 18352708973533137395,
+        "decode_dp_rank": 0
+      },
+      "timing": {
+        "request_received_ms": 1792050255521,
+        "prefill_wait_time_ms": 2.397868,
+        "prefill_time_ms": 49.428472,
+        "ttft_ms": 51.82634,
+        "total_time_ms": 52.334823,
+        "kv_hit_rate": 0.8,
+        "router_queue_depth": 0
+      },
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 256
+        }
+      }
+    }
+  ],
+  "cold_overlap": {
+    "block_size": 64,
+    "num_blocks": 4,
+    "workers": [
+      {
+        "worker_id": 5739256696762899659,
+        "dp_rank": 0,
+        "device_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 0,
+        "host_pinned_extension_blocks": 0,
+        "disk_extension_blocks": 0,
+        "shared_beyond_device_blocks": null,
+        "router_credit_blocks": 0.0
+      },
+      {
+        "worker_id": 18352708973533137395,
+        "dp_rank": 0,
+        "device_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 0,
+        "host_pinned_extension_blocks": 0,
+        "disk_extension_blocks": 0,
+        "shared_beyond_device_blocks": null,
+        "router_credit_blocks": 0.0
+      }
+    ],
+    "shared_cache": {
+      "enabled": false,
+      "total_hit_blocks": 0,
+      "ranges": [],
+      "error": null
+    }
+  },
+  "cold_response": {
+    "worker": {
+      "prefill_worker_id": 18352708973533137395,
+      "prefill_dp_rank": 0,
+      "decode_worker_id": 18352708973533137395,
+      "decode_dp_rank": 0
+    },
+    "timing": {
+      "request_received_ms": 1792050255586,
+      "prefill_wait_time_ms": 2.262717,
+      "prefill_time_ms": 59.613995,
+      "ttft_ms": 61.876712,
+      "total_time_ms": 62.348506,
+      "kv_hit_rate": 0.0,
+      "router_queue_depth": 0
+    },
+    "usage": {
+      "prompt_tokens": 257,
+      "completion_tokens": 1,
+      "total_tokens": 258,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      }
+    }
+  },
+  "eviction": {
+    "pressure_requests": 11,
+    "overlap_after": {
+      "block_size": 64,
+      "num_blocks": 4,
+      "workers": [
+        {
+          "worker_id": 5739256696762899659,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        },
+        {
+          "worker_id": 18352708973533137395,
+          "dp_rank": 0,
+          "device_blocks": 2,
+          "host_pinned_blocks": 2,
+          "disk_blocks": 2,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 2.0
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    }
+  },
+  "clear": [
+    {
+      "status": "success",
+      "message": "KV cache cleared"
+    },
+    {
+      "status": "success",
+      "message": "KV cache cleared"
+    }
+  ],
+  "after_clear_overlap": {
+    "block_size": 64,
+    "num_blocks": 4,
+    "workers": [
+      {
+        "worker_id": 5739256696762899659,
+        "dp_rank": 0,
+        "device_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 0,
+        "host_pinned_extension_blocks": 0,
+        "disk_extension_blocks": 0,
+        "shared_beyond_device_blocks": null,
+        "router_credit_blocks": 0.0
+      },
+      {
+        "worker_id": 18352708973533137395,
+        "dp_rank": 0,
+        "device_blocks": 0,
+        "host_pinned_blocks": 0,
+        "disk_blocks": 0,
+        "host_pinned_extension_blocks": 0,
+        "disk_extension_blocks": 0,
+        "shared_beyond_device_blocks": null,
+        "router_credit_blocks": 0.0
+      }
+    ],
+    "shared_cache": {
+      "enabled": false,
+      "total_hit_blocks": 0,
+      "ranges": [],
+      "error": null
+    }
+  },
+  "after_clear_response": {
+    "worker": {
+      "prefill_worker_id": 18352708973533137395,
+      "prefill_dp_rank": 0,
+      "decode_worker_id": 18352708973533137395,
+      "decode_dp_rank": 0
+    },
+    "timing": {
+      "request_received_ms": 1792050256365,
+      "prefill_wait_time_ms": 2.600609,
+      "prefill_time_ms": 54.292846999999995,
+      "ttft_ms": 56.893456,
+      "total_time_ms": 57.33256,
+      "kv_hit_rate": 0.0,
+      "router_queue_depth": 0
+    },
+    "usage": {
+      "prompt_tokens": 257,
+      "completion_tokens": 1,
+      "total_tokens": 258,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      }
+    }
+  },
+  "after_clear_rewarm": {
+    "worker": {
+      "prefill_worker_id": 18352708973533137395,
+      "prefill_dp_rank": 0,
+      "decode_worker_id": 18352708973533137395,
+      "decode_dp_rank": 0
+    },
+    "timing": {
+      "request_received_ms": 1792050256434,
+      "prefill_wait_time_ms": 2.530048,
+      "prefill_time_ms": 52.261552,
+      "ttft_ms": 54.7916,
+      "total_time_ms": 55.196183000000005,
+      "kv_hit_rate": 0.8,
+      "router_queue_depth": 0
+    },
+    "usage": {
+      "prompt_tokens": 257,
+      "completion_tokens": 1,
+      "total_tokens": 258,
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 256
+      }
+    }
+  },
+  "events": {
+    "tcp://127.0.0.1:20082": {
+      "counts": {
+        "AllBlocksCleared": 2,
+        "BlockStored": 14,
+        "BlockRemoved": 37
+      },
+      "dp_ranks": [
+        0
+      ],
+      "block_sizes": [
+        64
+      ],
+      "stored_blocks": 181,
+      "removed_blocks": 37,
+      "stores_with_parent": 2
+    },
+    "tcp://127.0.0.1:20083": {
+      "counts": {
+        "AllBlocksCleared": 2,
+        "BlockStored": 4
+      },
+      "dp_ranks": [
+        0
+      ],
+      "block_sizes": [
+        64
+      ],
+      "stored_blocks": 12,
+      "removed_blocks": 0,
+      "stores_with_parent": 1
+    }
+  }
+}

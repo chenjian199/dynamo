@@ -29,7 +29,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | 功能 | CUDA 基线 | Ascend | MetaX | 核查重点 | 模块 |
 | --- | --- | --- | --- | --- | --- |
 | 引擎基础推理 | 源码已有 | 生态入口已找到 | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
-| KV-aware 路由 | 源码已有 | 待调查 | 待调查 | 事件、哈希、block size、容量、DP rank | M03 |
+| KV-aware 路由 | 源码已有 | 待调查 | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
 | P/D 分离 | 源码已有 | 生态入口已找到，协议待核查 | 待调查 | connector 协议、KV 布局、完成与取消 | M05 |
 | Dynamo KVBM 主机缓存 | 源码已有 | 待调查 | 待调查 | 注册内存、异步复制、引擎布局与事件桥接 | M04/M06 |
 | Dynamo KVBM SSD/远端缓存 | 源码已有 | 待调查 | 待调查 | 回读、一致性、中转与直接路径 | M05/M06 |

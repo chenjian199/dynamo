@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """
 InstrumentedScheduler -- vLLM AsyncScheduler subclass that emits
@@ -99,6 +101,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import msgspec.structs
 import zmq
+from vllm.distributed.kv_events import KVEventBatch
 from vllm.sampling_params import SamplingParams
 from vllm.utils.hashing import get_hash_fn_by_name
 from vllm.v1.core.kv_cache_utils import get_request_block_hasher, init_none_hash
@@ -1800,6 +1803,28 @@ class InstrumentedScheduler(AsyncScheduler):
     # ------------------------------------------------------------------
     # Overrides
     # ------------------------------------------------------------------
+
+    def reset_prefix_cache(
+        self, reset_running_requests: bool = False, reset_connector: bool = False
+    ) -> bool:
+        reset_successful = super().reset_prefix_cache(
+            reset_running_requests=reset_running_requests,
+            reset_connector=reset_connector,
+        )
+        # vLLM normally publishes cache events in update_from_output. An idle
+        # engine may not run another forward pass after a reset, leaving the
+        # router's index stale indefinitely. Drain the actual engine events
+        # here, on the same scheduler thread, without fabricating a clear event.
+        # Drain even on False: the device cache may have reset successfully
+        # while the connector reset failed.
+        events = self.kv_cache_manager.take_events()
+        if self.connector is not None:
+            connector_events = self.connector.take_events()
+            if connector_events:
+                events = list(events or []) + list(connector_events)
+        if events:
+            self.kv_event_publisher.publish(KVEventBatch(ts=time.time(), events=events))
+        return reset_successful
 
     def has_requests(self) -> bool:
         if self._bench_active:
