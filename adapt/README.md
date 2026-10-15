@@ -1,6 +1,8 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # Dynamo 多厂商生态适配
@@ -11,6 +13,8 @@ SPDX-License-Identifier: Apache-2.0
 
 当前阶段：已形成总体设计与 M01–M10 详细设计草案。接口名称、配置和新增源码路径属于拟议设计；平台实现、版本组合与硬件支持情况按证据分别记录。工作顺序为：总体设计 → 逐模块细化 → 按细化设计实现 → 硬件验收。
 
+MetaX 首轮实现已在官方 0.26.0 镜像内完成 C500 单卡 Qwen3-0.6B 基础文本推理验收，采用挂载源码与 editable 安装的开发方式；不代表 M01–M10 全部完成。
+
 ## 阅读入口
 
 | 文件 | 用途 |
@@ -20,6 +24,7 @@ SPDX-License-Identifier: Apache-2.0
 | [modules.md](modules.md) | 模块编号、源码位置、工作包、依赖关系与后续细化模板 |
 | [modules/README.md](modules/README.md) | 十个模块详情入口、公共契约归属及逐文件修改/新增计划 |
 | [support-matrix.md](support-matrix.md) | 现状、能力状态、版本组合与验收证据记录规则 |
+| [metax-bringup.md](metax/metax-bringup.md) | MetaX 实测版本、兼容修复、容器构建/启动/验收命令及限制 |
 
 ## 架构图
 

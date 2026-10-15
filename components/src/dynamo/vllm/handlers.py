@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import asyncio
 import base64
@@ -95,6 +97,7 @@ from .capacity import publish_vllm_token_budget
 from .constants import DisaggregationMode, EmbeddingTransferMode
 from .dp_topology import get_dp_range_for_worker
 from .engine_monitor import VllmEngineMonitor
+from .errors import VLLM_CLIENT_ERRORS, vllm_client_error_to_http_error
 from .lora_state import LoRAState
 from .multimodal_utils.custom_encoder import (
     AsyncVisionEncoder,
@@ -1094,14 +1097,10 @@ async def _translate_vllm_client_errors(
     generator: AsyncIterator[ResponseT],
 ) -> AsyncIterator[ResponseT]:
     """Keep request-side vLLM errors client-visible on worker endpoints."""
-    from vllm.exceptions import VLLMClientError
-
-    from .errors import vllm_client_error_to_http_error
-
     try:
         async for chunk in generator:
             yield chunk
-    except VLLMClientError as exc:
+    except VLLM_CLIENT_ERRORS as exc:
         raise vllm_client_error_to_http_error(exc) from exc
 
 

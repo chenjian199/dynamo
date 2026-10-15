@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Worker initialization factory for vLLM workers."""
 
@@ -48,7 +50,6 @@ from .health_check import (
     VllmPrefillHealthCheckPayload,
 )
 from .instrumented_scheduler import ENV_FPM_BENCHMARK_OUTPUT_PATH, ENV_FPM_WORKER_ID
-from .multimodal_handlers import EncodeWorkerHandler
 from .pooling_handlers import ClassifyWorkerHandler
 from .publisher import StatLoggerFactory
 from .realtime import RealtimeHandler, RealtimeTranscriptionHandler
@@ -813,6 +814,11 @@ class WorkerFactory:
         shutdown_endpoints: list,  # mutated in place
     ) -> None:
         """Initialize standalone multimodal encode worker."""
+        # Optional encoder transport dependencies (NIXL/CuPy) must not be
+        # initialized by text-only workers. Import here and let encoder startup
+        # report dependency errors when this capability is actually selected.
+        from .multimodal_handlers import EncodeWorkerHandler
+
         generate_endpoint = runtime.endpoint(
             f"{config.namespace}.{config.component}.{config.endpoint}"
         )

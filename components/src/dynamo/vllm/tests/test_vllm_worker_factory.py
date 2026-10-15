@@ -1,11 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for worker_factory.py"""
 
 import asyncio
 import json
 import logging
+import subprocess
+import sys
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -31,6 +35,38 @@ pytestmark = [
     pytest.mark.timeout(180),  # 0-GiB unit tests, floor 180s
     pytest.mark.pre_merge,
 ]
+
+
+def test_text_worker_import_does_not_load_encoder_transport():
+    # Use a fresh interpreter: other tests may already have imported encoders.
+    # Blocking the module models both absent and broken optional dependencies.
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "import sys; "
+                "sys.modules['dynamo.vllm.multimodal_handlers'] = None; "
+                "from dynamo.vllm.worker_factory import WorkerFactory"
+            ),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=90,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+@pytest.mark.asyncio
+async def test_encode_worker_reports_missing_encoder_dependency():
+    runtime = Mock()
+    with patch.dict(sys.modules, {"dynamo.vllm.multimodal_handlers": None}):
+        with pytest.raises(ModuleNotFoundError, match="multimodal_handlers"):
+            await _make_factory()._create_multimodal_encode_worker(
+                runtime, _make_config(), asyncio.Event(), []
+            )
+    runtime.endpoint.assert_not_called()
 
 
 def _make_config(**overrides) -> Mock:
@@ -1347,12 +1383,18 @@ class TestEncodeWorkerEmbeddingCacheCapacity:
             multimodal_embedding_cache_capacity_gb=capacity_gb,
         )
 
-        with patch(
-            "dynamo.vllm.worker_factory.EncodeWorkerHandler", return_value=handler
-        ) as handler_cls, patch(
-            "dynamo.vllm.worker_factory.register_model", AsyncMock()
-        ), patch(
-            "dynamo.vllm.worker_factory.register_model_taint_route"
+        handler_cls = Mock(return_value=handler)
+        with (
+            patch.dict(
+                sys.modules,
+                {
+                    "dynamo.vllm.multimodal_handlers": SimpleNamespace(
+                        EncodeWorkerHandler=handler_cls
+                    )
+                },
+            ),
+            patch("dynamo.vllm.worker_factory.register_model", AsyncMock()),
+            patch("dynamo.vllm.worker_factory.register_model_taint_route"),
         ):
             await _make_factory()._create_multimodal_encode_worker(
                 runtime, config, asyncio.Event(), []

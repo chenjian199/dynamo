@@ -1,11 +1,13 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # 平台支持情况与验收矩阵
 
-本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，尚未实施平台运行时代码，也没有本项目的目标硬件认证结果。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
+本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，并完成 [MetaX C500 单卡文本推理首轮适配与验收](metax/metax-bringup.md)。通用平台运行时框架尚未实施。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
 
 ## 状态定义
 
@@ -26,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
 
 | 功能 | CUDA 基线 | Ascend | MetaX | 核查重点 | 模块 |
 | --- | --- | --- | --- | --- | --- |
-| 引擎基础推理 | 源码已有 | 生态入口已找到 | 生态入口已找到 | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
+| 引擎基础推理 | 源码已有 | 生态入口已找到 | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
 | KV-aware 路由 | 源码已有 | 待调查 | 待调查 | 事件、哈希、block size、容量、DP rank | M03 |
 | P/D 分离 | 源码已有 | 生态入口已找到，协议待核查 | 待调查 | connector 协议、KV 布局、完成与取消 | M05 |
 | Dynamo KVBM 主机缓存 | 源码已有 | 待调查 | 待调查 | 注册内存、异步复制、引擎布局与事件桥接 | M04/M06 |
@@ -59,7 +61,7 @@ SPDX-License-Identifier: Apache-2.0
 | 功能 | 启用能力及组合、明确关闭项、显式降级路径 |
 | 验收 | 测试命令/配置、结果位置、日期、性能口径、已知限制 |
 
-当前首批认证型号和软件版本未指定；这不改变通用接口目标，但必须在真实硬件验收前确定。
+首个实测组合为 MetaX C500 + 官方 vLLM-metax 0.26.0 Ubuntu 22.04 / Python 3.12 镜像，详细版本、镜像 digest、模型 revision、源码改动及限制见 [适配记录](metax/metax-bringup.md)。其他型号与平台仍需单独确定并验收。
 
 ## 支持结论的更新规则
 
