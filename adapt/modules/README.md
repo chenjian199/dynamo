@@ -9,11 +9,11 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 这些文档基于 Dynamo `v1.5.1`（`2093662a4d4e5fd318732935213dde08dc7be818`）源码分析，面向同厂商部署。每个模块分别说明当前功能、实际调用关系、目标设计、现有文件修改、新文件建议、实施步骤和验收条件。
 
-当前进度已按 2026-10-15 的实现与验收更新。M01 第一版完成 MetaX 平台接入；M02/M03/M10 部分完成，其余工作见各模块状态。“拟新增文件”仍表示设计计划，不应视为已经存在。硬件结论限定于记录中的平台、模型和配置，详见 [M01 验收](../metax/metax-platform.md)。
+当前进度已按 2026-10-16 的实现与验收更新。M01 第一版完成 MetaX 与 Ascend 平台接入；M02/M03/M10 部分完成，其余工作见各模块状态。“拟新增文件”仍表示设计计划，不应视为已经存在。硬件结论限定于记录中的平台、模型和配置，详见 [MetaX 验收](../metax/metax-platform.md) 和 [Ascend 验收](../ascend/ascend-bringup.md)。
 
 | 模块 | 详细设计 | 主交付 | 当前进度 |
 | --- | --- | --- | --- |
-| M01 | [平台契约与能力注册](m01-platform-contract/README.md) | 平台身份、能力条件、注册与兼容规则 | 第一版完成：MetaX 身份/能力/发现；CUDA 真机待验证 |
+| M01 | [平台契约与能力注册](m01-platform-contract/README.md) | 平台身份、能力条件、注册与兼容规则 | 第一版完成：MetaX/Ascend 身份/能力/发现；CUDA 真机待验证 |
 | M02 | [构建与依赖隔离](m02-build-packaging/README.md) | features、依赖配置、镜像与版本锁定 | 部分完成：官方镜像 + editable；正式产物待实现 |
 | M03 | [引擎与 KV 事件](m03-engine-integration/README.md) | 引擎接入、生命周期、路由事件与容量 | 部分完成：基础文本 + 真实 KV 路由 |
 | M04 | [设备运行时与内存](m04-device-memory/README.md) | 分配、注册、上下文、流和事件 | 待实现 |

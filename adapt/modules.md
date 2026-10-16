@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 模块细化与实施工作清单
 
-本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX；M02/M03/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
+本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M02/M03/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
 
 ## 依赖顺序
 
@@ -17,14 +17,14 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M01 平台契约与能力注册
 
-当前状态：第一版完成：MetaX 身份/能力/发现；CUDA 真机待验证。
+当前状态：第一版完成：MetaX/Ascend 身份/能力/发现；CUDA 真机待验证。
 
 详细设计：[功能、接口、兼容策略与文件计划](modules/m01-platform-contract/README.md)。
 
 - 源码入口：[component.rs](../lib/runtime/src/component.rs)、[endpoint.rs](../lib/runtime/src/component/endpoint.rs)、[push_router.rs](../lib/runtime/src/pipeline/network/egress/push_router.rs)。
 - 工作：确定平台 ID、设备描述、能力条件、版本协商及规范化错误；替换默认 CUDA 推断；明确服务发现与 Python/Rust 绑定字段兼容策略。
-- 已交付：`DYN_PLATFORM`、延迟加载的 provider、schema 1、`configure_platform`、发现与 Python 绑定、能力条件检查；MetaX 不再标为 CUDA。
-- 剩余扩展：CUDA 真机回归、Ascend provider，以及各后续模块自己的能力探测。MetaX 需使用支持新契约的控制面。
+- 已交付：`DYN_PLATFORM`、延迟加载的 provider、schema 1、`configure_platform`、发现与 Python 绑定、能力条件检查；MetaX/Ascend 不再标为 CUDA。
+- 剩余扩展：CUDA 真机回归，以及各后续模块自己的能力探测。MetaX/Ascend 需使用支持新契约的控制面。
 - 验收：所选平台正确注册；不依赖其他厂商 SDK；不支持的必要能力在就绪前明确失败；旧 CUDA 行为兼容。
 
 ## M02 构建与依赖隔离

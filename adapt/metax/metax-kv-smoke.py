@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Validate real KV events and routing on two dedicated MetaX TP=1 workers.
+"""Validate real KV events and routing on two dedicated TP=1 workers.
 
 Run inside the development container. This clears BOTH workers' prefix caches
 and fills one cache to test eviction. Do not run against a shared service.
@@ -111,6 +111,22 @@ async def run(args, report):
             rank = batch[2] if len(batch) > 2 else None
             stats["dp_ranks"].add(rank)
             for event in batch[1]:
+                # vLLM 0.23 emits positional arrays; newer engines emit tagged
+                # maps. Rust accepts both. Observe the original wire format.
+                stats["wire_formats"].add("array" if isinstance(event, list) else "map")
+                if isinstance(event, list):
+                    kind = event[0]
+                    fields = {
+                        "BlockStored": (
+                            "block_hashes",
+                            "parent_block_hash",
+                            "token_ids",
+                            "block_size",
+                        ),
+                        "BlockRemoved": ("block_hashes",),
+                        "AllBlocksCleared": (),
+                    }[kind]
+                    event = dict(type=kind, **dict(zip(fields, event[1:])))
                 kind = event["type"]
                 stats["counts"][kind] += 1
                 if kind == "BlockStored":
@@ -136,6 +152,7 @@ async def run(args, report):
             sockets.append(socket)
             event_stats[address] = {
                 "counts": collections.Counter(),
+                "wire_formats": set(),
                 "dp_ranks": set(),
                 "block_sizes": set(),
                 "stored_blocks": 0,
@@ -331,6 +348,7 @@ def main():
         nargs=2,
         default=["tcp://127.0.0.1:20082", "tcp://127.0.0.1:20083"],
     )
+    parser.add_argument("--platform", choices=("metax", "ascend"), default="metax")
     parser.add_argument("--namespace", default="metax-kv")
     parser.add_argument("--discovery-dir", default="/tmp/dynamo-metax-kv")
     parser.add_argument("--model", default="Qwen3-0.6B")
@@ -349,7 +367,7 @@ def main():
             name: hashlib.sha256((root / name).read_bytes()).hexdigest()
             for name in (
                 "components/src/dynamo/vllm/instrumented_scheduler.py",
-                "adapt/metax/metax-kv-serve.sh",
+                f"adapt/{args.platform}/{args.platform}-kv-serve.sh",
                 "adapt/metax/metax-kv-smoke.py",
             )
         },
@@ -363,7 +381,7 @@ def main():
                 "ai-dynamo",
                 "ai-dynamo-runtime",
                 "vllm",
-                "vllm-metax",
+                f"vllm-{args.platform}",
                 "torch",
             )
         },

@@ -7,13 +7,15 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M03 引擎与 KV 事件接入
 
-状态：部分完成（MetaX 当前阶段）。依赖 M01/M02；PD 协议由 M05 负责，设备内存由 M04 负责。
+状态：部分完成（MetaX 与 Ascend 当前阶段）。依赖 M01/M02；PD 协议由 M05 负责，设备内存由 M04 负责。
 
-## 实施进度（2026-10-15）
+## 实施进度（2026-10-16）
 
 C500 上 Qwen3-0.6B 聚合文本推理与单机双 Worker 的真实 KV 路由已验收；包含事件、前缀选择、淘汰和清空。已接入 M01 预检查及平台注册；TP/DP 扩展、PD、多模态及其他高级组合尚未验证。
 
 证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+
+Ascend 910B3 / vLLM Ascend 0.23.0 已完成 ARM64 editable 构建、M01、基础推理与真实 KV 路由验证；共享改动已在 MetaX 0.26.0 回归。环境、命令、证据及限制见 [华为验收](../../ascend/ascend-bringup.md)。
 
 ## 当前功能与实际入口
 
@@ -79,4 +81,4 @@ KV 事件有 `ZmqSource` 和 `PushSource` 两种契约；`ComponentSnapshot` 承
 
 验收覆盖：流式结束、并发、取消、加载失败、模型注册一致性；prefix cache 命中/移除事件；DP rank 和容量；默认/自定义 scheduler；SDK/引擎版本不匹配的失败位置；停止服务后无生产线程持有已释放 publisher。
 
-CUDA 有现有集成基础但需回归；Ascend/MetaX 已有生态调查入口，当前 Dynamo 组合、事件来源和高级功能仍待验证。具体版本锁定归 M02，不在本模块假定任意厂商插件兼容 vLLM 0.28.0。
+CUDA 有现有集成基础但需真机回归；Ascend/MetaX 的指定组合已完成基础文本及真实 KV 事件验证，高级功能仍待验证。具体版本锁定归 M02，不在本模块假定任意厂商插件兼容 vLLM 0.28.0。

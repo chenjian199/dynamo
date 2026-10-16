@@ -54,14 +54,23 @@ async def run(args, report):
         workers = []
         for instance in instances:
             platform = instance.platform
-            assert instance.device_type is None, "MetaX must not advertise legacy CUDA"
             assert (
-                platform["schema_version"] == 1 and platform["platform_id"] == "metax"
+                instance.device_type is None
+            ), "Non-CUDA platforms must not advertise legacy CUDA"
+            assert (
+                platform["schema_version"] == 1
+                and platform["platform_id"] == args.platform
             )
             assert platform["device_kind"] == "accelerator"
-            assert platform["software"]["vllm"] == "0.26.0"
             assert (
-                platform["software"]["driver"] and platform["software"]["maca_runtime"]
+                platform["software"]["vllm"].split("+")[0]
+                == {"metax": "0.26.0", "ascend": "0.23.0"}[args.platform]
+            )
+            assert (
+                platform["software"]["driver"]
+                and platform["software"][
+                    "maca_runtime" if args.platform == "metax" else "cann"
+                ]
             )
             assert len(platform["devices"]) == 1
             device = platform["devices"][0]
@@ -85,16 +94,22 @@ async def run(args, report):
     finally:
         runtime.shutdown()
 
-    with tempfile.TemporaryDirectory(prefix="metax-m01-negative-") as directory:
+    with tempfile.TemporaryDirectory(
+        prefix=f"{args.platform}-m01-negative-"
+    ) as directory:
         environment = dict(
             os.environ,
-            DYN_PLATFORM="metax",
+            DYN_PLATFORM=args.platform,
             DYN_REQUIRED_CAPABILITIES="pd.transfer",
-            DYN_NAMESPACE="metax-m01-reject",
+            DYN_NAMESPACE=f"{args.platform}-m01-reject",
             DYN_FILE_KV=directory,
-            CUDA_VISIBLE_DEVICES=args.probe_gpu,
             HF_HUB_OFFLINE="1",
         )
+        environment[
+            "CUDA_VISIBLE_DEVICES"
+            if args.platform == "metax"
+            else "ASCEND_RT_VISIBLE_DEVICES"
+        ] = args.probe_gpu
         command = [
             sys.executable,
             "-m",
@@ -142,6 +157,7 @@ async def run(args, report):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--platform", choices=("metax", "ascend"), default="metax")
     parser.add_argument("--namespace", default="metax-kv")
     parser.add_argument("--discovery-dir", default="/tmp/dynamo-metax-kv")
     parser.add_argument("--model-path", required=True)
@@ -163,8 +179,8 @@ def main():
         "lib/bindings/python/rust/backend.rs",
         "lib/backend-common/src/worker.rs",
         "components/src/dynamo/vllm/main.py",
-        "adapt/metax/metax-serve.sh",
-        "adapt/metax/metax-kv-serve.sh",
+        f"adapt/{args.platform}/{args.platform}-serve.sh",
+        f"adapt/{args.platform}/{args.platform}-kv-serve.sh",
         "adapt/metax/metax-platform-smoke.py",
     ]
     sources.extend(

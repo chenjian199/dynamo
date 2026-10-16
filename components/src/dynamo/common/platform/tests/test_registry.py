@@ -23,7 +23,7 @@ def test_cpu_does_not_import_vendor_modules():
 import sys
 class BlockVendors:
     def find_spec(self, fullname, *args):
-        if fullname.split('.')[0] in ('torch', 'vllm', 'pymxsml', 'pynvml', 'vllm_metax'):
+        if fullname.split('.')[0] in ('torch', 'vllm', 'pymxsml', 'pynvml', 'vllm_metax', 'torch_npu', 'acl'):
             raise AssertionError(fullname)
 sys.meta_path.insert(0, BlockVendors())
 from dynamo.common.platform import registry

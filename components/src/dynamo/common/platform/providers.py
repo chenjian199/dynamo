@@ -86,11 +86,32 @@ def _accelerator(platform_id, context):
                 "stack_mismatch", platform_id, "requires NVIDIA CUDA PyTorch"
             )
         software["cuda_build"] = torch.version.cuda
+    return dict(
+        schema_version=1,
+        platform_id=platform_id,
+        device_kind="accelerator",
+        provider_version="1",
+        software=software,
+        devices=devices,
+        capabilities=build_capabilities(platform_id, context, software),
+    )
+
+
+def metax(context):
+    return _accelerator("metax", context)
+
+
+def cuda(context):
+    return _accelerator("cuda", context)
+
+
+def build_capabilities(platform_id, context, software):
+    """Describe the shared aggregate-text scope without inferring data-plane support."""
     caps = {
         "device.compute": capability(
             "available",
             platform_id,
-            "device UUID, model and memory queried through selected torch backend",
+            "device identity, model and memory queried through selected provider",
         ),
         **{
             name: capability("unknown", platform_id, "not probed or certified by M01")
@@ -105,14 +126,15 @@ def _accelerator(platform_id, context):
     }
     if context.get("engine") == "vllm":
         software["vllm"] = importlib.metadata.version("vllm")
-        if platform_id == "metax" and (
-            software["vllm"].split("+")[0] != "0.26.0"
-            or software["vllm-metax"].split("+")[0] != "0.26.0"
+        expected = {"metax": "0.26.0", "ascend": "0.23.0"}.get(platform_id)
+        if expected is not None and (
+            software["vllm"].split("+")[0] != expected
+            or software[f"vllm-{platform_id}"].split("+")[0] != expected
         ):
             raise PlatformError(
                 "unsupported_stack",
                 platform_id,
-                "validated vLLM/metax combination is 0.26.0",
+                f"validated vLLM/{platform_id} combination is {expected}",
             )
         supported = (
             context.get("task") == "text"
@@ -137,20 +159,4 @@ def _accelerator(platform_id, context):
             else "requires supported text configuration and explicit KV events",
             context,
         )
-    return dict(
-        schema_version=1,
-        platform_id=platform_id,
-        device_kind="accelerator",
-        provider_version="1",
-        software=software,
-        devices=devices,
-        capabilities=caps,
-    )
-
-
-def metax(context):
-    return _accelerator("metax", context)
-
-
-def cuda(context):
-    return _accelerator("cuda", context)
+    return caps

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """
 Unit tests to verify vLLM KV events API compatibility.
@@ -26,7 +28,9 @@ to preserve and republish a new upstream field.
 """
 
 import importlib
+import importlib.metadata
 
+import msgspec
 import pytest
 
 # Import vllm first to ensure it's properly loaded before accessing submodules.
@@ -62,6 +66,18 @@ def _has_kv_cache_spec_sliding_window(event_cls):
 
 def _has_locality(event_cls):
     return "locality" in event_cls.__struct_fields__
+
+
+def _decode_event(event):
+    """Normalize only the two wire layouts accepted by Rust's visit_map/visit_seq."""
+    decoded = msgspec.msgpack.decode(msgspec.msgpack.encode(event))
+    if event.__struct_config__.array_like:
+        assert isinstance(decoded, list)
+        assert decoded[0] == type(event).__name__
+        assert len(decoded) == len(event.__struct_fields__) + 1
+        return dict(type=decoded[0], **dict(zip(event.__struct_fields__, decoded[1:])))
+    assert isinstance(decoded, dict), f"Expected tagged map, got {type(decoded)}"
+    return decoded
 
 
 class TestVllmKvEventsApi:
@@ -162,19 +178,20 @@ class TestVllmKvEventsApi:
             f"  - Update this test's expected_fields."
         )
 
-    def test_kv_cache_event_uses_tagged_map(self):
-        """Verify KVCacheEvent uses tagged-map serialization."""
+    def test_kv_cache_event_uses_expected_wire_format(self):
+        """Keep the certified 0.23 array layout and newer tagged-map layout explicit."""
         struct_config = getattr(KVCacheEvent, "__struct_config__", None)
         assert struct_config is not None, "KVCacheEvent is not a msgspec Struct"
-        assert struct_config.array_like is False, (
-            "KVCacheEvent changed away from tagged-map serialization. "
+        legacy_array = importlib.metadata.version("vllm").split("+")[0] == "0.23.0"
+        assert struct_config.array_like is legacy_array, (
+            "KVCacheEvent wire layout changed. "
             "Check lib/kv-router/src/zmq_wire/deserialize.rs compatibility."
         )
 
     def test_kv_cache_event_uses_tag(self):
         """Verify KVCacheEvent uses tag=True for variant identification.
 
-        The tag is encoded in the msgpack map's 'type' field.
+        The tag is encoded in the map's 'type' field or the array's first slot.
         """
         struct_config = getattr(KVCacheEvent, "__struct_config__", None)
         assert struct_config is not None, "KVCacheEvent is not a msgspec Struct"
@@ -186,13 +203,11 @@ class TestVllmKvEventsApi:
         )
 
     def test_block_stored_serialization_format(self):
-        """Verify BlockStored serializes to expected msgpack map format.
+        """Verify BlockStored serializes to the supported msgpack wire format.
 
         This is the ultimate test - if the serialized format changes,
         Rust deserialization will fail.
         """
-        import msgspec
-
         event_kwargs = {
             "block_hashes": [123, 456],
             "parent_block_hash": 789,
@@ -213,10 +228,7 @@ class TestVllmKvEventsApi:
             event_kwargs["locality"] = "LOCAL"
         event = BlockStored(**event_kwargs)
 
-        encoded = msgspec.msgpack.encode(event)
-        decoded = msgspec.msgpack.decode(encoded)
-
-        assert isinstance(decoded, dict), f"Expected dict, got {type(decoded)}"
+        decoded = _decode_event(event)
         assert decoded["type"] == "BlockStored"
         assert decoded["block_hashes"] == [123, 456]
         assert decoded["parent_block_hash"] == 789
@@ -237,8 +249,6 @@ class TestVllmKvEventsApi:
 
     def test_block_stored_tuple_extra_keys_serialization_format(self):
         """Verify multimodal tuple extra_keys keep the vLLM 0.19 wire shape."""
-        import msgspec
-
         mm_hash = "0123456789abcdef00112233445566778899aabbccddeefffedcba9876543210"
         event_kwargs = {
             "block_hashes": [123],
@@ -258,7 +268,7 @@ class TestVllmKvEventsApi:
             event_kwargs["kv_cache_spec_sliding_window"] = 128
         event = BlockStored(**event_kwargs)
 
-        decoded = msgspec.msgpack.decode(msgspec.msgpack.encode(event))
+        decoded = _decode_event(event)
 
         assert decoded["type"] == "BlockStored"
         assert decoded["extra_keys"] == [[[mm_hash, 7]]], (
@@ -273,9 +283,7 @@ class TestVllmKvEventsApi:
             assert decoded["kv_cache_spec_sliding_window"] == 128
 
     def test_block_removed_serialization_format(self):
-        """Verify BlockRemoved serializes to expected msgpack map format."""
-        import msgspec
-
+        """Verify BlockRemoved serializes to the supported msgpack wire format."""
         event_kwargs = {
             "block_hashes": [123, 456],
             "medium": "GPU",
@@ -290,7 +298,7 @@ class TestVllmKvEventsApi:
             event_kwargs["locality"] = "REMOTE"
         event = BlockRemoved(**event_kwargs)
 
-        decoded = msgspec.msgpack.decode(msgspec.msgpack.encode(event))
+        decoded = _decode_event(event)
 
         assert decoded["type"] == "BlockRemoved"
         assert decoded["block_hashes"] == [123, 456]

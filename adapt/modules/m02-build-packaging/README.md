@@ -7,13 +7,15 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M02 构建与依赖隔离
 
-状态：部分完成（MetaX 当前阶段）。依赖：M01 平台命名与注册契约；支撑所有模块的产物构建。
+状态：部分完成（MetaX 与 Ascend 当前阶段）。依赖：M01 平台命名与注册契约；支撑所有模块的产物构建。
 
-## 实施进度（2026-10-15）
+## 实施进度（2026-10-16）
 
 已复用官方 MetaX 0.26.0 镜像，提供挂载源码、独立 venv、Rust 绑定及 editable 安装脚本。M01 新 crate 及相关 Cargo workspace 锁文件已接入；正式 MetaX 镜像模板、完整依赖隔离和可发布产物仍待实现。
 
 证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+
+Ascend 910B3 / vLLM Ascend 0.23.0 已完成 ARM64 editable 构建、M01、基础推理与真实 KV 路由验证；共享改动已在 MetaX 0.26.0 回归。环境、命令、证据及限制见 [华为验收](../../ascend/ascend-bringup.md)。
 
 ## 当前功能与约束
 
@@ -69,4 +71,4 @@ Rust 契约 crate 不依赖 CUDA/NIXL。厂商实现 crate 封装 FFI，选定 f
 
 验收：CPU 控制面不加载厂商 SDK；选择某平台不拉入其他平台；pip 依赖一致性通过；Python 扩展和 KVBM 扩展分别构建；各镜像记录 digest、主机架构和工具链；未支持的 engine/platform 组合明确拒绝。
 
-Ascend/MetaX 的版本、SDK 获取/分发条件以及首批主机架构仍待验证。构建成功不能将支持矩阵标为硬件已验证。
+当前已验证 MetaX x86_64 和 Ascend ARM64 官方开发镜像组合；正式 SDK 获取/分发条件及发布产物仍待落实。构建成功不能将支持矩阵标为硬件已验证。

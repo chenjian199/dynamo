@@ -15,6 +15,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 MetaX 已在官方 0.26.0 镜像内完成 C500 单卡 Qwen3-0.6B 基础文本推理，以及单机双 Worker 的真实 KV 事件路由验收，采用挂载源码与 editable 安装的开发方式；现已补齐 [M01 平台身份、能力与发现契约](metax/metax-platform.md)，不代表 M01–M10 全部完成。
 
+Ascend 已在官方 v0.23.0 ARM64 镜像中完成 910B3 / Qwen3-0.6B 的基础文本、双 Worker KV 路由与 M01 验收，同时通过沐曦回归；见 [华为环境与验收](ascend/ascend-bringup.md)。CUDA 真机回归尚未执行。
+
 ## 阅读入口
 
 | 文件 | 用途 |
@@ -25,6 +27,7 @@ MetaX 已在官方 0.26.0 镜像内完成 C500 单卡 Qwen3-0.6B 基础文本推
 | [support-matrix.md](support-matrix.md) | 现状、能力状态、版本组合与验收证据记录规则 |
 | [metax-bringup.md](metax/metax-bringup.md) | MetaX 实测版本、兼容修复、容器构建/启动/验收命令及限制 |
 | [metax-platform.md](metax/metax-platform.md) | M01 实现、兼容边界、平台身份和拒绝启动的验收证据 |
+| [ascend-bringup.md](ascend/ascend-bringup.md) | 华为 0.23.0 镜像、ARM 构建、平台身份、基础推理及 KV 验收 |
 | [metax-kv-routing.md](metax/metax-kv-routing.md) | MetaX 双 Worker KV 路由、缓存失效修复及真实事件验收 |
 
 ## 架构范围

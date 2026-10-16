@@ -35,6 +35,7 @@ class PlatformRegistry:
             name: f"dynamo.common.platform.providers:{name}"
             for name in ("cpu", "cuda", "metax")
         }
+        self._providers["ascend"] = "dynamo.common.platform.ascend:ascend"
         for entry in importlib.metadata.entry_points(group="dynamo.platforms"):
             self.register(entry.name, entry.load)
 

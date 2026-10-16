@@ -7,13 +7,15 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M10 契约测试与平台认证
 
-状态：部分完成（MetaX 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
+状态：部分完成（MetaX 与 Ascend 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
 
-## 实施进度（2026-10-15）
+## 实施进度（2026-10-16）
 
 已有基础推理、真实 KV 路由和 M01 契约/真机验收脚本及 JSON 证据。尚未建立完整硬件 CI、多机/多并行配置矩阵、压力与长期稳定性认证。
 
 证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+
+Ascend 910B3 / vLLM Ascend 0.23.0 已完成 ARM64 editable 构建、M01、基础推理与真实 KV 路由验证；共享改动已在 MetaX 0.26.0 回归。环境、命令、证据及限制见 [华为验收](../../ascend/ascend-bringup.md)。
 
 ## 当前测试体系
 
