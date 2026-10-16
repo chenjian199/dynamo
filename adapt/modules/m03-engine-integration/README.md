@@ -7,11 +7,11 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M03 引擎与 KV 事件接入
 
-状态：部分完成（MetaX 与 Ascend 当前阶段）。依赖 M01/M02；PD 协议由 M05 负责，设备内存由 M04 负责。
+状态：本轮 vLLM 聚合模式适配与逐项高级能力验收完成；按用户要求暂缓 SGLang。依赖 M01/M02；PD 协议由 M05 负责，设备内存由 M04 负责。
 
 ## 实施进度（2026-10-16）
 
-C500 上 Qwen3-0.6B 聚合文本推理与单机双 Worker 的真实 KV 路由已验收；包含事件、前缀选择、淘汰和清空。已接入 M01 预检查及平台注册；TP/DP 扩展、PD、多模态及其他高级组合尚未验证。
+C500 / vLLM-metax 0.26.0、910B3 / vLLM Ascend 0.23.0 已完成基础推理和双 Worker KV 路由。本轮已实现本地 multiprocessing TP/DP、生命周期回滚、调度器兼容，并在 C500、910B3、H800 三平台验证 LoRA、W8A8、ngram/draft 推测解码、Qwen3-30B-A3B 静态 EP=4 与 Qwen3-VL-2B 聚合图文。H800 回归固定 vLLM 0.24.0。逐项配置与证据见 [M03 验收记录](../../m03/README.md)。
 
 证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
@@ -27,9 +27,11 @@ KV 事件有 `ZmqSource` 和 `PushSource` 两种契约；`ComponentSnapshot` 承
 
 ## 目标设计
 
-保留 engine 与 platform 的两级选择。第一阶段在现有 vLLM/SGLang 入口加入统一的平台 preflight、注册数据和 hook；不为每家厂商复制 main/handlers，也不要求同一提交完成全后端迁移。
+保留 engine 与 platform 的两级选择。vLLM 复用现有入口、平台 preflight 和模型注册，不为每家厂商复制 main/handlers。SGLang 后续单独接入。
 
-新增 `EnginePlatformHooks` 职责：验证 engine/software-stack 组合、配置引擎平台、安装版本限定的事件/指标 hook、返回有效能力、执行卸载。模型执行继续由厂商引擎插件承担。无法兼容的调度器扩展要停止启用相应指标能力，不覆盖厂商调度器以冒充成功。
+不实施原草案的 `EnginePlatformHooks`：通用 backend 的 `AGENTS.md` 禁止引入新 hook 生命周期。实际实现为 `dynamo.vllm.platform` 中的普通配置/注册工具，生命周期继续由 `setup_vllm_engine` 和 `WorkerFactory` 持有。厂商 SDK 留在 M01 provider，引擎执行由厂商 vLLM 插件承担。自定义 scheduler 不被覆盖；请求 KV/FPM 时，若最终 scheduler 不继承 `InstrumentedScheduler`，在启动引擎进程前明确拒绝。
+
+本轮修复了 DP 指标工厂只更新最后一个 rank 的问题：保存所有 rank 的 logger，分别初始化真实容量。硬件验收把每个 rank 的指标与引擎日志中的物理 KV token 数/block size 对比，不能只检查容量大于零。新增模型 `engine_specific.platform_engine` 元数据记录实际 dtype、量化、TP/DP、EP、LoRA、推测解码和多模态配置，无需新增 Rust 协议字段。
 
 生命周期按现有契约执行：`from_args → start → metrics/snapshot 绑定 → generate/abort → drain → cleanup`。`cleanup` 必须能处理部分初始化；PushSource 生产线程必须先停止再释放 publisher。`is_quiescent` 的现有轮询范围和预算不能在新平台路径中悄悄改变。
 
@@ -45,35 +47,19 @@ KV 事件有 `ZmqSource` 和 `PushSource` 两种契约；`ComponentSnapshot` 承
 | MoE/EP | 注册实际 DP 容量、并行配置与可用控制能力；动态扩缩容另验收 | 专家通信、算子、负载均衡和并行执行 |
 | 多模态 | 复用 M07 的媒体描述、stage 生命周期和传输完成语义 | 对应编码器/模型执行和平台算子 |
 
-## 现有文件修改清单
+## 实际文件与责任
 
-| 文件 | 具体修改 |
+| 文件 | 本轮落地 |
 | --- | --- |
-| [engine.py](../../../components/src/dynamo/common/backend/engine.py)、[worker.py](../../../components/src/dynamo/common/backend/worker.py) | 接收 M01 平台结果、校验有效能力；保留既有生命周期和请求形状 |
-| [publisher.py](../../../components/src/dynamo/common/backend/publisher.py) | 复用 ZmqSource/PushSource 与 ComponentSnapshot；必要扩展明确缺失值语义 |
-| [backend.rs](../../../lib/bindings/python/rust/backend.rs)、[Rust engine.rs](../../../lib/backend-common/src/engine.rs) | 跨语言传递 hook 结果及注册信息，和 M01 共同维护 |
-| [vllm/main.py](../../../components/src/dynamo/vllm/main.py) | 在引擎创建前调用 preflight；在注册模型时携带有效平台能力 |
-| [vllm/worker_factory.py](../../../components/src/dynamo/vllm/worker_factory.py) | 在 encode/prefill/decode 等真实分支绑定对应 hook，统一清理 |
-| [vllm/args.py](../../../components/src/dynamo/vllm/args.py) | 校验厂商参数与 scheduler_cls；不强制覆盖已有自定义调度器 |
-| [instrumented_scheduler.py](../../../components/src/dynamo/vllm/instrumented_scheduler.py) | 在可组合位置提取事件/统计 hook，保留调度语义；版本不兼容明确报错 |
-| [vllm/cache_info.py](../../../components/src/dynamo/vllm/cache_info.py) | 以实际引擎布局返回 block size/容量，不假定 CUDA 引擎结果 |
-| [sglang/main.py](../../../components/src/dynamo/sglang/main.py)、[init_llm.py](../../../components/src/dynamo/sglang/init_llm.py) | 接入 preflight 和 hook；保持 snapshot/GMS 启动顺序 |
-| [sglang/register.py](../../../components/src/dynamo/sglang/register.py)、[capacity.py](../../../components/src/dynamo/sglang/capacity.py)、[publisher.py](../../../components/src/dynamo/sglang/publisher.py) | 统一平台信息、per-rank 容量与事件来源，保留引擎特定实现 |
+| `common/platform/preflight.py`、`providers.py` | 聚合 eager、本地 TP/DP、可见设备检查、独立高级能力条件 |
+| `vllm/platform.py` | 有效 scheduler 校验与实际引擎元数据；普通函数，不引入 hooks 生命周期 |
+| `vllm/main.py` | 创建失败回滚、有效配置校验及注册 |
+| `vllm/worker_factory.py`、`handlers.py` | 资源所有权、部分启动清理、幂等清理及生产线程停止 |
+| `vllm/publisher.py` | 每个 DP rank 初始化实际容量 |
+| `vllm/tests/test_platform_integration.py` 等 | scheduler、生命周期、容量及厂商版本差异回归 |
+| `adapt/m03/` | 三平台手动硬件验收、NFS 模型选择与原始结果 |
 
-如果需要改变请求/响应字段，先核对 [协议类型](../../../lib/llm/src/protocols)、预处理、引擎转换和响应投影的现有行为，并补充端到端兼容用例；基础硬件接入优先不改变请求协议。
-
-## 拟新增文件清单
-
-| 拟新增路径 | 内容 |
-| --- | --- |
-| `components/src/dynamo/common/backend/platform_hooks.py` | 引擎平台 hook 契约与集中分派 |
-| `components/src/dynamo/vllm/platform_hooks.py` | vLLM 配置、调度器与事件兼容层；不包含厂商 SDK 实现 |
-| `components/src/dynamo/sglang/platform_hooks.py` | SGLang 配置和事件兼容层 |
-| `plugins/platforms/ascend/src/dynamo_platform_ascend/engine_hooks.py` | 已验证引擎版本的 Ascend hook |
-| `plugins/platforms/metax/src/dynamo_platform_metax/engine_hooks.py` | 已验证引擎版本的 MetaX hook |
-| `components/src/dynamo/common/backend/tests/test_platform_lifecycle.py` | 部分启动失败、取消、producer 停止、清理幂等性 |
-| `components/src/dynamo/vllm/tests/test_platform_scheduler_compat.py` | 厂商 scheduler 与指标 hook 的组合/拒绝行为 |
-| `tests/platforms/test_engine_contract.py` | 同一契约在不同平台镜像分别执行 |
+本轮没有修改通用 backend 生命周期、Rust binding、引擎调度算法或 SGLang。原草案中的 `platform_hooks.py` / 厂商 `engine_hooks.py` 文件计划撤销。PD、独立编码器传输和动态 EP 控制按各模块边界继续实施。
 
 ## 实施与验收
 
@@ -81,4 +67,4 @@ KV 事件有 `ZmqSource` 和 `PushSource` 两种契约；`ComponentSnapshot` 承
 
 验收覆盖：流式结束、并发、取消、加载失败、模型注册一致性；prefix cache 命中/移除事件；DP rank 和容量；默认/自定义 scheduler；SDK/引擎版本不匹配的失败位置；停止服务后无生产线程持有已释放 publisher。
 
-CUDA 有现有集成基础但需真机回归；Ascend/MetaX 的指定组合已完成基础文本及真实 KV 事件验证，高级功能仍待验证。具体版本锁定归 M02，不在本模块假定任意厂商插件兼容 vLLM 0.28.0。
+支持结论以逐项硬件记录为准。配置能力 `available` 表示当前请求的接入路径启用，不能替代模型就绪与测试认证；本轮维持 eager、聚合生成、本地 multiprocessing DP。Pipeline parallel、Ray/external/hybrid DP、PD、KVBM、独立编码器传输及动态 EP 扩缩容另属后续组合，不由本轮结果自动继承支持。具体版本锁定归 M02，不假定任意厂商插件兼容 vLLM 0.28.0。

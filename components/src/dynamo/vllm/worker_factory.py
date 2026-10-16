@@ -558,6 +558,7 @@ class _DecodeWorkerLifecycle:
     engine_client: Optional[AsyncLLM] = None
     vllm_config: Optional[VllmConfig] = None
     handler: Optional[BaseWorkerHandler] = None
+    cleanup_resource: Any = None
     shutdown_event: asyncio.Event | None = None
 
     def __enter__(self) -> "_DecodeWorkerLifecycle":
@@ -583,12 +584,21 @@ class _DecodeWorkerLifecycle:
         logger.debug("Cleaning up decode worker")
         if self.shutdown_event is not None:
             self.shutdown_event.set()
+        # Detach ownership first, so repeated cleanup (including after a failure)
+        # cannot shut down the same engine or publisher twice.
+        handler, self.handler = self.handler, None
+        engine, self.engine_client = self.engine_client, None
+        resource, self.cleanup_resource = self.cleanup_resource, None
         try:
-            if self.handler is not None:
-                self.handler.cleanup()
+            if handler is not None:
+                handler.cleanup()
         finally:
-            if self.engine_client is not None and self.vllm_config is not None:
-                self.engine_client.shutdown(timeout=self.vllm_config.shutdown_timeout)
+            try:
+                if engine is not None and self.vllm_config is not None:
+                    engine.shutdown(timeout=self.vllm_config.shutdown_timeout)
+            finally:
+                if resource is not None:
+                    resource.cleanup()
 
 
 class WorkerFactory:
@@ -1217,6 +1227,7 @@ class WorkerFactory:
             ) = self.setup_vllm_engine(config, factory, fpm_worker_id=fpm_worker_id)
         lifecycle.engine_client = engine_client
         lifecycle.vllm_config = vllm_config
+        lifecycle.cleanup_resource = prometheus_temp_dir
         await configure_kv_event_block_size(engine_client, vllm_config)
 
         # TODO Hack to get data, move this to registering in TBD
@@ -1250,7 +1261,6 @@ class WorkerFactory:
             encode_worker_client=encode_worker_client,
         )
         lifecycle.handler = handler
-        handler.add_temp_dir(prometheus_temp_dir)
 
         # Check if kv event consolidator is enabled (port was allocated in setup_vllm_engine)
         consolidator_enabled = False

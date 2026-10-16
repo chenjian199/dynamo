@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import asyncio
 import logging
@@ -78,7 +80,7 @@ class DynamoStatLoggerPublisher(StatLoggerBase):
     def init_publish(self) -> None:
         self.inner.publish(self.dp_rank, kv_used_blocks=0)
         dp_rank_str = str(self.dp_rank)
-        self.component_gauges.set_total_blocks(dp_rank_str, 0)
+        self.component_gauges.set_total_blocks(dp_rank_str, self.num_gpu_block)
         self.component_gauges.set_gpu_cache_usage(dp_rank_str, 0.0)
 
     def log_engine_initialized(self) -> None:
@@ -141,7 +143,7 @@ class StatLoggerFactory:
         self.endpoint = endpoint
         self.component_gauges = component_gauges
         self.embedding_worker = embedding_worker
-        self.created_logger: Optional[DynamoStatLoggerPublisher] = None
+        self.created_loggers: list[DynamoStatLoggerPublisher] = []
 
     def create_stat_logger(self, dp_rank: int) -> StatLoggerBase:
         # Embedding workers have no KV cache and no scheduler stats worth
@@ -159,7 +161,7 @@ class StatLoggerFactory:
             dp_rank=dp_rank,
             component_gauges=self.component_gauges,
         )
-        self.created_logger = logger
+        self.created_loggers.append(logger)
 
         return logger
 
@@ -168,9 +170,9 @@ class StatLoggerFactory:
 
     # TODO Remove once we publish metadata to shared storage
     def set_num_gpu_blocks_all(self, num_blocks: int) -> None:
-        if self.created_logger:
-            self.created_logger.set_num_gpu_block(num_blocks)
+        for logger in self.created_loggers:
+            logger.set_num_gpu_block(num_blocks)
 
     def init_publish(self) -> None:
-        if self.created_logger:
-            self.created_logger.init_publish()
+        for logger in self.created_loggers:
+            logger.init_publish()

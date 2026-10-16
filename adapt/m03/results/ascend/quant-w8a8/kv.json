@@ -1,0 +1,138 @@
+{
+  "passed": true,
+  "config": {
+    "platform": "ascend",
+    "dp": "1",
+    "block_size": "128",
+    "expected_blocks": "73",
+    "output": "/var/cache/dynamo-ascend/m03/quant-w8a8/kv.json"
+  },
+  "events": {
+    "0": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ]
+  },
+  "worker_id": 17496917493437459608,
+  "seeds": [
+    {
+      "id": "cmpl-f2ed2e95-d021-41df-a2ef-76d3d8495f6d",
+      "choices": [
+        {
+          "text": "\n\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792135217,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 17496917493437459608,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 17496917493437459608,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1792135217624,
+          "prefill_wait_time_ms": 1.7829,
+          "prefill_time_ms": 95.661495,
+          "ttft_ms": 97.444395,
+          "total_time_ms": 97.683025,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    }
+  ],
+  "warm": [
+    {
+      "overlap": {
+        "block_size": 128,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 17496917493437459608,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-caa2ae7b-f69e-4be4-af36-0918fc9695a8",
+        "choices": [
+          {
+            "text": "\n\n",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1792135217,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 256
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 17496917493437459608,
+            "prefill_dp_rank": 0,
+            "decode_worker_id": 17496917493437459608,
+            "decode_dp_rank": 0
+          },
+          "timing": {
+            "request_received_ms": 1792135217734,
+            "prefill_wait_time_ms": 2.1407689999999997,
+            "prefill_time_ms": 82.253841,
+            "ttft_ms": 84.39461,
+            "total_time_ms": 84.92797,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    }
+  ],
+  "capacity": [
+    {
+      "labels": {
+        "dp_rank": "0",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 73.0
+    }
+  ]
+}

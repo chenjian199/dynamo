@@ -1,0 +1,469 @@
+{
+  "passed": true,
+  "config": {
+    "platform": "ascend",
+    "dp": "2",
+    "block_size": "128",
+    "expected_blocks": "170",
+    "output": "/var/cache/dynamo-ascend/m03/moe-qwen3-ep4/kv.json"
+  },
+  "events": {
+    "0": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ],
+    "1": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ]
+  },
+  "worker_id": 3890511741621022067,
+  "platform": {
+    "schema_version": 1,
+    "platform_id": "ascend",
+    "device_kind": "accelerator",
+    "provider_version": "1",
+    "software": {
+      "cann": "9.1.0",
+      "driver": "25.2.0",
+      "torch": "2.10.0+cpu",
+      "torch-npu": "2.10.0.post4",
+      "vllm": "0.23.0+empty",
+      "vllm-ascend": "0.23.0"
+    },
+    "devices": [
+      {
+        "ordinal": 0,
+        "uuid": "ascend-die:ce36a6648140527772cb7632cc500485104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:c1:00.0"
+      },
+      {
+        "ordinal": 1,
+        "uuid": "ascend-die:6a87a66c80e097f11b60343284528485104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:c2:00.0"
+      },
+      {
+        "ordinal": 2,
+        "uuid": "ascend-die:c85ba6648060d4467210f632cc500485104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:81:00.0"
+      },
+      {
+        "ordinal": 3,
+        "uuid": "ascend-die:6a87a66c80a04bf1366a743284528485104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:82:00.0"
+      }
+    ],
+    "capabilities": {
+      "device.compute": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "device identity, model and memory queried through selected provider",
+        "conditions": {}
+      },
+      "device.rdma": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "engine.expert_parallel": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "requested aggregate engine integration; requires successful model initialization",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "true",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/NFS_62/Models/Qwen_Series/Qwen3-30B-A3B",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "2"
+        }
+      },
+      "engine.lora": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "true",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/NFS_62/Models/Qwen_Series/Qwen3-30B-A3B",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "2"
+        }
+      },
+      "engine.quantization": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "true",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/NFS_62/Models/Qwen_Series/Qwen3-30B-A3B",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "2"
+        }
+      },
+      "engine.speculative": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "true",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/NFS_62/Models/Qwen_Series/Qwen3-30B-A3B",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "2"
+        }
+      },
+      "engine.text": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "aggregate eager stack with requested TP/DP; readiness and model support still require engine initialization",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "true",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/NFS_62/Models/Qwen_Series/Qwen3-30B-A3B",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "2"
+        }
+      },
+      "gms.vmm": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "kv.events": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "vLLM ZMQ events and prefix caching enabled",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "true",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/NFS_62/Models/Qwen_Series/Qwen3-30B-A3B",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "2"
+        }
+      },
+      "kvbm.offload": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "pd.transfer": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "power.control": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      }
+    }
+  },
+  "seeds": [
+    {
+      "id": "cmpl-5f487bec-e6d4-482a-ad63-4c464d213a84",
+      "choices": [
+        {
+          "text": "s",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792137465,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 3890511741621022067,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 3890511741621022067,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1792137465724,
+          "prefill_wait_time_ms": 2.280087,
+          "prefill_time_ms": 277.387261,
+          "ttft_ms": 279.667348,
+          "total_time_ms": 279.982665,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-d1a95ee8-865a-4539-9a56-88ba88179269",
+      "choices": [
+        {
+          "text": "s",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792137465,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 3890511741621022067,
+          "prefill_dp_rank": 1,
+          "decode_worker_id": 3890511741621022067,
+          "decode_dp_rank": 1
+        },
+        "timing": {
+          "request_received_ms": 1792137465724,
+          "prefill_wait_time_ms": 2.2768770000000003,
+          "prefill_time_ms": 278.506143,
+          "ttft_ms": 280.78302,
+          "total_time_ms": 281.178172,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    }
+  ],
+  "warm": [
+    {
+      "overlap": {
+        "block_size": 128,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 3890511741621022067,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          },
+          {
+            "worker_id": 3890511741621022067,
+            "dp_rank": 1,
+            "device_blocks": 0,
+            "host_pinned_blocks": 0,
+            "disk_blocks": 0,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 0.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-42c00fec-e183-4d83-a712-e0229f9e2386",
+        "choices": [
+          {
+            "text": "s",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1792137466,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 256
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 3890511741621022067,
+            "prefill_dp_rank": 0,
+            "decode_worker_id": 3890511741621022067,
+            "decode_dp_rank": 0
+          },
+          "timing": {
+            "request_received_ms": 1792137466015,
+            "prefill_wait_time_ms": 1.865634,
+            "prefill_time_ms": 430.301844,
+            "ttft_ms": 432.167478,
+            "total_time_ms": 432.730779,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    },
+    {
+      "overlap": {
+        "block_size": 128,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 3890511741621022067,
+            "dp_rank": 0,
+            "device_blocks": 0,
+            "host_pinned_blocks": 0,
+            "disk_blocks": 0,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 0.0
+          },
+          {
+            "worker_id": 3890511741621022067,
+            "dp_rank": 1,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-fab29b6c-7483-4e0b-9a7d-a068ce63b12c",
+        "choices": [
+          {
+            "text": "s",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1792137466,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 256
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 3890511741621022067,
+            "prefill_dp_rank": 1,
+            "decode_worker_id": 3890511741621022067,
+            "decode_dp_rank": 1
+          },
+          "timing": {
+            "request_received_ms": 1792137466459,
+            "prefill_wait_time_ms": 2.0920959999999997,
+            "prefill_time_ms": 454.677173,
+            "ttft_ms": 456.76926899999995,
+            "total_time_ms": 456.9648,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    }
+  ],
+  "capacity": [
+    {
+      "labels": {
+        "dp_rank": "0",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 170.0
+    },
+    {
+      "labels": {
+        "dp_rank": "1",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 170.0
+    }
+  ]
+}

@@ -117,13 +117,18 @@ def test_preflight_legacy_and_explicit_requirements(monkeypatch):
             tensor_parallel_size=1,
             data_parallel_size=1,
             enforce_eager=True,
+            pipeline_parallel_size=1,
+            scheduler_cls=None,
+            quantization=None,
+            enable_expert_parallel=False,
+            data_parallel_size_local=None,
         ),
     )
     observed = {}
 
     def prepare(platform_id, context, required):
         observed.update(platform_id=platform_id, context=context, required=required)
-        return {"platform_id": platform_id}
+        return {"platform_id": platform_id, "devices": [{"ordinal": 0}]}
 
     monkeypatch.setattr(preflight.registry, "prepare", prepare)
     assert preflight.prepare_vllm_platform(config)["platform_id"] == "metax"
@@ -133,6 +138,20 @@ def test_preflight_legacy_and_explicit_requirements(monkeypatch):
         "kv.events",
         "pd.transfer",
     ]
+    config.engine_args.tensor_parallel_size = 2
+    with pytest.raises(PlatformError, match="insufficient_devices"):
+        preflight.prepare_vllm_platform(config)
+    config.engine_args.tensor_parallel_size = 1
+    config.engine_args.data_parallel_external_lb = True
+    with pytest.raises(PlatformError, match="local multiprocessing DP"):
+        preflight.prepare_vllm_platform(config)
+    config.engine_args.data_parallel_external_lb = False
+    config.engine_args.data_parallel_size = 2
+    config.engine_args.data_parallel_size_local = 1
+    with pytest.raises(PlatformError, match="local multiprocessing DP"):
+        preflight.prepare_vllm_platform(config)
+    config.engine_args.data_parallel_size = 1
+    config.engine_args.data_parallel_size_local = None
     config.disaggregation_mode = DisaggregationMode.PREFILL
     with pytest.raises(PlatformError, match="unsupported_configuration"):
         preflight.prepare_vllm_platform(config)

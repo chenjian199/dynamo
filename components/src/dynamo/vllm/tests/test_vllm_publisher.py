@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for the vLLM stat-logger factory.
 
@@ -63,7 +65,7 @@ def test_factory_returns_noop_logger_for_embedding_worker(monkeypatch):
     # downstream ``init_publish`` / ``set_num_gpu_blocks_all`` calls in
     # the chat path are safe no-ops if anyone ever wires them on the
     # embedding branch by mistake.
-    assert factory.created_logger is None
+    assert factory.created_loggers == []
 
 
 def test_noop_stat_logger_record_is_safe_with_none_stats():
@@ -125,3 +127,26 @@ def test_factory_default_is_chat_path(monkeypatch):
     assert constructed[0]["endpoint"] is endpoint
     assert constructed[0]["dp_rank"] == 3
     assert constructed[0]["component_gauges"] is component_gauges
+
+
+def test_capacity_is_initialized_on_every_dp_rank(monkeypatch):
+    loggers = [Mock(spec=DynamoStatLoggerPublisher) for _ in range(4)]
+    monkeypatch.setattr(
+        publisher_mod, "DynamoStatLoggerPublisher", Mock(side_effect=loggers)
+    )
+    factory = StatLoggerFactory(endpoint=Mock(), component_gauges=Mock())
+    for rank in range(4):
+        factory.create_stat_logger(rank)
+    factory.set_num_gpu_blocks_all(146)
+    factory.init_publish()
+    for logger in loggers:
+        logger.set_num_gpu_block.assert_called_once_with(146)
+        logger.init_publish.assert_called_once()
+
+
+def test_initial_publish_preserves_real_capacity():
+    logger = SimpleNamespace(
+        inner=Mock(), component_gauges=Mock(), dp_rank=2, num_gpu_block=146
+    )
+    DynamoStatLoggerPublisher.init_publish(logger)
+    logger.component_gauges.set_total_blocks.assert_called_once_with("2", 146)

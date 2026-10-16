@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M10 契约测试与平台认证
 
-状态：部分完成（MetaX 与 Ascend 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
+状态：部分完成（MetaX、Ascend 与 CUDA 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
 
 ## 实施进度（2026-10-16）
 
@@ -16,6 +16,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 Ascend 910B3 / vLLM Ascend 0.23.0 已完成 ARM64 editable 构建、M01、基础推理与真实 KV 路由验证；共享改动已在 MetaX 0.26.0 回归。环境、命令、证据及限制见 [华为验收](../../ascend/ascend-bringup.md)。
+
+M03 本轮已增加三平台本地 TP/DP、LoRA、W8A8、ngram/draft 推测解码、MoE/EP 与聚合图文的逐项记录，见 [M03 验收](../../m03/README.md)。硬件测试为 `adapt/m03/` 显式手动脚本，不加入默认单元测试或自动下载权重。NFS 权重通过只读挂载复用；单元测试、原始 JSON、实际 kernel/专家分布摘录与配置哈希分别归档。
 
 ## 当前测试体系
 

@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for vLLM backend components."""
 
@@ -599,7 +601,7 @@ def test_setup_vllm_engine_reuses_engine_config_model_config(monkeypatch):
         def create_engine_config(self, usage_context):
             return vllm_config
 
-    engine_client = SimpleNamespace(vllm_config=vllm_config)
+    engine_client = SimpleNamespace(vllm_config=vllm_config, shutdown=Mock())
 
     class FakeAsyncLLM:
         @staticmethod
@@ -1500,7 +1502,10 @@ def test_vllm_client_error_preserves_http_status(error_type, expected_status):
 
     from dynamo.vllm.errors import vllm_client_error_to_http_error
 
-    error = getattr(vllm_exceptions, error_type)("invalid request")
+    exception_cls = getattr(vllm_exceptions, error_type, None)
+    if exception_cls is None:
+        pytest.skip(f"{error_type} is not exposed by this vLLM version")
+    error = exception_cls("invalid request")
 
     assert vllm_client_error_to_http_error(error).code == expected_status
 

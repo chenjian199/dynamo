@@ -106,7 +106,7 @@ def cuda(context):
 
 
 def build_capabilities(platform_id, context, software):
-    """Describe the shared aggregate-text scope without inferring data-plane support."""
+    """Describe configuration eligibility; serving readiness is checked by the engine."""
     caps = {
         "device.compute": capability(
             "available",
@@ -137,15 +137,19 @@ def build_capabilities(platform_id, context, software):
                 f"validated vLLM/{platform_id} combination is {expected}",
             )
         supported = (
-            context.get("task") == "text"
-            and context.get("tp") == "1"
-            and context.get("dp") == "1"
+            context.get("task") in ("text", "multimodal")
+            and context.get("tp") in ("1", "2", "4")
+            and context.get("dp") in ("1", "2", "4")
             and context.get("eager") == "true"
         )
-        caps["engine.text"] = capability(
+        caps[
+            "engine.multimodal"
+            if context.get("task") == "multimodal"
+            else "engine.text"
+        ] = capability(
             "available" if supported else "unknown",
             platform_id,
-            "supported aggregate eager TP=1/DP=1 text stack; readiness still requires engine initialization"
+            "aggregate eager stack with requested TP/DP; readiness and model support still require engine initialization"
             if supported
             else "configuration outside current platform integration scope",
             context,
@@ -156,7 +160,21 @@ def build_capabilities(platform_id, context, software):
             platform_id,
             "vLLM ZMQ events and prefix caching enabled"
             if kv
-            else "requires supported text configuration and explicit KV events",
+            else "requires supported aggregate configuration and explicit KV events",
             context,
         )
+        for name, enabled in (
+            ("engine.lora", context.get("lora") == "true"),
+            ("engine.quantization", context.get("quantization", "none") != "none"),
+            ("engine.speculative", context.get("speculative", "null") != "null"),
+            ("engine.expert_parallel", context.get("expert_parallel") == "true"),
+        ):
+            caps[name] = capability(
+                "available" if supported and enabled else "unavailable",
+                platform_id,
+                "requested aggregate engine integration; requires successful model initialization"
+                if supported and enabled
+                else "not enabled in this configuration",
+                context,
+            )
     return caps

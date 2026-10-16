@@ -24,13 +24,13 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 “待调查”不能根据没有测试结果直接改成“不支持”。功能可配置关闭、编译 stub 成功、单次 API 返回或厂商宣称 CUDA 兼容均不足以标记“已验证”。
 
-## 初始功能矩阵
+## 当前功能矩阵
 
 | 功能 | CUDA 基线 | Ascend | MetaX | 核查重点 | 模块 |
 | --- | --- | --- | --- | --- | --- |
-| 平台身份与能力注册 | 旧描述/契约软件回归通过；真机待验证 | 有限支持：910B3、schema 1、真实身份/能力预检查/发现注册；[验收](ascend/ascend-bringup.md) | 有限支持：schema 1、真实设备/软件身份、能力预检查、发现注册与绑定已验证 | CPU 无 SDK、配置冻结、缺能力拒绝、非 CUDA 不误标 | M01 |
-| 引擎基础推理 | 源码已有 | 有限支持：910B3、vLLM Ascend 0.23.0、Qwen3-0.6B、单卡 eager；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
-| KV-aware 路由 | 源码已有 | 有限支持：910B3、0.23.0、单机双 Worker、TP=1/DP=1、block=128，真实事件/选路/淘汰/清空已验证；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
+| 平台身份与能力注册 | 有限支持：H800 / vLLM 0.24.0，显式 CUDA 身份与发现已验证；[M03](m03/README.md) | 有限支持：910B3、schema 1、真实身份/能力预检查/发现注册；[验收](ascend/ascend-bringup.md) | 有限支持：schema 1、真实设备/软件身份、能力预检查、发现注册与绑定已验证 | CPU 无 SDK、配置冻结、缺能力拒绝、非 CUDA 不误标 | M01 |
+| 引擎基础推理 | 有限支持：H800 / 0.24.0，Qwen3-0.6B，本地 eager；[M03](m03/README.md) | 有限支持：910B3、vLLM Ascend 0.23.0、Qwen3-0.6B、单卡 eager；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
+| KV-aware 路由 | 有限支持：H800 / 0.24.0，本地 TP=2/DP=2，逐 rank 事件、容量、选路和清空；[M03](m03/README.md) | 有限支持：910B3、0.23.0、单机双 Worker、TP=1/DP=1、block=128，真实事件/选路/淘汰/清空已验证；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
 | P/D 分离 | 源码已有 | 生态入口已找到，协议待核查 | 待调查 | connector 协议、KV 布局、完成与取消 | M05 |
 | Dynamo KVBM 主机缓存 | 源码已有 | 待调查 | 待调查 | 注册内存、异步复制、引擎布局与事件桥接 | M04/M06 |
 | Dynamo KVBM SSD/远端缓存 | 源码已有 | 待调查 | 待调查 | 回读、一致性、中转与直接路径 | M05/M06 |
@@ -40,10 +40,15 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | SLO Planner/Profiler | 源码已有 | 待调查 | 待调查 | 指标、资源计数、平台实测画像 | M09 |
 | 设备健康与功耗控制 | 源码已有 NVIDIA 路径 | 待调查 | 待调查 | 指标语义、错误码、功耗 API 与权限 | M08/M09 |
 | GMS/共享内存恢复 | 已有 VMM 抽象和 CUDA 实现 | 待调查 | 待调查 | 复用 VMMDevice；共享句柄、内存存活与恢复语义仍需实测 | M07 |
-| 多模态/编码器分离 | 源码已有集成路径 | 生态入口已找到，组合待核查 | 待调查 | 编解码、embedding 布局、传输与缓存 | M03/M07 |
-| LoRA/量化/推测解码/MoE | 依引擎与配置，待建立基线 | 待调查 | 待调查 | 按模型、精度、引擎能力与组合分别记录 | M03/M10 |
+| 本地 TP/DP | 已验证：TP=2/DP=2 | 已验证：TP=2/DP=2 | 已验证：TP=2/DP=2 | Qwen3-0.6B / Qwen3-8B，eager；逐 rank 容量必须等于物理 KV 容量；[M03 记录](m03/README.md) | M03 |
+| LoRA | 已验证：TP=1/DP=2 | 已验证：TP=1/DP=2 | 已验证：TP=1/DP=2 | Qwen3-0.6B + 非零 rank-8 fixture；加载/卸载/回滚/并发/缓存隔离 | M03 |
+| 量化 | 已验证：W8A8 dynamic | 已验证：W8A8 dynamic | 已验证：W8A8 dynamic | Qwen3-0.6B，compressed-tensors；仅验证 INT8 执行路径，不认证精度质量 | M03 |
+| 推测解码 | 已验证：ngram、draft_model | 已验证：ngram、draft_model | 已验证：ngram、draft_model | Qwen3-0.6B，3 speculative tokens；draft/accepted 计数非零 | M03 |
+| MoE/静态 EP | 已验证：Qwen3-30B-A3B，EP=4 | 已验证：Qwen3-30B-A3B，EP=4 | 已验证：Qwen3-30B-A3B，EP=4 | TP=2/DP=2、专家分布与 per-rank KV；动态 EP 未验证 | M03 |
+| 聚合图文 | 已验证：Qwen3-VL-2B | 已验证：Qwen3-VL-2B | 已验证：Qwen3-VL-2B | 识图、并发、流式、取消、引擎前缀缓存；精确多模态前端选路未认证 | M03 |
+| 编码器分离/媒体传输 | 源码已有集成路径 | 待调查 | 待调查 | 编码阶段独立部署、NIXL embedding/媒体传输与完成语义 | M07 |
 
-“源码已有”不表示所有引擎、型号、模型和功能组合均支持；CUDA 也需要建立实际基线。高级功能应在模块细化时拆为独立行，不能一次测试后整体标绿。
+“源码已有”不表示所有引擎、型号、模型和功能组合均支持；CUDA 也需要建立实际基线。高级功能按独立行记录，不能从一种量化格式或推测算法推导出全部组合支持。高级条目均以 [M03 三平台验收](m03/README.md) 的版本、模型及边界为准。
 
 生态调查入口：[vLLM Ascend 版本矩阵](https://docs.vllm.ai/projects/ascend/en/main/community/versioning_policy.html)、[Ascend PD 设计](https://docs.vllm.ai/projects/ascend/en/v0.20.2rc/developer_guide/Design_Documents/disaggregated_prefill.html)、[Ascend EPD 示例](https://docs.vllm.ai/projects/ascend/en/v0.18.0/user_guide/feature_guide/epd_disaggregation.html)、[vLLM-metax](https://github.com/MetaX-MACA/vLLM-metax)。这些入口用于后续选择并锁定版本，不代表直接采用文档对应版本。
 
@@ -62,7 +67,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | 功能 | 启用能力及组合、明确关闭项、显式降级路径 |
 | 验收 | 测试命令/配置、结果位置、日期、性能口径、已知限制 |
 
-首个实测组合为 MetaX C500 + 官方 vLLM-metax 0.26.0 Ubuntu 22.04 / Python 3.12 镜像，详细版本、镜像 digest、模型 revision、源码改动及限制见 [适配记录](metax/metax-bringup.md)。Ascend 910B3 / 官方 v0.23.0 ARM64 的第二个组合见 [华为验收](ascend/ascend-bringup.md)。其他型号与平台仍需单独确定并验收。
+首个实测组合为 MetaX C500 + 官方 vLLM-metax 0.26.0 Ubuntu 22.04 / Python 3.12 镜像，详细版本、镜像 digest、模型 revision、源码改动及限制见 [适配记录](metax/metax-bringup.md)。Ascend 910B3 / 官方 v0.23.0 ARM64 的第二个组合见 [华为验收](ascend/ascend-bringup.md)。H800 / vLLM 0.24.0 基线与本轮三平台扩展见 [M03 验收](m03/README.md)。其他型号与平台仍需单独确定并验收。
 
 ## 支持结论的更新规则
 

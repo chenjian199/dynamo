@@ -12,9 +12,11 @@ CACHE_VOLUME="${CACHE_VOLUME:-dynamo-ascend-cache}"
 HTTP_PORT="${HTTP_PORT:-18000}"
 NATIVE_PORT="${NATIVE_PORT:-18001}"
 USE_MIRROR="${USE_MIRROR:-1}"
+MODEL_ROOT="${MODEL_ROOT:-/NFS_62}"
 
 case "${1:-help}" in
     create)
+        test -d "$MODEL_ROOT/Models" || { echo "Model share missing: $MODEL_ROOT/Models" >&2; exit 1; }
         # 对应官方 ARM64 tag：quay.io/ascend/vllm-ascend:v0.23.0
         # 同名容器存在时 docker run 会报错，不会删除或覆盖它。
         docker run -d --name "$CONTAINER_NAME" --init \
@@ -27,6 +29,7 @@ case "${1:-help}" in
             --shm-size=8g --ulimit memlock=-1 \
             -p "127.0.0.1:${HTTP_PORT}:8000" -p "127.0.0.1:${NATIVE_PORT}:8001" \
             --mount "type=bind,src=${REPO_DIR},dst=/workspace/dynamo" \
+            --mount "type=bind,src=${MODEL_ROOT},dst=/NFS_62,readonly" \
             --mount "type=volume,src=${CACHE_VOLUME},dst=/var/cache/dynamo-ascend" \
             -w /workspace/dynamo "$IMAGE" sleep infinity
         ;;
@@ -142,7 +145,7 @@ CONTAINER
   bash adapt/ascend/ascend-dev.sh shell   # 进入已激活开发 venv 的交互终端
 
 已有容器停止时先 docker start dynamo-ascend-dev，无需重新 create。
-可覆盖：CONTAINER_NAME、IMAGE、CACHE_VOLUME、HTTP_PORT、NATIVE_PORT。
+可覆盖：CONTAINER_NAME、IMAGE、CACHE_VOLUME、HTTP_PORT、NATIVE_PORT、MODEL_ROOT（默认 /NFS_62，只读）。
 USE_MIRROR=0 可关闭本脚本的新镜像源配置；不会移除已有 Cargo 源配置。
 本脚本仅重现基础推理开发环境；未安装 aisimulate，也不表示完整 pip check 通过。
 启动和验收命令见 adapt/ascend/ascend-bringup.md。

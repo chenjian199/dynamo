@@ -1,0 +1,307 @@
+{
+  "passed": true,
+  "config": {
+    "platform": "ascend",
+    "dp": "1",
+    "block_size": "128",
+    "expected_blocks": "73",
+    "output": "/var/cache/dynamo-ascend/m03/spec-ngram/kv.json"
+  },
+  "events": {
+    "0": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ]
+  },
+  "worker_id": 2609569762966546117,
+  "platform": {
+    "schema_version": 1,
+    "platform_id": "ascend",
+    "device_kind": "accelerator",
+    "provider_version": "1",
+    "software": {
+      "cann": "9.1.0",
+      "driver": "25.2.0",
+      "torch": "2.10.0+cpu",
+      "torch-npu": "2.10.0.post4",
+      "vllm": "0.23.0+empty",
+      "vllm-ascend": "0.23.0"
+    },
+    "devices": [
+      {
+        "ordinal": 0,
+        "uuid": "ascend-die:ce36a6648140527772cb7632cc500485104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:c1:00.0"
+      }
+    ],
+    "capabilities": {
+      "device.compute": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "device identity, model and memory queried through selected provider",
+        "conditions": {}
+      },
+      "device.rdma": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "engine.expert_parallel": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-ascend/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"method\": \"ngram\", \"num_speculative_tokens\": 3, \"prompt_lookup_max\": 4, \"prompt_lookup_min\": 2}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.lora": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-ascend/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"method\": \"ngram\", \"num_speculative_tokens\": 3, \"prompt_lookup_max\": 4, \"prompt_lookup_min\": 2}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.quantization": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-ascend/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"method\": \"ngram\", \"num_speculative_tokens\": 3, \"prompt_lookup_max\": 4, \"prompt_lookup_min\": 2}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.speculative": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "requested aggregate engine integration; requires successful model initialization",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-ascend/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"method\": \"ngram\", \"num_speculative_tokens\": 3, \"prompt_lookup_max\": 4, \"prompt_lookup_min\": 2}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.text": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "aggregate eager stack with requested TP/DP; readiness and model support still require engine initialization",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-ascend/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"method\": \"ngram\", \"num_speculative_tokens\": 3, \"prompt_lookup_max\": 4, \"prompt_lookup_min\": 2}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "gms.vmm": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "kv.events": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "vLLM ZMQ events and prefix caching enabled",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-ascend/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"method\": \"ngram\", \"num_speculative_tokens\": 3, \"prompt_lookup_max\": 4, \"prompt_lookup_min\": 2}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "kvbm.offload": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "pd.transfer": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "power.control": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      }
+    }
+  },
+  "seeds": [
+    {
+      "id": "cmpl-7c4125e8-447e-4185-a291-ae44fee6338b",
+      "choices": [
+        {
+          "text": "\n\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792135344,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 2609569762966546117,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 2609569762966546117,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1792135344590,
+          "prefill_wait_time_ms": 2.002227,
+          "prefill_time_ms": 84.863692,
+          "ttft_ms": 86.865919,
+          "total_time_ms": 87.413065,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    }
+  ],
+  "warm": [
+    {
+      "overlap": {
+        "block_size": 128,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 2609569762966546117,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-38f198cc-6eeb-4030-9c57-905900ccced1",
+        "choices": [
+          {
+            "text": "\n\n",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1792135344,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 256
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 2609569762966546117,
+            "prefill_dp_rank": 0,
+            "decode_worker_id": 2609569762966546117,
+            "decode_dp_rank": 0
+          },
+          "timing": {
+            "request_received_ms": 1792135344692,
+            "prefill_wait_time_ms": 3.410059,
+            "prefill_time_ms": 77.715456,
+            "ttft_ms": 81.125515,
+            "total_time_ms": 81.545292,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    }
+  ],
+  "capacity": [
+    {
+      "labels": {
+        "dp_rank": "0",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 73.0
+    }
+  ]
+}

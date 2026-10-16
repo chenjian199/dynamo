@@ -1,0 +1,304 @@
+{
+  "passed": true,
+  "config": {
+    "platform": "cuda",
+    "dp": "1",
+    "block_size": "64",
+    "expected_blocks": "73",
+    "output": "/var/cache/dynamo-cuda/m03/spec-draft-model/kv.json"
+  },
+  "events": {
+    "0": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ]
+  },
+  "worker_id": 2169296426801333859,
+  "platform": {
+    "schema_version": 1,
+    "platform_id": "cuda",
+    "device_kind": "accelerator",
+    "provider_version": "1",
+    "software": {
+      "cuda_build": "13.0",
+      "torch": "2.11.0+cu130",
+      "vllm": "0.24.0"
+    },
+    "devices": [
+      {
+        "ordinal": 0,
+        "uuid": "7f315b72-03e2-eb37-f6bd-219e64d44a8f",
+        "architecture": "NVIDIA H800 PCIe",
+        "memory_bytes": 85017493504,
+        "pci_bus_id": "0000:85:00.0"
+      }
+    ],
+    "capabilities": {
+      "device.compute": {
+        "state": "available",
+        "provider": "cuda",
+        "reason": "device identity, model and memory queried through selected provider",
+        "conditions": {}
+      },
+      "device.rdma": {
+        "state": "unknown",
+        "provider": "cuda",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "engine.expert_parallel": {
+        "state": "unavailable",
+        "provider": "cuda",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-cuda/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"draft_tensor_parallel_size\": 1, \"method\": \"draft_model\", \"model\": \"/var/cache/dynamo-cuda/models/Qwen3-0.6B\", \"num_speculative_tokens\": 3}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.lora": {
+        "state": "unavailable",
+        "provider": "cuda",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-cuda/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"draft_tensor_parallel_size\": 1, \"method\": \"draft_model\", \"model\": \"/var/cache/dynamo-cuda/models/Qwen3-0.6B\", \"num_speculative_tokens\": 3}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.quantization": {
+        "state": "unavailable",
+        "provider": "cuda",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-cuda/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"draft_tensor_parallel_size\": 1, \"method\": \"draft_model\", \"model\": \"/var/cache/dynamo-cuda/models/Qwen3-0.6B\", \"num_speculative_tokens\": 3}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.speculative": {
+        "state": "available",
+        "provider": "cuda",
+        "reason": "requested aggregate engine integration; requires successful model initialization",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-cuda/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"draft_tensor_parallel_size\": 1, \"method\": \"draft_model\", \"model\": \"/var/cache/dynamo-cuda/models/Qwen3-0.6B\", \"num_speculative_tokens\": 3}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.text": {
+        "state": "available",
+        "provider": "cuda",
+        "reason": "aggregate eager stack with requested TP/DP; readiness and model support still require engine initialization",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-cuda/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"draft_tensor_parallel_size\": 1, \"method\": \"draft_model\", \"model\": \"/var/cache/dynamo-cuda/models/Qwen3-0.6B\", \"num_speculative_tokens\": 3}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "gms.vmm": {
+        "state": "unknown",
+        "provider": "cuda",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "kv.events": {
+        "state": "available",
+        "provider": "cuda",
+        "reason": "vLLM ZMQ events and prefix caching enabled",
+        "conditions": {
+          "dp": "1",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "kv_events": "true",
+          "lora": "none",
+          "model": "/var/cache/dynamo-cuda/models/Qwen3-0.6B",
+          "quantization": "none",
+          "speculative": "{\"draft_tensor_parallel_size\": 1, \"method\": \"draft_model\", \"model\": \"/var/cache/dynamo-cuda/models/Qwen3-0.6B\", \"num_speculative_tokens\": 3}",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "kvbm.offload": {
+        "state": "unknown",
+        "provider": "cuda",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "pd.transfer": {
+        "state": "unknown",
+        "provider": "cuda",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "power.control": {
+        "state": "unknown",
+        "provider": "cuda",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      }
+    }
+  },
+  "seeds": [
+    {
+      "id": "cmpl-650156d6-9ef3-4db0-88ed-f90bd22a01c9",
+      "choices": [
+        {
+          "text": "\n\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792137209,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 129,
+        "completion_tokens": 1,
+        "total_tokens": 130,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 2169296426801333859,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 2169296426801333859,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1792137209871,
+          "prefill_wait_time_ms": 1.3512520000000001,
+          "prefill_time_ms": 114.47205000000001,
+          "ttft_ms": 115.823302,
+          "total_time_ms": 116.151919,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    }
+  ],
+  "warm": [
+    {
+      "overlap": {
+        "block_size": 64,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 2169296426801333859,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null,
+            "router_credit_blocks": 2.0
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-374d1ad2-821b-414a-a9a6-78596191c99f",
+        "choices": [
+          {
+            "text": "\n\n",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1792137209,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 129,
+          "completion_tokens": 1,
+          "total_tokens": 130,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 128
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 2169296426801333859,
+            "prefill_dp_rank": 0,
+            "decode_worker_id": 2169296426801333859,
+            "decode_dp_rank": 0
+          },
+          "timing": {
+            "request_received_ms": 1792137209994,
+            "prefill_wait_time_ms": 0.84172,
+            "prefill_time_ms": 296.274408,
+            "ttft_ms": 297.116128,
+            "total_time_ms": 297.452108,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    }
+  ],
+  "capacity": [
+    {
+      "labels": {
+        "dp_rank": "0",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 73.0
+    }
+  ]
+}

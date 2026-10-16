@@ -17,14 +17,14 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M01 平台契约与能力注册
 
-当前状态：第一版完成：MetaX/Ascend 身份/能力/发现；CUDA 真机待验证。
+当前状态：第一版完成：MetaX/Ascend/CUDA 身份/能力/发现已做当前配置真机回归。
 
 详细设计：[功能、接口、兼容策略与文件计划](modules/m01-platform-contract/README.md)。
 
 - 源码入口：[component.rs](../lib/runtime/src/component.rs)、[endpoint.rs](../lib/runtime/src/component/endpoint.rs)、[push_router.rs](../lib/runtime/src/pipeline/network/egress/push_router.rs)。
 - 工作：确定平台 ID、设备描述、能力条件、版本协商及规范化错误；替换默认 CUDA 推断；明确服务发现与 Python/Rust 绑定字段兼容策略。
 - 已交付：`DYN_PLATFORM`、延迟加载的 provider、schema 1、`configure_platform`、发现与 Python 绑定、能力条件检查；MetaX/Ascend 不再标为 CUDA。
-- 剩余扩展：CUDA 真机回归，以及各后续模块自己的能力探测。MetaX/Ascend 需使用支持新契约的控制面。
+- 剩余扩展：各后续模块自己的能力探测；CUDA H800 回归见 M03 验收记录。MetaX/Ascend 需使用支持新契约的控制面。
 - 验收：所选平台正确注册；不依赖其他厂商 SDK；不支持的必要能力在就绪前明确失败；旧 CUDA 行为兼容。
 
 ## M02 构建与依赖隔离
@@ -40,13 +40,13 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M03 引擎与 KV 事件接入
 
-当前状态：部分完成：基础文本 + 真实 KV 路由。
+当前状态：本轮 vLLM 聚合模式范围完成：TP/DP、生命周期及高级能力三平台验收；SGLang 暂缓。
 
 详细设计：[真实入口、生命周期、事件与文件计划](modules/m03-engine-integration/README.md)。
 
 - 源码入口：[engine.py](../components/src/dynamo/common/backend/engine.py)、[worker.py](../components/src/dynamo/common/backend/worker.py)、[publisher.py](../components/src/dynamo/common/backend/publisher.py)、[vLLM](../components/src/dynamo/vllm)、[SGLang](../components/src/dynamo/sglang)。
 - 工作：核对实际入口与统一契约的关系；接入厂商引擎的生命周期、取消、健康、KV 容量、事件和指标；处理调度器扩展的组合关系。
-- 待细化：`InstrumentedScheduler` 与厂商调度器是否兼容；block hash、block size、DP rank、模型别名及 LoRA 相关事件如何对应。
+- 已交付：保留自定义 scheduler 并校验 KV/FPM 兼容性；逐 rank 物理容量、LoRA 缓存隔离、四卡 TP/DP 与高级能力验证见 [M03 验收](m03/README.md)。精确多模态前端选路、PD/独立编码器组合另行验收。
 - 验收：流式、并发、取消与清理正确；不支持的模型/精度提前拒绝；KV-aware 路由有真实事件和容量证据。
 
 ## M04 设备运行时与内存

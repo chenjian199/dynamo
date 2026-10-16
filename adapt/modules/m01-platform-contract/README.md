@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M01 平台契约与能力注册
 
-状态：第一版已实现，MetaX C500 / vLLM-metax 0.26.0 与 Ascend 910B3 / vLLM Ascend 0.23.0 的聚合文本及 KV 路由路径已验收。依赖：无；向 M02–M10 提供平台身份、设备描述和能力语义。CUDA 旧协议兼容已做软件测试，CUDA 真机回归尚未完成；Ascend provider 的验收进度见 [华为记录](../../ascend/ascend-bringup.md)，不能据此宣称全平台硬件认证。
+状态：第一版已实现，MetaX C500 / vLLM-metax 0.26.0 与 Ascend 910B3 / vLLM Ascend 0.23.0 的聚合文本及 KV 路由路径已验收。依赖：无；向 M02–M10 提供平台身份、设备描述和能力语义。CUDA 旧协议兼容已做软件测试，CUDA H800 / vLLM 0.24.0 的显式身份与 KV 路由已在 M03 回归；Ascend provider 的验收进度见 [华为记录](../../ascend/ascend-bringup.md)，不能据此宣称全平台硬件认证。
 
 ## 已交付的调用链
 
@@ -45,11 +45,11 @@ DYN_PLATFORM + 引擎配置
 - `DYN_PLATFORM=cpu`：Rust 直接配置 CPU 控制面描述；不依赖加速器 SDK。
 - `DYN_PLATFORM=metax`：vLLM 入口选 MetaX provider。使用沐曦 torch 的 `torch.cuda` 兼容接口读取设备 UUID/型号/显存/PCI；使用 `pymxsml.mxSmlInit`、`mxSmlGetMacaVersion`、`mxSmlGetDeviceVersion(..., MXSML_VERSION_DRIVER)` 读取 MACA/驱动版本。这里使用 torch 的接口名称不再决定发现协议的平台身份。
 - `DYN_PLATFORM=ascend`：vLLM Ascend 0.23.0 provider，延迟加载 torch-npu、ACL 与 DCMI。ACL 把可见逻辑编号映射为物理编号，DCMI 读取芯片 die ID 与 PCI；torch-npu 查询型号/显存。当前 910B3 SDK UUID 全零，使用 `ascend-die:<芯片标识>` 作为稳定身份。实现见 [ascend.py](../../../components/src/dynamo/common/platform/ascend.py)。
-- `DYN_PLATFORM=cuda`：显式 NVIDIA provider，拒绝 MetaX torch 或 ROCm 栈；实际 CUDA 硬件验证另行执行。
+- `DYN_PLATFORM=cuda`：显式 NVIDIA provider，拒绝 MetaX torch 或 ROCm 栈；H800 / vLLM 0.24.0 硬件回归见 [M03 验收](../../m03/README.md)。
 - 未设置 `DYN_PLATFORM`：保留旧启动行为，端点注册时给出 legacy CUDA/CPU 推断警告。MetaX 启动脚本已经显式设置平台。
 - 未注册平台、重复 provider、配置冲突、缺失设备身份或不支持的软件栈均报错。外部 provider 可通过 `dynamo.platforms` Python entry point 注册，入口加载发生在选择该平台时。
 
-当前 MetaX 软件组合锁定 vLLM 与 vLLM-metax 0.26.0，Ascend 锁定 vLLM 与 vllm-ascend 0.23.0。显式 vLLM 适配先覆盖聚合文本、TP=1/DP=1、eager；PD、多模态、LoRA、推测解码等配置不会被当作当前已支持路径启动。设备描述的 NUMA 尚未探测，保持缺省，不使用虚构默认值。
+当前 MetaX 软件组合锁定 vLLM 与 vLLM-metax 0.26.0，Ascend 锁定 vLLM 与 vllm-ascend 0.23.0。显式 vLLM 适配已扩展到聚合 eager、本地 multiprocessing TP/DP 及独立高级能力条件；实测模型和配置以 [M03 验收](../../m03/README.md) 为准。PP、跨节点、Ray/external/hybrid DP、PD 仍在预检查拒绝。设备描述的 NUMA 尚未探测，保持缺省，不使用虚构默认值。
 
 ## 能力与 readiness
 
@@ -75,4 +75,4 @@ DYN_PLATFORM + 引擎配置
 - [Ascend 真机验收](../../ascend/ascend-bringup.md)：真实芯片身份、发现往返与启动拒绝，以及基础推理和 KV 路由。
 - [MetaX 真机验收](../../metax/metax-platform.md)：两个 Worker 的实际身份、Python/Rust 双向传递、注册前能力拒绝，以及基础推理和 KV 路由回归。
 
-M01 当前交付的是平台公共契约、MetaX 与 Ascend provider。设备内存/流/事件由 M04 实现，PD/通信由 M05/M06 验证，Kubernetes 注入由 M08 接入，动态健康/功耗由 M09 提供。更大 TP/DP、更多模型以及 CUDA 真机组合需要独立扩展与验收；Ascend 的已验收范围以其记录为准。
+M01 当前交付的是平台公共契约、MetaX 与 Ascend provider。设备内存/流/事件由 M04 实现，PD/通信由 M05/M06 验证，Kubernetes 注入由 M08 接入，动态健康/功耗由 M09 提供。更多 TP/DP、模型与硬件组合需要独立扩展与验收；Ascend 的已验收范围以其记录为准。

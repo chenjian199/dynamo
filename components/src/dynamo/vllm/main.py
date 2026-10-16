@@ -10,6 +10,7 @@ import os
 import sys
 import tempfile
 import time
+from contextlib import ExitStack
 from typing import TYPE_CHECKING, Any, Optional
 
 if TYPE_CHECKING:
@@ -53,6 +54,10 @@ from dynamo.llm import (
 )
 from dynamo.runtime import Endpoint
 from dynamo.runtime.logging import configure_dynamo_logging
+from dynamo.vllm.platform import (
+    publish_platform_engine_metadata,
+    validate_platform_engine_config,
+)
 from dynamo.vllm.router_hints import enable_router_hint_support
 from dynamo.vllm.worker_factory import WorkerFactory
 
@@ -593,6 +598,21 @@ def setup_vllm_engine(
     stat_logger: Optional[StatLoggerFactory] = None,
     fpm_worker_id: Optional[str] = None,
 ) -> tuple[AsyncLLM, VllmConfig, Any, Any, Optional[LLMBackendMetrics]]:
+    with ExitStack() as resources:
+        result = _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources)
+        resources.pop_all()  # Ownership transfers to the worker lifecycle.
+        return result
+
+
+def _cleanup_failed_start(cleanup, *args, **kwargs):
+    # Preserve the startup exception, but attempt every registered cleanup.
+    try:
+        cleanup(*args, **kwargs)
+    except Exception:
+        logger.exception("Resource cleanup failed during engine startup rollback")
+
+
+def _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources):
     # vLLM v0.11.0 bug: vllm/v1.metrics/prometheus.py:79 passes TemporaryDirectory object
     # instead of .name string, causing false error on exit. Set PROMETHEUS_MULTIPROC_DIR
     # ourselves to avoid this and handle cleanup properly.
@@ -605,6 +625,8 @@ def setup_vllm_engine(
         os.makedirs(existing_dir, exist_ok=True)
     if "PROMETHEUS_MULTIPROC_DIR" not in os.environ:
         prometheus_temp_dir = tempfile.TemporaryDirectory(prefix="vllm_prometheus_")
+        resources.callback(_cleanup_failed_start, prometheus_temp_dir.cleanup)
+        resources.callback(os.environ.pop, "PROMETHEUS_MULTIPROC_DIR", None)
         os.environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_temp_dir.name
         logger.debug(
             f"Created PROMETHEUS_MULTIPROC_DIR at: {os.environ['PROMETHEUS_MULTIPROC_DIR']}"
@@ -678,6 +700,12 @@ def setup_vllm_engine(
     # Taken from build_async_engine_client_from_engine_args()
     usage_context = UsageContext.OPENAI_API_SERVER
     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+    validate_platform_engine_config(
+        vllm_config,
+        require_metrics=envs.is_set("DYN_FORWARDPASS_METRIC_PORT")
+        or getattr(config, "fpm_trace", False)
+        or getattr(config, "benchmark_mode", None) is not None,
+    )
     disable_hybrid_kv_cache_manager_for_incompatible_pd_connector(vllm_config)
     default_sampling_params = vllm_config.model_config.get_diff_sampling_param()
 
@@ -757,6 +785,9 @@ def setup_vllm_engine(
             enable_log_requests=engine_args.enable_log_requests,
             disable_log_stats=engine_args.disable_log_stats,
         )
+    if embedding_process_group is not None:
+        resources.callback(_cleanup_failed_start, embedding_process_group.cleanup)
+    resources.callback(_cleanup_failed_start, engine_client.shutdown)
     load_time = time.time() - start_time
 
     # Record model load time. ``component_gauges`` is None on the
@@ -780,25 +811,7 @@ def setup_vllm_engine(
         else prometheus_temp_dir
     )
 
-    # The shared embedding EngineCore is already running at this point, so make
-    # startup failure transactional and do not leave child endpoints behind.
-    try:
-        runtime_values = get_engine_cache_info(engine_client)
-    except BaseException:
-        if embedding_cleanup_resource is not None:
-            try:
-                engine_client.shutdown()
-            except Exception:
-                logger.exception(
-                    "Failed to shut down parent embedding client after startup error"
-                )
-            try:
-                embedding_cleanup_resource.cleanup()
-            except Exception:
-                logger.exception(
-                    "Failed to clean up shared embedding EngineCore after startup error"
-                )
-        raise
+    runtime_values = get_engine_cache_info(engine_client)
     vllm_config.cache_config.block_size = runtime_values["block_size"]
 
     return (
@@ -841,6 +854,7 @@ async def register_vllm_model(
             (list of alternative AND-sets).
     """
     runtime_config = ModelRuntimeConfig()
+    publish_platform_engine_metadata(runtime_config, vllm_config)
     publish_vllm_structural_tag_reasoning_policy(runtime_config, vllm_config)
     publish_vllm_qwen_video_processor_contract(runtime_config, vllm_config)
     dp_range = get_dp_range_for_worker(vllm_config)

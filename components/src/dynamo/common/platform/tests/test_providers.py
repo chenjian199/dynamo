@@ -63,7 +63,7 @@ def test_selected_provider_only_and_device_identity(monkeypatch, platform_id):
     assert descriptor["devices"][0]["pci_bus_id"] == "0000:56:00.0"
     assert descriptor["capabilities"]["pd.transfer"]["state"] == "unknown"
     assert descriptor["capabilities"]["engine.text"]["state"] == "available"
-    context["tp"] = "2"
+    context["tp"] = "3"
     assert (
         getattr(providers, platform_id)(context)["capabilities"]["engine.text"]["state"]
         == "unknown"

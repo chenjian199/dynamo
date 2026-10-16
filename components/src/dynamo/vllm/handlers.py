@@ -18,7 +18,7 @@ from abc import ABC, abstractmethod
 from collections import deque
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import asynccontextmanager
+from contextlib import ExitStack, asynccontextmanager
 from typing import (
     Any,
     AsyncIterator,
@@ -2930,24 +2930,31 @@ class BaseWorkerHandler(ABC, Generic[RequestT, ResponseT]):
             yield {"status": "error", "message": str(e)}
 
     def cleanup(self):
-        """Clean up resources including temporary directories."""
-        if self._ep_capacity_executor is not None:
-            # wait=False on purpose: a snapshot stuck on an unresponsive GCS must
-            # not hold up worker shutdown, and the process is going away anyway.
-            self._ep_capacity_executor.shutdown(wait=False, cancel_futures=True)
-            self._ep_capacity_executor = None
-            self._ep_capacity_inflight = None
-        if self._custom_encoder is not None:
-            # Run backend.close() on the actor thread, then stop it — executor
-            # GC would only end the thread, never call close().
-            self._custom_encoder.shutdown()
-            self._custom_encoder = None
-            self._custom_encoder_adapter = None
-        for temp_dir in self.temp_dirs:
-            try:
-                temp_dir.cleanup()
-            except Exception as e:
-                logger.warning(f"Failed to clean up temp directory: {e}")
+        """Stop event producers before releasing their resources; safe to repeat."""
+        with ExitStack() as resources:
+            for temp_dir in self.temp_dirs:
+                resources.callback(temp_dir.cleanup)
+            self.temp_dirs = []
+            for publisher in self.kv_publishers or []:
+                resources.callback(publisher.shutdown)
+            self.kv_publishers = None
+            for relay in self.fpm_relays or []:
+                resources.callback(relay.shutdown)
+            self.fpm_relays = None
+            if self._ep_capacity_executor is not None:
+                # wait=False on purpose: a snapshot stuck on an unresponsive GCS must
+                # not hold up worker shutdown, and the process is going away anyway.
+                resources.callback(
+                    self._ep_capacity_executor.shutdown, wait=False, cancel_futures=True
+                )
+                self._ep_capacity_executor = None
+                self._ep_capacity_inflight = None
+            if self._custom_encoder is not None:
+                # Run backend.close() on the actor thread, then stop it — executor
+                # GC would only end the thread, never call close().
+                resources.callback(self._custom_encoder.shutdown)
+                self._custom_encoder = None
+                self._custom_encoder_adapter = None
 
     def _decode_prompt_embeds(self, prompt_embeds_base64: str):
         """

@@ -12,15 +12,18 @@ CACHE_VOLUME="${CACHE_VOLUME:-dynamo-metax-cache}"
 HTTP_PORT="${HTTP_PORT:-18000}"
 NATIVE_PORT="${NATIVE_PORT:-18001}"
 USE_MIRROR="${USE_MIRROR:-1}"
+MODEL_ROOT="${MODEL_ROOT:-/NFS_62}"
 
 case "${1:-help}" in
     create)
+        test -d "$MODEL_ROOT/Models" || { echo "Model share missing: $MODEL_ROOT/Models" >&2; exit 1; }
         # 对应官方 tag：0.26.0-maca.ai3.8.2.208-torch2.10-py312-ubuntu22.04-amd64
         # 同名容器存在时 docker run 会报错，不会删除或覆盖它。
         docker run -d --name "$CONTAINER_NAME" --init \
             --device=/dev/dri --device=/dev/mxcd --shm-size=8g --ulimit memlock=-1 \
             -p "127.0.0.1:${HTTP_PORT}:8000" -p "127.0.0.1:${NATIVE_PORT}:8001" \
             --mount "type=bind,src=${REPO_DIR},dst=/workspace/dynamo" \
+            --mount "type=bind,src=${MODEL_ROOT},dst=/NFS_62,readonly" \
             --mount "type=volume,src=${CACHE_VOLUME},dst=/var/cache/dynamo-metax" \
             -w /workspace/dynamo --entrypoint /bin/bash "$IMAGE" \
             -lc 'exec sleep infinity'
@@ -130,7 +133,7 @@ CONTAINER
   bash adapt/metax/metax-dev.sh shell   # 进入已激活开发 venv 的交互终端
 
 已有容器停止时先 docker start dynamo-metax-dev，无需重新 create。
-可覆盖：CONTAINER_NAME、IMAGE、CACHE_VOLUME、HTTP_PORT、NATIVE_PORT。
+可覆盖：CONTAINER_NAME、IMAGE、CACHE_VOLUME、HTTP_PORT、NATIVE_PORT、MODEL_ROOT（默认 /NFS_62，只读）。
 USE_MIRROR=0 可关闭本脚本的新镜像源配置；不会移除已有 Cargo 源配置。
 本脚本仅重现基础推理开发环境；未安装 aisimulate，也不表示完整 pip check 通过。
 启动和验收命令见 adapt/metax/metax-bringup.md。
