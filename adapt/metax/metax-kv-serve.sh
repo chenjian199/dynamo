@@ -25,7 +25,7 @@ read -r -a GPU_MEM_ARGV <<< "$GPU_MEM_ARGS"
 trap dynamo_exit_trap EXIT
 
 print_launch_banner "MetaX KV-aware routing (two TP=1 workers)" "$SERVED_MODEL_NAME" "$DYN_HTTP_PORT"
-python -m dynamo.frontend --router-mode kv &
+DYN_PLATFORM=cpu python -m dynamo.frontend --router-mode kv &
 for worker in 1 2; do
     if [[ "$worker" == 1 ]]; then
         gpu="${WORKER_GPU1:-1}"
@@ -40,7 +40,7 @@ for worker in 1 2; do
     fi
     # Enables InstrumentedScheduler, including immediate reset-event publication.
     CUDA_VISIBLE_DEVICES="$gpu" DYN_SYSTEM_PORT="$system_port" \
-        DYN_FORWARDPASS_METRIC_PORT="$fpm_port" \
+        DYN_PLATFORM=metax DYN_FORWARDPASS_METRIC_PORT="$fpm_port" \
         python -m dynamo.vllm --model "$MODEL_PATH" \
         --served-model-name "$SERVED_MODEL_NAME" \
         --enforce-eager --enable-prefix-caching --block-size "$BLOCK_SIZE" \

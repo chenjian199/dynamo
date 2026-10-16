@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use crate::component::{
     self, Component, ComponentBuilder, Endpoint, EndpointDiscoverySource, Instance, Namespace,
@@ -53,6 +55,7 @@ type RoutingOccupancyMap = HashMap<Endpoint, Weak<RoutingOccupancyState>>;
 pub struct DistributedRuntime {
     // local runtime
     runtime: Runtime,
+    platform: Arc<OnceLock<Option<crate::platform::PlatformDescriptor>>>,
 
     nats_client: Option<transports::nats::Client>,
     network_manager: Arc<NetworkManager>,
@@ -123,6 +126,40 @@ impl std::fmt::Debug for DistributedRuntime {
 }
 
 impl DistributedRuntime {
+    /// Configure once, before any endpoint registration. Clones share the identity.
+    pub fn configure_platform(
+        &self,
+        descriptor: crate::platform::PlatformDescriptor,
+    ) -> Result<()> {
+        descriptor.validate()?;
+        if let Ok(selected) = std::env::var("DYN_PLATFORM") {
+            anyhow::ensure!(
+                selected == descriptor.platform_id,
+                "DYN_PLATFORM conflicts with descriptor"
+            );
+        }
+        let requested = Some(descriptor);
+        let current = self.platform.get_or_init(|| requested.clone());
+        anyhow::ensure!(
+            current == &requested,
+            "platform already frozen with a different configuration"
+        );
+        Ok(())
+    }
+
+    pub fn platform(&self) -> Option<&crate::platform::PlatformDescriptor> {
+        self.platform.get().and_then(Option::as_ref)
+    }
+
+    pub(crate) fn freeze_platform(&self) -> Result<Option<&crate::platform::PlatformDescriptor>> {
+        let descriptor = self.platform.get_or_init(|| None).as_ref();
+        anyhow::ensure!(
+            std::env::var("DYN_PLATFORM").is_err() || descriptor.is_some(),
+            "DYN_PLATFORM requires configure_platform before endpoint registration"
+        );
+        Ok(descriptor)
+    }
+
     pub async fn new(runtime: Runtime, config: DistributedConfig) -> Result<Self> {
         let (discovery_backend, nats_config, request_plane, event_transport_kind) =
             config.dissolve();
@@ -217,6 +254,7 @@ impl DistributedRuntime {
             discovery_metadata,
             component_registry,
             endpoint_discovery_sources: Arc::new(Mutex::new(HashMap::new())),
+            platform: Arc::new(OnceLock::new()),
             routing_occupancy_states: Arc::new(Mutex::new(HashMap::new())),
             metrics_registry: crate::MetricsRegistry::new(),
             system_health,
@@ -226,6 +264,10 @@ impl DistributedRuntime {
             metadata_artifacts: crate::metadata_registry::MetadataArtifactRegistry::new(),
             event_transport_kind,
         };
+
+        if std::env::var("DYN_PLATFORM").as_deref() == Ok("cpu") {
+            distributed_runtime.configure_platform(crate::platform::PlatformDescriptor::cpu())?;
+        }
 
         // Initialize the uptime gauge in SystemHealth
         distributed_runtime
@@ -967,5 +1009,63 @@ mod tests {
             RequestPlaneMode::Tcp
         );
         assert!("invalid".parse::<RequestPlaneMode>().is_err());
+    }
+}
+
+#[cfg(test)]
+mod platform_tests {
+    use super::*;
+    use crate::platform::PlatformDescriptor;
+
+    async fn runtime() -> DistributedRuntime {
+        DistributedRuntime::new(
+            crate::Runtime::from_current().unwrap(),
+            DistributedConfig {
+                discovery_backend: DiscoveryBackend::KvStore(crate::storage::kv::Selector::Memory),
+                nats_config: None,
+                request_plane: RequestPlaneMode::Tcp,
+                event_transport_kind: crate::discovery::EventTransportKind::Zmq,
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn platform_freezes_across_clones_and_legacy_registration() {
+        temp_env::async_with_vars(
+            [("DYN_PLATFORM", None::<&str>), ("DYN_SYSTEM_PORT", None)],
+            async {
+                let drt = runtime().await;
+                let descriptor = PlatformDescriptor::cpu();
+                drt.configure_platform(descriptor.clone()).unwrap();
+                drt.clone().configure_platform(descriptor.clone()).unwrap();
+                assert_eq!(drt.freeze_platform().unwrap(), Some(&descriptor));
+                let mut changed = descriptor;
+                changed.provider_version = "2".into();
+                assert!(drt.configure_platform(changed).is_err());
+                let legacy = runtime().await;
+                assert!(legacy.freeze_platform().unwrap().is_none());
+                assert!(
+                    legacy
+                        .configure_platform(PlatformDescriptor::cpu())
+                        .is_err()
+                );
+            },
+        )
+        .await;
+    }
+
+    #[tokio::test]
+    async fn platform_explicit_selection_requires_matching_configuration() {
+        temp_env::async_with_vars(
+            [("DYN_PLATFORM", Some("metax")), ("DYN_SYSTEM_PORT", None)],
+            async {
+                let drt = runtime().await;
+                assert!(drt.configure_platform(PlatformDescriptor::cpu()).is_err());
+                assert!(drt.freeze_platform().is_err());
+            },
+        )
+        .await;
     }
 }

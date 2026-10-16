@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use super::{
     Discovery, DiscoveryEvent, DiscoveryInstance, DiscoveryInstanceId, DiscoveryQuery,
@@ -309,6 +311,7 @@ mod tests {
             endpoint: "endpoint".to_string(),
             transport: TransportType::Tcp(transport.to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         };
         let mut stream = client.list_and_watch(query.clone(), None).await.unwrap();
@@ -505,6 +508,7 @@ mod tests {
             endpoint: "test-ep".to_string(),
             transport: crate::component::TransportType::Nats("test-subject".to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         };
 

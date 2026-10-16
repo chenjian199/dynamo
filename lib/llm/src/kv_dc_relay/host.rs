@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! DC-scoped KV-cache Relay with one serialized CKF actor per physical pool.
 //!
@@ -2442,6 +2444,7 @@ mod tests {
                 endpoint: endpoint.name.clone(),
                 transport: dynamo_runtime::component::TransportType::Tcp("127.0.0.1:0".to_string()),
                 device_type: None,
+                platform: None,
                 request_plane_codec: None,
             })
             .await

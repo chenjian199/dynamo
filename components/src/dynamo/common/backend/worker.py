@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Thin Python shim over ``dynamo._core.backend.Worker``.
 
@@ -144,6 +146,7 @@ class WorkerConfig:
     # KV event/recovery ownership endpoint. None uses this worker's serving endpoint.
     kv_state_endpoint: Optional[str] = None
     default_thinking_mode: Optional[str] = None
+    platform: Optional[dict] = None
 
     @classmethod
     def from_runtime_config(
@@ -277,6 +280,7 @@ class Worker:
             route_to_encoder=self.config.route_to_encoder,
             media_decoder=self.config.media_decoder,
             media_fetcher=self.config.media_fetcher,
+            platform=self.config.platform,
         )
 
         loop = asyncio.get_running_loop()

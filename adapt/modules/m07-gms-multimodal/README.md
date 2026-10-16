@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M07 GMS 与多模态高级能力
 
-状态：详细设计草案。分为 GMS 和多模态两个独立工作包，分别记录支持情况。依赖 M01/M02/M03；设备原语与传输分别引用 M04/M05。
+状态：待实现（MetaX 当前阶段）。分为 GMS 和多模态两个独立工作包，分别记录支持情况。依赖 M01/M02/M03；设备原语与传输分别引用 M04/M05。
+
+## 实施进度（2026-10-15）
+
+GMS/VMM、共享恢复和多模态数据面均未验收。M01 中 gms.vmm 为 unknown；基础文本验证不覆盖本模块。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## GMS 的当前功能与扩展基础
 

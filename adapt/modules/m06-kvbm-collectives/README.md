@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M06 KVBM 与集合通信
 
-状态：详细设计草案。依赖 M04 的内存/事件和 M05 的实际传输路径；M03 提供引擎 KV 布局与容量。
+状态：待实现（MetaX 当前阶段）。依赖 M04 的内存/事件和 M05 的实际传输路径；M03 提供引擎 KV 布局与容量。
+
+## 实施进度（2026-10-15）
+
+当前基础推理及 KV 路由复用引擎本地 KV cache，没有实现 Dynamo KVBM 分层缓存或 MetaX 集合通信。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前功能与真实调用链
 

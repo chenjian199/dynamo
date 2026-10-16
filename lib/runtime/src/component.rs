@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! The [Component] module defines the top-level API for building distributed applications.
 //!
@@ -112,6 +114,8 @@ pub struct Instance {
     pub transport: TransportType,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub device_type: Option<DeviceType>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub platform: Option<crate::platform::PlatformDescriptor>,
     /// Payload codec accepted by this worker's request-plane endpoint.
     /// Missing metadata identifies a legacy JSON-only worker.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -119,6 +123,17 @@ pub struct Instance {
 }
 
 impl Instance {
+    pub fn device_kind(&self) -> Option<crate::platform::DeviceKind> {
+        self.platform
+            .as_ref()
+            .map(|p| p.device_kind)
+            .or_else(|| match self.device_type {
+                Some(DeviceType::Cpu) => Some(crate::platform::DeviceKind::Cpu),
+                Some(DeviceType::Cuda) => Some(crate::platform::DeviceKind::Accelerator),
+                None => None,
+            })
+    }
+
     pub fn id(&self) -> u64 {
         self.instance_id
     }
@@ -594,5 +609,55 @@ fn validate_allowed_chars(input: &str) -> Result<(), ValidationError> {
         Ok(())
     } else {
         Err(ValidationError::new("invalid_characters"))
+    }
+}
+
+#[cfg(test)]
+mod platform_tests {
+    use super::*;
+    use crate::discovery::{DiscoveryInstance, DiscoverySpec};
+    use crate::platform::{DeviceKind, PlatformDescriptor};
+    use serde_json::json;
+
+    #[test]
+    fn platform_discovery_legacy_and_metax_compatibility() {
+        let legacy = json!({"namespace":"test","component":"backend","endpoint":"generate",
+            "instance_id":1,"transport":{"tcp":"127.0.0.1:1234"}});
+        let unknown: Instance = serde_json::from_value(legacy.clone()).unwrap();
+        assert_eq!(unknown.device_kind(), None);
+        for (device, kind) in [("cuda", DeviceKind::Accelerator), ("cpu", DeviceKind::Cpu)] {
+            let mut wire = legacy.clone();
+            wire["device_type"] = json!(device);
+            let instance: Instance = serde_json::from_value(wire).unwrap();
+            assert_eq!(instance.device_kind(), Some(kind));
+            assert!(instance.platform.is_none());
+        }
+        let platform: PlatformDescriptor = serde_json::from_value(json!({"schema_version":1,
+            "platform_id":"metax","device_kind":"accelerator","provider_version":"1",
+            "devices":[{"ordinal":0,"uuid":"gpu-uuid","architecture":"C500","memory_bytes":1024}]}))
+        .unwrap();
+        let spec = DiscoverySpec::Endpoint {
+            namespace: "test".into(),
+            component: "backend".into(),
+            endpoint: "generate".into(),
+            transport: TransportType::Tcp("127.0.0.1:1234".into()),
+            device_type: None,
+            platform: Some(platform.clone()),
+            request_plane_codec: None,
+        };
+        let instance = spec.into_instance(1);
+        let wire = serde_json::to_value(&instance).unwrap();
+        assert!(wire.get("device_type").is_none());
+        assert_eq!(wire["platform"]["platform_id"], "metax");
+        let roundtrip: DiscoveryInstance = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(instance, roundtrip);
+        let DiscoveryInstance::Endpoint(endpoint) = roundtrip else {
+            panic!("endpoint")
+        };
+        assert_eq!(endpoint.device_kind(), Some(DeviceKind::Accelerator));
+        assert_eq!(endpoint.platform, Some(platform));
+        let mut unsupported = wire;
+        unsupported["platform"]["schema_version"] = json!(99);
+        assert!(serde_json::from_value::<DiscoveryInstance>(unsupported).is_err());
     }
 }

@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use std::sync::Arc;
 
@@ -20,7 +22,18 @@ use crate::{
     transports::nats,
 };
 
-fn endpoint_device_type() -> Option<DeviceType> {
+fn endpoint_device_type(drt: &crate::DistributedRuntime) -> Result<Option<DeviceType>> {
+    if let Some(platform) = drt.freeze_platform()? {
+        return Ok(match platform.device_kind {
+            crate::platform::DeviceKind::Cpu => Some(DeviceType::Cpu),
+            crate::platform::DeviceKind::Accelerator if platform.platform_id == "cuda" => {
+                Some(DeviceType::Cuda)
+            }
+            crate::platform::DeviceKind::Accelerator => None,
+        });
+    }
+    // Legacy deployments retain the pre-platform-contract CUDA/CPU inference.
+    tracing::warn!("No explicit platform descriptor; using legacy CUDA/CPU device inference");
     // Common CUDA masks that explicitly disable GPU visibility.
     if std::env::var("CUDA_VISIBLE_DEVICES")
         .ok()
@@ -30,7 +43,7 @@ fn endpoint_device_type() -> Option<DeviceType> {
         })
         .unwrap_or(false)
     {
-        return Some(DeviceType::Cpu);
+        return Ok(Some(DeviceType::Cpu));
     }
 
     // Container runtimes often use NVIDIA_VISIBLE_DEVICES to gate GPU visibility.
@@ -42,11 +55,11 @@ fn endpoint_device_type() -> Option<DeviceType> {
         })
         .unwrap_or(false)
     {
-        return Some(DeviceType::Cpu);
+        return Ok(Some(DeviceType::Cpu));
     }
 
     // Default: no explicit CPU override means this endpoint is CUDA-capable.
-    Some(DeviceType::Cuda)
+    Ok(Some(DeviceType::Cuda))
 }
 
 /// A registered endpoint whose exact callable instance is ready for use.
@@ -182,7 +195,8 @@ impl EndpointConfigBuilder {
                 namespace: endpoint_id.namespace.clone(),
                 instance_id: connection_id,
                 transport: transport.clone(),
-                device_type: endpoint_device_type(),
+                device_type: endpoint_device_type(endpoint.drt())?,
+                platform: endpoint.drt().platform().cloned(),
                 request_plane_codec: Some(RequestPlanePayloadCodec::configured()),
             };
             tracing::debug!(endpoint_name = %endpoint.name, "Registering endpoint health check target");
@@ -238,7 +252,8 @@ impl EndpointConfigBuilder {
             component: endpoint_id.component.clone(),
             endpoint: endpoint_id.name.clone(),
             transport,
-            device_type: endpoint_device_type(),
+            device_type: endpoint_device_type(endpoint.drt())?,
+            platform: endpoint.drt().platform().cloned(),
             request_plane_codec: Some(RequestPlanePayloadCodec::configured()),
         };
 
@@ -403,7 +418,8 @@ impl Endpoint {
             endpoint: endpoint_id.name,
             instance_id,
             transport,
-            device_type: endpoint_device_type(),
+            device_type: endpoint_device_type(drt)?,
+            platform: drt.platform().cloned(),
             request_plane_codec: Some(RequestPlanePayloadCodec::configured()),
         });
 
@@ -446,7 +462,8 @@ impl Endpoint {
             component: endpoint_id.component,
             endpoint: endpoint_id.name,
             transport,
-            device_type: endpoint_device_type(),
+            device_type: endpoint_device_type(drt)?,
+            platform: drt.platform().cloned(),
             request_plane_codec: Some(RequestPlanePayloadCodec::configured()),
         };
 

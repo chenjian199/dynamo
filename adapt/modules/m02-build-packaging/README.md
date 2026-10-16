@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M02 构建与依赖隔离
 
-状态：详细设计草案。依赖：M01 平台命名与注册契约；支撑所有模块的产物构建。
+状态：部分完成（MetaX 当前阶段）。依赖：M01 平台命名与注册契约；支撑所有模块的产物构建。
+
+## 实施进度（2026-10-15）
+
+已复用官方 MetaX 0.26.0 镜像，提供挂载源码、独立 venv、Rust 绑定及 editable 安装脚本。M01 新 crate 及相关 Cargo workspace 锁文件已接入；正式 MetaX 镜像模板、完整依赖隔离和可发布产物仍待实现。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前功能与约束
 

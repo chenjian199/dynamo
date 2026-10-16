@@ -7,6 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 状态：2026-10-15 完成首轮基础推理验收，标记为有限支持。已验证本页指定组合上的单机单卡文本推理、模型注册、流式/非流式生成、并发、取消及健康检查。PD、KVBM、KV-aware 路由和完整平台插件框架不在本阶段支持声明内。
 
+
+后续进度：已完成 [KV 路由验收](metax-kv-routing.md) 和 [M01 平台契约验收](metax-platform.md)。当前脚本显式使用 `DYN_PLATFORM=cpu`（frontend）和 `DYN_PLATFORM=metax`（worker）；手动启动相同命令时也应设置对应变量。M01 包含 Rust 修改，需要重新编译绑定并重启服务。
+
 ## 开发环境
 
 - 基础镜像：`cr.metax-tech.com/public-ai-release/maca/vllm-metax:0.26.0-maca.ai3.8.2.208-torch2.10-py312-ubuntu22.04-amd64`。
@@ -165,7 +168,7 @@ bash -n adapt/metax/metax-serve.sh
 - 开发环境不是最终发布镜像或完整依赖锁。官方镜像自身 `pip check` 就有上游 CUDA 依赖/版本声明不一致；开发环境相对它新增的缺项为 `aisimulate==0.12.0`。本阶段未使用仿真模块，未安装其 JAX 依赖链。正式打包时须完成 M02 的依赖拆分，不以 `--no-deps` 代替依赖验收。
 - runtime 构建为调试 profile，未进行吞吐或延迟认证。
 - 本次仅实测官方 MetaX vLLM 0.26.0 组合；源码保留新版异常基类路径，但未执行 vLLM 0.28.0 环境回归，不能据此声明两个版本均已验收。
-- 尚未验证多卡 TP/DP、多节点、PD、NIXL/Mooncake 传输、KV-aware 路由、KVBM、GMS、多模态、量化及 `--use-vllm-processor` 前端路径。镜像里存在相关包不代表这些路径已经适配。
+- 尚未验证多卡 TP/DP、多节点、PD、NIXL/Mooncake 传输、KVBM、GMS、多模态、量化及 `--use-vllm-processor` 前端路径。镜像里存在相关包不代表这些路径已经适配。
 - CuPy/NumPy 的兼容问题仍需在多模态阶段单独处理。当前修复保证文本 Worker 不加载这套可选依赖。
 
 容器内日志保存在 `/var/cache/dynamo-metax/logs/`：`native-vllm.log`、`runtime-build-mirror.log`、`dynamo-validated.log`、`invalid-model.log`、`worker-factory-tests.log`、`error-tests.log`、`pip-check.txt` 与 `vendor-pip-check.txt`。模型和编译缓存位于命名卷，Python venv 与 Rust 工具链在容器可写层；删除容器后需重建后两者。

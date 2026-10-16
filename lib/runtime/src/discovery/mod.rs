@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use anyhow::{Context, Result};
 use async_trait::async_trait;
@@ -561,6 +563,7 @@ pub enum DiscoverySpec {
         /// Optional execution device for this endpoint instance.
         /// Used by hetero routing to distinguish CPU and CUDA workers.
         device_type: Option<DeviceType>,
+        platform: Option<crate::platform::PlatformDescriptor>,
         /// Payload codec accepted by this endpoint's request-plane worker.
         /// `None` represents a legacy JSON-only worker.
         request_plane_codec: Option<RequestPlanePayloadCodec>,
@@ -652,6 +655,7 @@ impl DiscoverySpec {
                 endpoint,
                 transport,
                 device_type,
+                platform,
                 request_plane_codec,
             } => DiscoveryInstance::Endpoint(crate::component::Instance {
                 namespace,
@@ -660,6 +664,7 @@ impl DiscoverySpec {
                 instance_id: default_instance_id,
                 transport,
                 device_type,
+                platform,
                 request_plane_codec,
             }),
             Self::Model {
@@ -1635,6 +1640,7 @@ mod tests {
             endpoint: "generate".to_string(),
             transport: TransportType::Nats("worker.generate".to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: Some(RequestPlanePayloadCodec::Msgpack),
         }
         .into_instance(42);

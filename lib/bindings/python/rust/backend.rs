@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! PyO3 bridge for `dynamo_backend_common::Worker`.
 //!
@@ -421,6 +423,7 @@ impl WorkerConfig {
         media_fetcher = None,
         kv_state_endpoint = None,
         default_thinking_mode = None,
+        platform = None,
     ))]
     #[allow(clippy::too_many_arguments)]
     fn new(
@@ -450,6 +453,7 @@ impl WorkerConfig {
         media_fetcher: Option<MediaFetcher>,
         kv_state_endpoint: Option<String>,
         default_thinking_mode: Option<String>,
+        platform: Option<PyObject>,
     ) -> PyResult<Self> {
         // Delegating to the same conversion used by `register_model`.
         let model_input_rs = match model_input {
@@ -506,6 +510,7 @@ impl WorkerConfig {
         };
         Ok(Self {
             inner: RsWorkerConfig {
+                platform: platform.map(|obj| depythonize(obj.bind(py))).transpose()?,
                 namespace,
                 component,
                 endpoint,

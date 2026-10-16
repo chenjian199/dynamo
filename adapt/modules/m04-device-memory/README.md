@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M04 设备运行时与内存
 
-状态：详细设计草案。依赖 M01/M02；提供 M05/M06 使用的内存和完成语义。GMS 的 VMM 抽象归 M07，避免重复实现同一服务层。
+状态：待实现（MetaX 当前阶段）。依赖 M01/M02；提供 M05/M06 使用的内存和完成语义。GMS 的 VMM 抽象归 M07，避免重复实现同一服务层。
+
+## 实施进度（2026-10-15）
+
+M01 已能查询设备身份与容量，但未新增 MetaX 设备分配、注册内存、流或完成事件实现。torch 可用不等于本模块完成。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前功能与调用链
 

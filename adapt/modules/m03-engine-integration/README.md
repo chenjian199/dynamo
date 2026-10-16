@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M03 引擎与 KV 事件接入
 
-状态：详细设计草案。依赖 M01/M02；PD 协议由 M05 负责，设备内存由 M04 负责。
+状态：部分完成（MetaX 当前阶段）。依赖 M01/M02；PD 协议由 M05 负责，设备内存由 M04 负责。
+
+## 实施进度（2026-10-15）
+
+C500 上 Qwen3-0.6B 聚合文本推理与单机双 Worker 的真实 KV 路由已验收；包含事件、前缀选择、淘汰和清空。已接入 M01 预检查及平台注册；TP/DP 扩展、PD、多模态及其他高级组合尚未验证。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前功能与实际入口
 

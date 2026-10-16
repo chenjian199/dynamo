@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M10 契约测试与平台认证
 
-状态：详细设计草案。覆盖 M01–M09，从第一阶段开始执行。当前没有新增测试实现或目标硬件通过结论。
+状态：部分完成（MetaX 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
+
+## 实施进度（2026-10-15）
+
+已有基础推理、真实 KV 路由和 M01 契约/真机验收脚本及 JSON 证据。尚未建立完整硬件 CI、多机/多并行配置矩阵、压力与长期稳定性认证。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前测试体系
 

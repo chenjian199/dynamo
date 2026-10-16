@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Lease-owned attachment intents for an external KV state-agent host.
 
@@ -241,6 +243,7 @@ async fn producer_instance(endpoint: &Endpoint) -> Result<Instance> {
         instance_id: connection_id,
         transport: build_transport_type(endpoint, &endpoint.id(), connection_id).await?,
         device_type: None,
+        platform: None,
         request_plane_codec: None,
     })
 }
@@ -472,6 +475,7 @@ mod tests {
             instance_id,
             transport: TransportType::Tcp(format!("tcp://127.0.0.1:{}", 10_000 + instance_id)),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         }
     }

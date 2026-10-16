@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Version-aware KV state-source selection and router recovery.
 //!
@@ -1872,6 +1874,7 @@ mod tests {
             instance_id,
             transport: TransportType::Tcp("tcp://127.0.0.1:1234".to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         }
     }

@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M08 Kubernetes 与平台部署
 
-状态：详细设计草案。依赖 M01 平台描述和 M02 镜像；为 M09 提供规范化资源语义。基础部署不依赖 GMS，GMS/DRA 作为高级组合验收。
+状态：待实现（MetaX 当前阶段）。依赖 M01 平台描述和 M02 镜像；为 M09 提供规范化资源语义。基础部署不依赖 GMS，GMS/DRA 作为高级组合验收。
+
+## 实施进度（2026-10-15）
+
+当前使用 Docker 开发容器与脚本显式设置 DYN_PLATFORM；尚未修改 Operator、DGD、Helm 或 MetaX 设备资源计数。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前功能与调用关系
 

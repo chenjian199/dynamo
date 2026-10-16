@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import asyncio
 import os
@@ -79,6 +81,14 @@ class DistributedRuntime:
             enable_nats: Deprecated; NATS enablement is inferred from runtime config
             event_plane: Event plane transport ("nats" or "zmq")
         """
+        ...
+
+    def configure_platform(self, descriptor: Dict[str, Any]) -> None:
+        """Validate and freeze platform identity before endpoint registration."""
+        ...
+
+    @property
+    def platform(self) -> Optional[Dict[str, Any]]:
         ...
 
     def endpoint(self, path: str) -> Endpoint:
@@ -282,6 +292,10 @@ class Instance:
     def endpoint(self) -> str: ...
     @property
     def transport(self) -> TransportType: ...
+    @property
+    def platform(self) -> Optional[Dict[str, Any]]:
+        ...
+
     @property
     def device_type(self) -> Optional[str]:
         """Device type, e.g. "cpu" or "cuda", or None if unspecified."""
@@ -3451,6 +3465,7 @@ class backend:
             media_fetcher: Optional[MediaFetcher] = None,
             kv_state_endpoint: Optional[str] = None,
             default_thinking_mode: Optional[str] = None,
+            platform: Optional[dict] = None,
         ) -> None: ...
 
     class Worker:

@@ -7,6 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 
 本阶段使用[基础推理环境](metax-bringup.md)中的官方 vLLM-metax 0.26.0 镜像、Dynamo v1.5.1 与同一份 Qwen3-0.6B 权重。2026-10-15 已通过单机两个独立 TP=1 Worker 的真实 KV 事件路由验收；不涉及 Worker 间 KV 数据传输。源码基于提交 `8bb9bd25ca` 加本次改动，具体文件 SHA256 记录在结果中。镜像 digest 与基础阶段一致：`sha256:e7e59c3713ad4ef1290cc0d5029759f2844b2695f36de0bca2f4630c671add95`。
 
+
+后续进度：已完成 [M01 平台契约](metax-platform.md)。当前脚本的 Worker 以 `metax` 身份注册，frontend 为 CPU；本页原始 JSON 保留首次验收版本，新身份下的完整回归见 [M01 KV 结果](metax-platform-kv-results.json)。
+
 ## 启动
 
 以下在已完成 editable 安装的 `dynamo-metax-dev` 容器中执行：

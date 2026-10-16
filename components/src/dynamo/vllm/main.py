@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import asyncio
 import json
@@ -26,6 +28,7 @@ from vllm.v1.metrics.prometheus import setup_multiprocess_prometheus
 from dynamo.common.config_dump import dump_config
 from dynamo.common.configuration.groups.router_args import build_router_config
 from dynamo.common.model_fetch import fetch_model
+from dynamo.common.platform.preflight import prepare_vllm_platform
 from dynamo.common.snapshot.lifecycle import elect_and_wake
 from dynamo.common.snapshot.restore_context import (
     parse_snapshot_restore_runtime_config,
@@ -161,6 +164,7 @@ async def worker(argv: list[str] | None = None) -> None:
     if argv is None:
         argv = sys.argv[1:]
     config = parse_args(argv)
+    platform_descriptor = prepare_vllm_platform(config)
 
     embedding_process_child = is_embedding_process_child()
     if config.embedding_worker_processes > 1 and os.environ.get(
@@ -227,6 +231,9 @@ async def worker(argv: list[str] | None = None) -> None:
         request_plane=config.request_plane,
         event_plane=config.event_plane,
     )
+
+    if platform_descriptor is not None:
+        runtime.configure_platform(platform_descriptor)
 
     if snapshot_controller is not None:
         # The flock lives on the open fd, not on any Python reference; the

@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use std::collections::{HashMap, HashSet};
 use std::pin::Pin;
@@ -776,6 +778,7 @@ mod tests {
             instance_id,
             transport: TransportType::Nats("nats://127.0.0.1:4222".to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         })
     }
@@ -1120,6 +1123,7 @@ mod tests {
             component: "comp1".to_string(),
             endpoint: "ep1".to_string(),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
             transport: TransportType::Nats("nats://localhost:4222".to_string()),
         };
@@ -1129,6 +1133,7 @@ mod tests {
             namespace: "ns1".to_string(),
             component: "comp1".to_string(),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
             endpoint: "ep2".to_string(),
             transport: TransportType::Nats("nats://localhost:4222".to_string()),
@@ -1138,6 +1143,7 @@ mod tests {
         let spec3 = DiscoverySpec::Endpoint {
             namespace: "ns2".to_string(),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
             component: "comp2".to_string(),
             endpoint: "ep1".to_string(),
@@ -1187,6 +1193,7 @@ mod tests {
 
             let spec = DiscoverySpec::Endpoint {
                 device_type: None,
+                platform: None,
                 request_plane_codec: None,
                 namespace: "test".to_string(),
                 component: "comp1".to_string(),

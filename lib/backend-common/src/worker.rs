@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! `Worker` — runtime lifecycle driver for an [`LLMEngine`].
 //!
@@ -125,6 +127,8 @@ impl RuntimeConfig {
 /// Per-worker runtime configuration.
 #[derive(Clone, Debug)]
 pub struct WorkerConfig {
+    /// Probed platform identity, configured before engine startup and discovery.
+    pub platform: Option<dynamo_runtime::platform::PlatformDescriptor>,
     /// Dynamo namespace for discovery routing.
     pub namespace: String,
     /// Component name within the namespace.
@@ -220,6 +224,7 @@ impl WorkerConfig {
 impl Default for WorkerConfig {
     fn default() -> Self {
         Self {
+            platform: None,
             namespace: "dynamo".to_string(),
             component: "backend".to_string(),
             endpoint: "generate".to_string(),
@@ -596,6 +601,14 @@ impl Worker {
                     format!("distributed runtime: {e}"),
                 )
             })?;
+        if let Some(platform) = &self.config.platform {
+            drt.configure_platform(platform.clone()).map_err(|e| {
+                err(
+                    ErrorType::Backend(BackendError::InvalidArgument),
+                    format!("platform: {e}"),
+                )
+            })?;
+        }
         tracing::debug!("distributed runtime connected");
 
         let component = drt
@@ -4109,6 +4122,7 @@ mod handoff_and_lifecycle_tests {
             instance_id: 1,
             transport: dynamo_runtime::component::TransportType::Tcp("127.0.0.1:0".to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         };
         system_health.lock().register_health_check_target(

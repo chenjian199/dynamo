@@ -151,6 +151,14 @@ async def run(args, report):
             f"{args.namespace}.backend.clear_kv_blocks"
         ).client()
 
+        async def clear_endpoints_ready():
+            discovered = set(clear_client.instance_ids())
+            return {worker["id"] for worker in workers} <= discovered, sorted(
+                discovered
+            )
+
+        await wait_until(clear_endpoints_ready, "both clear_kv_blocks endpoints")
+
         async def clear(worker):
             stream = await clear_client.direct({}, worker["id"], annotated=False)
             replies = [reply async for reply in stream]

@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use std::collections::BTreeMap;
 use std::future::Future;
@@ -1119,6 +1121,7 @@ mod tests {
             instance_id: 42,
             transport: TransportType::Nats("worker.generate".to_string()),
             device_type: None,
+            platform: None,
             request_plane_codec: None,
         };
         let payload_codec = payload_codec_for_worker(Some(&worker));

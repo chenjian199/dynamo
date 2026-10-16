@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 // TODO: (DEP-635) this file should be renamed to system_http_server.rs
 //  it is being used not just for status, health, but others like loras management.
@@ -1326,6 +1328,7 @@ mod integration_tests {
                             instance_id: 1,
                             transport: crate::component::TransportType::Nats(endpoint.to_string()),
                             device_type: None,
+                            platform: None,
                             request_plane_codec: None,
                         },
                         health_check_payload.clone(),

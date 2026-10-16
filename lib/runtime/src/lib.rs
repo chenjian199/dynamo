@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Dynamo
 
@@ -19,6 +21,8 @@ use async_once_cell::OnceCell;
 
 pub mod config;
 pub use config::RuntimeConfig;
+
+pub use dynamo_platform as platform;
 
 pub mod component;
 pub mod compute;

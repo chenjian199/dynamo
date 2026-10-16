@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use super::{AsyncEngineContextProvider, ResponseStream};
 use crate::error::{BackendError, DynamoError, ErrorType, match_error_chain};
@@ -7,7 +9,7 @@ use crate::pipeline::network::egress::route_span::{
     get_route_trace_context, record_route_error, record_route_span_start, wrap_route_span,
 };
 use crate::{
-    component::{Client, DeviceType, Endpoint, Instance, RoutingInstances},
+    component::{Client, Endpoint, Instance, RoutingInstances},
     discovery::EndpointInstanceId,
     dynamo_nvtx_range,
     engine::{AsyncEngine, AsyncEngineContext, Data},
@@ -1334,12 +1336,13 @@ where
             .instances()
             .iter()
             .map(|instance| {
-                let device = if matches!(instance.device_type, Some(DeviceType::Cpu)) {
-                    RouteDevice::Cpu
-                } else {
-                    RouteDevice::Accelerator
-                };
-                (instance.instance_id, device)
+                (
+                    instance.instance_id,
+                    instance.device_kind().map(|kind| match kind {
+                        crate::platform::DeviceKind::Cpu => RouteDevice::Cpu,
+                        crate::platform::DeviceKind::Accelerator => RouteDevice::Accelerator,
+                    }),
+                )
             })
             .collect::<HashMap<_, _>>();
         let cuda_to_cpu_ratio = std::env::var("DYN_ENCODER_CUDA_TO_CPU_RATIO")
@@ -1376,10 +1379,12 @@ where
             .len();
         let candidates = instance_ids
             .iter()
-            .map(|worker_id| RouteCandidate {
-                target: RouteTarget::worker(*worker_id),
-                device: device_type_map.get(worker_id).copied().unwrap_or_default(),
-                cache_hits: cache_hits.get(worker_id).copied().unwrap_or_default(),
+            .filter_map(|worker_id| {
+                Some(RouteCandidate {
+                    target: RouteTarget::worker(*worker_id),
+                    device: device_type_map.get(worker_id).copied().flatten()?,
+                    cache_hits: cache_hits.get(worker_id).copied().unwrap_or_default(),
+                })
             })
             .collect::<Vec<_>>();
 
@@ -1500,11 +1505,11 @@ where
                 .map(|decision| decision.target.worker_id),
             RouterMode::DeviceAwareWeighted => {
                 let state = self.occupancy_state.as_deref()?;
-                let device_type_map: HashMap<u64, Option<DeviceType>> = self
+                let device_type_map: HashMap<u64, Option<crate::platform::DeviceKind>> = self
                     .client
                     .instances()
                     .iter()
-                    .map(|instance| (instance.instance_id, instance.device_type.clone()))
+                    .map(|instance| (instance.instance_id, instance.device_kind()))
                     .collect();
                 let cuda_to_cpu_ratio = std::env::var("DYN_ENCODER_CUDA_TO_CPU_RATIO")
                     .ok()
@@ -1513,17 +1518,17 @@ where
                     .unwrap_or(8);
                 let candidates = instance_ids
                     .iter()
-                    .map(|worker_id| RouteCandidate {
-                        target: RouteTarget::worker(*worker_id),
-                        device: if matches!(
-                            device_type_map.get(worker_id),
-                            Some(Some(DeviceType::Cpu))
-                        ) {
-                            RouteDevice::Cpu
-                        } else {
-                            RouteDevice::Accelerator
-                        },
-                        cache_hits: 0,
+                    .filter_map(|worker_id| {
+                        Some(RouteCandidate {
+                            target: RouteTarget::worker(*worker_id),
+                            device: match device_type_map.get(worker_id).copied().flatten()? {
+                                crate::platform::DeviceKind::Cpu => RouteDevice::Cpu,
+                                crate::platform::DeviceKind::Accelerator => {
+                                    RouteDevice::Accelerator
+                                }
+                            },
+                            cache_hits: 0,
+                        })
                     })
                     .collect::<Vec<_>>();
                 state

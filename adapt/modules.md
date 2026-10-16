@@ -1,11 +1,13 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # 模块细化与实施工作清单
 
-本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。运行时代码尚未实施，厂商支持结论仍按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
+本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX；M02/M03/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
 
 ## 依赖顺序
 
@@ -15,14 +17,19 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M01 平台契约与能力注册
 
+当前状态：第一版完成：MetaX 身份/能力/发现；CUDA 真机待验证。
+
 详细设计：[功能、接口、兼容策略与文件计划](modules/m01-platform-contract/README.md)。
 
 - 源码入口：[component.rs](../lib/runtime/src/component.rs)、[endpoint.rs](../lib/runtime/src/component/endpoint.rs)、[push_router.rs](../lib/runtime/src/pipeline/network/egress/push_router.rs)。
 - 工作：确定平台 ID、设备描述、能力条件、版本协商及规范化错误；替换默认 CUDA 推断；明确服务发现与 Python/Rust 绑定字段兼容策略。
-- 待细化：部署配置从何处指定平台；运行时探测如何接入；未知平台和未知能力如何处理；旧客户端是否需要迁移。
+- 已交付：`DYN_PLATFORM`、延迟加载的 provider、schema 1、`configure_platform`、发现与 Python 绑定、能力条件检查；MetaX 不再标为 CUDA。
+- 剩余扩展：CUDA 真机回归、Ascend provider，以及各后续模块自己的能力探测。MetaX 需使用支持新契约的控制面。
 - 验收：所选平台正确注册；不依赖其他厂商 SDK；不支持的必要能力在就绪前明确失败；旧 CUDA 行为兼容。
 
 ## M02 构建与依赖隔离
+
+当前状态：部分完成：官方镜像 + editable；正式产物待实现。
 
 详细设计：[依赖图、产物设计与文件计划](modules/m02-build-packaging/README.md)。
 
@@ -33,6 +40,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M03 引擎与 KV 事件接入
 
+当前状态：部分完成：基础文本 + 真实 KV 路由。
+
 详细设计：[真实入口、生命周期、事件与文件计划](modules/m03-engine-integration/README.md)。
 
 - 源码入口：[engine.py](../components/src/dynamo/common/backend/engine.py)、[worker.py](../components/src/dynamo/common/backend/worker.py)、[publisher.py](../components/src/dynamo/common/backend/publisher.py)、[vLLM](../components/src/dynamo/vllm)、[SGLang](../components/src/dynamo/sglang)。
@@ -41,6 +50,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 - 验收：流式、并发、取消与清理正确；不支持的模型/精度提前拒绝；KV-aware 路由有真实事件和容量证据。
 
 ## M04 设备运行时与内存
+
+当前状态：待实现。
 
 详细设计：[内存所有权、流与事件、文件计划](modules/m04-device-memory/README.md)。
 
@@ -51,6 +62,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M05 PD 协调与数据传输
 
+当前状态：待实现/验证。
+
 详细设计：[控制面与数据面、传输状态、文件计划](modules/m05-pd-transfer/README.md)。
 
 - 源码入口：[kv_connector_protocols.py](../components/src/dynamo/vllm/kv_connector_protocols.py)、[handlers.py](../components/src/dynamo/vllm/handlers.py)、[SGLang disagg](../components/src/dynamo/sglang/_disagg.py)、[NIXL 内存接口](../lib/memory/src/nixl.rs)。
@@ -59,6 +72,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 - 验收：同平台单机/跨节点 PD 正确；完成与块释放时序正确；超时、对端退出及取消有明确行为和可回收资源。
 
 ## M06 KVBM 与集合通信
+
+当前状态：待实现。
 
 详细设计：[活动调用链、布局与事件桥接、文件计划](modules/m06-kvbm-collectives/README.md)。
 
@@ -69,6 +84,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M07 GMS 与多模态高级能力
 
+当前状态：待实现。
+
 详细设计：[现有 VMM 抽象、媒体数据面与文件计划](modules/m07-gms-multimodal/README.md)。
 
 - 源码入口：[gpu_memory_service](../lib/gpu_memory_service)、[multimodal](../components/src/dynamo/common/multimodal)、[media_nixl.py](../components/src/dynamo/common/utils/media_nixl.py)、[vLLM Omni](../components/src/dynamo/vllm/omni)。
@@ -77,6 +94,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 - 验收：声明的 GMS 共享与恢复语义通过；多模态输入、缓存、传输与释放正确。普通重启不得冒充 GMS 等价恢复。
 
 ## M08 Kubernetes 与平台部署
+
+当前状态：待实现。
 
 详细设计：[资源语义、API 兼容与生成文件计划](modules/m08-kubernetes/README.md)。
 
@@ -87,6 +106,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M09 遥测与 Planner/Profiler
 
+当前状态：基础引擎指标可用；平台遥测/Planner 待实现。
+
 详细设计：[指标、功耗、性能画像与文件计划](modules/m09-telemetry-planner/README.md)。
 
 - 源码入口：[planner](../components/src/dynamo/planner)、[profiler](../components/src/dynamo/profiler)、[dgd_services.py](../components/src/dynamo/planner/monitoring/dgd_services.py)、[Power Agent](../deploy/power-agent)、[系统信息](../components/src/dynamo/common/config_dump/system_info.py)。
@@ -95,6 +116,8 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 - 验收：指标不错误归零；按真实资源与画像伸缩；同平台内完成 SLO 验证；功耗能力未经实测不启用。
 
 ## M10 契约测试与平台认证
+
+当前状态：部分完成：契约及当前硬件冒烟验收。
 
 详细设计：[测试分层、认证记录与文件计划](modules/m10-validation/README.md)。
 

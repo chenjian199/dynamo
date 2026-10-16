@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 use dynamo_llm::local_model::{
     LocalModel, register_model_card, update_model_taints as update_model_taints_rs,
@@ -979,6 +981,11 @@ impl Instance {
         })
     }
 
+    #[getter]
+    fn platform(&self, py: Python<'_>) -> PyResult<PyObject> {
+        Ok(pythonize::pythonize(py, &self.inner.platform)?.unbind())
+    }
+
     fn __str__(&self) -> String {
         self.inner.to_string()
     }
@@ -1247,6 +1254,16 @@ impl DistributedRuntime {
             inner,
             event_loop: py.None(),
         })
+    }
+
+    fn configure_platform(&self, descriptor: &Bound<'_, PyDict>) -> PyResult<()> {
+        let value: rs::platform::PlatformDescriptor = pythonize::depythonize(descriptor)?;
+        self.inner.configure_platform(value).map_err(to_pyerr)
+    }
+
+    #[getter]
+    fn platform(&self, py: Python<'_>) -> PyResult<PyObject> {
+        Ok(pythonize::pythonize(py, &self.inner.platform())?.unbind())
     }
 
     /// Get an endpoint directly by path (e.g., "namespace.component.endpoint" or "dyn://...").

@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! TCP Request Plane Client
 //!
@@ -3362,6 +3364,7 @@ mod tests {
                 instance_id: 1,
                 transport: TransportType::Tcp(tcp_addr),
                 device_type: None,
+                platform: None,
                 request_plane_codec: None,
             }])
             .unwrap();

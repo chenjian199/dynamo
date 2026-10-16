@@ -34,8 +34,8 @@ read -r -a GPU_MEM_ARGV <<< "$GPU_MEM_ARGS"
 trap dynamo_exit_trap EXIT
 
 print_launch_banner "MetaX basic text inference" "$SERVED_MODEL_NAME" "$DYN_HTTP_PORT"
-python -m dynamo.frontend --router-mode round-robin &
-python -m dynamo.vllm --model "$MODEL_PATH" \
+DYN_PLATFORM=cpu python -m dynamo.frontend --router-mode round-robin &
+DYN_PLATFORM=metax python -m dynamo.vllm --model "$MODEL_PATH" \
     --served-model-name "$SERVED_MODEL_NAME" \
     --enforce-eager --max-model-len "$MAX_MODEL_LEN" \
     --max-num-seqs "$MAX_CONCURRENT_SEQS" \

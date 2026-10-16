@@ -1,11 +1,19 @@
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
 # M09 遥测与 Planner Profiler
 
-状态：详细设计草案。依赖 M01/M03/M08；功耗与性能建模分为可独立交付的子能力。
+状态：部分基础指标可用，平台适配待实现（MetaX 当前阶段）。依赖 M01/M03/M08；功耗与性能建模分为可独立交付的子能力。
+
+## 实施进度（2026-10-15）
+
+KV 验收已使用引擎容量和 Worker 指标；M01 只读取静态设备/软件身份。MetaX 动态遥测、功耗 API、Profiler/Planner 画像与伸缩尚未实现。
+
+证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
 
 ## 当前功能与厂商绑定
 

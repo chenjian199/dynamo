@@ -1,0 +1,226 @@
+{
+  "passed": true,
+  "date_utc": "2026-10-15T08:36:37Z",
+  "source_commit": "71a018c9b89cef7d56f6a0f6c615978563815c21",
+  "source_sha256": {
+    "Cargo.lock": "f6a6a66171213b00bdefea03bc844398dddaaa3d7175b453b6bcabd0c16c8457",
+    "lib/bindings/python/Cargo.lock": "0ee4310f4298afed4dc24c31556c51ecf74faad57e9fbce335bca212c3224136",
+    "lib/bindings/kvbm/Cargo.lock": "e5a674c34e24e9a02d1f1a0ea101ec2ced7c8e663eac56ab77d73bdedebef169",
+    "lib/runtime/examples/Cargo.lock": "0eb3b55daac2c059bddd5a3059a5f632a7300f75e03626c2d7d6046315a2e634",
+    "lib/platform/src/lib.rs": "bc66209a9be58295ec8667f2b0c4204fea375af09fc196056344faf3686c796c",
+    "lib/runtime/src/distributed.rs": "a4f19ffe7f25d601536d5afc20ed0a0de736e27abe857da25d72c4fddca97c05",
+    "lib/runtime/src/component.rs": "061e796bc53180524d6a1b94d3212738490d8ce49831d420356cdd4f8d64a54a",
+    "lib/runtime/src/component/endpoint.rs": "d00992b92b0963d59b61b1dbc9304ff8f84c1fae774511551bf174bf72cc4736",
+    "lib/runtime/src/pipeline/network/egress/push_router.rs": "d6ba87fca8214c4c2e1bd501adab036ac081966749574f9fad4748ddcf08b024",
+    "lib/bindings/python/rust/lib.rs": "089ee8d830f6f30b869e8b822013fd7feeff3333b92d1d332866710b10be362b",
+    "lib/bindings/python/rust/backend.rs": "eb44364cc21120b3955ee35228c4126acc29fa9b09104f55a2ec803bb156b1ac",
+    "lib/backend-common/src/worker.rs": "49daf21b18b10ddc081582e9cb7aeaf3d4cce7e1bb0fd913a04314080e96cbc2",
+    "components/src/dynamo/vllm/main.py": "51ef0a3e57284200fd8d44ee5235bb8ce1c9c0677a002524075378a78bfb9a5d",
+    "adapt/metax/metax-serve.sh": "df2b20b4401f5add7d059387a1c2e3f27d3b3a04c5d34c2dd8af550ee70d46c3",
+    "adapt/metax/metax-kv-serve.sh": "70a9f50d932d9ec3520df9aa9e0f2c0052327bcfd8a5ffdc5985dd2ac0c5b6f0",
+    "adapt/metax/metax-platform-smoke.py": "3ee6747933afb32cacf13616e064e587c5ff55b4de67ddcf6f67db80c5caa15d",
+    "components/src/dynamo/common/platform/providers.py": "696b6cfb3d4346706005d220c0a7a42323bc25acf327fe97f10a91acb3de3178",
+    "components/src/dynamo/common/platform/registry.py": "ec2995fe12983b8aec3989ff855f83123191e0a9174350963758f79274d5e212",
+    "components/src/dynamo/common/platform/preflight.py": "d9c0a5543cb2cb952d48aa4aeead1183c1ef98a9885f6aa1ea701ed8da7af1a2",
+    "components/src/dynamo/common/platform/__init__.py": "1f74067e85424e14d3b74c4da00eb4f29c7918e52f27245f7bdc0360866d6f81"
+  },
+  "cuda_hardware_verified": false,
+  "configuration_rejections": {
+    "schema_version": "cpu: unsupported_schema: requires platform schema 1",
+    "provider_version": "platform already frozen with a different configuration"
+  },
+  "workers": [
+    {
+      "instance_id": 15383328607651464151,
+      "device_type": null,
+      "platform": {
+        "schema_version": 1,
+        "platform_id": "metax",
+        "device_kind": "accelerator",
+        "provider_version": "1",
+        "software": {
+          "driver": "3.8.30",
+          "maca_build": "3.8.2.208",
+          "maca_runtime": "3.8.2.6",
+          "torch": "2.10.0+metax3.8.2.2",
+          "vllm": "0.26.0",
+          "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0"
+        },
+        "devices": [
+          {
+            "ordinal": 0,
+            "uuid": "49c4c99d-2dac-4c23-536c-d38fdf94b43d",
+            "architecture": "MetaX C500",
+            "memory_bytes": 68283269120,
+            "pci_bus_id": "0000:56:00.0"
+          }
+        ],
+        "capabilities": {
+          "device.compute": {
+            "state": "available",
+            "provider": "metax",
+            "reason": "device UUID, model and memory queried through selected torch backend",
+            "conditions": {}
+          },
+          "device.rdma": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "engine.text": {
+            "state": "available",
+            "provider": "metax",
+            "reason": "supported aggregate eager TP=1/DP=1 text stack; readiness still requires engine initialization",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "kv_events": "true",
+              "model": "/var/cache/dynamo-metax/huggingface/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "gms.vmm": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "kv.events": {
+            "state": "available",
+            "provider": "metax",
+            "reason": "vLLM ZMQ events and prefix caching enabled",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "kv_events": "true",
+              "model": "/var/cache/dynamo-metax/huggingface/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "kvbm.offload": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "pd.transfer": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "power.control": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          }
+        }
+      }
+    },
+    {
+      "instance_id": 11740876082341948516,
+      "device_type": null,
+      "platform": {
+        "schema_version": 1,
+        "platform_id": "metax",
+        "device_kind": "accelerator",
+        "provider_version": "1",
+        "software": {
+          "driver": "3.8.30",
+          "maca_build": "3.8.2.208",
+          "maca_runtime": "3.8.2.6",
+          "torch": "2.10.0+metax3.8.2.2",
+          "vllm": "0.26.0",
+          "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0"
+        },
+        "devices": [
+          {
+            "ordinal": 0,
+            "uuid": "fd7aaac2-7228-df75-2fde-2ed68638d9f7",
+            "architecture": "MetaX C500",
+            "memory_bytes": 68283269120,
+            "pci_bus_id": "0000:5b:00.0"
+          }
+        ],
+        "capabilities": {
+          "device.compute": {
+            "state": "available",
+            "provider": "metax",
+            "reason": "device UUID, model and memory queried through selected torch backend",
+            "conditions": {}
+          },
+          "device.rdma": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "engine.text": {
+            "state": "available",
+            "provider": "metax",
+            "reason": "supported aggregate eager TP=1/DP=1 text stack; readiness still requires engine initialization",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "kv_events": "true",
+              "model": "/var/cache/dynamo-metax/huggingface/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "gms.vmm": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "kv.events": {
+            "state": "available",
+            "provider": "metax",
+            "reason": "vLLM ZMQ events and prefix caching enabled",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "kv_events": "true",
+              "model": "/var/cache/dynamo-metax/huggingface/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "kvbm.offload": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "pd.transfer": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "power.control": {
+            "state": "unknown",
+            "provider": "metax",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          }
+        }
+      }
+    }
+  ],
+  "required_capability_rejection": {
+    "capability": "pd.transfer",
+    "exit_code": 1,
+    "diagnostic": "dynamo.common.platform.registry.PlatformError: metax: missing_capability: pd.transfer: not probed or certified by M01",
+    "discovery_files": 0
+  }
+}
