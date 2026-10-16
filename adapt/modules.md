@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 模块细化与实施工作清单
 
-本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02/M03/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
+本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02/M03/M05/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
 
 ## 依赖顺序
 
@@ -61,13 +61,14 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M05 PD 协调与数据传输
 
-当前状态：待实现/验证。
+当前状态：部分完成：三平台单机 vLLM 原生 PD（含 2P3D）已验证；MetaX/Ascend 不可达故障经窄补丁修复并验收，完整模块尚未完成；[证据与复现](m05/README.md)。
 
 详细设计：[控制面与数据面、传输状态、文件计划](modules/m05-pd-transfer/README.md)。
 
 - 源码入口：[kv_connector_protocols.py](../components/src/dynamo/vllm/kv_connector_protocols.py)、[handlers.py](../components/src/dynamo/vllm/handlers.py)、[SGLang disagg](../components/src/dynamo/sglang/_disagg.py)、[NIXL 内存接口](../lib/memory/src/nixl.rs)。
 - 工作：将所选厂商 connector 的真实协议映射到 Dynamo；确定 NIXL backend 或其他传输实现；定义注册、握手、提交、完成和取消语义。
-- 待细化：push/pull 顺序、bootstrap、块延迟释放、失败后重算策略、版本和 KV 布局校验。先调查现有协议能否满足，避免按名称映射。
+- 已交付：按名称 + 模块解析协议，启动前角色/配置检查，交接前平台/版本/模型/精度/block/并行度契约；正常 PD、取消和参数不匹配三平台验证；2P3D 三平台验证，MetaX NIXL 的 UCX 旧协议崩溃已修复并完成端到端复验。
+- 剩余：传输途中故障、注册句柄长稳、跨节点、Dynamo 自有 TransferProvider/KVBM；SGLang 暂缓。
 - 验收：同平台单机/跨节点 PD 正确；完成与块释放时序正确；超时、对端退出及取消有明确行为和可回收资源。
 
 ## M06 KVBM 与集合通信

@@ -1,0 +1,160 @@
+{
+  "platform": "ascend",
+  "aggregate": false,
+  "status": "passed",
+  "responses": [
+    {
+      "id": "cmpl-4498e8d9-fa22-49ec-b8ff-fa54e7ed8103",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792142910,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-c933c063-88c7-46ea-9801-ba83f7b789d9",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792142914,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-87145216-6a0c-48da-9dee-41d69cecd4c4",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792142916,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "cancel_idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 2248.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "cancel_recovery": "passed",
+  "fault": {
+    "case": "consumer-exit",
+    "phase": "after first SSE event",
+    "stream_tail": "\ndata: {\"error\":{\"message\":\"Internal server error\",\"type\":\"internal_server_error\",\"code\":500}}\n\ndata: [DONE]\n"
+  },
+  "commands": {
+    "decode": [
+      "/opt/dynamo/venv/bin/python",
+      "-m",
+      "dynamo.vllm",
+      "--model",
+      "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+      "--served-model-name",
+      "m05-model",
+      "--enforce-eager",
+      "--max-model-len",
+      "2048",
+      "--max-num-seqs",
+      "4",
+      "--kv-cache-memory-bytes",
+      "536870912",
+      "--block-size",
+      "128",
+      "--no-enable-prefix-caching",
+      "--disaggregation-mode",
+      "decode",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"MooncakeConnector\", \"kv_connector_module_path\": \"vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector\", \"kv_role\": \"kv_consumer\", \"kv_port\": 20141, \"kv_connector_extra_config\": {\"prefill\": {\"tp_size\": 1, \"dp_size\": 1}, \"decode\": {\"tp_size\": 1, \"dp_size\": 1}}}"
+    ],
+    "prefill": [
+      "/opt/dynamo/venv/bin/python",
+      "-m",
+      "dynamo.vllm",
+      "--model",
+      "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+      "--served-model-name",
+      "m05-model",
+      "--enforce-eager",
+      "--max-model-len",
+      "2048",
+      "--max-num-seqs",
+      "4",
+      "--kv-cache-memory-bytes",
+      "536870912",
+      "--block-size",
+      "128",
+      "--no-enable-prefix-caching",
+      "--disaggregation-mode",
+      "prefill",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"MooncakeConnector\", \"kv_connector_module_path\": \"vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector\", \"kv_role\": \"kv_producer\", \"kv_port\": 20052, \"kv_connector_extra_config\": {\"prefill\": {\"tp_size\": 1, \"dp_size\": 1}, \"decode\": {\"tp_size\": 1, \"dp_size\": 1}}}"
+    ]
+  },
+  "raw_log_directory": "/var/cache/dynamo-ascend/m05/m05-ascend-cancel-consumer",
+  "execution_directory": "/tmp/m05-ascend-cancel-consumer"
+}

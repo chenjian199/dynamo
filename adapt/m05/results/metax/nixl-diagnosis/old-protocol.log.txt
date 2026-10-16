@@ -1,0 +1,64 @@
+2026-10-16 18:22:17 NIXL INFO    _api.py:251 Initialized NIXL agent: probe-1
+W1016 18:22:17.600071   67540 ucx_utils.cpp:462] UCX version is less than 1.19, CUDA support is limited, including the lack of support for multi-GPU within a single process.
+2026-10-16 18:22:17 NIXL INFO    _api.py:251 Initialized NIXL agent: probe-0
+W1016 18:22:17.622188   67539 ucx_utils.cpp:462] UCX version is less than 1.19, CUDA support is limited, including the lack of support for multi-GPU within a single process.
+2026-10-16 18:22:30 NIXL INFO    _api.py:361 Backend UCX was instantiated
+2026-10-16 18:22:31 NIXL INFO    _api.py:361 Backend UCX was instantiated
+[f08e921cd07c:67539:1:67703] Caught signal 11 (Segmentation fault: invalid permissions for mapped object at address 0x7f2110000000)
+[1792146137.622235] [f08e921cd07c:67539:0]     ucp_context.c:1900 UCX  INFO  Version 1.14.0 (loaded from /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0)
+[1792146151.266864] [f08e921cd07c:67539:0]          parser.c:2000 UCX  INFO  UCX_* env variables: UCX_PROTO_ENABLE=n UCX_TLS=maca_ipc,maca_copy,tcp UCX_LOG_LEVEL=info
+[1792146151.266872] [f08e921cd07c:67539:0]      ucp_worker.c:2177 UCX  WARN  invalid configurations: MAX_RMA_RAILS=2,IB_PCI_RELAXED_ORDERING=try,RCACHE_MAX_UNRELEASED=1024
+[1792146151.267526] [f08e921cd07c:67539:0]      ucp_worker.c:1783 UCX  INFO    ep_cfg[1]: rma_am(tcp/eth0) amo_am(tcp/eth0) am(tcp/eth0) ka(tcp/eth0)
+[1792146151.318796] [f08e921cd07c:67539:0]      ucp_worker.c:1783 UCX  INFO    ep_cfg[2]: rma_am(tcp/eth0) amo_am(tcp/eth0) am(tcp/eth0 maca_ipc/maca) ka(tcp/eth0)
+==== backtrace (tid:  67703) ====
+ 0  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucs-1e546160.so.0.0.0(ucs_handle_error+0xc3) [0x7f21c4c34fdd]
+ 1  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucs-1e546160.so.0.0.0(+0x34d4f) [0x7f21c4c34d4f]
+ 2  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucs-1e546160.so.0.0.0(+0x34ead) [0x7f21c4c34ead]
+ 3  /lib/x86_64-linux-gnu/libc.so.6(+0x42520) [0x7f2409031520]
+ 4  /lib/x86_64-linux-gnu/libc.so.6(+0x1a08d5) [0x7f240918f8d5]
+ 5  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(+0x86a83) [0x7f21c5486a83]
+ 6  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(ucp_dt_contig_pack+0x71) [0x7f21c5486b3a]
+ 7  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(+0xcc9a1) [0x7f21c54cc9a1]
+ 8  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(uct_tcp_ep_am_bcopy+0x133) [0x7f21c44311f7]
+ 9  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(+0xcca93) [0x7f21c54cca93]
+10  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(ucp_get_req_handler+0x711) [0x7f21c54cd33d]
+11  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(+0x29509) [0x7f21c4429509]
+12  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(+0x2eb33) [0x7f21c442eb33]
+13  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(+0x2f24c) [0x7f21c442f24c]
+14  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(+0x2f621) [0x7f21c442f621]
+15  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(+0x33443) [0x7f21c4433443]
+16  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucs-1e546160.so.0.0.0(ucs_event_set_wait+0x347) [0x7f21c4c42d4d]
+17  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libuct-d6a9d201.so.0.0.0(uct_tcp_iface_progress+0x80) [0x7f21c4433526]
+18  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(+0x73f8c) [0x7f21c5473f8c]
+19  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0(ucp_worker_progress+0x177) [0x7f21c548103a]
+20  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/libplugin_UCX.so(_ZN19nixlUcxSharedThread3runEv+0x88) [0x7f23276a7568]
+21  /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/libplugin_UCX.so(_ZNSt6thread11_State_implINS_8_InvokerISt5tupleIJSt17reference_wrapperI13nixlUcxThreadEEEEEE6_M_runEv+0x150) [0x7f232769db70]
+22  /opt/conda/bin/../lib/libstdc++.so.6(+0xd3b65) [0x7f24078f1b65]
+23  /lib/x86_64-linux-gnu/libc.so.6(+0x94a83) [0x7f2409083a83]
+24  /lib/x86_64-linux-gnu/libc.so.6(clone+0x44) [0x7f2409114a94]
+=================================
+Process SpawnProcess-2:
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/opt/conda/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/workspace/dynamo/adapt/m05/nixl_probe.py", line 58, in worker
+    while (state := agent.check_xfer_state(handle)) == "PROC":
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/conda/lib/python3.12/site-packages/nixl/_api.py", line 619, in check_xfer_state
+    status = self.agent.getXferStatus(handle._handle)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nixl._bindings.nixlRemoteDisconnectError: NIXL_ERR_REMOTE_DISCONNECT
+[1792146137.600109] [f08e921cd07c:67540:0]     ucp_context.c:1900 UCX  INFO  Version 1.14.0 (loaded from /opt/conda/lib/python3.12/site-packages/nixl/../.nixl.mesonpy.libs/plugins/../../nixl.libs/libucp-4087c85a.so.0.0.0)
+[1792146150.858364] [f08e921cd07c:67540:0]          parser.c:2000 UCX  INFO  UCX_* env variables: UCX_PROTO_ENABLE=n UCX_TLS=maca_ipc,maca_copy,tcp UCX_LOG_LEVEL=info
+[1792146150.858371] [f08e921cd07c:67540:0]      ucp_worker.c:2177 UCX  WARN  invalid configurations: MAX_RMA_RAILS=2,IB_PCI_RELAXED_ORDERING=try,RCACHE_MAX_UNRELEASED=1024
+[1792146150.858933] [f08e921cd07c:67540:0]      ucp_worker.c:1783 UCX  INFO    ep_cfg[1]: rma_am(tcp/eth0) amo_am(tcp/eth0) am(tcp/eth0) ka(tcp/eth0)
+[1792146151.319029] [f08e921cd07c:67540:0]      ucp_worker.c:1783 UCX  INFO    ep_cfg[2]: rma_am(tcp/eth0) amo_am(tcp/eth0) am(tcp/eth0 maca_ipc/maca) ka(tcp/eth0)
+[1792146152.319153] [f08e921cd07c:67540:1]          tcp_ep.c:1178 UCX  DIAG  tcp_ep 0x55cadf27abe0 (state=CONNECTED): recv(28) failed: Connection reset by remote peer
+Traceback (most recent call last):
+  File "/workspace/dynamo/adapt/m05/nixl_probe.py", line 134, in <module>
+    main()
+  File "/workspace/dynamo/adapt/m05/nixl_probe.py", line 130, in main
+    raise RuntimeError(f"Probe failed: {report}")
+RuntimeError: Probe failed: {'status': 'failed', 'exit_codes': [-11, 1], 'environment': {'UCX_PROTO_ENABLE': 'n', 'UCX_TLS': 'maca_ipc,maca_copy,tcp', 'UCX_MEMTYPE_CACHE': None}, 'devices': '0,1', 'iterations': 1}

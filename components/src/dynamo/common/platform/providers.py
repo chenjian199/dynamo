@@ -149,12 +149,35 @@ def build_capabilities(platform_id, context, software):
         ] = capability(
             "available" if supported else "unknown",
             platform_id,
-            "aggregate eager stack with requested TP/DP; readiness and model support still require engine initialization"
+            "eager stack with requested TP/DP; readiness and model support still require engine initialization"
             if supported
             else "configuration outside current platform integration scope",
             context,
         )
         kv = supported and context.get("kv_events") == "true"
+        pd = (
+            supported
+            and context.get("task") == "text"
+            and context.get("tp") == "1"
+            and context.get("dp") == "1"
+            and context.get("pd_connector")
+            in (
+                ("MooncakeConnector", "NixlConnector")
+                if platform_id == "metax"
+                else (
+                    ("MooncakeConnector",)
+                    if platform_id == "ascend"
+                    else ("NixlConnector",)
+                )
+            )
+        )
+        if pd:
+            caps["pd.transfer"] = capability(
+                "available",
+                platform_id,
+                "engine-native homogeneous PD configuration; connector initialization and transfer readiness required",
+                context,
+            )
         caps["kv.events"] = capability(
             "available" if kv else "unavailable",
             platform_id,

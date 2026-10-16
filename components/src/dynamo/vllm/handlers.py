@@ -89,6 +89,11 @@ from dynamo.vllm.kv_connector_protocols import (
     KvConnectorProtocol,
     make_kv_connector_protocol,
 )
+from dynamo.vllm.pd_contract import (
+    attach_pd_contract,
+    build_pd_contract,
+    validate_pd_handoff,
+)
 from dynamo.vllm.router_hints import enable_router_hint_support
 
 from .args import Config
@@ -1177,6 +1182,13 @@ class BaseWorkerHandler(ABC, Generic[RequestT, ResponseT]):
         self.fpm_relays: list | None = None
         self.generate_endpoint = generate_endpoint
         self.config = config
+        self.pd_contract = None
+        platform_id = os.environ.get("DYN_PLATFORM")
+        if platform_id and config.disaggregation_mode in (
+            DisaggregationMode.PREFILL,
+            DisaggregationMode.DECODE,
+        ):
+            self.pd_contract = build_pd_contract(engine.vllm_config, platform_id)
         self.engine_monitor = VllmEngineMonitor(runtime, engine, shutdown_event)
         self.temp_dirs: list[tempfile.TemporaryDirectory] = []
         self.model_max_len = model_max_len
@@ -3538,6 +3550,8 @@ class DecodeWorkerHandler(BaseWorkerHandler):
             )
             is_decode_only = False
             mode = DisaggregationMode.AGGREGATED
+        if is_decode_only:
+            kv_params = validate_pd_handoff(kv_params, self.pd_contract)
         has_mm_data = request.get("multi_modal_data") is not None
         custom_prompt: EmbedsPrompt | TokensPrompt | None = None
 
@@ -4001,7 +4015,10 @@ class PrefillWorkerHandler(BaseWorkerHandler):
                 output: Dict[str, Any] = {
                     "token_ids": list(token_ids),
                     "disaggregated_params": self._build_disaggregated_params(
-                        kv_protocol.decode_request_kv_transfer_params(res),
+                        attach_pd_contract(
+                            kv_protocol.decode_request_kv_transfer_params(res),
+                            self.pd_contract,
+                        ),
                         embedding_params,
                     ),
                     "completion_usage": BaseWorkerHandler._build_completion_usage(

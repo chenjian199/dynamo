@@ -1,0 +1,147 @@
+{
+  "platform": "metax",
+  "aggregate": false,
+  "status": "failed",
+  "responses": [
+    {
+      "id": "cmpl-7bf763d1-9c39-4e08-955f-a67cca0aa3c1",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792143604,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-77384d5b-a730-4f20-b9fd-544005449d26",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792143605,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-2e13ad4e-b9ab-4b25-8ecb-2c736f75f83a",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792143606,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "handoff": {
+    "case": "unreachable",
+    "status": "failed",
+    "outcome": "client_timeout_without_backend_completion",
+    "elapsed_seconds": 90.08969306398649,
+    "responses": []
+  },
+  "commands": {
+    "decode": [
+      "/opt/dynamo/venv/bin/python",
+      "-m",
+      "dynamo.vllm",
+      "--model",
+      "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+      "--served-model-name",
+      "m05-model",
+      "--enforce-eager",
+      "--max-model-len",
+      "2048",
+      "--max-num-seqs",
+      "4",
+      "--kv-cache-memory-bytes",
+      "536870912",
+      "--block-size",
+      "64",
+      "--no-enable-prefix-caching",
+      "--disaggregation-mode",
+      "decode",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"MooncakeConnector\", \"kv_role\": \"kv_consumer\", \"kv_connector_extra_config\": {\"mooncake_protocol\": \"maca\"}}"
+    ],
+    "prefill": [
+      "/opt/dynamo/venv/bin/python",
+      "-m",
+      "dynamo.vllm",
+      "--model",
+      "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+      "--served-model-name",
+      "m05-model",
+      "--enforce-eager",
+      "--max-model-len",
+      "2048",
+      "--max-num-seqs",
+      "4",
+      "--kv-cache-memory-bytes",
+      "536870912",
+      "--block-size",
+      "64",
+      "--no-enable-prefix-caching",
+      "--disaggregation-mode",
+      "prefill",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"MooncakeConnector\", \"kv_role\": \"kv_producer\", \"kv_connector_extra_config\": {\"mooncake_protocol\": \"maca\"}}"
+    ]
+  },
+  "raw_log_directory": "/var/cache/dynamo-metax/m05/m05-metax-unreachable",
+  "execution_directory": "/tmp/m05-metax-unreachable"
+}

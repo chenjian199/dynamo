@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 """
 Pytest Marker Report (Production Grade)
 
@@ -87,6 +89,7 @@ STUB_MODULES = [
     "prometheus_api_client",
     "huggingface_hub",
     "huggingface_hub.model_info",
+    "huggingface_hub.utils",
     "transformers",
     "transformers.models",
     "transformers.models.qwen2_vl",
@@ -195,6 +198,7 @@ STUB_MODULES = [
     "vllm.distributed.kv_events",
     "vllm.engine",
     "vllm.engine.arg_utils",
+    "vllm.exceptions",
     "vllm.entrypoints",
     "vllm.entrypoints.chat_utils",
     "vllm.entrypoints.openai",
@@ -246,6 +250,7 @@ STUB_MODULES = [
     "vllm.v1.engine.utils",
     "vllm.v1.executor",
     "vllm.v1.metrics",
+    "vllm.v1.metrics.prometheus",
     "vllm.v1.metrics.loggers",
     "vllm.v1.metrics.stats",
     "vllm.v1.request",

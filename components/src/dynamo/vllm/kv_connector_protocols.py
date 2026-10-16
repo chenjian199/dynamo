@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Per-connector PD-coordination strategies for dynamo's vLLM prefill handler.
 
@@ -106,6 +108,38 @@ class MooncakeConnectorProtocol(KvConnectorProtocol):
         }
 
 
+ASCEND_MOONCAKE_MODULE = "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector"
+
+
+class AscendMooncakeConnectorProtocol(NixlConnectorProtocol):
+    """vLLM-Ascend 0.23: consumer reads producer blocks and acknowledges release.
+
+    Despite its name this is not upstream Mooncake's bootstrap/transfer-ID
+    protocol. Preserve the engine response, including sharding and request IDs.
+    The connector owns transfer completion and delayed source-block release.
+    """
+
+    def decode_request_kv_transfer_params(
+        self, prefill_response: Any
+    ) -> Dict[str, Any]:
+        params = prefill_response.kv_transfer_params
+        required = (
+            "remote_engine_id",
+            "remote_request_id",
+            "remote_block_ids",
+            "remote_host",
+            "remote_port",
+            "remote_block_size",
+        )
+        if not isinstance(params, dict) or any(key not in params for key in required):
+            raise ValueError(
+                "Ascend Mooncake prefill omitted required KV transfer metadata"
+            )
+        if not params.get("do_remote_prefill"):
+            raise ValueError("Ascend Mooncake response does not request remote prefill")
+        return params
+
+
 # Keyed by ``KVTransferConfig.kv_connector``. One entry per connector.
 KV_CONNECTOR_PROTOCOLS: Dict[str, Type[KvConnectorProtocol]] = {
     "NixlConnector": NixlConnectorProtocol,
@@ -119,6 +153,28 @@ KV_CONNECTOR_PROTOCOLS: Dict[str, Type[KvConnectorProtocol]] = {
 # with the same config shape, so both delegate PD coordination to their
 # single PD-capable child.
 MULTI_CONNECTOR_WRAPPERS: Tuple[str, ...] = ("MultiConnector", "PdConnector")
+
+
+def _protocol_class(kv_cfg: Any) -> Type[KvConnectorProtocol]:
+    name = kv_cfg.kv_connector
+    module = getattr(kv_cfg, "kv_connector_module_path", None)
+    if module == ASCEND_MOONCAKE_MODULE and name == "MooncakeConnector":
+        return AscendMooncakeConnectorProtocol
+    # Custom implementations must explicitly declare their wire protocol here;
+    # a familiar class name is not evidence of protocol compatibility.
+    canonical_modules = {
+        "NixlConnector": "vllm.distributed.kv_transfer.kv_connector.v1.nixl_connector",
+        "MooncakeConnector": "vllm.distributed.kv_transfer.kv_connector.v1.mooncake.mooncake_connector",
+    }
+    if module is not None and module != canonical_modules.get(name):
+        raise ValueError(f"Unsupported PD connector module {module!r} for {name!r}")
+    cls = KV_CONNECTOR_PROTOCOLS.get(name)
+    if cls is None:
+        raise ValueError(
+            f"Unsupported kv_connector={name!r} for PD. Supported names: "
+            f"{sorted(KV_CONNECTOR_PROTOCOLS)}"
+        )
+    return cls
 
 
 def disable_hybrid_kv_cache_manager_for_incompatible_pd_connector(
@@ -161,15 +217,7 @@ def make_kv_connector_protocol(vllm_config: Any) -> KvConnectorProtocol:
         return NixlConnectorProtocol(vllm_config)
     if name in MULTI_CONNECTOR_WRAPPERS:
         return _resolve_multi_connector_protocol(vllm_config, kv_cfg)
-    cls = KV_CONNECTOR_PROTOCOLS.get(name)
-    if cls is None:
-        raise ValueError(
-            f"Unsupported kv_connector={name!r} for PD. Supported names: "
-            f"{sorted(KV_CONNECTOR_PROTOCOLS)}. If this is a typo or a "
-            f"renamed vLLM connector, fix the kv_transfer_config; if this "
-            f"is a new connector, add it to KV_CONNECTOR_PROTOCOLS."
-        )
-    return cls(vllm_config)
+    return _protocol_class(kv_cfg)(vllm_config)
 
 
 def _resolve_multi_connector_protocol(
@@ -224,9 +272,8 @@ def _resolve_multi_connector_protocol(
             f"pick one unambiguously."
         )
     name, sub_config = matches[0]
-    return KV_CONNECTOR_PROTOCOLS[name](
-        _child_vllm_config(vllm_config, kv_cfg, sub_config)
-    )
+    child = _child_vllm_config(vllm_config, kv_cfg, sub_config)
+    return _protocol_class(child.kv_transfer_config)(child)
 
 
 def _child_vllm_config(
@@ -246,6 +293,7 @@ def _child_vllm_config(
     # Children don't inherit the wrapper's extra config — that's where the
     # "connectors" list itself lives.
     child_kv_cfg.kv_connector_extra_config = {}
+    child_kv_cfg.kv_connector_module_path = None
     for key, value in sub_config.items():
         setattr(child_kv_cfg, key, value)
     child_vllm_config = copy.copy(vllm_config)

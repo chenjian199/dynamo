@@ -6,6 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from dynamo.common.constants import DisaggregationMode
 from dynamo.common.platform.registry import PlatformError
 from dynamo.vllm import main as entry
 from dynamo.vllm.handlers import BaseWorkerHandler
@@ -164,6 +165,7 @@ def test_startup_failure_releases_acquired_resources(monkeypatch, tmp_path, fail
     )
     config = SimpleNamespace(
         engine_args=args,
+        disaggregation_mode=DisaggregationMode.AGGREGATED,
         embedding_worker=False,
         served_model_name="test",
         component="backend",

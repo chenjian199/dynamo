@@ -1,0 +1,19 @@
+--- a/mooncake_connector.py
++++ b/mooncake_connector.py
+@@ -1,4 +1,6 @@
+ # SPDX-License-Identifier: Apache-2.0
++# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
++# Derived from vLLM Ascend. Modified by HEYI.
+ import contextlib
+ import copy
+ import hashlib
+@@ -1450,6 +1452,9 @@
+                 socket_type=zmq.REQ,  # type: ignore
+                 bind=False,
+             )
++            # HEYI: failed handshakes must not block Context destruction on
++            # unsent control messages. This socket does not carry KV payloads.
++            sock.setsockopt(zmq.LINGER, 0)
+             sock.setsockopt(
+                 zmq.SNDTIMEO,  # type: ignore
+                 int(self.timeout * 1000),

@@ -28,6 +28,7 @@ from vllm.v1.metrics.prometheus import setup_multiprocess_prometheus
 
 from dynamo.common.config_dump import dump_config
 from dynamo.common.configuration.groups.router_args import build_router_config
+from dynamo.common.constants import DisaggregationMode
 from dynamo.common.model_fetch import fetch_model
 from dynamo.common.platform.preflight import prepare_vllm_platform
 from dynamo.common.snapshot.lifecycle import elect_and_wake
@@ -83,6 +84,7 @@ from .headless import run_dynamo_headless
 from .instrumented_scheduler import ENV_FPM_BENCHMARK_OUTPUT_PATH, ENV_FPM_WORKER_ID
 from .kv_connector_protocols import (
     disable_hybrid_kv_cache_manager_for_incompatible_pd_connector,
+    make_kv_connector_protocol,
 )
 from .multimodal_utils.cache_config import configure_multimodal_embedding_cache
 from .multimodal_utils.media_config import create_frontend_media_config
@@ -700,6 +702,11 @@ def _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources):
     # Taken from build_async_engine_client_from_engine_args()
     usage_context = UsageContext.OPENAI_API_SERVER
     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+    if config.disaggregation_mode in (
+        DisaggregationMode.PREFILL,
+        DisaggregationMode.DECODE,
+    ):
+        make_kv_connector_protocol(vllm_config)
     validate_platform_engine_config(
         vllm_config,
         require_metrics=envs.is_set("DYN_FORWARDPASS_METRIC_PORT")

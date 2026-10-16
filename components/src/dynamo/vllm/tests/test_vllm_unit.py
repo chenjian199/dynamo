@@ -629,6 +629,7 @@ def test_setup_vllm_engine_reuses_engine_config_model_config(monkeypatch):
         component="backend",
         namespace="dynamo",
         engine_args=FakeEngineArgs(),
+        disaggregation_mode=DisaggregationMode.AGGREGATED,
         embedding_worker=False,
         embedding_worker_processes=1,
         gms_shadow_mode=False,

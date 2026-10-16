@@ -17,7 +17,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | M02 | [构建与依赖隔离](m02-build-packaging/README.md) | features、依赖配置、镜像与版本锁定 | 部分完成：官方镜像 + editable；正式产物待实现 |
 | M03 | [引擎与 KV 事件](m03-engine-integration/README.md) | 引擎接入、生命周期、路由事件与容量 | 本轮 vLLM 聚合模式范围完成：TP/DP、生命周期及高级能力三平台验收；SGLang 暂缓 |
 | M04 | [设备运行时与内存](m04-device-memory/README.md) | 分配、注册、上下文、流和事件 | 基础原语第一版完成：三平台真实复制、所有权、事件与回收；[验收](../m04/README.md) |
-| M05 | [PD 协调与数据传输](m05-pd-transfer/README.md) | 协议策略、传输提供者与完成语义 | 待实现/验证 |
+| M05 | [PD 协调与数据传输](m05-pd-transfer/README.md) | 协议策略、传输提供者与完成语义 | 部分完成：单机原生 PD（含 2P3D）、不可达故障与回收已验证；跨节点等待验收 |
 | M06 | [KVBM 与集合通信](m06-kvbm-collectives/README.md) | 缓存调用链、布局内核、跨语言桥接 | 待实现 |
 | M07 | [GMS 与多模态](m07-gms-multimodal/README.md) | VMM 扩展、共享恢复、媒体数据面 | 待实现 |
 | M08 | [Kubernetes 部署](m08-kubernetes/README.md) | 平台配置、资源解析、调度和生成产物 | 待实现 |

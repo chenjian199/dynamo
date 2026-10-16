@@ -1,0 +1,163 @@
+{
+  "platform": "cuda",
+  "aggregate": false,
+  "status": "passed",
+  "responses": [
+    {
+      "id": "cmpl-336e8885-36ec-4dd3-8243-7ee760d9dbc1",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792143162,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-f1746937-43b4-4e50-904d-ddc59c2393d2",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792143162,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-dfc47607-6aa5-490d-88af-de8c29f9ebf2",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792143163,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "handoff": {
+    "case": "mismatch",
+    "status": "passed",
+    "outcome": "backend_error",
+    "error": "BackendInvalidArgument: Incompatible PD peer: platform, engine version, model, precision, block size, parallelism and connector must match",
+    "elapsed_seconds": 0.00875905598513782,
+    "responses": []
+  },
+  "handoff_idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "handoff_recovery": "passed",
+  "commands": {
+    "decode": [
+      "/opt/dynamo/venv/bin/python",
+      "-m",
+      "dynamo.vllm",
+      "--model",
+      "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+      "--served-model-name",
+      "m05-model",
+      "--enforce-eager",
+      "--max-model-len",
+      "2048",
+      "--max-num-seqs",
+      "4",
+      "--kv-cache-memory-bytes",
+      "536870912",
+      "--block-size",
+      "64",
+      "--no-enable-prefix-caching",
+      "--disaggregation-mode",
+      "decode",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}"
+    ],
+    "prefill": [
+      "/opt/dynamo/venv/bin/python",
+      "-m",
+      "dynamo.vllm",
+      "--model",
+      "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+      "--served-model-name",
+      "m05-model",
+      "--enforce-eager",
+      "--max-model-len",
+      "2048",
+      "--max-num-seqs",
+      "4",
+      "--kv-cache-memory-bytes",
+      "536870912",
+      "--block-size",
+      "64",
+      "--no-enable-prefix-caching",
+      "--disaggregation-mode",
+      "prefill",
+      "--kv-transfer-config",
+      "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}"
+    ]
+  },
+  "raw_log_directory": "/var/cache/dynamo-cuda/m05/m05-cuda-mismatch",
+  "execution_directory": "/tmp/m05-cuda-mismatch"
+}

@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for WorkerHandler in combination with multimodal handling."""
 # [gluo FIXME] This suite of tests is added for MultimodalPDWorkerHandler,
@@ -98,6 +100,7 @@ def _make_handler(
     # BaseWorkerHandler.__init__ is bypassed above; the decode generate path
     # registers per-request deferred-abort guards here.
     handler._deferred_aborts = {}
+    handler.pd_contract = None  # Legacy fixture bypasses BaseWorkerHandler.__init__.
     return handler
 
 
@@ -648,6 +651,7 @@ def _make_decode_handler(
         use_unified_vision_chunk=False,
     )
     handler._deferred_aborts = {}
+    handler.pd_contract = None
     # Real BaseWorkerHandler.__init__ (patched out above) sets this; the
     # aggregated branch in _generate_token_mode reads it, so mirror the default.
     handler._custom_encoder = None
