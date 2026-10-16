@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! NUMA-aware memory allocation utilities.
 //!
@@ -25,20 +27,30 @@
 //! places pages on the correct node. If the GPU's NUMA node cannot be
 //! determined, allocation falls back to the non-NUMA path transparently.
 
+#[cfg(feature = "cuda")]
 pub(crate) mod nvml;
 pub mod topology;
+#[cfg(feature = "cuda")]
 pub mod worker_pool;
 
+#[cfg(feature = "cuda")]
 use cudarc::driver::{result::device as cuda_device, sys as cuda_sys};
 use nix::libc;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "cuda")]
 use std::collections::HashMap;
+#[cfg(any(feature = "cuda", test))]
+use std::fs;
+use std::mem;
+#[cfg(feature = "cuda")]
+use std::process::Command;
+#[cfg(feature = "cuda")]
 use std::sync::{Mutex, OnceLock};
-use std::{fs, mem, process::Command};
 
 /// Cache for GPU PCI address → NUMA node lookups.
 /// The mapping never changes at runtime, so we cache results (including negative
 /// lookups) to avoid repeated sysfs reads and nvidia-smi subprocesses.
+#[cfg(feature = "cuda")]
 static NUMA_NODE_CACHE: OnceLock<Mutex<HashMap<String, Option<NumaNode>>>> = OnceLock::new();
 
 /// Check if NUMA optimization is disabled via environment variable.
@@ -109,6 +121,7 @@ pub fn get_current_cpu_numa_node() -> NumaNode {
 ///
 /// Reads `/sys/bus/pci/devices/<pci_address>/numa_node`. Returns `None` if the
 /// file doesn't exist, can't be read, or contains `-1` (no NUMA affinity).
+#[cfg(any(feature = "cuda", test))]
 fn read_numa_node_from_sysfs(pci_address: &str) -> Option<NumaNode> {
     let path = format!("/sys/bus/pci/devices/{}/numa_node", pci_address);
     let content = fs::read_to_string(&path).ok()?;
@@ -125,6 +138,7 @@ fn read_numa_node_from_sysfs(pci_address: &str) -> Option<NumaNode> {
 ///
 /// Uses the PCI BDF address (not env-var-based device index) so it is
 /// correct regardless of `CUDA_VISIBLE_DEVICES` remapping.
+#[cfg(feature = "cuda")]
 fn get_numa_node_from_nvidia_smi(pci_address: &str) -> Option<NumaNode> {
     let output = Command::new("nvidia-smi")
         .args(["topo", "--get-numa-id-of-nearby-cpu", "-i", pci_address])
@@ -157,6 +171,7 @@ fn get_numa_node_from_nvidia_smi(pci_address: &str) -> Option<NumaNode> {
 ///
 /// # Returns
 /// The NUMA node closest to the specified GPU, or `None` if it cannot be determined.
+#[cfg(feature = "cuda")]
 pub fn get_device_numa_node(device_id: u32) -> Option<NumaNode> {
     // Step 1: Get PCI bus address from CUDA driver
     let pci_address = match get_pci_bus_address_from_cuda(device_id) {
@@ -258,11 +273,13 @@ pub fn pin_thread_to_numa_node(node: NumaNode) -> Result<(), String> {
 ///
 /// Returns a normalized PCI address string like "0000:3b:00.0".
 /// The device_id here is a CUDA ordinal (affected by CUDA_VISIBLE_DEVICES).
+#[cfg(feature = "cuda")]
 fn get_pci_bus_address_from_cuda(device_id: u32) -> Option<String> {
     // SAFETY: We're calling CUDA driver API functions with valid device ordinals.
     // cuDeviceGet and get_attribute are safe as long as CUDA is initialized
-    // (which CudaContext::new handles).
+    // including callers that only query topology, before allocating memory.
     unsafe {
+        cuda_sys::cuInit(0).result().ok()?;
         let mut dev = std::mem::MaybeUninit::uninit();
         if cuda_sys::cuDeviceGet(dev.as_mut_ptr(), device_id as i32)
             .result()
@@ -293,6 +310,7 @@ fn get_pci_bus_address_from_cuda(device_id: u32) -> Option<String> {
 }
 
 /// GPU info with PCI address and NUMA node, used for CPU set subdivision.
+#[cfg(feature = "cuda")]
 #[derive(Debug, Clone)]
 struct GpuTopoInfo {
     pci_address: String,
@@ -300,6 +318,7 @@ struct GpuTopoInfo {
 }
 
 /// Enumerate all GPUs visible to CUDA with their PCI addresses and NUMA nodes.
+#[cfg(feature = "cuda")]
 fn enumerate_cuda_gpus() -> Vec<GpuTopoInfo> {
     let count = match cuda_device::get_count() {
         Ok(c) => c,
@@ -320,6 +339,7 @@ fn enumerate_cuda_gpus() -> Vec<GpuTopoInfo> {
 
 /// Enumerate all GPUs on the system, preferring NVML (sees all GPUs)
 /// over CUDA driver (only sees CUDA_VISIBLE_DEVICES).
+#[cfg(feature = "cuda")]
 fn enumerate_all_gpus() -> Vec<GpuTopoInfo> {
     // Try NVML first — it sees all GPUs regardless of CUDA_VISIBLE_DEVICES
     if let Some(nvml) = nvml::try_nvml() {
@@ -348,6 +368,7 @@ fn enumerate_all_gpus() -> Vec<GpuTopoInfo> {
 }
 
 /// Cached CPU set results per CUDA device ordinal.
+#[cfg(feature = "cuda")]
 static DEVICE_CPU_SETS: OnceLock<HashMap<u32, Option<Vec<usize>>>> = OnceLock::new();
 
 /// Get a deterministic CPU subset for a CUDA device, subdivided among ALL GPUs
@@ -371,6 +392,7 @@ static DEVICE_CPU_SETS: OnceLock<HashMap<u32, Option<Vec<usize>>>> = OnceLock::n
 /// NVML sees all 8 → correctly subdivides into 4 slices per node.
 ///
 /// Returns None if NUMA node can't be determined.
+#[cfg(feature = "cuda")]
 pub fn get_device_cpu_set(device_id: u32) -> Option<Vec<usize>> {
     DEVICE_CPU_SETS
         .get_or_init(compute_all_device_cpu_sets)
@@ -379,6 +401,7 @@ pub fn get_device_cpu_set(device_id: u32) -> Option<Vec<usize>> {
         .flatten()
 }
 
+#[cfg(feature = "cuda")]
 fn compute_all_device_cpu_sets() -> HashMap<u32, Option<Vec<usize>>> {
     let topology = match topology::get_numa_topology() {
         Ok(t) => t,

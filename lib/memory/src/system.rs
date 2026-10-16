@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! System memory storage backed by malloc.
 
-use super::{MemoryDescriptor, Result, StorageError, StorageKind, actions, nixl::NixlDescriptor};
+#[cfg(feature = "nixl")]
+use super::nixl::NixlDescriptor;
+use super::{MemoryDescriptor, Result, StorageError, StorageKind, actions};
 use std::any::Any;
 use std::ptr::NonNull;
 
@@ -99,12 +103,14 @@ impl MemoryDescriptor for SystemStorage {
         self
     }
 
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         None
     }
 }
 
 // Support for NIXL registration
+#[cfg(feature = "nixl")]
 impl super::nixl::NixlCompatible for SystemStorage {
     fn nixl_params(&self) -> (*const u8, usize, nixl_sys::MemType, u64) {
         (self.ptr.as_ptr(), self.len, nixl_sys::MemType::Dram, 0)
@@ -172,6 +178,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "nixl")]
     fn test_system_storage_nixl_descriptor() {
         let storage = SystemStorage::new(1024).unwrap();
         // Unregistered storage has no NIXL descriptor
@@ -240,6 +247,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "nixl")]
     fn test_system_storage_nixl_compatible() {
         use crate::nixl::NixlCompatible;
 

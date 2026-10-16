@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! NIXL registration wrapper for storage types.
 
@@ -125,6 +127,10 @@ impl<S: MemoryDescriptor + NixlCompatible + 'static> MemoryDescriptor for NixlRe
         self.storage.storage_kind()
     }
 
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        self.storage.device_identity()
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -202,6 +208,15 @@ pub fn register_with_nixl<S>(
 where
     S: MemoryDescriptor + NixlCompatible,
 {
+    // Vendor transfer registration belongs to M05. Do not send a MACA/ACL
+    // allocation to the legacy CUDA NIXL registration path.
+    if storage
+        .device_identity()
+        .is_some_and(|id| id.platform != "cuda")
+    {
+        tracing::warn!("legacy NIXL registration rejects non-CUDA provider memory");
+        return Err(storage);
+    }
     // let storage_kind = storage.storage_kind();
 
     // // Determine if registration is needed based on storage type and available backends
@@ -278,6 +293,10 @@ impl MemoryDescriptor for Arc<dyn NixlMemory + Send + Sync> {
 
     fn storage_kind(&self) -> StorageKind {
         (**self).storage_kind()
+    }
+
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        (**self).device_identity()
     }
 
     fn as_any(&self) -> &dyn Any {

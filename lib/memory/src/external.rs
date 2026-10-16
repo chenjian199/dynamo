@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! External memory wrapper for memory allocated by external frameworks.
 //!
@@ -10,6 +12,7 @@
 //! The primary use case is registering external GPU memory with NIXL for RDMA
 //! transfers without copying.
 
+#[cfg(feature = "nixl")]
 use crate::nixl::{MemType, NixlCompatible, NixlDescriptor};
 use crate::{MemoryDescriptor, StorageKind};
 use std::any::Any;
@@ -122,6 +125,7 @@ impl MemoryDescriptor for ExternalDeviceMemory {
         self
     }
 
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         // External memory doesn't have a pre-existing NIXL descriptor
         // It will be registered and get one via NixlRegistered wrapper
@@ -129,13 +133,14 @@ impl MemoryDescriptor for ExternalDeviceMemory {
     }
 }
 
+#[cfg(feature = "nixl")]
 impl NixlCompatible for ExternalDeviceMemory {
     fn nixl_params(&self) -> (*const u8, usize, MemType, u64) {
         (self.ptr, self.size, MemType::Vram, self.device_id)
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "nixl"))]
 mod tests {
     use super::*;
 

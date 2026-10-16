@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Clean, minimal storage API for v2 block manager.
 //!
@@ -13,37 +15,48 @@
 
 pub mod actions;
 pub mod arena;
+#[cfg(feature = "nixl")]
 pub mod nixl;
 #[cfg(target_os = "linux")]
 pub mod numa;
+/// Provider-owned storage and safe identity propagation.
+pub mod platform;
 
 /// Offset-based buffer views into underlying storage.
 pub mod offset;
 
 /// CUDA memory pool utilities.
+#[cfg(feature = "cuda")]
 pub mod pool;
 
 /// Common imports for working with memory types.
 pub mod prelude;
 
+#[cfg(feature = "cuda")]
 mod device;
 mod disk;
+#[cfg(feature = "cuda")]
 mod external;
+#[cfg(feature = "cuda")]
 mod pinned;
 mod system;
 mod tensor;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "cuda", feature = "nixl"))]
 mod tests;
 
 pub use arena::{ArenaAllocator, ArenaBuffer, ArenaError};
+#[cfg(feature = "cuda")]
 pub use device::DeviceStorage;
 pub use disk::DiskStorage;
+#[cfg(feature = "cuda")]
 pub use external::ExternalDeviceMemory;
 #[cfg(target_os = "linux")]
 pub use numa::{NumaNode, is_numa_disabled, is_numa_enabled};
 pub use offset::OffsetBuffer;
+#[cfg(feature = "cuda")]
 pub use pinned::PinnedStorage;
+#[cfg(feature = "cuda")]
 pub use pool::{CudaMemPool, CudaMemPoolBuilder};
 pub use system::SystemStorage;
 pub use tensor::{TensorDescriptor, TensorDescriptorExt};
@@ -74,7 +87,28 @@ pub trait MemoryDescriptor: Send + Sync + fmt::Debug {
     /// Enable downcasting to concrete type.
     fn as_any(&self) -> &dyn Any;
 
+    /// Device/context identity for provider-owned memory. Legacy CUDA storage
+    /// predates this field; `None` does not identify an arbitrary provider.
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        None
+    }
+
+    /// CUDA ordinal only when the descriptor's provider is CUDA or legacy CUDA.
+    fn cuda_device_index(&self) -> Option<u32> {
+        if self
+            .device_identity()
+            .is_some_and(|id| id.platform != "cuda")
+        {
+            return None;
+        }
+        match self.storage_kind() {
+            StorageKind::Device(id) => Some(id),
+            _ => None,
+        }
+    }
+
     /// Get the NIXL descriptor for this memory region.
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<nixl::NixlDescriptor>;
 }
 
@@ -97,10 +131,11 @@ pub enum StorageError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
-    // #[cfg(feature = "cuda")]
+    #[cfg(feature = "cuda")]
     #[error("CUDA error: {0}")]
     Cuda(#[from] cudarc::driver::DriverError),
 
+    #[cfg(feature = "nixl")]
     #[error("NIXL error: {0}")]
     Nixl(#[from] nixl_sys::NixlError),
 }
@@ -111,11 +146,11 @@ pub enum StorageKind {
     /// System memory (malloc)
     System,
 
-    /// CUDA pinned host memory
+    /// Pinned host memory
     // #[cfg(feature = "cuda")]
     Pinned,
 
-    /// CUDA device memory with device ID
+    /// Device memory with process-local ordinal; consult MemoryDescriptor::device_identity.
     // #[cfg(feature = "cuda")]
     Device(u32),
 
@@ -124,7 +159,7 @@ pub enum StorageKind {
 }
 
 impl StorageKind {
-    /// Returns the CUDA device index if this is device memory.
+    /// Legacy classification only; consult MemoryDescriptor::device_identity first.
     pub fn cuda_device_index(&self) -> Option<u32> {
         match self {
             StorageKind::Device(idx) => Some(*idx),
@@ -132,7 +167,7 @@ impl StorageKind {
         }
     }
 
-    /// Returns true if this is CUDA device memory.
+    /// Legacy device-space test; this alone does not identify the SDK.
     pub fn is_cuda(&self) -> bool {
         matches!(self, StorageKind::Device(_))
     }
@@ -180,6 +215,11 @@ impl MemoryDescriptor for Buffer {
     fn as_any(&self) -> &dyn Any {
         self.0.as_any()
     }
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        self.0.device_identity()
+    }
+
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<nixl::NixlDescriptor> {
         self.0.nixl_descriptor()
     }
@@ -222,6 +262,7 @@ impl From<Arc<dyn MemoryDescriptor>> for Buffer {
     }
 }
 
+#[cfg(feature = "nixl")]
 impl From<Arc<dyn nixl::NixlMemory + Send + Sync>> for Buffer {
     fn from(arc: Arc<dyn nixl::NixlMemory + Send + Sync>) -> Self {
         // Arc<dyn NixlMemory> implements MemoryDescriptor, so we can wrap it

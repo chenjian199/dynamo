@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! # Arena Allocator
 //!
@@ -66,6 +68,7 @@ impl<S: MemoryDescriptor> std::fmt::Debug for ArenaAllocator<S> {
 /// The buffer is backed by a [`MemoryDescriptor`] object, and the allocation is freed when the buffer is dropped.
 pub struct ArenaBuffer<S: MemoryDescriptor> {
     /// Byte offset from the start of the backing storage.
+    #[cfg_attr(not(feature = "nixl"), allow(dead_code))]
     offset: usize,
     /// Absolute memory address of this buffer.
     address: usize,
@@ -169,9 +172,14 @@ impl<S: MemoryDescriptor + 'static> MemoryDescriptor for ArenaBuffer<S> {
     fn storage_kind(&self) -> StorageKind {
         self.storage.storage_kind()
     }
+
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        self.storage.device_identity()
+    }
     fn as_any(&self) -> &dyn Any {
         self
     }
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         if let Some(mut descriptor) = self.storage.nixl_descriptor() {
             descriptor.addr = self.addr() as u64;
@@ -184,8 +192,10 @@ impl<S: MemoryDescriptor + 'static> MemoryDescriptor for ArenaBuffer<S> {
 }
 
 // NIXL integration helpers
+#[cfg(feature = "nixl")]
 use super::nixl::{NixlCompatible, NixlDescriptor, RegisteredView};
 
+#[cfg(feature = "nixl")]
 impl<S> ArenaBuffer<S>
 where
     S: MemoryDescriptor + NixlCompatible,
@@ -209,6 +219,7 @@ where
     }
 }
 
+#[cfg(feature = "nixl")]
 impl<S> ArenaBuffer<S>
 where
     S: MemoryDescriptor + RegisteredView,

@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Build script for dynamo-memory.
 //!
@@ -24,7 +26,7 @@
 use std::process::Command;
 
 fn main() {
-    #[cfg(target_os = "macos")]
+    #[cfg(all(target_os = "macos", feature = "nixl"))]
     {
         let out_dir = std::env::var("OUT_DIR").unwrap();
         let lib_path = format!("{}/libstdc++.a", out_dir);
@@ -42,6 +44,9 @@ fn main() {
     println!("cargo::rerun-if-env-changed=PATH");
 
     println!("cargo::rustc-check-cfg=cfg(cuda_mem_location_union)");
+    if std::env::var_os("CARGO_FEATURE_CUDA").is_none() {
+        return;
+    }
     let is_union = match cuda_version() {
         Some((major, minor)) => (major, minor) >= (13, 2),
         None => true, // nvcc unavailable -> cudarc's fallback-latest -> newest -> union

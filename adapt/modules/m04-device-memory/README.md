@@ -7,21 +7,23 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M04 设备运行时与内存
 
-状态：待实现（MetaX 当前阶段）。依赖 M01/M02；提供 M05/M06 使用的内存和完成语义。GMS 的 VMM 抽象归 M07，避免重复实现同一服务层。
+状态：基础原语第一版完成（MetaX/Ascend/CUDA，2026-10-16）。依赖 M01/M02；提供 M05/M06 使用的内存和完成语义。KVBM/PD 调用接入及 GMS/VMM 不在本轮启用范围。
 
-## 实施进度（2026-10-15）
+## 已交付与证据
 
-M01 已能查询设备身份与容量，但未新增 MetaX 设备分配、注册内存、流或完成事件实现。torch 可用不等于本模块完成。
+完整实现、版本、所有权规则、测试命令和支持边界见 [M04 三平台验收](../../m04/README.md)。
 
-证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+- `lib/platform/src/device.rs`、`memory.rs`：设备/context 身份、拥有/借用内存与流、host 注册、真实完成事件、有限在途回收、重复关闭。
+- `lib/platform-runtime`：CUDA 13 / MACA 3.8.2 / CANN 9.1 原生 ABI，显式选择后动态加载 SDK。共用契约，不共用厂商句柄。
+- `lib/memory/src/platform.rs`：PlatformStorage 接入 Buffer/OffsetBuffer/ArenaAllocator；包装保留 device_identity，旧 CUDA API 保留。
+- `dynamo-memory --no-default-features`：System/Disk 与公共内存类型不引入 cudarc/NIXL；默认 features 保持旧 CUDA/NIXL 兼容。NIXL descriptor 方法仅在 nixl feature 启用时存在。
+- 三平台验证 allocation、H2D/D2H/D2D、64 轮回收/注册、借用 owner、跨线程、context 恢复、取消、边界和关闭；设备错误使用 fake provider 注入。CUDA 旧 API 的 165 项硬件回归通过。
 
-## 当前功能与调用链
+`StorageKind` 保留空间类别和旧序列化形式，平台/context 身份由 MemoryDescriptor 单独提供。不得单凭旧 `StorageKind::is_cuda()` 分派平台；应使用 descriptor 身份或新的 descriptor.cuda_device_index()。M06 负责将身份贯穿物理 layout 与 transfer executor。M05 的厂商 NIXL 注册未交付，当前兼容入口明确拒绝非 CUDA provider 内存。
 
-`lib/memory` 提供 `MemoryDescriptor`、Buffer、设备/主机/磁盘存储、外部内存包装、pool 与 NIXL 注册。`device.rs::DeviceStorage` 直接持有 `CudaContext`，分配与释放调用 cudarc；`pinned.rs` 使用 CUDA host allocation；`pool/cuda.rs` 暴露 CUDA pool。
+## 当前调用边界
 
-公共 `StorageError` 直接引用 CUDA/NIXL 错误类型，`StorageKind::Device(u32)` 和 `is_cuda()` 将设备存储等同于 CUDA。`MemoryDescriptor::nixl_descriptor()` 也使公共接口带有特定传输库类型。只替换 allocator 不足以完成依赖隔离。
-
-现有数据关系是：具体 Storage → MemoryDescriptor/Buffer → 物理 layout → transfer executor → CUDA stream/event。借用引擎 KV tensor 时还需要保留引擎分配对象的存活期。
+新调用链为 DeviceBackend → DeviceRuntime/Allocation/CompletionEvent → PlatformStorage → MemoryDescriptor/Buffer。已有 DeviceStorage/PinnedStorage/CudaMemPool 仍属于 CUDA 兼容入口；本轮没有把所有旧构造函数改写为新的 provider。下列原设计中未由“已交付”明确覆盖的项仍是后续计划，特别是 KVBM executor、外部引擎事件桥接、P2P 和 NUMA 优化。
 
 ## 目标接口与所有权
 
@@ -56,19 +58,17 @@ M01 已能查询设备身份与容量，但未新增 MetaX 设备分配、注册
 | [transfer/context.rs](../../../lib/kvbm-physical/src/transfer/context.rs) | 持有抽象 execution context，不让所有平台必须创建 CudaStream |
 | [executor/cuda.rs](../../../lib/kvbm-physical/src/transfer/executor/cuda.rs)、[notifications/cuda_event.rs](../../../lib/kvbm-physical/src/transfer/notifications/cuda_event.rs) | CUDA 路径作为 provider 实现保留，M06 将调用处改为公共接口 |
 
-## 拟新增文件清单
+## 原文件规划与实际落点
 
 | 拟新增路径 | 内容 |
 | --- | --- |
 | `lib/platform/src/device.rs` | DeviceRuntime/context/stream 契约；使用 M01 身份和错误 |
 | `lib/platform/src/memory.rs` | allocation、borrowed allocation、host registration 的边界与所有权 |
-| `lib/platform/src/event.rs` | CompletionEvent 和异步等待/回收规则 |
-| `lib/platform-cuda/Cargo.toml`、`lib/platform-cuda/src/{lib,device,memory,event}.rs` | 抽离现有 cudarc 实现；M02 负责 features 和构建 |
-| `lib/platform-ascend/Cargo.toml`、`lib/platform-ascend/src/{lib,device,memory,event}.rs` | 验证 SDK 原语后实现，不能先用空完成事件占位 |
-| `lib/platform-metax/Cargo.toml`、`lib/platform-metax/src/{lib,device,memory,event}.rs` | 验证 MACA API/ABI 后实现，不假定 cudarc 可复用 |
+| `lib/platform/src/event.rs`（原拟议） | 已合并到 memory.rs，避免拆分同一生命周期状态 |
+| `lib/platform-runtime`（实际） | CUDA/MACA/ACL provider 共用加载和 context guard，ABI 分支分别处理；没有新增三个重复 crate |
 | `lib/memory/src/pool/device.rs` | 与平台运行时组合的通用池包装，按实际调用需求建立 |
-| `lib/platform/tests/memory_contract.rs` | mock provider 检查生命周期、边界和错误传播 |
-| `tests/platforms/test_device_memory.py` | 各平台真实分配、复制、注册、异步顺序与故障验证 |
+| `lib/platform/src/memory_tests.rs`（实际） | fake provider 检查生命周期、边界和错误传播 |
+| `lib/platform-runtime/examples/device_smoke.rs`、`adapt/m04/run.sh`（实际） | 直接调用 Rust 原语做三平台硬件验收，不以 torch 可用代替 |
 
 ## 平台支持与实施关卡
 

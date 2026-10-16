@@ -1,11 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Tensor abstraction built on top of MemoryDescriptor.
 //!
 //! A tensor is memory with shape, stride, and element size metadata.
 //! The underlying memory could be externally owned, self-owned, or a view.
 
+#[cfg(feature = "nixl")]
 use super::nixl::{self, NixlDescriptor};
 use super::{MemoryDescriptor, StorageKind};
 use std::any::Any;
@@ -97,10 +100,7 @@ pub trait TensorDescriptorExt: TensorDescriptor {
 
     /// Returns the CUDA device ID if the tensor is on a CUDA device.
     fn cuda_device_id(&self) -> Option<usize> {
-        match self.storage_kind() {
-            StorageKind::Device(idx) => Some(idx as usize),
-            _ => None,
-        }
+        self.cuda_device_index().map(|id| id as usize)
     }
 }
 
@@ -111,6 +111,7 @@ impl<T: TensorDescriptor + ?Sized> TensorDescriptorExt for T {}
 // Arc<dyn TensorDescriptor> support for NixlRegisterExt
 // =============================================================================
 
+#[cfg(feature = "nixl")]
 impl nixl::NixlCompatible for Arc<dyn TensorDescriptor> {
     fn nixl_params(&self) -> (*const u8, usize, nixl::MemType, u64) {
         let storage = self.storage_kind();
@@ -137,10 +138,15 @@ impl MemoryDescriptor for Arc<dyn TensorDescriptor> {
         (**self).storage_kind()
     }
 
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        (**self).device_identity()
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
 
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         None
     }
@@ -164,6 +170,7 @@ impl TensorDescriptor for Arc<dyn TensorDescriptor> {
 // Arc<dyn TensorDescriptor + Send + Sync> support
 // =============================================================================
 
+#[cfg(feature = "nixl")]
 impl nixl::NixlCompatible for Arc<dyn TensorDescriptor + Send + Sync> {
     fn nixl_params(&self) -> (*const u8, usize, nixl::MemType, u64) {
         let storage = self.storage_kind();
@@ -190,10 +197,15 @@ impl MemoryDescriptor for Arc<dyn TensorDescriptor + Send + Sync> {
         (**self).storage_kind()
     }
 
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        (**self).device_identity()
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
 
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         None
     }
@@ -244,6 +256,7 @@ mod tests {
             self
         }
 
+        #[cfg(feature = "nixl")]
         fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
             None
         }
@@ -477,6 +490,7 @@ mod tests {
             self
         }
 
+        #[cfg(feature = "nixl")]
         fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
             None
         }
@@ -526,6 +540,7 @@ mod tests {
         assert_eq!(arc.stride(), &[12, 4, 1]);
         assert_eq!(arc.element_size(), 4);
         assert_eq!(arc.storage_kind(), StorageKind::System);
+        #[cfg(feature = "nixl")]
         assert!(arc.nixl_descriptor().is_none());
     }
 
@@ -562,6 +577,7 @@ mod tests {
             fn as_any(&self) -> &dyn Any {
                 self
             }
+            #[cfg(feature = "nixl")]
             fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
                 None
             }

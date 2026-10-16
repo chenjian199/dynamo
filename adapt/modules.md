@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 模块细化与实施工作清单
 
-本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M02/M03/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
+本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02/M03/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
 
 ## 依赖顺序
 
@@ -51,14 +51,13 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M04 设备运行时与内存
 
-当前状态：待实现。
+当前状态：基础原语第一版完成，三平台真机验收通过；[证据与复现](m04/README.md)。
 
 详细设计：[内存所有权、流与事件、文件计划](modules/m04-device-memory/README.md)。
 
-- 源码入口：[memory](../lib/memory/src)、[CUDA executor](../lib/kvbm-physical/src/transfer/executor/cuda.rs)、[CUDA event](../lib/kvbm-physical/src/transfer/notifications/cuda_event.rs)。
-- 工作：定义内存、上下文、流、事件与主机注册契约；实现 CUDA provider，再以其他平台验证接口；平台化 NUMA 与设备身份。
-- 待细化：借用引擎分配的张量与自有内存的边界；事件导入/导出；线程归属；可安全注销的时机；实际必要的接口子集。
-- 验收：分配/释放、H2D/D2H/D2D、事件顺序和错误传播正确；并发、取消、设备故障时无提前释放。
+- 已交付：SDK 无关契约与 CUDA/MACA/ACL provider，拥有/借用内存、host 注册、stream/event、异步复制与有限回收；lib/memory 可禁用 CUDA/NIXL。
+- 已验收：三平台复制字节一致性、64 轮分配/注册、owner、context、取消/关闭；错误注入与 SDK 无关测试；CUDA 旧 API 回归。
+- 边界：跨设备 P2P 明确拒绝；引擎事件桥接、物理 layout 平台身份和 KVBM executor 接入归 M06；厂商传输注册归 M05；NUMA 性能与长稳另验收。
 
 ## M05 PD 协调与数据传输
 

@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! CUDA pinned host memory storage.
 
-use super::{MemoryDescriptor, Result, StorageError, StorageKind, actions, nixl::NixlDescriptor};
+#[cfg(feature = "nixl")]
+use super::nixl::NixlDescriptor;
+use super::{MemoryDescriptor, Result, StorageError, StorageKind, actions};
 use cudarc::driver::CudaContext;
 use std::any::Any;
 use std::sync::Arc;
@@ -224,12 +228,14 @@ impl MemoryDescriptor for PinnedStorage {
         self
     }
 
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         None
     }
 }
 
 // Support for NIXL registration
+#[cfg(feature = "nixl")]
 impl super::nixl::NixlCompatible for PinnedStorage {
     fn nixl_params(&self) -> (*const u8, usize, nixl_sys::MemType, u64) {
         let ptr = unsafe { self.as_ptr() };

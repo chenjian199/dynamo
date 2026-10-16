@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+pub mod device;
+pub mod memory;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
@@ -214,3 +217,6 @@ impl PlatformDescriptor {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod memory_tests;

@@ -1,9 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
-use super::{
-    Any, Buffer, MemoryDescriptor, Result, StorageError, StorageKind, nixl::NixlDescriptor,
-};
+#[cfg(feature = "nixl")]
+use super::nixl::NixlDescriptor;
+use super::{Any, Buffer, MemoryDescriptor, Result, StorageError, StorageKind};
 
 /// An [`OffsetBuffer`] is a new [`Buffer`]-like object that represents a sub-region (still contiguous)
 /// within an existing [`Buffer`].
@@ -84,10 +86,15 @@ impl MemoryDescriptor for OffsetBuffer {
         self.base.storage_kind()
     }
 
+    fn device_identity(&self) -> Option<&dynamo_platform::device::DeviceIdentity> {
+        self.base.device_identity()
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
 
+    #[cfg(feature = "nixl")]
     fn nixl_descriptor(&self) -> Option<NixlDescriptor> {
         let mut descriptor = self.base.nixl_descriptor()?;
         descriptor.addr = self.addr() as u64;
@@ -272,6 +279,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "nixl")]
     fn test_offset_buffer_nixl_descriptor_none() {
         // SystemStorage doesn't have a NIXL descriptor
         let base = create_test_buffer(1024);

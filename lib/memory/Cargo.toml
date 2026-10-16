@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 [package]
 name = "dynamo-memory"
@@ -11,23 +13,26 @@ repository.workspace = true
 description = "Memory management library for Dynamo"
 
 [features]
-default = []
+default = ["cuda", "nixl"]
+cuda = ["dep:cudarc"]
+nixl = ["dep:nixl-sys"]
 
 # feature to enable unsafe slices of memory descriptors
 # for advanced testing in other crates
 unsafe-slices = []
 
 # test features for hardware-specific tests
-testing-cuda = []
-testing-nixl = []
+testing-cuda = ["cuda"]
+testing-nixl = ["nixl"]
 testing-all = ["testing-cuda", "testing-nixl"]
 
 [dependencies]
+dynamo-platform = { workspace = true }
 dynamo-truthy = { workspace = true }
 
 anyhow = { workspace = true }
-cudarc = { workspace = true }
-nixl-sys = { version = "=1.3.2" }
+cudarc = { workspace = true, optional = true }
+nixl-sys = { version = "=1.3.2", optional = true }
 serde = { workspace = true}
 thiserror = { workspace = true }
 tracing = { workspace = true }
@@ -40,6 +45,7 @@ offset-allocator = "0.2"
 [[bin]]
 name = "validate_numa_placement"
 path = "bin/validate_numa_placement.rs"
+required-features = ["cuda"]
 
 [dev-dependencies]
 serde_json = { workspace = true }
