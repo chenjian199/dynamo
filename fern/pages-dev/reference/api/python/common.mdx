@@ -97,7 +97,7 @@ from dynamo.common.http import AiohttpClient
 AiohttpClient(config = None) -> None
 ```
 
-[`components/src/dynamo/common/http/aiohttp_client.py#L51`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/aiohttp_client.py#L51)
+[`components/src/dynamo/common/http/aiohttp_client.py#L133`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/aiohttp_client.py#L133)
 
 **Public methods**
 
@@ -109,7 +109,7 @@ __init__(config = None) -> None
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/aiohttp_client.py#L54)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/aiohttp_client.py#L136)
 
 <h4 id="api-dynamo-common-http-aiohttp-client-aiohttpclient-close">close</h4>
 
@@ -119,7 +119,7 @@ close() -> None
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/aiohttp_client.py#L267)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/aiohttp_client.py#L421)
 </Accordion>
 
 <Accordion id="api-dynamo-common-multimodal-async-encoder-cache-asyncencodercache" title="AsyncEncoderCache (class)">
@@ -277,7 +277,7 @@ Supports two paths:
 
 - `List[tuple[np.ndarray, float]]` — List of (waveform, sample_rate) tuples.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L200)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L208)
 </Accordion>
 
 <Accordion id="api-dynamo-common-backend-engine-baseengine" title="BaseEngine (class)">
@@ -418,7 +418,7 @@ those transitions. The conformance kit asserts that a second
 <h4 id="api-dynamo-common-backend-engine-baseengine-register-prometheus">register_prometheus</h4>
 
 ```python
-register_prometheus(metrics: 'EngineMetrics') -> None
+register_prometheus(metrics: _backend.EngineMetrics) -> None
 ```
 
 Bridge a vendor-prefixed Prometheus registry into the runtime's ``/metrics`` output via `metrics.add_expfmt_callback`. Default no-op. See `dynamo.common.backend.metrics` for helpers. Do not retain ``metrics`` past return.
@@ -747,7 +747,8 @@ Fetch ``url`` and return the response body.
 Single-shot: no retries. Raises one of the unified exception
 classes above; callers never see native aiohttp classes.
 
-``policy=None``: use the backend's built-in redirect handling.
+``policy=None``: follow redirects, up to the backend's limit, without
+validating each hop against a URL policy.
 
 ``max_bytes`` set: refuse a body larger than that while it is being
 read, so an attacker-chosen URL cannot buffer an unbounded response.
@@ -773,7 +774,7 @@ close() -> None
 
 Close the backend session/client. Idempotent.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/base.py#L234)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/http/base.py#L235)
 </Accordion>
 
 <Accordion id="api-dynamo-common-http-base-httpconfigurationerror" title="HttpConfigurationError (class)">
@@ -909,7 +910,7 @@ load_image(image_url: str, *, cache_scope: str | None = None) -> Image.Image
 
 Load and decode one media URL through the validated image cache.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/image_loader.py#L391)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/image_loader.py#L388)
 
 <h4 id="api-dynamo-common-multimodal-image-loader-imageloader-load-image-batch">load_image_batch</h4>
 
@@ -952,7 +953,7 @@ DYN_MM_IMAGE_CACHE_SESSION_SCOPED is enabled.
 - `ValueError` — If enable_frontend_decoding=True but nixl_connector is None
 - `ValueError` — If a UUID-only slot is received without opting in
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/image_loader.py#L499)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/image_loader.py#L488)
 </Accordion>
 
 <Accordion id="api-dynamo-common-backend-engine-llmengine" title="LLMEngine (class)">
@@ -1339,10 +1340,10 @@ from dynamo.common.metadata_upload import MetadataUploader
 ```
 
 ```python
-MetadataUploader(url: str) -> None
+MetadataUploader(url: str, fallback_url: str | None = None) -> None
 ```
 
-[`components/src/dynamo/common/metadata_upload.py#L141`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L141)
+[`components/src/dynamo/common/metadata_upload.py#L144`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L144)
 
 **Public methods**
 
@@ -1354,7 +1355,7 @@ from_settings(cls, settings: dict[str, Any] | None) -> MetadataUploader | None
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L153)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L165)
 
 <h4 id="api-dynamo-common-metadata-upload-metadatauploader-from-backend-request">from_backend_request</h4>
 
@@ -1364,7 +1365,7 @@ from_backend_request(cls, request: dict[str, Any]) -> MetadataUploader | None
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L165)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L177)
 
 <h4 id="api-dynamo-common-metadata-upload-metadatauploader-upload-choice">upload_choice</h4>
 
@@ -1374,12 +1375,12 @@ upload_choice(choice_index: int, metadata: dict[str, Any]) -> None
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L169)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/metadata_upload.py#L181)
 
 <h4 id="api-dynamo-common-metadata-upload-metadatauploader-init">__init__</h4>
 
 ```python
-__init__(url: str) -> None
+__init__(url: str, fallback_url: str | None = None) -> None
 ```
 
 No summary available.
@@ -2115,9 +2116,13 @@ No summary available.
 load_video_batch(video_mm_items: List[Dict[str, Any]], media_io_kwargs: Dict[str, Any] | None = None) -> List[tuple[np.ndarray, Dict[str, Any]]]
 ```
 
-No summary available.
+Load URL or frontend-decoded videos after validating the full batch.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/video_loader.py#L358)
+Raises ``ValueError`` for malformed items or decoded items when frontend
+decoding is disabled. Validation happens before any load coroutine is
+created so an invalid item cannot leave earlier loads unawaited.
+
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/video_loader.py#L365)
 </Accordion>
 
 <Accordion id="api-dynamo-common-forward-pass-metrics-welfordaccumulator" title="WelfordAccumulator (class)">
