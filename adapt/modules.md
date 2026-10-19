@@ -61,14 +61,15 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M05 PD 协调与数据传输
 
-当前状态：部分完成：三平台单机 vLLM 原生 PD（含 2P3D）已验证；MetaX/Ascend 不可达故障经窄补丁修复并验收，完整模块尚未完成；[证据与复现](m05/README.md)。
+当前状态：部分完成：三平台单机 vLLM 原生 PD（含 2P3D）已验证；补充 TP1/TP2 双向转换、传输中故障与重启恢复，完整模块尚未完成；[补充证据与长稳结果](m05/completion.md)。
 
 详细设计：[控制面与数据面、传输状态、文件计划](modules/m05-pd-transfer/README.md)。
 
 - 源码入口：[kv_connector_protocols.py](../components/src/dynamo/vllm/kv_connector_protocols.py)、[handlers.py](../components/src/dynamo/vllm/handlers.py)、[SGLang disagg](../components/src/dynamo/sglang/_disagg.py)、[NIXL 内存接口](../lib/memory/src/nixl.rs)。
 - 工作：将所选厂商 connector 的真实协议映射到 Dynamo；确定 NIXL backend 或其他传输实现；定义注册、握手、提交、完成和取消语义。
 - 已交付：按名称 + 模块解析协议，启动前角色/配置检查，交接前平台/版本/模型/精度/block/并行度契约；正常 PD、取消和参数不匹配三平台验证；2P3D 三平台验证，MetaX NIXL 的 UCX 旧协议崩溃已修复并完成端到端复验。
-- 剩余：传输途中故障、注册句柄长稳、跨节点、Dynamo 自有 TransferProvider/KVBM；SGLang 暂缓。
+- 本轮补充：所选主路径完成受限 TP1/TP2 转换、native pending 故障、失败退出/重启恢复及至少 30 分钟资源回收验收（CUDA 4480、MetaX 3680、Ascend 1728 请求）；保留修复前失败对照。
+- 剩余：跨节点、Dynamo 自有 TransferProvider/KVBM；MetaX 可选 NIXL 的传输中断 UCX abort 未解决，主路径使用 Mooncake；SGLang 暂缓。
 - 验收：同平台单机/跨节点 PD 正确；完成与块释放时序正确；超时、对端退出及取消有明确行为和可回收资源。
 
 ## M06 KVBM 与集合通信

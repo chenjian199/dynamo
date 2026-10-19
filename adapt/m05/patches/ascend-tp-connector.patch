@@ -1,0 +1,78 @@
+--- mooncake_connector.py
++++ mooncake_connector.py
+@@ -26,0 +27,3 @@
++from dynamo.common.platform.ascend_mooncake import prepare_mooncake_libraries
++
++prepare_mooncake_libraries()
+@@ -275,0 +279,3 @@
++        self.heyi_tp_split = vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False)
++        self.split_done_ranks: dict[str, set[int]] = {}
++        self.split_done_lock = threading.Lock()
+@@ -285 +291,5 @@
+-        return self.task_tracker.get_and_clear_finished_requests()
++        finished = self.task_tracker.get_and_clear_finished_requests()
++        with self.split_done_lock:
++            for request_id in finished:
++                self.split_done_ranks.pop(request_id, None)
++        return finished
+@@ -368 +378,13 @@
+-                    if remote_port_send_num:
++                    if self.heyi_tp_split:
++                        if len(msg) != 4 or type(msg[3]) is not int or msg[3] not in (0, 1):
++                            raise ValueError("Missing unique decode rank in split-TP completion")
++                        with self.split_done_lock:
++                            with self.task_tracker.done_task_lock:
++                                active = request_id in self.task_tracker.reqs_to_process
++                            if active:
++                                ranks = self.split_done_ranks.setdefault(request_id, set())
++                                if msg[3] not in ranks:
++                                    ranks.add(msg[3])
++                                    if ranks == {0, 1}:
++                                        self.task_tracker.update_done_task_count(request_id)
++                    elif remote_port_send_num:
+@@ -916,0 +939,15 @@
++                    if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
++                        # Qwen3 NHD cache: D rank pulls its half of the heads
++                        # for every token. P remains registered until BOTH D ranks ACK.
++                        if group_spec["kv_cache_spec_type"] != "FullAttentionSpec":
++                            raise ValueError("Split TP only supports FullAttentionSpec")
++                        block_size = self.vllm_config.cache_config.block_size
++                        token_bytes = block_len // block_size
++                        if block_len % block_size or remote_block_stride != 2 * block_stride:
++                            raise ValueError("Unexpected split-TP NHD cache strides")
++                        for remote_block, local_block in zip(remote_group_block_ids, local_group_block_ids, strict=True):
++                            for token in range(block_size):
++                                src_list.append(src_layer_base_addr + local_block * block_stride + token * token_bytes)
++                                dst_list.append(dst_layer_base_addr + remote_block * remote_block_stride + (2 * token + self.tp_rank) * token_bytes)
++                                length_list.append(token_bytes)
++                        continue
+@@ -1418 +1455,4 @@
+-            data_bytes = self.encoder.encode((DONE_RECVING_MSG, request_id, remote_port_send_num))
++            message = (DONE_RECVING_MSG, request_id, remote_port_send_num)
++            if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
++                message += (self.tp_rank,)
++            data_bytes = self.encoder.encode(message)
+@@ -1987 +2027 @@
+-        if self._prefill_tp_size < self._decode_tp_size:
++        if self._prefill_tp_size < self._decode_tp_size and not vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
+@@ -2067 +2107 @@
+-            self.tp_num_need_pulls = num_d_block_heads // num_p_block_heads
++            self.tp_num_need_pulls = max(1, num_d_block_heads // num_p_block_heads)
+@@ -2379,0 +2420,7 @@
++                if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
++                    expected_heads = self.vllm_config.model_config.get_total_num_kv_heads() // self.tp_size
++                    if (single_kv_cache.ndim != 4 or not single_kv_cache.is_contiguous()
++                            or single_kv_cache.shape[1] != self.block_size
++                            or single_kv_cache.shape[2] != expected_heads
++                            or single_kv_cache.dtype != torch.bfloat16):
++                        raise ValueError("Split TP requires contiguous BF16 NHD cache")
+@@ -3274 +3321 @@
+-        return num_d_block_heads // num_p_block_heads
++        return max(1, num_d_block_heads // num_p_block_heads)
+@@ -3495 +3542 @@
+-            tp_num_need_pulls = num_d_block_heads // num_p_block_heads
++            tp_num_need_pulls = max(1, num_d_block_heads // num_p_block_heads)
+@@ -3563,0 +3611,3 @@
++        if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
++            assert prefill_tp_size == 1 and self._decode_tp_size == 2
++            return [[int(tp_ori_data[0])], [int(tp_ori_data[0])]]

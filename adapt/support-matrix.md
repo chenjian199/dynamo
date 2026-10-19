@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 平台支持情况与验收矩阵
 
-本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，并完成 [MetaX C500 单卡文本推理首轮适配与验收](metax/metax-bringup.md)。M01 平台身份与能力契约第一版已实现并在 MetaX 上验收，见 [平台验收](metax/metax-platform.md)。设备内存基础原语已完成 [M04 三平台验收](m04/README.md)，引擎原生 PD 已完成 [M05 部分验收](m05/README.md)，传输途中故障、跨节点与 KVBM 传输仍待完成。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
+本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，并完成 [MetaX C500 单卡文本推理首轮适配与验收](metax/metax-bringup.md)。M01 平台身份与能力契约第一版已实现并在 MetaX 上验收，见 [平台验收](metax/metax-platform.md)。设备内存基础原语已完成 [M04 三平台验收](m04/README.md)，引擎原生 PD 已完成 [M05 部分验收](m05/README.md)，补充不同 TP、传输途中故障及有界长稳见 [M05 补充验收](m05/completion.md)；跨节点、KVBM 传输及 MetaX 可选 NIXL 中断错误路径仍未完成。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
 
 ## 状态定义
 
@@ -31,7 +31,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | 平台身份与能力注册 | 有限支持：H800 / vLLM 0.24.0，显式 CUDA 身份与发现已验证；[M03](m03/README.md) | 有限支持：910B3、schema 1、真实身份/能力预检查/发现注册；[验收](ascend/ascend-bringup.md) | 有限支持：schema 1、真实设备/软件身份、能力预检查、发现注册与绑定已验证 | CPU 无 SDK、配置冻结、缺能力拒绝、非 CUDA 不误标 | M01 |
 | 引擎基础推理 | 有限支持：H800 / 0.24.0，Qwen3-0.6B，本地 eager；[M03](m03/README.md) | 有限支持：910B3、vLLM Ascend 0.23.0、Qwen3-0.6B、单卡 eager；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
 | KV-aware 路由 | 有限支持：H800 / 0.24.0，本地 TP=2/DP=2，逐 rank 事件、容量、选路和清空；[M03](m03/README.md) | 有限支持：910B3、0.23.0、单机双 Worker、TP=1/DP=1、block=128，真实事件/选路/淘汰/清空已验证；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
-| P/D 分离 | 有限支持：H800 / 0.24.0 / NIXL，单机 TP1/DP1、2P3D | 有限支持：910B3 / 0.23.0 / 厂商 Mooncake；窄补丁后不可达错误及回收通过，含 2P3D | 有限支持：C500 / 0.26.0 / Mooncake maca；窄补丁后不可达及回收通过，含 2P3D；NIXL 修复 UCX 旧协议后 2P3D、不可达回收与恢复通过 | 正常 PD、取消、输出对照、交接契约；[M05 证据及未完成项](m05/README.md) | M05 |
+| P/D 分离 | 有限支持：H800 / 0.24.0 / NIXL；2P3D、TP1/TP2 双向、故障重启 | 有限支持：910B3 / 0.23.0 / Mooncake；2P3D、受限 TP1/TP2 双向及故障回收；使用配套补丁/入口 | 有限支持：C500 / 0.26.0 / Mooncake maca；2P3D、TP1/TP2 双向、超时失败退出与重启；可选 NIXL 中断 abort 未修复 | 正常 PD、取消、契约、故障及有界长稳的[逐项证据](m05/completion.md) | M05 |
 | 设备分配/主机注册/异步复制 | 已验证：H800 / CUDA 13 | 已验证：910B3 / CANN 9.1 | 已验证：C500 / MACA 3.8.2.208 | 同设备 H2D/D2H/D2D、owner/context/事件/取消/回收；P2P 拒绝；[M04](m04/README.md) | M04 |
 | Dynamo KVBM 主机缓存 | 源码已有 | 待调查 | 待调查 | 注册内存、异步复制、引擎布局与事件桥接 | M04/M06 |
 | Dynamo KVBM SSD/远端缓存 | 源码已有 | 待调查 | 待调查 | 回读、一致性、中转与直接路径 | M05/M06 |

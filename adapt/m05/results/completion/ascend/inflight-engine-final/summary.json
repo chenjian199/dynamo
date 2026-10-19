@@ -1,0 +1,155 @@
+{
+  "platform": "ascend",
+  "aggregate": false,
+  "status": "passed",
+  "configuration": {
+    "platform": "ascend",
+    "devices": "0,1",
+    "model": "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+    "output": "/var/cache/dynamo-ascend/m05/inflight-engine-preserve-env-20261019",
+    "aggregate": false,
+    "prefill_workers": 1,
+    "decode_workers": 1,
+    "prefill_tp": 1,
+    "decode_tp": 1,
+    "allow_shared_devices": false,
+    "cancel": false,
+    "handoff_case": null,
+    "fault": null,
+    "inflight_fault": true,
+    "legacy": false,
+    "connector": "default",
+    "soak_seconds": 0,
+    "soak_requests": 1000
+  },
+  "vendor_connector": {
+    "platform": "ascend",
+    "version": "0.23.0",
+    "path": "/vllm-workspace/vllm-ascend/vllm_ascend/distributed/kv_transfer/kv_p2p/mooncake_connector.py",
+    "state": "patched+tp",
+    "sha256": "17f2f733e52cf94c2a0d0052df0076f640431b0ab07e5c2b3f2a1839eb75e613"
+  },
+  "software": {
+    "vllm": "0.23.0+empty",
+    "torch": "2.10.0+cpu",
+    "vllm-ascend": "0.23.0"
+  },
+  "runtime_environment": {
+    "SPT_NOENV": "1",
+    "GOMAXPROCS": "2",
+    "MALLOC_ARENA_MAX": "2",
+    "LD_PRELOAD": "/usr/local/Ascend/cann-9.1.0/lib64/libllm_datadist.so"
+  },
+  "responses": [
+    {
+      "id": "cmpl-f592677a-a50c-4713-a2ea-219273de0bbb",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792385777,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-fe6d5f14-32e1-4d6e-a663-8c2e1c8ca5df",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792385780,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-2d1298c3-aaf4-46c4-bde7-d615508c7843",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792385783,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "inflight_fault": {
+    "status": "passed",
+    "submitter": "decode",
+    "peer": "prefill",
+    "request_error": "HTTPError('500 Server Error: Internal Server Error for url: http://127.0.0.1:19006/v1/completions')",
+    "before": {
+      "pid": 4809,
+      "phase": "before",
+      "monotonic": 336010.416539409
+    },
+    "pending": {
+      "pid": 4809,
+      "phase": "pending",
+      "monotonic": 336010.423039181,
+      "native_state": 0
+    },
+    "error_seconds": 0.6982241899822839,
+    "survivor_idle": {
+      "prefill": {
+        "vllm:num_requests_running": 0.0,
+        "vllm:num_requests_waiting": 0.0,
+        "vllm:kv_cache_usage_perc": 0.0,
+        "vllm:external_prefix_cache_hits_total": 0.0
+      }
+    },
+    "peer_outcome": "drained"
+  }
+}

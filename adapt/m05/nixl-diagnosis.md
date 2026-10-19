@@ -47,7 +47,7 @@ docker exec -w /workspace/dynamo \
   adapt/m05/nixl_probe.py --output /tmp/nixl-probe-manual
 ```
 
-此修复认证范围限于当前版本、单机和文档中的模型/并行配置。跨节点 RDMA、不同 TP、传输中故障安全释放仍需独立验收。
+此修复认证范围限于当前版本、单机和文档中的模型/并行配置。跨节点 RDMA 仍未验证；不同 TP 的补测及传输中故障的失败结论见下文。
 
 
 ## 引擎端到端复验
@@ -55,3 +55,32 @@ docker exec -w /workspace/dynamo \
 [MetaX NIXL 2P3D 结果](results/metax/nixl-2p3d/summary.json)：Qwen3-0.6B、eager BF16、每引擎 TP1/DP1；四张 C500 上运行五个独立引擎，其中 D0/P1 共享卡 0。六条 P→D 组合全部成功，12 个 HTTP 请求（并发度 6）的输出与聚合推理一致，三个 D 均记录远端 KV 命中，两个 P 均记录传输完成。
 
 不可达握手端口在 5.027 秒后返回明确后端错误；等待租约回收后五端 running/waiting/KV 占用归零，后续请求成功。流式取消、占用回收、再次请求也通过。完整日志位于容器 `/var/cache/dynamo-metax/m05/nixl-2p3d/`；仓库保存摘要、命令、逐对结果、关键指标与 UCX/传输日志摘录。这是单机功能验收，不是性能或跨节点 RDMA 验收。
+
+## 2026-10-19：资源循环与传输中故障
+
+扩大到 512 次 READ/WRITE、每次创建/移除 remote agent 后，数据与设备分配仍正确，但原版 NIXL/UCX 的 socket FD 从 53 增至 541。关闭 MACA IPC、禁用 memory type cache、开启 progress thread 均未消除增长。同版本上游 NIXL 源码重新构建也能复现，因此不能归因于宿主驱动或只归因于 MACA IPC。
+
+`ucp_ep_close_nbx(flags=0)` 在活着的对端之间反复握手/失效时保留 transport lanes；上游也记录了这一行为及强制关闭对端连接的影响，见 [NIXL #2336](https://github.com/ai-dynamo/nixl/pull/2336)。本轮隔离构建的 `ucx_ep_close_force=yes` 补丁在 512 次实际设备读写后将 FD 保持在 29→29，进程干净退出。先用卡 3 上的两个进程（`--devices 3,3`）复验，再在长稳释放设备后用卡 0/1 的两个独立进程重复 512 次读写；后者两端 FD 均保持 30→30、设备活跃分配归零且干净退出。它验证单机跨卡的已完成传输回收，不是跨节点或在途安全取消认证。它默认关闭，要求 peer error handling，只用于明确允许两端断开且传输已经结束的测试；不得推广为任意在途取消/drain。强制断开会影响对端已连接的 endpoint，也可能取消尚在途的通知。
+
+构建脚本 [build-metax-nixl.sh](build-metax-nixl.sh) 固定 NIXL v1.0.0 与 Abseil 源码提交，并校验当前镜像 NIXL/UCX 二进制哈希。输出独立 plugin 目录，不替换镜像原库。它不是整套厂商 NIXL 重建，也不使未验收的 ABI/网络组合获得支持。
+
+```bash
+# 在 MetaX 开发容器执行；输出目录必须不存在。
+bash adapt/m05/build-metax-nixl.sh /tmp/m05-nixl-build
+NIXL_PLUGIN_DIR=/tmp/m05-nixl-build/plugins \
+UCX_PROTO_ENABLE=y UCX_TLS=maca_ipc,maca_copy,tcp \
+python adapt/m05/nixl_probe.py --devices 0,1 --iterations 64 \
+  --force-close --output /tmp/m05-nixl-cleanup
+```
+
+**仍未修复的独立问题**：64 MiB GPU READ 已处于 `PROC` 后终止对端，UCX 1.14 的 `ucp_proto_request_abort → ucp_ep_reqs_purge` 走到 `ucs_fatal_error_message: Function not implemented`，消费进程 SIGABRT。上述 endpoint 清理补丁没有解决这个 abort。需要匹配 MACA 的 UCX 核心源码与异常路径修复/重编译；本轮未取得该厂商核心源码，不用覆盖 fatal handler、伪造完成或提前注销设备内存来绕过。
+
+另外，镜像原有 NIXL 插件（未加载隔离构建的 endpoint 补丁）在 Qwen3-0.6B 上完成 P TP1→D TP2 和 P TP2→D TP1 两个方向的端到端回归：正常请求、远端 KV 命中（各 1686 tokens）、取消回收和恢复均通过，输出与聚合一致。见 [P1→D2](results/completion/metax/nixl-tp-p1d2/summary.json) 与 [P2→D1](results/completion/metax/nixl-tp-p2d1/summary.json)。这不覆盖上面失败的 pending peer-exit 情形。
+
+当前正常 PD 默认仍选 Mooncake。NIXL 的有限功能验证、连接清理实验和传输中故障失败是三个不同结论；不能据此宣布 NIXL 全部故障语义已与 CUDA 对齐。详见 [本轮完整边界](completion.md)。
+
+### MACA UCX 公开源码核查（2026-10-19）
+
+通过 GitHub API 枚举 [MetaX-MACA 官方组织](https://github.com/MetaX-MACA) 的 65 个公开仓库，没有 UCX/NIXL 仓库；直接查询这两个仓库名返回 404。另检查 vLLM-metax、Mooncake、QuickGuide、maca-samples 的默认分支目录及发布附件，没有找到匹配 MACA 3.8.2.208 的 UCX 源码或错误路径修复包。[vLLM-metax v0.26.0 发布项](https://github.com/MetaX-MACA/vLLM-metax/releases/tag/v0.26.0) 没有附件；[Mooncake](https://github.com/MetaX-MACA/Mooncake) 的源码不能替代 MACA UCX 核心。
+
+结论仅限目前公开可获取的材料；不代表厂商内部不存在源码或修复。核查范围、仓库列表和分支 SHA 见 [查询记录](results/completion/metax/public-source-check.json)。在获得兼容源码或厂商修复前，传输中断触发 UCX abort 继续标记为未解决，不用上游原版 UCX 直接替换具有 MACA 自定义内存类型的二进制。

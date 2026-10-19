@@ -189,11 +189,19 @@ def test_pd_preflight_checks_roles_and_parallelism(platform):
         enable_expert_parallel=False,
     )
     assert validate_pd_configuration(cfg, platform) == kv.kv_connector
+    valid_role = kv.kv_role
     kv.kv_role = "invalid"
     with pytest.raises(PlatformError):
         validate_pd_configuration(cfg, platform)
+    kv.kv_role = valid_role
     cfg.engine_args.tensor_parallel_size = 2
-    with pytest.raises(PlatformError, match="TP1/DP1"):
+    if platform == "ascend":
+        with pytest.raises(PlatformError, match="peer parallel"):
+            validate_pd_configuration(cfg, platform)
+        kv.kv_connector_extra_config["prefill"]["tp_size"] = 2
+    assert validate_pd_configuration(cfg, platform) == kv.kv_connector
+    cfg.engine_args.tensor_parallel_size = 3
+    with pytest.raises(PlatformError, match="TP1/TP2"):
         validate_pd_configuration(cfg, platform)
 
 
@@ -212,3 +220,70 @@ def test_metax_nixl_requires_device_aware_protocols(monkeypatch):
     monkeypatch.setenv("UCX_PROTO_ENABLE", "n")
     with pytest.raises(PlatformError, match="unsafe GPU GET"):
         configure_pd_environment("metax", "NixlConnector")
+
+
+@pytest.mark.parametrize(
+    "platform,connector,module",
+    [
+        ("cuda", "NixlConnector", None),
+        ("metax", "NixlConnector", None),
+        ("metax", "MooncakeConnector", None),
+        ("ascend", "MooncakeConnector", ASCEND_MOONCAKE_MODULE),
+    ],
+)
+@pytest.mark.parametrize("ptp,dtp", [(1, 2), (2, 1)])
+def test_heterogeneous_tp_requires_certified_path(
+    platform, connector, module, ptp, dtp
+):
+    local = dict(
+        schema=2,
+        platform=platform,
+        connector=connector,
+        connector_module=module,
+        tp_reshard="mha-gqa",
+        tp=dtp,
+        dp=1,
+        pp=1,
+        model="qwen",
+        dtype="bf16",
+        block_size=64,
+    )
+    peer = {**local, "tp": ptp}
+    metadata = {"remote_block_ids": [[3]], CONTRACT_KEY: peer}
+    assert validate_pd_handoff(metadata, local) == {"remote_block_ids": [[3]]}
+    for field, value in [
+        ("tp", 4),
+        ("tp", True),
+        ("schema", 1),
+        ("dtype", "fp8"),
+        ("block_size", 128),
+        ("tp_reshard", None),
+        ("connector_module", "unknown"),
+    ]:
+        with pytest.raises(InvalidArgument):
+            validate_pd_handoff(
+                {**metadata, CONTRACT_KEY: {**peer, field: value}}, local
+            )
+    assert peer["tp"] == ptp
+
+
+def test_ascend_mooncake_libraries_are_loaded_globally_once(monkeypatch):
+    import ctypes
+
+    from dynamo.common.platform import ascend_mooncake
+
+    calls = []
+    marker = object()
+
+    def load(path, mode):
+        calls.append((path, mode))
+        return marker
+
+    monkeypatch.setattr(ascend_mooncake, "_cann_datadist", None)
+    monkeypatch.setattr(ascend_mooncake.ctypes, "CDLL", load)
+    ascend_mooncake.prepare_mooncake_libraries()
+    ascend_mooncake.prepare_mooncake_libraries()
+    assert calls == [
+        ("/usr/local/Ascend/cann-9.1.0/lib64/libllm_datadist.so", ctypes.RTLD_GLOBAL)
+    ]
+    assert ascend_mooncake._cann_datadist is marker

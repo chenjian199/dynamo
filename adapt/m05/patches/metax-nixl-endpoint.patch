@@ -1,0 +1,70 @@
+diff --git a/src/plugins/ucx/ucx_backend.cpp b/src/plugins/ucx/ucx_backend.cpp
+index 8162677..25f349d 100644
+--- a/src/plugins/ucx/ucx_backend.cpp
++++ b/src/plugins/ucx/ucx_backend.cpp
+@@ -2,0 +3,2 @@
++ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
++ * Derived from NVIDIA NIXL. Modified by HEYI.
+@@ -848,0 +851,8 @@ nixlUcxEngine::nixlUcxEngine(const nixlBackendInitParams &init_params)
++    const auto close_it = custom_params->find("ucx_ep_close_force");
++    const bool force_close = close_it != custom_params->end() && close_it->second == "yes";
++    if (close_it != custom_params->end() && close_it->second != "yes" && close_it->second != "no") {
++        throw std::invalid_argument("ucx_ep_close_force must be yes or no");
++    }
++    if (force_close && err_handling_mode != UCP_ERR_HANDLING_MODE_PEER) {
++        throw std::invalid_argument("ucx_ep_close_force requires peer error handling");
++    }
+@@ -863 +873 @@ nixlUcxEngine::nixlUcxEngine(const nixlBackendInitParams &init_params)
+-        uws.emplace_back(std::make_unique<nixlUcxWorker>(*uc, err_handling_mode));
++        uws.emplace_back(std::make_unique<nixlUcxWorker>(*uc, err_handling_mode, force_close));
+diff --git a/src/plugins/ucx/ucx_utils.cpp b/src/plugins/ucx/ucx_utils.cpp
+index a5a0cfe..f9ad224 100644
+--- a/src/plugins/ucx/ucx_utils.cpp
++++ b/src/plugins/ucx/ucx_utils.cpp
+@@ -2,0 +3,2 @@
++ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
++ * Derived from NVIDIA NIXL. Modified by HEYI.
+@@ -42,0 +45 @@ get_ucx_backend_common_options() {
++    params.emplace("ucx_ep_close_force", "no");
+@@ -186 +189 @@ nixlUcxEp::closeImpl(ucp_ep_close_flags_t flags) {
+-nixlUcxEp::nixlUcxEp(ucp_worker_h worker, void *addr, ucp_err_handling_mode_t err_handling_mode) {
++nixlUcxEp::nixlUcxEp(ucp_worker_h worker, void *addr, ucp_err_handling_mode_t err_handling_mode, bool force_close) {
+@@ -191,0 +195 @@ nixlUcxEp::nixlUcxEp(ucp_worker_h worker, void *addr, ucp_err_handling_mode_t er
++    force_close_ = force_close;
+@@ -215 +219 @@ nixlUcxEp::disconnect_nb() {
+-    nixl_status_t status = closeImpl(ucp_ep_close_flags_t(0));
++    nixl_status_t status = closeImpl(force_close_ ? UCP_EP_CLOSE_FLAG_FORCE : ucp_ep_close_flags_t(0));
+@@ -528 +532 @@ nixlUcxWorker::createUcpWorker(const nixlUcxContext &ctx) {
+-nixlUcxWorker::nixlUcxWorker(const nixlUcxContext &ctx, ucp_err_handling_mode_t err_handling_mode)
++nixlUcxWorker::nixlUcxWorker(const nixlUcxContext &ctx, ucp_err_handling_mode_t err_handling_mode, bool force_close)
+@@ -530 +534 @@ nixlUcxWorker::nixlUcxWorker(const nixlUcxContext &ctx, ucp_err_handling_mode_t
+-      err_handling_mode_(err_handling_mode) {}
++      err_handling_mode_(err_handling_mode), force_close_(force_close) {}
+@@ -551 +555 @@ nixlUcxWorker::connect(void *addr, std::size_t size) {
+-        return std::make_unique<nixlUcxEp>(worker.get(), addr, err_handling_mode_);
++        return std::make_unique<nixlUcxEp>(worker.get(), addr, err_handling_mode_, force_close_);
+@@ -641 +645 @@ nixlUcxContext::warnAboutHardwareSupportMismatch() const {
+-    if (hw_info.numNvidiaGpus > 0 && !UCS_BIT_GET(attr.memory_types, UCS_MEMORY_TYPE_CUDA)) {
++    if (hw_info.numNvidiaGpus > 0 && !(attr.memory_types & UCS_BIT(UCS_MEMORY_TYPE_CUDA))) {
+@@ -646,0 +651 @@ nixlUcxContext::warnAboutHardwareSupportMismatch() const {
++#if UCP_API_VERSION >= UCP_VERSION(1, 21)
+@@ -654,0 +660 @@ nixlUcxContext::warnAboutHardwareSupportMismatch() const {
++#endif
+diff --git a/src/plugins/ucx/ucx_utils.h b/src/plugins/ucx/ucx_utils.h
+index 00c38b1..a455179 100644
+--- a/src/plugins/ucx/ucx_utils.h
++++ b/src/plugins/ucx/ucx_utils.h
+@@ -2,0 +3,2 @@
++ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
++ * Derived from NVIDIA NIXL. Modified by HEYI.
+@@ -90,0 +93 @@ private:
++    bool force_close_{false};
+@@ -123 +126 @@ public:
+-    nixlUcxEp(ucp_worker_h worker, void *addr, ucp_err_handling_mode_t err_handling_mode);
++    nixlUcxEp(ucp_worker_h worker, void *addr, ucp_err_handling_mode_t err_handling_mode, bool force_close);
+@@ -243 +246,2 @@ public:
+-        ucp_err_handling_mode_t ucp_err_handling_mode = UCP_ERR_HANDLING_MODE_NONE);
++        ucp_err_handling_mode_t ucp_err_handling_mode = UCP_ERR_HANDLING_MODE_NONE,
++        bool force_close = false);
+@@ -293,0 +298 @@ private:
++    bool force_close_;

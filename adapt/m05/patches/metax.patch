@@ -1,16 +1,18 @@
---- a/mooncake_connector.py
-+++ b/mooncake_connector.py
+--- distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py
++++ distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py
 @@ -1,0 +2,2 @@
 +# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 +# Derived from vLLM. Modified by HEYI.
-@@ -570,0 +573,4 @@
+@@ -3,0 +6 @@
++import os
+@@ -570,0 +574,4 @@
 +    def get_block_ids_with_load_errors(self) -> set[int]:
 +        assert self.connector_worker is not None
 +        return self.connector_worker.get_block_ids_with_load_errors()
 +
-@@ -1013,0 +1020 @@
+@@ -1013,0 +1021 @@
 +        self.failed_recving_block_ids: set[int] = set()
-@@ -1745,0 +1753,12 @@
+@@ -1745,0 +1754,12 @@
 +    async def fetch_failed_recving_blocks(self) -> set[int]:
 +        blocks = self.failed_recving_block_ids
 +        self.failed_recving_block_ids = set()
@@ -23,7 +25,27 @@
 +            self.fetch_failed_recving_blocks(), self.receiver_loop
 +        ).result()
 +
-@@ -1984,0 +2004,9 @@
+@@ -1861 +1881,3 @@
+-                    ret_msg = await sock.recv()
++                    timeout = self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_transfer_failure_timeout", None)
++                    ret_msg = (await sock.recv() if timeout is None else
++                               await asyncio.wait_for(sock.recv(), timeout=timeout))
+@@ -1869,0 +1892 @@
++                        self._heyi_fail_closed_transfer("producer reported transfer failure")
+@@ -1878,0 +1902 @@
++            self._heyi_fail_closed_transfer("transfer completion is unknown after error or timeout")
+@@ -1879,0 +1904,8 @@
++
++    def _heyi_fail_closed_transfer(self, reason):
++        if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_transfer_failure_timeout", None) is not None:
++            # No transport drain guarantee exists on this push path. Fail the
++            # engine and let process teardown reclaim registrations; NEVER mark
++            # these buffers finished or return them to the live KV allocator.
++            logger.critical("HEYI Mooncake fail-closed engine exit: %s", reason)
++            os._exit(1)
+@@ -1898,0 +1931 @@
++            self._heyi_fail_closed_transfer("producer reported failed request fragments")
+@@ -1984,0 +2018,9 @@
 +            # HEYI: no receive_kv call or device transfer was submitted for
 +            # these requests. Report both failure and completion so the
 +            # scheduler can fail them and safely reclaim their allocations.

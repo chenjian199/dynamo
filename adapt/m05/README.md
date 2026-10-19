@@ -5,7 +5,9 @@ SPDX-License-Identifier: Apache-2.0
 
 # M05：引擎原生 PD 接入与验收
 
-本轮实现 vLLM 的 Prefill/Decode 分离接入。三平台单机 1P1D 与 2P3D 的正常链路已验证；本轮已打通并修复测试覆盖的故障路径，完整 M05 尚未完成。跨节点、传输途中断网/断卡、Dynamo 自有 TransferProvider/KVBM 不在已验证范围内，SGLang 按约定暂缓。
+当前补充验收见 [不同 TP、传输中故障与 30 分钟长稳](completion.md)。本目录实现 vLLM 引擎原生 PD；三平台单机 1P1D、2P3D、TP1/TP2 互转已有真实验证。跨节点、物理断卡/网络黑洞和 Dynamo 自有 TransferProvider/KVBM 不在已验证范围，SGLang 暂缓。MetaX NIXL 的传输中对端退出仍存在 native abort 限制，不能认定所有可选传输路径全部完成。
+
+下文保存 2026-10-16 初轮与 2P3D 验收；运行命令已更新为当前入口。2026-10-19 的补丁、资源检查与最新边界以补充验收为准。
 
 ## 配置与实现
 
@@ -22,7 +24,7 @@ Dynamo 控制面选择 P/D worker 并转交元数据；设备注册、KV 传输�
 实现位置：
 
 - `kv_connector_protocols.py` 按名称和模块路径区分协议，支持包装 connector 的单个 PD 子项；未知模块提前报错。Ascend Mooncake 使用 pull 元数据，不能使用上游 Mooncake 的 transfer_id/bootstrap 映射。
-- `platform/preflight.py` 在启动前约束角色、connector、并行度和功能组合。显式平台 PD 当前仅开放 eager 文本 TP1/DP1，不包含 LoRA、量化、推测解码、EP、多模态。
+- `platform/preflight.py` 在启动前约束角色、connector、并行度和功能组合。初轮显式平台 PD 开放 eager 文本 TP1/DP1（本轮扩展至受限 TP1/TP2），不包含 LoRA、量化、推测解码、EP、多模态。
 - `pd_contract.py` 在 P 响应中附加平台、引擎/插件版本、模型路径/revision/配置指纹、精度、block size、并行度与 connector 契约，D 提交引擎前核对并移除此控制字段。指纹覆盖模型配置，不校验权重文件内容；同平台 P/D 必须使用相同权重。实际布局协商仍由 connector 负责。
 - 保留原有延迟 abort 与 connector 的回收机制，不用请求超时伪造传输完成，也不在可能存在设备写入时强行归还 KV 块。
 
@@ -47,10 +49,12 @@ docker exec -w /workspace/dynamo dynamo-metax-m03-nfs \
 ssh dynamo-huawei 'docker exec -w /workspace/dynamo dynamo-ascend-m03-nfs \
   /opt/dynamo/venv/bin/python adapt/m05/patch_vendor.py --platform ascend --apply'
 ssh dynamo-huawei 'docker exec -w /workspace/dynamo dynamo-ascend-m03-nfs \
-  /opt/dynamo/venv/bin/python adapt/m05/run.py \
+  /opt/dynamo/venv/bin/python adapt/m05/patch_ascend_tp.py --apply'
+ssh dynamo-huawei 'docker exec -w /workspace/dynamo dynamo-ascend-m03-nfs \
+  bash adapt/m05/ascend-python.sh adapt/m05/run.py \
   --platform ascend --devices 0,1 --cancel --output /tmp/m05-ascend-manual'
 
-# NVIDIA 宿主机，代码为 ~/CJ_workspace/dynamo-m03
+# NVIDIA 宿主机，代码为 ~/CJ_workspace/dynamo
 ssh dynamo-nvidia 'docker exec -w /workspace/dynamo dynamo-cuda-m03-nfs \
   /opt/dynamo/venv/bin/python adapt/m05/run.py \
   --platform cuda --devices 0,1 --cancel --output /tmp/m05-cuda-manual'
@@ -83,7 +87,7 @@ ssh dynamo-nvidia 'docker exec -w /workspace/dynamo dynamo-cuda-m03-nfs \
 1. **MetaX NIXL**：已定位至镜像内 UCX 1.14 的旧协议 GPU GET 路径。开启 `UCX_PROTO_ENABLE=y` 后，24 次独立 VRAM READ/WRITE 校验及进程退出通过，NIXL 2P3D、不可达错误/回收/恢复与取消恢复亦通过；未修改宿主机驱动。证据与限制见 [NIXL 定位记录](nixl-diagnosis.md)。
 2. **MetaX Mooncake bootstrap 失败**：原版本只打印错误，没有向调度器交回失败与完成状态，90 秒内没有后端响应。补丁仅对尚未提交任何设备传输的 bootstrap 失败报告 invalid blocks + finished receive；不把传输中的超时当作安全完成。
 3. **Ascend Mooncake 清理阻塞**：握手失败后 REQ socket 的默认 LINGER 导致 ZMQ context 销毁阻塞，传输线程无法进入完成通知；Decode 有 5 个块未回收。线程栈确认卡在 `zmq.Context.term`。补丁将该控制 socket 的 LINGER 设为 0，KV 数据面不经过此 socket。
-4. **Ascend Python 退出异常**：本轮完整定向单测 308 passed / 6 skipped 后进程以 134 退出，输出 `corrupted size vs. prev_size`；单独导入厂商 connector 的最小探针也出现该异常。测试断言通过不能记作干净回归通过，仍需定位 native 环境退出问题。
+4. **Ascend Python 退出异常**：本轮完整定向单测 308 passed / 6 skipped 后进程以 134 退出，输出 `corrupted size vs. prev_size`；单独导入厂商 connector 的最小探针也出现该异常。该初轮结果不能记作干净回归通过；后续已通过库加载顺序修复，使用当前 Ascend 启动入口完成干净回归，见 [补充验收](completion.md)。
 
 补丁后，对端不可达 → 明确错误 → 两端请求/KV 占用归零 → 正常请求恢复 → 再次取消与恢复，三平台全部通过：
 
@@ -95,7 +99,7 @@ ssh dynamo-nvidia 'docker exec -w /workspace/dynamo dynamo-cuda-m03-nfs \
 
 以上是无人监听端口的确定性故障，不是丢包或黑洞网络实验。保留补丁前失败结果以便比较。MetaX 单测为 309 passed / 5 skipped，CUDA 为 308 passed / 6 skipped；MetaX 使用仅匹配缺少可选 fla 包的 warning 过滤。跳过项包含既有禁用 handler 测试及旧版本缺少的异常 API，不计为通过。
 
-完整 M05 仍需：传输途中故障及注册资源回收压力测试、跨节点同平台部署、PD 的 TP/DP 和高级能力组合、Dynamo 自有传输/KVBM 路径。当前没有第二台同厂商节点，三台不同厂商机器不能用来证明同平台跨节点 PD。
+初轮尚缺的传输途中故障、注册资源压力和不同 TP 测试，本轮进展见 [补充验收](completion.md)。跨节点同平台部署、PD 内部 DP/高级组合和 Dynamo 自有传输/KVBM 路径仍需独立验收。当前没有第二台同厂商节点，三台不同厂商机器不能用来证明同平台跨节点 PD。
 
 
 ## 2P3D 副本数量不对等验收

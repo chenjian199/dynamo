@@ -39,7 +39,7 @@ MetaX/Ascend 沿用 [沐曦开发脚本](../metax/metax-dev.sh) / [华为开发�
 
 当前 NFS 测试容器分别为 `dynamo-metax-m03-nfs`、`dynamo-ascend-m03-nfs`、`dynamo-cuda-m03-nfs`，从已安装的开发环境快照创建，继承源码与缓存挂载后增加只读 NFS。它们是调试环境快照，不是 M02 正式发布镜像。Ascend 不可同时在旧、新容器占用同组 NPU；已停止空闲的 `dynamo-ascend-dev`，保留其环境。后续新建环境使用更新后的开发脚本即可自动挂载。
 
-NVIDIA 使用独立容器 `dynamo-cuda-m03`、目录 `/home/inspur/CJ_workspace/dynamo-m03`。本地已有 vLLM 0.24.0 镜像固定到 `sha256:251eba5cc7c12fed0b75da22a9240e582b1c9e39f6fbc064f86781b963bd814f`，不是把浮动 `latest` 当作版本。复用了本分支在 Ubuntu 22.04 x86_64 编译的 `ai_dynamo_runtime-1.5.1-cp310-abi3-manylinux_2_35_x86_64.whl`，Python 层 editable 安装。
+NVIDIA 使用独立容器 `dynamo-cuda-m03`、目录 `/home/inspur/CJ_workspace/dynamo`。本地已有 vLLM 0.24.0 镜像固定到 `sha256:251eba5cc7c12fed0b75da22a9240e582b1c9e39f6fbc064f86781b963bd814f`，不是把浮动 `latest` 当作版本。复用了本分支在 Ubuntu 22.04 x86_64 编译的 `ai_dynamo_runtime-1.5.1-cp310-abi3-manylinux_2_35_x86_64.whl`，Python 层 editable 安装。
 
 创建 NFS 容器时使用的本地环境快照（不包含挂载的模型/源码/缓存）：
 

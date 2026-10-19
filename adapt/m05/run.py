@@ -22,8 +22,8 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from tests.utils.managed_process import ManagedProcess
-from tests.utils.port_utils import allocate_port, deallocate_port
+from tests.utils.managed_process import ManagedProcess  # noqa: E402
+from tests.utils.port_utils import allocate_port, deallocate_port  # noqa: E402
 
 
 def metric_total(text, name):
@@ -75,20 +75,39 @@ def main():
     parser.add_argument("--aggregate", action="store_true")
     parser.add_argument("--prefill-workers", type=int, default=1)
     parser.add_argument("--decode-workers", type=int, default=1)
+    parser.add_argument("--prefill-tp", type=int, choices=[1, 2], default=1)
+    parser.add_argument("--decode-tp", type=int, choices=[1, 2], default=1)
     parser.add_argument("--allow-shared-devices", action="store_true")
     parser.add_argument("--cancel", action="store_true")
     parser.add_argument("--handoff-case", choices=["mismatch", "unreachable"])
     parser.add_argument("--fault", choices=["producer-exit", "consumer-exit"])
+    parser.add_argument("--inflight-fault", action="store_true")
     parser.add_argument("--legacy", action="store_true")
     parser.add_argument("--connector", choices=["default", "nixl"], default="default")
+    parser.add_argument("--soak-seconds", type=int, default=0)
+    parser.add_argument("--soak-requests", type=int, default=1000)
     args = parser.parse_args()
+    if args.soak_seconds < 0 or args.soak_requests < 96:
+        parser.error("soak requires nonnegative seconds and at least 96 requests")
     if args.connector == "nixl" and args.platform == "ascend":
         parser.error("Ascend NIXL is not supported by this runtime")
+    if args.inflight_fault and (
+        args.prefill_tp != 1
+        or args.decode_tp != 1
+        or args.aggregate
+        or args.soak_seconds
+        or args.fault
+    ):
+        parser.error(
+            "in-flight process failure currently requires TP1, separate from soak"
+        )
     devices = args.devices.split(",")
     if min(args.prefill_workers, args.decode_workers) < 1:
         parser.error("worker counts must be positive")
     multi = args.prefill_workers != 1 or args.decode_workers != 1
-    if multi and (args.aggregate or args.fault):
+    if args.soak_seconds and (args.aggregate or args.fault or multi):
+        parser.error("soak currently requires one P and one D without exit injection")
+    if multi and (args.aggregate or args.fault or args.inflight_fault):
         parser.error("multi-worker topology cannot combine with aggregate/fault")
     roles = (
         ["aggregate"]
@@ -101,11 +120,22 @@ def main():
         )
     )
     count = len(roles)
-    if not all(item.isdigit() for item in devices) or len(devices) < count:
+    if not all(item.isdigit() for item in devices) or len(devices) < (
+        args.decode_tp
+        if args.aggregate
+        else args.decode_workers * args.decode_tp
+        + args.prefill_workers * args.prefill_tp
+    ):
         parser.error("--devices must provide a non-negative ordinal for each worker")
     if len(set(devices)) != len(devices) and not args.allow_shared_devices:
         parser.error("duplicate devices require --allow-shared-devices")
-    args.output.mkdir(parents=True, exist_ok=True)
+    groups = []
+    offset = 0
+    for label in roles:
+        tp = args.prefill_tp if label.startswith("prefill") else args.decode_tp
+        groups.append(",".join(devices[offset : offset + tp]))
+        offset += tp
+    args.output.mkdir(parents=True, exist_ok=False)
     namespace = "m05-" + uuid.uuid4().hex[:10]
     env = dict(
         os.environ,
@@ -117,6 +147,9 @@ def main():
         HF_HUB_OFFLINE="1",
         TOKENIZERS_PARALLELISM="false",
         PYTHONHASHSEED="0",
+        PYTHONPATH=str(Path(__file__).resolve().parents[2])
+        + os.pathsep
+        + os.environ.get("PYTHONPATH", ""),
         VLLM_LOGGING_LEVEL="DEBUG",
         VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT="60",
         ASCEND_TRANSFER_TIMEOUT="30000",
@@ -178,6 +211,10 @@ def main():
         summary["software"] = {
             name: importlib.metadata.version(name) for name in packages
         }
+        summary["runtime_environment"] = {
+            name: env.get(name)
+            for name in ("SPT_NOENV", "GOMAXPROCS", "MALLOC_ARENA_MAX", "LD_PRELOAD")
+        }
         with contextlib.ExitStack() as stack:
             frontend = ManagedProcess(
                 command=[sys.executable, "-m", "dynamo.frontend"],
@@ -200,10 +237,34 @@ def main():
                     "ASCEND_RT_VISIBLE_DEVICES"
                     if args.platform == "ascend"
                     else "CUDA_VISIBLE_DEVICES"
-                ] = devices[index]
+                ] = groups[index]
                 if not args.legacy:
                     worker_env["DYN_PLATFORM"] = args.platform
-                argv = command.copy()
+                tp = args.prefill_tp if role == "prefill" else args.decode_tp
+                argv = command + ["--tensor-parallel-size", str(tp)]
+                if args.soak_seconds or args.inflight_fault:
+                    worker_env.update(
+                        M05_OBSERVER_DIR=str(
+                            args.output.resolve() / "observer" / label
+                        ),
+                        M05_OBSERVER_CONNECTOR="nixl"
+                        if args.platform == "cuda" or args.connector == "nixl"
+                        else "mooncake",
+                    )
+                    argv += [
+                        "--worker-extension-cls",
+                        "adapt.m05.observer.TransferObserver",
+                    ]
+                if args.inflight_fault:
+                    worker_env["M05_INFLIGHT_DIR"] = str(
+                        args.output.resolve() / "inflight"
+                    )
+                    if args.platform == "cuda" or args.connector == "nixl":
+                        worker_env["UCX_TLS"] = (
+                            "maca_copy,tcp"
+                            if args.platform == "metax"
+                            else "cuda_copy,tcp"
+                        )
                 if role != "aggregate":
                     kv = {"kv_connector": "NixlConnector", "kv_role": "kv_both"}
                     if args.platform == "metax" and args.connector != "nixl":
@@ -223,8 +284,10 @@ def main():
                             else "kv_consumer",
                             "kv_port": worker_ports[3 * count + index],
                             "kv_connector_extra_config": {
-                                "prefill": {"tp_size": 1, "dp_size": 1},
-                                "decode": {"tp_size": 1, "dp_size": 1},
+                                "heyi_tp_split": args.prefill_tp == 1
+                                and args.decode_tp == 2,
+                                "prefill": {"tp_size": args.prefill_tp, "dp_size": 1},
+                                "decode": {"tp_size": args.decode_tp, "dp_size": 1},
                             },
                         }
                     argv += [
@@ -235,7 +298,7 @@ def main():
                     ]
                 commands[label] = {
                     "argv": argv,
-                    "device": devices[index],
+                    "device": groups[index],
                     "system_port": worker_ports[index],
                 }
                 process = ManagedProcess(
@@ -424,6 +487,65 @@ def main():
                 if recovery.json()["choices"] != outputs[0]["choices"]:
                     raise RuntimeError("Output changed after cancellation")
                 summary["cancel_recovery"] = "passed"
+            if args.soak_seconds:
+                from soak import run_soak
+
+                def soak_fault():
+                    unused_port = allocate_port(21000)
+                    report = args.output.resolve() / (
+                        "soak-handoff-" + uuid.uuid4().hex[:8] + ".json"
+                    )
+                    try:
+                        with ManagedProcess(
+                            command=[
+                                sys.executable,
+                                str(Path(__file__).with_name("handoff.py")),
+                                "--namespace",
+                                namespace,
+                                "--case",
+                                "unreachable",
+                                "--unreachable-port",
+                                str(unused_port),
+                                "--output",
+                                str(report),
+                            ],
+                            env=dict(env, DYN_PLATFORM="cpu", DYN_SYSTEM_PORT="0"),
+                            display_name=report.stem,
+                            log_dir=str(args.output.resolve()),
+                            terminate_all_matching_process_names=False,
+                        ) as client:
+                            code = client.proc.wait(timeout=120)
+                        if code or json.loads(report.read_text())["status"] == "failed":
+                            raise RuntimeError("Soak fault failed to terminate")
+                        time.sleep(35)
+                    finally:
+                        deallocate_port(unused_port)
+
+                summary["soak"] = run_soak(
+                    args,
+                    workers,
+                    http_port,
+                    complete,
+                    outputs[0]["choices"],
+                    lambda suffix: collect_idle_metrics(
+                        args.output, worker_ports, roles, suffix
+                    ),
+                    soak_fault,
+                )
+            if args.inflight_fault:
+                from inflight_engine import run as run_inflight
+
+                summary["inflight_fault"] = run_inflight(
+                    args,
+                    workers,
+                    complete,
+                    lambda role: collect_idle_metrics(
+                        args.output,
+                        [worker_ports[roles.index(role)]],
+                        [role],
+                        "inflight-survivor",
+                    ),
+                )
             if args.fault:
                 role = "prefill" if args.fault == "producer-exit" else "decode"
                 children = psutil.Process(workers[role].proc.pid).children(
@@ -470,7 +592,9 @@ def main():
                     raise RuntimeError(
                         "Decode did not survive producer exit after handoff"
                     )
-            for index, role in enumerate(roles if not args.fault else []):
+            for index, role in enumerate(
+                roles if not (args.fault or args.inflight_fault) else []
+            ):
                 response = requests.get(
                     f"http://127.0.0.1:{worker_ports[index]}/metrics", timeout=10
                 )

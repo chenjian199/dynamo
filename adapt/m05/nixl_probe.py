@@ -21,12 +21,21 @@ def receive(pipe):
 def worker(rank, pipe, args):
     os.environ["CUDA_VISIBLE_DEVICES"] = args.devices.split(",")[rank]
     # Spawned processes must select their device before importing vendor runtimes.
+    import psutil
     import torch
     from nixl._api import nixl_agent, nixl_agent_config
 
-    agent = nixl_agent(f"probe-{rank}", nixl_agent_config(num_threads=0, backends=[]))
-    agent.create_backend("UCX", {"ucx_error_handling_mode": "peer"})
+    agent = nixl_agent(
+        f"probe-{rank}",
+        nixl_agent_config(num_threads=args.progress_threads, backends=[]),
+    )
+    backend = {"ucx_error_handling_mode": "peer"}
+    if args.force_close:
+        backend["ucx_ep_close_force"] = "yes"
+    agent.create_backend("UCX", backend)
     results = []
+    samples = []
+    process = psutil.Process()
     try:
         for iteration in range(args.iterations):
             for operation in ("READ", "WRITE"):
@@ -74,14 +83,50 @@ def worker(rank, pipe, args):
                     assert receive(pipe) == "verified"
                     agent.remove_remote_agent(name)
                     agent.deregister_memory(registration)
+                    del tensor
+                    torch.cuda.synchronize()
+                    if torch.cuda.memory_allocated() != 0:
+                        raise RuntimeError(
+                            "Device allocation retained after deregistration"
+                        )
                     results.append(
                         {"iteration": iteration, "operation": operation, "bytes": size}
                     )
+            samples.append(
+                dict(
+                    iteration=iteration,
+                    rss=process.memory_info().rss,
+                    fds=process.num_fds(),
+                    allocated=torch.cuda.memory_allocated(),
+                )
+            )
+        report_path = args.output / f"rank-{rank}.json"
+        report = {
+            "status": "failed",
+            "cases": results,
+            "resources": samples,
+            "fd_targets": {
+                p.name: os.readlink(p)
+                for p in Path("/proc/self/fd").iterdir()
+                if p.exists()
+            },
+        }
+        report_path.write_text(json.dumps(report, indent=2) + "\n")
+        if len(samples) >= 4 and (
+            samples[-1]["fds"] > samples[2]["fds"] + 4
+            or samples[-1]["rss"] > samples[2]["rss"] + 64 * 1024**2
+        ):
+            raise RuntimeError(
+                f"Native resource growth: baseline={samples[2]}, final={samples[-1]}"
+            )
         (args.output / f"rank-{rank}.maps.txt").write_text(
             Path("/proc/self/maps").read_text()
         )
         (args.output / f"rank-{rank}.json").write_text(
-            json.dumps({"status": "passed", "cases": results}, indent=2) + "\n"
+            json.dumps(
+                {"status": "passed", "cases": results, "resources": samples}, indent=2
+            )
+            + "\n"
         )
     finally:
         # NIXL must release registrations and worker threads before torch teardown.
@@ -91,7 +136,9 @@ def worker(rank, pipe, args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--devices", default="0,1")
+    parser.add_argument("--force-close", action="store_true")
     parser.add_argument("--iterations", type=int, default=3)
+    parser.add_argument("--progress-threads", type=int, choices=(0, 1), default=0)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if len(args.devices.split(",")) != 2 or args.iterations < 1:
@@ -120,10 +167,17 @@ def main():
         "exit_codes": codes,
         "environment": {
             name: os.environ.get(name)
-            for name in ("UCX_PROTO_ENABLE", "UCX_TLS", "UCX_MEMTYPE_CACHE")
+            for name in (
+                "UCX_PROTO_ENABLE",
+                "UCX_TLS",
+                "UCX_MEMTYPE_CACHE",
+                "NIXL_PLUGIN_DIR",
+            )
         },
         "devices": args.devices,
         "iterations": args.iterations,
+        "progress_threads": args.progress_threads,
+        "force_close": args.force_close,
     }
     (args.output / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
     if report["status"] != "passed":

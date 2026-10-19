@@ -29,7 +29,7 @@ def build_pd_contract(config, platform_id):
     if platform_id in ("metax", "ascend"):
         software["plugin"] = importlib.metadata.version("vllm-" + platform_id)
     return {
-        "schema": 1,
+        "schema": 2,
         "platform": platform_id,
         "software": software,
         "model": model.model,
@@ -41,6 +41,18 @@ def build_pd_contract(config, platform_id):
         "cache_dtype": config.cache_config.cache_dtype,
         "block_size": config.cache_config.block_size,
         "tp": parallel.tensor_parallel_size,
+        # Only ordinary MHA/GQA head sharding is certified for unequal TP.
+        "tp_reshard": (
+            "mha-gqa"
+            if all(
+                type(hf_config.get(key)) is int
+                and hf_config[key] > 0
+                and hf_config[key] % 2 == 0
+                for key in ("num_attention_heads", "num_key_value_heads")
+            )
+            and hf_config.get("model_type") in ("qwen3", "llama")
+            else None
+        ),
         "dp": parallel.data_parallel_size,
         "pp": parallel.pipeline_parallel_size,
         "connector": kv.kv_connector,
@@ -57,12 +69,49 @@ def attach_pd_contract(params, contract):
     return {**params, CONTRACT_KEY: contract}
 
 
+def _compatible_contract(peer, local):
+    if peer == local:
+        return local.get("schema") != 2 or (
+            type(peer.get("tp")) is int and type(local.get("tp")) is int
+        )
+    if not isinstance(peer, dict):
+        return False
+    # Never relax model, software, precision, block or layout compatibility.
+    if (
+        local.get("schema") != 2
+        or local.get("tp_reshard") != "mha-gqa"
+        or type(peer.get("tp")) is not int
+        or type(local.get("tp")) is not int
+        or {peer["tp"], local["tp"]} != {1, 2}
+        or local.get("dp") != 1
+        or local.get("pp") != 1
+    ):
+        return False
+    from dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE
+
+    path = (
+        local.get("platform"),
+        local.get("connector"),
+        local.get("connector_module"),
+    )
+    if path not in (
+        ("cuda", "NixlConnector", None),
+        ("metax", "NixlConnector", None),
+        ("metax", "MooncakeConnector", None),
+        ("ascend", "MooncakeConnector", ASCEND_MOONCAKE_MODULE),
+    ):
+        return False
+    return {**peer, "tp": local["tp"]} == local
+
+
 def validate_pd_handoff(params, contract):
     if contract is None:
         return params
-    if not isinstance(params, dict) or params.get(CONTRACT_KEY) != contract:
+    if not isinstance(params, dict) or not _compatible_contract(
+        params.get(CONTRACT_KEY), contract
+    ):
         raise InvalidArgument(
             "Incompatible PD peer: platform, engine version, model, precision, "
-            "block size, parallelism and connector must match"
+            "block size and connector must match; TP reshaping requires a certified configuration"
         )
     return {key: value for key, value in params.items() if key != CONTRACT_KEY}

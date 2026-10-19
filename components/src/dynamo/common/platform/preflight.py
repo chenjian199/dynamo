@@ -11,7 +11,7 @@ from dynamo.vllm.platform import configure_platform_scheduler
 
 
 def validate_pd_configuration(config, platform_id):
-    """Bound the initial vendor PD integration to homogeneous text TP1/DP1."""
+    """Bound the initial vendor PD integration to eager text TP1/TP2, DP1."""
     engine = config.engine_args
     kv = engine.kv_transfer_config
     expected_role = (
@@ -23,7 +23,7 @@ def validate_pd_configuration(config, platform_id):
         config.disaggregation_mode
         not in (DisaggregationMode.PREFILL, DisaggregationMode.DECODE)
         or kv is None
-        or engine.tensor_parallel_size != 1
+        or engine.tensor_parallel_size not in (1, 2)
         or engine.data_parallel_size != 1
         or not engine.enforce_eager
         or config.enable_multimodal
@@ -35,7 +35,7 @@ def validate_pd_configuration(config, platform_id):
         raise PlatformError(
             "unsupported_configuration",
             platform_id,
-            "PD requires a connector and eager text TP1/DP1 without advanced engine features",
+            "PD requires a connector and eager text TP1/TP2, DP1 without advanced engine features",
         )
     module = getattr(kv, "kv_connector_module_path", None)
     if platform_id == "ascend":
@@ -48,10 +48,21 @@ def validate_pd_configuration(config, platform_id):
         for role in ("prefill", "decode"):
             parallel = extra.get(role, {})
             valid = valid and (
-                parallel.get("tp_size") == 1
+                parallel.get("tp_size") in (1, 2)
                 and parallel.get("dp_size") == 1
                 and parallel.get("pp_size", 1) == 1
             )
+        split = extra.get("heyi_tp_split", False)
+        pair = (
+            extra.get("prefill", {}).get("tp_size"),
+            extra.get("decode", {}).get("tp_size"),
+        )
+        valid = valid and (split is True if pair == (1, 2) else split is False)
+        local_role = "prefill" if expected_role == "kv_producer" else "decode"
+        valid = (
+            valid
+            and extra.get(local_role, {}).get("tp_size") == engine.tensor_parallel_size
+        )
     elif platform_id == "metax":
         valid = (
             kv.kv_connector == "MooncakeConnector"
@@ -76,6 +87,16 @@ def validate_pd_configuration(config, platform_id):
             platform_id,
             "PD connector, module, role or peer parallel configuration is unsupported",
         )
+    if platform_id == "metax" and kv.kv_connector == "MooncakeConnector":
+        timeout = kv.kv_connector_extra_config.setdefault(
+            "heyi_transfer_failure_timeout", 30
+        )
+        if type(timeout) not in (int, float) or not 5 <= timeout <= 300:
+            raise PlatformError(
+                "unsupported_configuration",
+                platform_id,
+                "Mooncake transfer failure timeout must be between 5 and 300 seconds",
+            )
     return kv.kv_connector
 
 

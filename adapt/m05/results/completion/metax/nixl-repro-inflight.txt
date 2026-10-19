@@ -1,0 +1,35 @@
+2026-10-19 12:25:57 NIXL INFO    _api.py:251 Initialized NIXL agent: inflight-1-13247
+W1019 12:25:57.322146   13247 ucx_utils.cpp:465] UCX version is less than 1.19, CUDA support is limited, including the lack of support for multi-GPU within a single process.
+2026-10-19 12:25:57 NIXL INFO    _api.py:361 Backend UCX was instantiated
+2026-10-19 12:25:57 NIXL INFO    _api.py:251 Initialized NIXL agent: inflight-0-13246
+W1019 12:25:57.550068   13246 ucx_utils.cpp:465] UCX version is less than 1.19, CUDA support is limited, including the lack of support for multi-GPU within a single process.
+2026-10-19 12:25:57 NIXL INFO    _api.py:361 Backend UCX was instantiated
+[1792383957.340834] [f2c048c0ee65:13247:0]      ucp_worker.c:2177 UCX  WARN  invalid configurations: MAX_RMA_RAILS=2,IB_PCI_RELAXED_ORDERING=try,RCACHE_MAX_UNRELEASED=1024
+[f2c048c0ee65:13247:1:13386]       stubs.c:107  Fatal: Function not implemented
+==== backtrace (tid:  13386) ====
+ 0  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucs-1e546160.so.0.0.0(ucs_handle_error+0xc3) [0x7f96f6634fdd]
+ 1  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucs-1e546160.so.0.0.0(ucs_fatal_error_message+0xdf) [0x7f96f663239a]
+ 2  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucs-1e546160.so.0.0.0(+0x3251a) [0x7f96f663251a]
+ 3  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucs-1e546160.so.0.0.0(ucs_get_system_id+0) [0x7f96f664ee67]
+ 4  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(ucp_proto_request_abort+0xdc) [0x7f96f6e90ed2]
+ 5  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(ucp_ep_reqs_purge+0x59) [0x7f96f6e6109e]
+ 6  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(+0x55c77) [0x7f96f6e55c77]
+ 7  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(+0x7f6ab) [0x7f96f6e7f6ab]
+ 8  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(+0x7fa95) [0x7f96f6e7fa95]
+ 9  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucs-1e546160.so.0.0.0(+0x25b4a) [0x7f96f6625b4a]
+10  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(+0x73f8c) [0x7f96f6e73f8c]
+11  /opt/conda/lib/python3.12/site-packages/nixl.libs/libucp-4087c85a.so.0.0.0(ucp_worker_progress+0x177) [0x7f96f6e8103a]
+12  /var/cache/dynamo-metax/m05/nixl-build-20261019/plugins/libplugin_UCX.so(_ZN19nixlUcxSharedThread3runEv+0xc0) [0x7f97041b8be0]
+13  /opt/conda/bin/../lib/libstdc++.so.6(+0xd3b65) [0x7f99e6cf1b65]
+14  /lib/x86_64-linux-gnu/libc.so.6(+0x94a83) [0x7f99e8313a83]
+15  /lib/x86_64-linux-gnu/libc.so.6(clone+0x44) [0x7f99e83a4a94]
+=================================
+Traceback (most recent call last):
+  File "/workspace/dynamo/adapt/m05/inflight_probe.py", line 180, in <module>
+    main()
+  File "/workspace/dynamo/adapt/m05/inflight_probe.py", line 162, in main
+    assert recv(pipes[1][0]) == "released"
+           ^^^^^^^^^^^^^^^^^
+  File "/workspace/dynamo/adapt/m05/inflight_probe.py", line 22, in recv
+    raise TimeoutError("Probe control deadline exceeded")
+TimeoutError: Probe control deadline exceeded

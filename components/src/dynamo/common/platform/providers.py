@@ -158,7 +158,7 @@ def build_capabilities(platform_id, context, software):
         pd = (
             supported
             and context.get("task") == "text"
-            and context.get("tp") == "1"
+            and context.get("tp") in ("1", "2")
             and context.get("dp") == "1"
             and context.get("pd_connector")
             in (
@@ -175,7 +175,7 @@ def build_capabilities(platform_id, context, software):
             caps["pd.transfer"] = capability(
                 "available",
                 platform_id,
-                "engine-native homogeneous PD configuration; connector initialization and transfer readiness required",
+                "engine-native TP1/TP2 DP1 PD configuration; connector initialization and transfer readiness required",
                 context,
             )
         caps["kv.events"] = capability(

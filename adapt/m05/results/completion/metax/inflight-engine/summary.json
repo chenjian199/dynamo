@@ -1,0 +1,141 @@
+{
+  "platform": "metax",
+  "aggregate": false,
+  "status": "passed",
+  "configuration": {
+    "platform": "metax",
+    "devices": "3,3",
+    "model": "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+    "output": "/var/cache/dynamo-metax/m05/inflight-engine-fixed-20261019",
+    "aggregate": false,
+    "prefill_workers": 1,
+    "decode_workers": 1,
+    "prefill_tp": 1,
+    "decode_tp": 1,
+    "allow_shared_devices": true,
+    "cancel": false,
+    "handoff_case": null,
+    "fault": null,
+    "inflight_fault": true,
+    "legacy": false,
+    "connector": "default",
+    "soak_seconds": 0,
+    "soak_requests": 1000
+  },
+  "vendor_connector": {
+    "platform": "metax",
+    "version": "0.26.0",
+    "path": "/opt/conda/lib/python3.12/site-packages/vllm/distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py",
+    "state": "patched",
+    "sha256": "5acaae034c2c928c298da7a0c5e0019cfaab84ceb610223380be09d6deaf0ae6"
+  },
+  "software": {
+    "vllm": "0.26.0",
+    "torch": "2.10.0+metax3.8.2.2",
+    "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0"
+  },
+  "responses": [
+    {
+      "id": "cmpl-087cd2a7-5310-4787-b880-96ba08b8e790",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792381974,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-b441bcf5-af1c-4717-9657-a4cf022f3a6a",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792381976,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-2844d934-f604-41da-9612-e67885bbc69f",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792381977,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "inflight_fault": {
+    "status": "passed",
+    "submitter": "prefill",
+    "peer": "decode",
+    "request_error": "HTTPError('500 Server Error: Internal Server Error for url: http://127.0.0.1:19139/v1/completions')",
+    "before": {
+      "pid": 2028,
+      "phase": "before",
+      "monotonic": 611606.015558091
+    },
+    "pending": {
+      "pid": 2028,
+      "phase": "pending",
+      "monotonic": 611606.034061375,
+      "native_state": 0
+    },
+    "error_seconds": 32.05070257699117,
+    "peer_outcome": "engine_exited_requires_restart"
+  }
+}

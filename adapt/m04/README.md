@@ -55,7 +55,7 @@ Rust：公共契约 7 项生命周期测试 + 3 项 M01 身份测试；无 SDK �
 
 ## 固定环境与 ABI
 
-沿用 [M03 容器/镜像](../m03/README.md)：`dynamo-metax-m03-nfs`、`dynamo-ascend-m03-nfs`、`dynamo-cuda-m03-nfs`。MetaX 源码为本仓库；华为为 `/home/huawei/CJ_workspaces/dynamo`；NVIDIA 为 `/home/inspur/CJ_workspace/dynamo-m03`。
+沿用 [M03 容器/镜像](../m03/README.md)：`dynamo-metax-m03-nfs`、`dynamo-ascend-m03-nfs`、`dynamo-cuda-m03-nfs`。MetaX 源码为本仓库；华为为 `/home/huawei/CJ_workspaces/dynamo`；NVIDIA 为 `/home/inspur/CJ_workspace/dynamo`。
 
 | 平台 | 测试 SDK | 原生库与特别约束 |
 | --- | --- | --- |

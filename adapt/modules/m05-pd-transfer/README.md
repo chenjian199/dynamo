@@ -7,20 +7,19 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M05 PD 协调与数据传输
 
-状态：部分实现、单机基本链路已验证；不可达故障经厂商补丁修复并验收，不能认定完整 M05 完成。依赖 M01/M02/M03；厂商引擎原生 PD 不经过 Dynamo KVBM，Dynamo 自有传输仍需 M04/M06 接入。
+状态：所选三平台单机 vLLM 路径已完成不同 TP、传输中故障、重启恢复与有界长稳；模块整体仍部分完成，MetaX 可选 NIXL 中断路径仍有 UCX abort，跨节点未验证。依赖 M01/M02/M03；厂商引擎原生 PD 不经过 Dynamo KVBM，Dynamo 自有传输仍需 M04/M06 接入。
 
-## 实施进度（2026-10-16）
+## 实施进度（2026-10-19）
 
-已接入以下明确的组合：CUDA vLLM 0.24.0 + NIXL、MetaX 0.26.0 + Mooncake `maca` 或 NIXL（启用 UCX 新协议）、Ascend 0.23.0 + 厂商 Mooncake。同名 Mooncake 的 push/bootstrap 与 Ascend pull 协议按 connector 名称和模块路径区分，不互相替代。
+已接入 CUDA vLLM 0.24.0 + NIXL、MetaX 0.26.0 + Mooncake `maca`（NIXL 为有限验证的可选路径）、Ascend 0.23.0 + 厂商 Mooncake。按 connector 名称和模块区分 push/bootstrap 与 pull 协议，不能互换。Dynamo 负责启动检查及交接契约，真实 KV 注册、布局转换、传输和块租约仍由引擎 connector 执行。
 
-已实现启动配置检查、两端平台/引擎版本/模型指纹/精度/block size/并行度/connector 契约检查；契约在 Decode 提交引擎前校验。真实布局协商、设备内存注册、传输和块租约仍由引擎 connector 执行。未增加 Rust TransferProvider；厂商安装包的两个窄修复以可撤回补丁保存在 `adapt/m05/patches`。
+已验证三平台 Qwen3-0.6B、eager BF16、DP1/PP1：正常 PD、远端 KV 命中、取消、参数不匹配拒绝、不可达错误和恢复。此前的 **2P3D** 是五个独立引擎的副本数量；本轮另测 **P TP1→D TP2 和 P TP2→D TP1**，不是同一项能力。Ascend P1→D2 通过受版本/哈希保护的窄补丁，仅支持 Qwen3、BF16、连续 NHD 布局，并等待两个 D rank 的独立完成确认。
 
-三平台 Qwen3-0.6B、eager BF16、TP1/DP1、单机两卡的正常 PD、远端 KV 命中、空闲块归零、流式取消及恢复、参数不匹配拒绝已验证。另已完成三平台 **2P3D**：五个独立 TP1/DP1 引擎、六条 P→D 组合、12 次并发请求、取消及占用回收。MetaX/CUDA 四卡共享一张，Ascend 五张独立卡；不等同于不同 TP 的 PD。交接完成后的 producer/consumer 退出已测试，不等于在传输途中断卡/断网。
+本轮补充 native pending 后终止自有引擎的故障：CUDA/MetaX 允许明确失败并重建 worker，Ascend 已测路径可回收存活 P 的租约。MetaX Mooncake 完成状态不确定时超时失败退出，不能在活进程中提前释放可能仍被写入的块。三平台重启后的输出均与各自聚合推理一致。所选主路径均完成至少 30 分钟有界长稳：CUDA 4480、MetaX 3680、Ascend 1728 个正常请求，每平台穿插 3 次故障以及取消；华为经库加载顺序、环境保护和 allocator 配置修复后通过。反复注册/注销的原始结果、阈值和失败复验见 [补充验收](../../m05/completion.md)。
 
-厂商补丁：MetaX Mooncake 在尚未提交设备传输的 bootstrap 失败时补报失败与完成；Ascend Mooncake 为控制 socket 设置 LINGER=0，解决失败时 context 析构阻塞。补丁按版本和源码哈希校验，修复后三平台不可达故障、回收、后续正常请求与取消全部通过。MetaX NIXL 的独立 GPU READ 崩溃已定位至 UCX 旧协议，开启新协议后底层读写矩阵及 NIXL 2P3D/不可达回收/恢复均通过，详见 [定位记录](../../m05/nixl-diagnosis.md)；Ascend 定向单测断言通过后仍有 native 退出异常，不能标为干净回归通过。详见 [复现与证据](../../m05/README.md)。`pd.transfer` 只表示选定基础接入能力，不是跨节点、RDMA 或传输途中故障认证。
+Ascend native 析构异常通过 CANN 库加载顺序修复；完整测试使用 `adapt/m05/ascend-python.sh`，不能把未使用该入口的任意导入顺序也标为支持。MetaX NIXL 开启 UCX 新协议后的正常 GPU 读写和 2P3D 验证仍有效，但新增传输中断测试暴露 UCX 1.14 abort，另有 endpoint FD 保留问题；隔离构建的可选 endpoint 补丁仅解决已测静止连接循环，未修复 abort。官方公开 GitHub 未找到对应 MACA UCX 核心源码/修复包，详见 [定位记录](../../m05/nixl-diagnosis.md)。
 
-
-SGLang 按本轮约定暂缓。以下设计中的跨节点、Dynamo 自有传输与故障回收目标仍需继续完成。
+完整 M05 仍未全部交付：跨节点本轮排除；Dynamo 自有 TransferProvider/KVBM 需 M04/M06 接入；SGLang 暂缓；MetaX NIXL 中断路径等待厂商 UCX 修复。`pd.transfer` 表示所选路径的有限接入，不代表所有 transport、RDMA、并行比例或故障方式均已认证。
 
 ## 当前功能与边界
 

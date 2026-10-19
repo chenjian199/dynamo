@@ -1,0 +1,185 @@
+{
+  "platform": "cuda",
+  "aggregate": false,
+  "status": "passed",
+  "configuration": {
+    "platform": "cuda",
+    "devices": "0,1,2",
+    "model": "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+    "output": "/var/cache/dynamo-cuda/m05/tp-p2d1-soak-v2-20261019",
+    "aggregate": false,
+    "prefill_workers": 1,
+    "decode_workers": 1,
+    "prefill_tp": 2,
+    "decode_tp": 1,
+    "allow_shared_devices": false,
+    "cancel": true,
+    "handoff_case": null,
+    "fault": null,
+    "legacy": false,
+    "connector": "default",
+    "soak_seconds": 1800,
+    "soak_requests": 1000
+  },
+  "software": {
+    "vllm": "0.24.0",
+    "torch": "2.11.0+cu130"
+  },
+  "responses": [
+    {
+      "id": "cmpl-bf98e30c-2133-4bb4-9a0f-a1ef6634b2c7",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792380971,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-2f344c98-d196-462f-a440-7e5d13d9b495",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792380971,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-51cc4793-83c5-488b-9b38-d37153e06049",
+      "choices": [
+        {
+          "text": " (This is a question that has been asked many times before, but the answer is still the same: the sky is blue because of the scattering of light by",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792380972,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 562,
+        "completion_tokens": 32,
+        "total_tokens": 594,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 1686.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "cancel_idle": {
+    "decode": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 2248.0
+    },
+    "prefill": {
+      "vllm:num_requests_running": 0.0,
+      "vllm:num_requests_waiting": 0.0,
+      "vllm:kv_cache_usage_perc": 0.0,
+      "vllm:external_prefix_cache_hits_total": 0.0
+    }
+  },
+  "cancel_recovery": "passed",
+  "soak": {
+    "status": "passed",
+    "seconds": 1800,
+    "minimum_requests": 1000,
+    "completed": 4480,
+    "cancellations": 140,
+    "faults": 3,
+    "limits": {
+      "rss_growth_bytes": 268435456,
+      "fd_growth": 8,
+      "thread_growth": 4
+    },
+    "elapsed": 1804.961682618945,
+    "resource_growth": {
+      "4106": {
+        "rss": 3805184,
+        "fds": 0,
+        "threads": 0
+      },
+      "4743": {
+        "rss": 0,
+        "fds": 0,
+        "threads": 0
+      },
+      "4744": {
+        "rss": 75300864,
+        "fds": 0,
+        "threads": 0
+      },
+      "5277": {
+        "rss": 3604480,
+        "fds": 0,
+        "threads": 0
+      },
+      "5632": {
+        "rss": 0,
+        "fds": 0,
+        "threads": 0
+      },
+      "5633": {
+        "rss": 3088384,
+        "fds": 0,
+        "threads": 0
+      },
+      "5832": {
+        "rss": 8536064,
+        "fds": 0,
+        "threads": 0
+      },
+      "5833": {
+        "rss": 8679424,
+        "fds": 0,
+        "threads": 0
+      }
+    },
+    "qualification": "bounded duration and thresholds, not an unbounded leak-freedom proof"
+  }
+}
