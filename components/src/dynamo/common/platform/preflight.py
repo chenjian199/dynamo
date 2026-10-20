@@ -3,11 +3,81 @@
 
 import json
 import os
+from types import SimpleNamespace
 
 from dynamo.common.constants import DisaggregationMode
 from dynamo.common.platform import PlatformError, registry
 from dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE
 from dynamo.vllm.platform import configure_platform_scheduler
+
+KVBM_MODULES = (
+    "kvbm.vllm_integration.connector",
+    "kvbm.vllm_integration.connector.dynamo_connector",
+)
+
+
+def validate_kvbm_configuration(config, platform_id, kv):
+    engine = config.engine_args
+    valid = (
+        kv.kv_connector == "DynamoConnector"
+        and getattr(kv, "kv_connector_module_path", None) in KVBM_MODULES
+        and kv.kv_role == "kv_both"
+        and engine.tensor_parallel_size in (1, 2)
+        and engine.data_parallel_size == 1
+        and engine.enforce_eager
+        and not config.enable_multimodal
+        and not engine.enable_lora
+        and engine.quantization is None
+        and engine.speculative_config is None
+        and not engine.enable_expert_parallel
+    )
+    if not valid:
+        raise PlatformError(
+            "unsupported_configuration",
+            platform_id,
+            "KVBM requires DynamoConnector and eager dense text TP1/TP2, DP1",
+        )
+
+
+def pd_transport(config, platform_id, kv):
+    if kv.kv_connector != "PdConnector":
+        return kv
+    extra = kv.kv_connector_extra_config or {}
+    children = extra.get("connectors", []) if isinstance(extra, dict) else []
+    if (
+        config.disaggregation_mode != DisaggregationMode.PREFILL
+        or getattr(kv, "kv_connector_module_path", None) != KVBM_MODULES[0]
+        or kv.kv_role != "kv_both"
+        or not isinstance(children, list)
+        or len(children) != 2
+        or not all(isinstance(c, dict) for c in children)
+    ):
+        raise PlatformError(
+            "unsupported_configuration",
+            platform_id,
+            "KVBM PD requires one offload child then one transport on prefill",
+        )
+    offload = SimpleNamespace(
+        **{
+            name: children[0].get(name)
+            for name in ("kv_connector", "kv_role", "kv_connector_module_path")
+        }
+    )
+    validate_kvbm_configuration(config, platform_id, offload)
+    transport = dict(children[1])
+    transport.setdefault("kv_connector", None)
+    transport.setdefault("kv_connector_module_path", None)
+    transport.setdefault("kv_role", None)
+    transport["kv_connector_extra_config"] = children[1].setdefault(
+        "kv_connector_extra_config", {}
+    )
+    if not isinstance(transport["kv_connector_extra_config"], dict):
+        raise PlatformError(
+            "unsupported_configuration",
+            platform_id,
+            "PD transport config must be a dict",
+        )
+    return SimpleNamespace(**transport)
 
 
 def validate_pd_configuration(config, platform_id):
@@ -37,6 +107,7 @@ def validate_pd_configuration(config, platform_id):
             platform_id,
             "PD requires a connector and eager text TP1/TP2, DP1 without advanced engine features",
         )
+    kv = pd_transport(config, platform_id, kv)
     module = getattr(kv, "kv_connector_module_path", None)
     if platform_id == "ascend":
         valid = (
@@ -130,12 +201,12 @@ def prepare_vllm_platform(config):
         )
     pd = config.disaggregation_mode != DisaggregationMode.AGGREGATED
     connector = validate_pd_configuration(config, platform_id) if pd else None
+    kvbm = (
+        engine.kv_transfer_config is not None
+        and engine.kv_transfer_config.kv_connector in ("DynamoConnector", "PdConnector")
+    )
     if not pd and engine.kv_transfer_config is not None:
-        raise PlatformError(
-            "unsupported_configuration",
-            platform_id,
-            "aggregate KV transfer is not certified",
-        )
+        validate_kvbm_configuration(config, platform_id, engine.kv_transfer_config)
     if engine.pipeline_parallel_size != 1:
         raise PlatformError(
             "unsupported_configuration",
@@ -167,6 +238,7 @@ def prepare_vllm_platform(config):
         speculative=json.dumps(engine.speculative_config, sort_keys=True),
         expert_parallel=str(engine.enable_expert_parallel).lower(),
         pd_connector=connector or "none",
+        kvbm=str(kvbm).lower(),
     )
     required = [
         "device.compute",
@@ -176,6 +248,8 @@ def prepare_vllm_platform(config):
         required.append("kv.events")
     if pd:
         required.append("pd.transfer")
+    if kvbm:
+        required.append("kvbm.offload")
     required.extend(
         name.strip()
         for name in os.environ.get("DYN_REQUIRED_CAPABILITIES", "").split(",")

@@ -215,14 +215,11 @@ def make_kv_connector_protocol(vllm_config: Any) -> KvConnectorProtocol:
     name = getattr(kv_cfg, "kv_connector", None) if kv_cfg is not None else None
     if name is None:
         return NixlConnectorProtocol(vllm_config)
-    if name in MULTI_CONNECTOR_WRAPPERS:
-        return _resolve_multi_connector_protocol(vllm_config, kv_cfg)
-    return _protocol_class(kv_cfg)(vllm_config)
+    resolved = resolve_pd_connector_config(vllm_config)
+    return _protocol_class(resolved.kv_transfer_config)(resolved)
 
 
-def _resolve_multi_connector_protocol(
-    vllm_config: Any, kv_cfg: Any
-) -> KvConnectorProtocol:
+def resolve_pd_connector_config(vllm_config: Any) -> Any:
     """Delegate a wrapper connector to its single PD-capable sub-connector.
 
     Validates the wrapper config shape up front so a malformed
@@ -231,7 +228,10 @@ def _resolve_multi_connector_protocol(
     resolved protocol is bound to the child's view of the config (see
     :func:`_child_vllm_config`), not the wrapper's.
     """
-    wrapper = getattr(kv_cfg, "kv_connector", "MultiConnector")
+    kv_cfg = vllm_config.kv_transfer_config
+    wrapper = kv_cfg.kv_connector
+    if wrapper not in MULTI_CONNECTOR_WRAPPERS:
+        return vllm_config
     extra = getattr(kv_cfg, "kv_connector_extra_config", None) or {}
     if not isinstance(extra, dict):
         raise ValueError(
@@ -273,7 +273,8 @@ def _resolve_multi_connector_protocol(
         )
     name, sub_config = matches[0]
     child = _child_vllm_config(vllm_config, kv_cfg, sub_config)
-    return _protocol_class(child.kv_transfer_config)(child)
+    _protocol_class(child.kv_transfer_config)
+    return child
 
 
 def _child_vllm_config(

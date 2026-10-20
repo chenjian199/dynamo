@@ -74,7 +74,12 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M06 KVBM 与集合通信
 
-当前状态：待实现。
+当前状态：vLLM 活动路径的本地 G2/G3 已完成有限配置三平台验收（2026-10-20），见 [M06 记录](m06/README.md)。
+
+- 已交付：显式平台张量、owned event、原生 SDK pack/unpack、pinned 主机池、buffered SSD、sharded TP2 完成协议、容量不足退化与取消回收。
+- 组合验证：三平台 Dynamo 聚合服务、prefill KVBM + 厂商 PD，以及 passthrough consolidator 的 G2/G3 分层选路与回载；以逐平台 summary 为准。
+- 补充交付：独立 kvbm-engine/physical/kernels 本地 native API、replicated NCCL/MCCL/HCCL 双卡广播与原始字节验证，见 [独立路径验收](m06/independent.md)。
+- 未交付：旧 vLLM 入口的 replicated MLA 模型端到端组合、G4/跨节点、GDS/设备 RDMA、融合厂商内核、未认证的高级模型组合。
 
 详细设计：[活动调用链、布局与事件桥接、文件计划](modules/m06-kvbm-collectives/README.md)。
 

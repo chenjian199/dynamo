@@ -7,13 +7,22 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M06 KVBM 与集合通信
 
-状态：待实现（MetaX 当前阶段）。依赖 M04 的内存/事件和 M05 的实际传输路径；M03 提供引擎 KV 布局与容量。
+状态：vLLM 活动路径的本地 KVBM 已完成有限配置三平台验收；不能标为全部设计完成。
+依赖 M04 原生内存/事件；PD 组合复用 M05 的厂商传输，不把本地缓存复制伪装成远端传输。
 
-## 实施进度（2026-10-15）
+## 实施进度（2026-10-20）
 
-当前基础推理及 KV 路由复用引擎本地 KV cache，没有实现 Dynamo KVBM 分层缓存或 MetaX 集合通信。
+已接入显式平台张量、owned SDK event、dense NHD/HND 布局及原生 SDK 复制。
+G2 为 pinned 主机池，G3 为 buffered 本地临时文件；沿用旧逻辑调度和 sharded 多 rank 完成协议。
+当前 vLLM 路径已验收；本轮继续独立本地调用链与 replicated 广播，G4/跨节点按用户要求暂缓。
+真实引擎覆盖 TP1/TP2、缓存淘汰/回载、容量不足退化、取消恢复、PD 组合及分层选路，逐平台结果和复现命令见
+[M06 适配记录](../../m06/README.md)。每项以其 summary 的 status 为准。
 
-证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+独立 `PhysicalWorker → TransferManager::from_native → NativeTransfers` 已接入 M04，
+`ReplicatedDataWorker` 已实现 rank 0 回载后的实际 NCCL/MCCL/HCCL 广播。
+双卡 KV 字节、布局、部分层和取消等待验证见 [独立路径记录](../../m06/independent.md)。
+这不自动启用旧 Python vLLM 的 replicated 模式；完整 MLA 模型、G4 远端和融合厂商内核仍未验收。
+因此“本地 KVBM 已实现”不等于“整个 M06 目标设计及全部 CUDA 快路径已对齐”。
 
 ## 当前功能与真实调用链
 
@@ -26,12 +35,19 @@ vLLM connector → connector_worker.py → PyO3 KVBM worker
   → dynamo-llm/block_manager/distributed + storage + block/transfer
 
 独立 kvbm-engine / kvbm-physical / kvbm-kernels
-  → 各自调用者和构建入口；需分别迁移与验证
+  → NativeTransfers / NativeCopies → M04 SDK
+  → ReplicatedDataWorker / NativeCollectives → NCCL / MCCL / HCCL
 ```
 
-Python 创建 `torch.cuda.Event` 并传原始句柄；Rust `event_sync_blocking` 将其作为 CUevent 同步。`storage/torch.rs` 的 TorchDevice 区分 Cuda/Other；这不是可以直接支持任意 Other 设备的实现。
+本轮 Python 使用 `platform_events.py` 持有实际 CUDA/MACA/ACL event；Rust 保留 Python owner 并调用同步方法。
+`TorchDevice::Platform` 显式记录平台和设备，新增 `distributed/platform.rs` 使用 M04 SDK 路径。
+旧 raw CUevent 入口保留给原有 CUDA 调用者，不接受厂商句柄冒充 CUDA。
 
-独立 `kvbm-engine` 已有 `CollectiveOps` 和 NCCL 实现，可复用其广播契约。该通信用于 KVBM 块协同，不等同于引擎 TP/EP 的全部通信。
+实际新增文件为 `lib/platform-runtime/src/kv.rs`、其 `examples/kv_roundtrip.rs`、
+`lib/llm/src/block_manager/distributed/platform.rs`、Python `platform_events.py`、测试与 `adapt/m06/`。
+下方“修改清单/拟新增清单”仍是完整目标设计，未创建的文件不能视为已交付。
+
+独立 `kvbm-engine` 保留原 NCCL 实现；新增 `NativeCollectives` 通过原生 SDK event 返回本 rank 完成通知，组级完成仍需聚合所有 rank。该通信用于 KVBM 块协同，不等同于引擎 TP/EP 的全部通信。
 
 ## 目标设计
 
@@ -85,4 +101,4 @@ M04 提供 Allocation/Stream/Event，M05 提供注册与传输，M06 负责把�
 
 验收分别覆盖字节回读、布局可逆性、不同 block size/stride、内存不足、块被重复引用、在途取消、缓存淘汰、层间流水、多 rank 广播和长稳回收。模型输出另按精度容差验收，不能只比较一次生成字符串。
 
-Ascend/MetaX 的 kernel 工具链、事件句柄导入和集合通信原语尚待验证。若某平台只有 host staging，矩阵记录其有限支持范围；不能据此声明全部 KVBM 快路径对等。
+Ascend/MetaX 的 SDK 复制、owned event 和独立 replicated 集合通信已做有限配置验证；融合 kernel 工具链及远端路径仍待实现和验收。当前 host staging 仅记录为有限支持，不能据此声明全部 KVBM 快路径对等。

@@ -1,0 +1,274 @@
+{
+  "platform": "ascend",
+  "aggregate": true,
+  "status": "passed",
+  "configuration": {
+    "platform": "ascend",
+    "devices": "2,3",
+    "model": "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+    "output": "/var/cache/dynamo-ascend/m06-routing-20261020",
+    "aggregate": true,
+    "kv_routing": true,
+    "kvbm": true,
+    "prefill_workers": 1,
+    "decode_workers": 1,
+    "prefill_tp": 1,
+    "decode_tp": 1,
+    "allow_shared_devices": false,
+    "cancel": false,
+    "handoff_case": null,
+    "fault": null,
+    "inflight_fault": false,
+    "legacy": false,
+    "connector": "default",
+    "soak_seconds": 0,
+    "soak_requests": 1000
+  },
+  "vendor_connector": {
+    "platform": "ascend",
+    "version": "0.23.0",
+    "path": "/vllm-workspace/vllm-ascend/vllm_ascend/distributed/kv_transfer/kv_p2p/mooncake_connector.py",
+    "state": "patched+tp",
+    "sha256": "17f2f733e52cf94c2a0d0052df0076f640431b0ab07e5c2b3f2a1839eb75e613"
+  },
+  "software": {
+    "vllm": "0.23.0+empty",
+    "torch": "2.10.0+cpu",
+    "vllm-ascend": "0.23.0"
+  },
+  "runtime_environment": {
+    "SPT_NOENV": "1",
+    "GOMAXPROCS": "2",
+    "MALLOC_ARENA_MAX": "2",
+    "LD_PRELOAD": "/usr/local/Ascend/cann-9.1.0/lib64/libllm_datadist.so"
+  },
+  "routing": {
+    "status": "passed",
+    "workers": [
+      16286702394779350050,
+      14921544223338117248
+    ],
+    "chat_smoke": {
+      "id": "chatcmpl-da85982f-10be-4b3b-bf8c-56abd018a170",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "content": "<think>\nOkay, the user just said",
+            "refusal": null,
+            "role": "assistant"
+          },
+          "finish_reason": "length",
+          "logprobs": null
+        }
+      ],
+      "created": 1792480837,
+      "model": "m05-model",
+      "object": "chat.completion",
+      "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 8,
+        "total_tokens": 17,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    "cold": {
+      "id": "cmpl-1337242d-9f64-4a69-8ed7-715e0f9c1a24",
+      "choices": [
+        {
+          "text": "\n        \\n\n\\n\\n\\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792480838,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 641,
+        "completion_tokens": 8,
+        "total_tokens": 649,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 16286702394779350050,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 16286702394779350050,
+          "decode_dp_rank": 0
+        }
+      }
+    },
+    "resident": {
+      "id": "cmpl-6080fcb1-3064-444e-b48e-49d8dc883217",
+      "choices": [
+        {
+          "text": "\n        \\n\n\\n\\n\\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792480839,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 641,
+        "completion_tokens": 8,
+        "total_tokens": 649,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 640
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 16286702394779350050,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 16286702394779350050,
+          "decode_dp_rank": 0
+        }
+      }
+    },
+    "device_scores": {
+      "block_size": 128,
+      "num_blocks": 5,
+      "workers": [
+        {
+          "worker_id": 14921544223338117248,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        },
+        {
+          "worker_id": 16286702394779350050,
+          "dp_rank": 0,
+          "device_blocks": 5,
+          "host_pinned_blocks": 5,
+          "disk_blocks": 5,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 5.0
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    },
+    "host_scores": {
+      "block_size": 128,
+      "num_blocks": 5,
+      "workers": [
+        {
+          "worker_id": 14921544223338117248,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        },
+        {
+          "worker_id": 16286702394779350050,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 5,
+          "disk_blocks": 5,
+          "host_pinned_extension_blocks": 5,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 3.75
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    },
+    "reload": {
+      "id": "cmpl-8581cc63-aab7-45f0-b0c4-e72e29c16c04",
+      "choices": [
+        {
+          "text": "\n        \\n\n\\n\\n\\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792480850,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 641,
+        "completion_tokens": 8,
+        "total_tokens": 649,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 640
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 16286702394779350050,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 16286702394779350050,
+          "decode_dp_rank": 0
+        }
+      }
+    },
+    "reloaded_scores": {
+      "block_size": 128,
+      "num_blocks": 5,
+      "workers": [
+        {
+          "worker_id": 14921544223338117248,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        },
+        {
+          "worker_id": 16286702394779350050,
+          "dp_rank": 0,
+          "device_blocks": 5,
+          "host_pinned_blocks": 5,
+          "disk_blocks": 5,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 5.0
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    }
+  },
+  "kvbm_reload_byte_checks": 5
+}

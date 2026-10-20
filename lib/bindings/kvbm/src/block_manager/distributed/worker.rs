@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
@@ -114,6 +116,44 @@ pub struct VllmTensor {
 }
 
 impl VllmTensor {
+    pub fn new_for_platform(
+        py_tensor: Py<PyAny>,
+        platform: &str,
+        ordinal: usize,
+    ) -> anyhow::Result<Self> {
+        Python::with_gil(|py| {
+            let torch = py.import("torch")?;
+            anyhow::ensure!(
+                py_tensor.bind(py).is_instance(&torch.getattr("Tensor")?)?,
+                "KVBM registration requires a torch Tensor"
+            );
+            let detected: String = py
+                .import("kvbm.platform_events")?
+                .getattr("tensor_platform")?
+                .call1((py_tensor.bind(py),))?
+                .extract()?;
+            anyhow::ensure!(
+                detected == platform,
+                "tensor SDK differs from KVBM provider"
+            );
+            let device = py_tensor.getattr(py, "device")?;
+            let kind: String = device.getattr(py, "type")?.extract(py)?;
+            let index: usize = device.getattr(py, "index")?.extract(py)?;
+            let expected = match platform {
+                "cuda" | "metax" => "cuda",
+                "ascend" => "npu",
+                _ => anyhow::bail!("unsupported KVBM platform"),
+            };
+            anyhow::ensure!(
+                kind == expected && index == ordinal,
+                "tensor device differs from KVBM provider"
+            );
+            let mut tensor = Self::new(py_tensor)?;
+            tensor.device = TorchDevice::Platform(platform.into(), ordinal);
+            Ok(tensor)
+        })
+    }
+
     pub fn new(py_tensor: Py<PyAny>) -> anyhow::Result<Self> {
         Python::with_gil(|py| {
             let device = py_tensor.getattr(py, "device")?;

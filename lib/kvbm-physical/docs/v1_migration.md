@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
+-->
+
 # Migration Guide: block_manager to kvbm-physical
 
 Guide for migrating from `dynamo-llm::block_manager` (v1) to `kvbm-physical`.
@@ -61,7 +67,7 @@ The `kvbm_kernels` crate provides `memcpy_batch` using CUDA 12.9+ batch API with
 `TransferOptions::cuda_stream` lets the caller pass in a stream. The executor skips event recording; the caller manages synchronization. Useful for layer-wise transfers where all layers must execute on the same stream.
 
 ```rust,ignore
-let stream = manager.context().acquire_h2d_stream();
+let stream = manager.context()?.acquire_h2d_stream();
 let options = TransferOptions::builder()
     .cuda_stream(stream.clone())
     .build()?;
@@ -85,7 +91,7 @@ Compose multiple transfer notifications into one that completes when all are don
 ```rust,ignore
 let combined = TransferCompleteNotification::aggregate(
     vec![n1, n2, n3],
-    manager.context().event_system(),
+    manager.context()?.event_system(),
     &tokio::runtime::Handle::current(),
 )?;
 combined.await?;

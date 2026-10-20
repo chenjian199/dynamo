@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
+pub mod native;
 pub mod tensor_kernels;
 
 // Always available - core transfer functionality

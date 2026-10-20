@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
@@ -239,7 +241,8 @@ pub struct BlockTransferHandler {
     device: Option<LocalBlockDataList<DeviceStorage>>,
     host: Option<LocalBlockDataList<PinnedStorage>>,
     disk: Option<LocalBlockDataList<DiskStorage>>,
-    context: Arc<TransferContext>,
+    context: Option<Arc<TransferContext>>,
+    platform: Option<Arc<parking_lot::Mutex<super::platform::PlatformStore>>>,
     scheduler_client: Option<TransferSchedulerClient>,
     batcher: ConnectorTransferBatcher,
     /// Transfer mode: sharded (default) or replicated
@@ -268,13 +271,32 @@ impl BlockTransferHandler {
             device: Self::get_local_data(device_blocks),
             host: Self::get_local_data(host_blocks),
             disk: Self::get_local_data(disk_blocks),
-            context,
+            context: Some(context),
+            platform: None,
             scheduler_client,
             batcher: ConnectorTransferBatcher::new(),
             transfer_mode,
             #[cfg(feature = "nccl")]
             nccl_config,
         })
+    }
+
+    pub fn with_platform(
+        store: Arc<parking_lot::Mutex<super::platform::PlatformStore>>,
+        scheduler_client: Option<TransferSchedulerClient>,
+    ) -> Self {
+        Self {
+            device: None,
+            host: None,
+            disk: None,
+            context: None,
+            platform: Some(store),
+            scheduler_client,
+            batcher: ConnectorTransferBatcher::new(),
+            transfer_mode: TransferMode::Sharded,
+            #[cfg(feature = "nccl")]
+            nccl_config: NcclConfig::disabled(),
+        }
     }
 
     /// Returns the transfer mode (sharded or replicated)
@@ -338,7 +360,13 @@ impl BlockTransferHandler {
             .collect();
 
         // Perform the transfer, and return the notifying channel.
-        match sources.write_to(&mut targets, self.context.clone()) {
+        match sources.write_to(
+            &mut targets,
+            self.context
+                .as_ref()
+                .ok_or_else(|| anyhow::anyhow!("CUDA context missing"))?
+                .clone(),
+        ) {
             Ok(channel) => Ok(channel),
             Err(e) => {
                 tracing::error!("Failed to write to blocks: {:?}", e);
@@ -349,11 +377,29 @@ impl BlockTransferHandler {
 
     /// Execute transfer with batching to prevent resource exhaustion
     pub async fn execute_transfer(&self, request: BlockTransferRequest) -> Result<()> {
+        if self.platform.is_some() {
+            // Keep an entire native request serialized on one SDK copy stream.
+            // The protocol handler separately retains its completion/ACK owners.
+            return self.execute_transfer_direct(request).await;
+        }
         self.batcher.execute_batched_transfer(self, request).await
     }
 
     /// Execute transfer directly without batching (used by the batcher)
     pub async fn execute_transfer_direct(&self, request: BlockTransferRequest) -> Result<()> {
+        if let Some(store) = &self.platform {
+            let store = store.clone();
+            return tokio::task::spawn_blocking(move || {
+                let result = store.lock().execute(&request);
+                if let Err(error) = &result {
+                    // The current worker wire protocol has only a success ACK.
+                    // Never acknowledge a failed transfer as valid cached data.
+                    tracing::error!(error = %error, "platform KVBM transfer failed; terminating worker");
+                    std::process::abort();
+                }
+                result
+            }).await?;
+        }
         match self.transfer_mode {
             TransferMode::Sharded => self.execute_transfer_spmd_sharded(request).await,
             #[cfg(feature = "nccl")]
@@ -481,7 +527,11 @@ impl BlockTransferHandler {
             .ok_or_else(|| anyhow::anyhow!("Device blocks required for broadcast"))?;
 
         // Get raw CUstream from the CudaStream wrapper
-        let stream = self.context.stream().cu_stream();
+        let context = self
+            .context
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("CUDA context missing"))?;
+        let stream = context.stream()?.cu_stream();
         let comm = self.nccl_config.comm();
 
         // Get destination block indices (the Device blocks to broadcast)
@@ -512,7 +562,7 @@ impl BlockTransferHandler {
 
         // Synchronize: wait for all NCCL operations to complete on the stream
         let (tx, rx) = tokio::sync::oneshot::channel();
-        self.context.cuda_event(tx)?;
+        context.cuda_event(tx)?;
         rx.await
             .map_err(|_| anyhow::anyhow!("CUDA event channel closed"))?;
 
@@ -537,6 +587,30 @@ impl Handler for BlockTransferHandler {
         }
 
         let mut request: BlockTransferRequest = serde_json::from_slice(&message.data[0])?;
+
+        if let Some(store) = &self.platform {
+            // Move the ACK and scheduler completion owner into the blocking job.
+            // Dropping this async waiter cannot release a block while SDK DMA is
+            // still running. Runtime teardown must wait for the blocking job.
+            let store = store.clone();
+            let scheduler = self.scheduler_client.clone();
+            let runtime = tokio::runtime::Handle::current();
+            return tokio::task::spawn_blocking(move || -> Result<()> {
+                let completion = if let Some(req) = request.connector_req.take() {
+                    let scheduler = scheduler.ok_or_else(|| anyhow::anyhow!("scheduler client required"))?;
+                    Some(runtime.block_on(scheduler.schedule_transfer(req))?)
+                } else { None };
+                let cancelled = completion.as_ref().is_some_and(|h| h.scheduler_decision() == SchedulingDecision::Cancel);
+                if !cancelled && let Err(error) = store.lock().execute(&request) {
+                    tracing::error!(error = %error, "platform KVBM transfer failed; terminating worker without success ACK");
+                    std::process::abort();
+                }
+                runtime.block_on(async {
+                    if let Some(handle) = completion { handle.mark_complete(Ok(())).await; }
+                    message.ack().await
+                })
+            }).await?;
+        }
 
         let result = if let Some(req) = request.connector_req.take() {
             let operation_id = req.uuid;

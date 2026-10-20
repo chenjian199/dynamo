@@ -250,6 +250,11 @@ impl DeviceRuntime {
     pub fn device_count(&self) -> u32 {
         self.backend.device_count()
     }
+    /// Maximum number of retained asynchronous operations across runtime clones.
+    pub fn max_in_flight(&self) -> usize {
+        self.queue.limit
+    }
+
     pub fn allocate(&self, size: usize, space: MemorySpace) -> DeviceResult<Allocation> {
         if size == 0 || size > isize::MAX as usize {
             return Err(error(

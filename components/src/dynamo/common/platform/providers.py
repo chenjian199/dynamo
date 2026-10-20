@@ -154,6 +154,20 @@ def build_capabilities(platform_id, context, software):
             else "configuration outside current platform integration scope",
             context,
         )
+        if context.get("kvbm") == "true":
+            software["kvbm"] = importlib.metadata.version("kvbm")
+            eligible = (
+                supported
+                and context.get("task") == "text"
+                and context.get("tp") in ("1", "2")
+                and context.get("dp") == "1"
+            )
+            caps["kvbm.offload"] = capability(
+                "available" if eligible else "unavailable",
+                platform_id,
+                "local dense KVBM TP1/TP2 DP1; tensor registration and storage readiness checked at startup",
+                context,
+            )
         kv = supported and context.get("kv_events") == "true"
         pd = (
             supported

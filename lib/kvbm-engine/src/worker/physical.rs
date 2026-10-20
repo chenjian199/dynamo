@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Base worker implementation for single-worker transfer execution.
@@ -311,7 +313,7 @@ impl PhysicalWorker {
         }
 
         // Acquire a dedicated stream for all layer transfers
-        let stream = self.manager.context().acquire_h2d_stream();
+        let stream = self.manager.context()?.acquire_h2d_stream();
 
         tracing::debug!(
             num_layers,
@@ -320,7 +322,7 @@ impl PhysicalWorker {
         );
 
         // Execute transfer for each layer and record event
-        for layer in 0..num_layers {
+        for (layer, event) in layer_events.iter().enumerate() {
             // Execute single-layer transfer on our dedicated stream
             let options = TransferOptions::builder()
                 .layer_range(layer..layer + 1)
@@ -336,7 +338,7 @@ impl PhysicalWorker {
             )?;
 
             // Record event on the stream for this layer
-            layer_events[layer].record(stream.as_ref())?;
+            event.record(stream.as_ref())?;
         }
 
         tracing::debug!(num_layers, "Layer-wise onboard complete - events recorded");
@@ -423,7 +425,7 @@ impl WorkerTransfers for PhysicalWorker {
                 let block_ids_vec: Vec<BlockId> = dst_block_ids.to_vec();
 
                 // Create event for completion notification
-                let ctx = self.manager.context();
+                let ctx = self.manager.context()?;
                 let event = ctx.event_system().new_event()?;
                 let handle = event.handle();
                 let awaiter = ctx.event_system().awaiter(handle)?;
@@ -495,7 +497,7 @@ impl WorkerTransfers for PhysicalWorker {
                 let block_ids_vec: Vec<BlockId> = src_block_ids.to_vec();
 
                 // Create event for completion notification
-                let ctx = self.manager.context();
+                let ctx = self.manager.context()?;
                 let event = ctx.event_system().new_event()?;
                 let handle = event.handle();
                 let awaiter = ctx.event_system().awaiter(handle)?;

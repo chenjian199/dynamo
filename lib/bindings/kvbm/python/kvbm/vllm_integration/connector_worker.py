@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -7,12 +9,13 @@ Implementation of vLLM KV cache manager protocol.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 import torch
+from kvbm.platform_events import PlatformEvent, block_axis, tensor_platform
 from kvbm.utils import is_dyn_runtime_enabled
-from vllm.config import VllmConfig
 from vllm.distributed.kv_transfer.kv_connector.v1.base import KVConnectorMetadata
 from vllm.model_executor.models.utils import extract_layer_index
 from vllm.utils.torch_utils import STR_DTYPE_TO_TORCH_DTYPE
@@ -111,28 +114,38 @@ class KvConnectorWorker:
             )
         ]
 
-        events = [
-            torch.cuda.Event(enable_timing=False, interprocess=False)
-            for _ in range(len(ordered_kv_caches))
-        ]
-
-        # events are lazy, if we don't record them once here, the raw handles we pass to rust will be null
-        for event in events:
-            event.record(torch.cuda.current_stream())
-
-        raw_event_handles = [event.cuda_event for event in events]
-
-        self.events = {
-            layer_name: event
-            for (layer_name, _tensor), event in zip(ordered_kv_caches, events)
-        }
+        if not ordered_kv_caches:
+            raise ValueError("KVBM requires at least one KV tensor")
+        # Ascend exposes a (K, V) tensor pair per layer. Register each tensor
+        # separately, but record one producing event after the full layer.
+        self.layer_parts = {}
+        self.events = {}
+        flattened = []
+        events = []
+        for layer, cache in ordered_kv_caches:
+            parts = list(cache) if isinstance(cache, (tuple, list)) else [cache]
+            if not parts or any(not isinstance(t, torch.Tensor) for t in parts):
+                raise ValueError("KVBM requires dense KV tensors or a K/V tensor pair")
+            if len(parts) > 1 and (
+                len(parts) != 2 or tensor_platform(parts[0]) != "ascend"
+            ):
+                raise ValueError(
+                    "Separate K/V registration is only supported for Ascend"
+                )
+            names = [layer] if len(parts) == 1 else [f"{layer}.key", f"{layer}.value"]
+            event = PlatformEvent(parts[0])
+            self.events[layer] = event
+            self.layer_parts[layer] = names
+            flattened.extend(zip(names, parts))
+            events.extend([event] * len(parts))
+        ordered_kv_caches = flattened
 
         # Get first tensor to extract common properties
         first_tensor = ordered_kv_caches[0][1]
         shape = first_tensor.shape
 
         # Validate all tensors have same shape
-        if not all(t.shape == shape for t in kv_caches.values()):
+        if not all(t.shape == shape for _, t in ordered_kv_caches):
             raise NotImplementedError(
                 "Hybrid models with different KV cache shapes are not supported yet."
             )
@@ -140,11 +153,20 @@ class KvConnectorWorker:
         page_size = cache_config.block_size
         use_mla = getattr(self.vllm_config.model_config, "use_mla", False)
 
-        # MLA tensors are [num_blocks, page_size, head_size] — block dim is always axis 0.
-        # Standard attention tensors are [outer_dim, num_blocks, ...] or [num_blocks, outer_dim, ...]
-        # — block dim is whichever axis is larger, which is unambiguous as long as
-        # num_blocks >> outer_dim (always true in practice).
-        num_device_blocks = shape[0] if use_mla else max(shape[0], shape[1])
+        # Use the engine's actual block count; do not infer it from axis sizes.
+        num_device_blocks = cache_config.num_gpu_blocks
+        # vLLM-Ascend 0.23.0 multiprocess workers do not receive the scheduler's
+        # computed num_gpu_blocks. Its dense K/V tensors have the documented
+        # [blocks, block_size, kv_heads, head_size] layout. Use that named axis,
+        # not a max(shape) heuristic. Remove when the worker config carries it.
+        if num_device_blocks is None and tensor_platform(first_tensor) == "ascend":
+            if len(shape) != 4 or shape[1] != page_size:
+                raise ValueError(
+                    "Ascend KVBM needs explicit block count for this layout"
+                )
+            num_device_blocks = shape[0]
+        if not isinstance(num_device_blocks, int) or num_device_blocks <= 0:
+            raise ValueError("Engine must provide its actual KV block count")
         device_id = first_tensor.device.index
 
         layout = KvTensorLayout.from_vllm_config(self.vllm_config, shape, use_mla)
@@ -155,6 +177,25 @@ class KvConnectorWorker:
         else:
             kv_cache_dtype = STR_DTYPE_TO_TORCH_DTYPE[cache_config.cache_dtype]
 
+        platform = tensor_platform(first_tensor)
+        backend = os.environ.get("DYN_KVBM_TRANSFER_BACKEND")
+        native_platform = platform != "cuda" or backend == "platform"
+        expected_device_dtype = (first_tensor.device, first_tensor.dtype)
+        expected_provider_width = (platform, kv_cache_dtype.itemsize)
+        axes = []
+        for _, tensor in ordered_kv_caches:
+            if (tensor.device, tensor.dtype) != expected_device_dtype:
+                raise ValueError("KV layers must share device and dtype")
+            descriptor = (tensor_platform(tensor), tensor.element_size())
+            if descriptor != expected_provider_width:
+                raise ValueError(
+                    "KV tensor provider/dtype differs from engine configuration"
+                )
+            axes.append(block_axis(tensor, num_device_blocks))
+        kwargs = {"events": events}
+        if native_platform:
+            kwargs.update(platform=platform, block_axes=axes)
+
         # Register with connector using ordered data
         self._connector.register_kv_caches(
             num_device_blocks,
@@ -162,9 +203,10 @@ class KvConnectorWorker:
             device_id,
             kv_cache_dtype.itemsize,
             ordered_kv_caches,
-            raw_event_handles,
+            [],
             outer_dim=layout.outer_dim,
             inner_dim=layout.inner_dim,
+            **kwargs,
         )
 
     def bind_connector_metadata(self, data: bytes) -> None:
@@ -223,8 +265,9 @@ class KvConnectorWorker:
             attn_metadata (AttentionMetadata): the attention metadata.
             **kwargs: additional arguments for the save operation.
         """
-        self.events[layer_name].record(torch.cuda.current_stream())
-        self._connector.save_kv_layer(layer_name, kv_layer)
+        self.events[layer_name].record()
+        for part in self.layer_parts[layer_name]:
+            self._connector.save_kv_layer(part, kv_layer)
 
     def get_finished(
         self, finished_req_ids: set[str]

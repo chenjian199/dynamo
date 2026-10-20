@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 pub mod context;
@@ -229,7 +231,7 @@ where
 
                 match transfer_mode {
                     CudaTransferMode::Custom => {
-                        let selected_stream = ctx.stream();
+                        let selected_stream = ctx.stream()?;
                         cuda::copy_blocks_with_customized_kernel(
                             sources,
                             targets,
@@ -242,7 +244,7 @@ where
                             cuda::copy_block(
                                 src,
                                 dst,
-                                ctx.stream().as_ref(),
+                                ctx.stream()?.as_ref(),
                                 RB::write_to_strategy(),
                             )?;
                         }
@@ -254,7 +256,7 @@ where
             } else {
                 // Fall back to individual copy for D2Dblocks
                 for (src, dst) in sources.iter().zip(targets.iter_mut()) {
-                    cuda::copy_block(src, dst, ctx.stream().as_ref(), RB::write_to_strategy())?;
+                    cuda::copy_block(src, dst, ctx.stream()?.as_ref(), RB::write_to_strategy())?;
                 }
                 ctx.cuda_event(tx)?;
                 Ok(rx)

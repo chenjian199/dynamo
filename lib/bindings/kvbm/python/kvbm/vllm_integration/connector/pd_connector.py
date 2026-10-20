@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Type
@@ -67,11 +69,11 @@ class PdConnectorMetadata(MultiKVConnectorMetadata):
 
 class PdConnector(MultiConnector):
     """
-    A wrapper for using KV offloading Connectors (e.g. KVBM, LMCache, or FlexKV) and NIXL Connector for PD disaggregated serving.
+    A wrapper for using KV offloading Connectors (e.g. KVBM, LMCache, or FlexKV) and NIXL/Mooncake for PD disaggregated serving.
 
     The current logic is:
     - The first connector must be KVBM, LMCache, or FlexKV and would be used by prefill worker to offload and onboard KV blocks.
-    - The second connector must be NIXL and will be used by decode worker to get KV blocks from prefill worker.
+    - The second connector owns the PD handoff to a matching decode connector.
     """
 
     def __init__(
@@ -105,15 +107,26 @@ class PdConnector(MultiConnector):
                 f"Expected first connector to be {' or '.join(allowed_names)}, "
                 f"got {type(self._connectors[0]).__name__}"
             )
-        if not isinstance(self._connectors[1], NixlConnector):
-            raise TypeError(
-                f"Expected second connector to be NixlConnector, "
-                f"got {type(self._connectors[1]).__name__}"
-            )
+        # The vendor connector owns PD registration, leases and cleanup. KVBM
+        # only manages local offload; do not reinterpret vendor handles as NIXL.
+        transport = self._connectors[1]
+        if (
+            not isinstance(transport, NixlConnector)
+            and type(transport).__name__ != "MooncakeConnector"
+        ):
+            raise TypeError("PdConnector requires NIXL or a vendor Mooncake connector")
 
     # ==============================
     # Worker-side methods
     # ==============================
+
+    @classmethod
+    def build_prom_metrics(cls, *args, **kwargs):
+        metrics = super().build_prom_metrics(*args, **kwargs)
+        # vLLM 0.26 Mooncake returns transfer statistics but has no Prometheus
+        # exporter. Match its standalone behavior instead of installing an empty
+        # MultiConnector exporter that asserts on every statistics update.
+        return metrics if metrics._prom_metrics else None
 
     def set_xfer_handshake_metadata(
         self, metadata: dict[int, KVConnectorHandshakeMetadata]
@@ -141,7 +154,11 @@ class PdConnector(MultiConnector):
         # Get handshake metadata from the NIXL connector (second connector)
         nixl_connector = self._connectors[1]
         metadata = nixl_connector.get_handshake_metadata()
-        if metadata is not None and not isinstance(metadata, NixlHandshakePayload):
+        if (
+            isinstance(nixl_connector, NixlConnector)
+            and metadata is not None
+            and not isinstance(metadata, NixlHandshakePayload)
+        ):
             raise TypeError(
                 f"Expected NixlHandshakePayload from NIXL connector, "
                 f"got {type(metadata).__name__}"
@@ -149,14 +166,10 @@ class PdConnector(MultiConnector):
         return metadata
 
     def bind_connector_metadata(self, connector_metadata: PdConnectorMetadata) -> None:
-        # Must call super() to set _connector_metadata so has_connector_metadata() returns True
-        # This is required for save_kv_layer to be called during the forward pass
-        super().bind_connector_metadata(connector_metadata)
         assert isinstance(connector_metadata, PdConnectorMetadata)
-        if connector_metadata.extra_async_saves:
-            self._extra_async_saves.update(connector_metadata.extra_async_saves)
-        for c, cm in zip(self._connectors, connector_metadata.metadata):
-            c.bind_connector_metadata(cm)
+        # MultiConnector binds each child and retains the parent metadata. Binding
+        # children again advances KVBM's worker iteration twice for one schedule.
+        super().bind_connector_metadata(connector_metadata)
 
     # ==============================
     # Scheduler-side methods

@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Replicated data worker for MLA (Multi-head Latent Attention) scenarios.
@@ -44,61 +46,113 @@ use std::sync::Arc;
 /// # Trait Implementations
 ///
 /// - [`WorkerTransfers`]: Specialized routing based on source/destination tiers
-/// - [`ParallelWorker`]: Delegates to inner SpmdWorker
-/// - [`ObjectBlockOps`]: Routes to rank 0 only (it has the G2 layout for resolution)
-#[allow(dead_code)]
+/// - [`Worker`]: Delegates local layout identity to the physical worker
+/// - [`ObjectBlockOps`]: G4 is not enabled for this local replicated path
 pub struct ReplicatedDataWorker {
     inner: Arc<PhysicalWorker>,
-    runtime: Arc<KvbmRuntime>,
+    events: Arc<::velo::EventManager>,
+    runtime: tokio::runtime::Handle,
+    order: parking_lot::Mutex<Option<tokio::sync::oneshot::Receiver<()>>>,
+    pending: Arc<tokio::sync::Semaphore>,
     collective: Arc<dyn CollectiveOps>,
 }
 
-#[allow(dead_code)]
 impl ReplicatedDataWorker {
-    /// Create a new ReplicatedDataWorker.
-    ///
-    /// # Arguments
-    /// * `workers` - The underlying workers (one per rank). Only workers[0] should have G2/G3.
-    /// * `events` - The event system for aggregating completion notifications
-    /// * `runtime` - The tokio runtime handle for spawning aggregation tasks
-    /// * `collective` - The collective ops implementation for broadcasting
-    ///
-    /// # Panics
-    ///
-    /// Debug builds will panic if workers.len() < 1.
+    /// Build a local replicated worker with validated rank and tier ownership.
     pub fn new(
-        worker: Arc<PhysicalWorker>, // perhaps use a trait to abstract this
+        worker: Arc<PhysicalWorker>,
         runtime: Arc<KvbmRuntime>,
         collective: Arc<dyn CollectiveOps>,
-    ) -> Self {
-        // todo: ensure worker has a rank
-
-        Self {
-            inner: worker,
-            runtime,
-            collective,
-        }
+    ) -> Result<Self> {
+        Self::with_events(worker, runtime.event_system(), runtime.handle(), collective)
     }
 
-    /// Get access to the underlying SpmdWorker.
+    pub fn with_events(
+        worker: Arc<PhysicalWorker>,
+        events: Arc<::velo::EventManager>,
+        runtime: tokio::runtime::Handle,
+        collective: Arc<dyn CollectiveOps>,
+    ) -> Result<Self> {
+        anyhow::ensure!(
+            collective.world_size() > 0 && collective.rank() < collective.world_size(),
+            "invalid collective rank"
+        );
+        anyhow::ensure!(
+            worker.rank() == Some(collective.rank()),
+            "worker/collective rank mismatch"
+        );
+        anyhow::ensure!(
+            worker.g1_handle().is_some(),
+            "replicated worker requires G1"
+        );
+        if collective.rank() != 0 {
+            anyhow::ensure!(
+                worker.g2_handle().is_none() && worker.g3_handle().is_none(),
+                "only rank zero may own replicated G2/G3"
+            );
+        }
+        Ok(Self {
+            inner: worker,
+            events,
+            runtime,
+            collective,
+            order: parking_lot::Mutex::new(None),
+            pending: Arc::new(tokio::sync::Semaphore::new(64)),
+        })
+    }
+
+    /// Get access to the underlying physical worker.
     pub fn inner(&self) -> &PhysicalWorker {
         &self.inner
     }
 
     /// Get the rank of the underlying worker.
     pub fn rank(&self) -> usize {
-        self.inner.rank().expect("Worker must have a rank")
+        self.collective.rank()
     }
 
-    #[expect(unused_variables)]
     fn broadcast(
         &self,
         xfer_completion: TransferCompleteNotification,
         dst: LogicalLayoutHandle,
         dst_block_ids: Arc<[BlockId]>,
         options: kvbm_physical::transfer::TransferOptions,
+        permit: tokio::sync::OwnedSemaphorePermit,
     ) -> Result<TransferCompleteNotification> {
-        unimplemented!()
+        let event = self.events.new_event()?;
+        let awaiter = self.events.awaiter(event.handle())?;
+        let collective = self.collective.clone();
+        let (done, next) = tokio::sync::oneshot::channel();
+        let previous = self.order.lock().replace(next);
+        self.runtime.spawn(async move {
+            let _permit = permit;
+            if let Some(previous) = previous {
+                let _ = previous.await;
+            }
+            let result = async {
+                xfer_completion.await?;
+                collective
+                    .broadcast(
+                        dst,
+                        dst,
+                        &dst_block_ids,
+                        &dst_block_ids,
+                        options.layer_range,
+                    )?
+                    .await
+            }
+            .await;
+            match result {
+                Ok(()) => {
+                    let _ = event.trigger();
+                }
+                Err(error) => {
+                    let _ = event.poison(error.to_string());
+                }
+            }
+            let _ = done.send(());
+        });
+        Ok(TransferCompleteNotification::from_awaiter(awaiter))
     }
 }
 
@@ -113,6 +167,14 @@ impl WorkerTransfers for ReplicatedDataWorker {
     ) -> Result<TransferCompleteNotification> {
         let is_rank0 = self.rank() == 0;
         let use_bcast = dst == LogicalLayoutHandle::G1;
+        anyhow::ensure!(
+            src != LogicalLayoutHandle::G4 && dst != LogicalLayoutHandle::G4,
+            "replicated G4 transfers are not enabled"
+        );
+        anyhow::ensure!(
+            src_block_ids.len() == dst_block_ids.len(),
+            "block counts differ"
+        );
 
         if src == LogicalLayoutHandle::G1 && dst == LogicalLayoutHandle::G1 {
             return self.inner.execute_local_transfer(
@@ -125,8 +187,18 @@ impl WorkerTransfers for ReplicatedDataWorker {
         }
 
         if !is_rank0 && !use_bcast {
-            return Ok(TransferCompleteNotification::completed());
+            Ok(TransferCompleteNotification::completed())
         } else if is_rank0 {
+            let permit = if use_bcast {
+                Some(
+                    self.pending
+                        .clone()
+                        .try_acquire_owned()
+                        .map_err(|_| anyhow::anyhow!("replicated broadcast queue is full"))?,
+                )
+            } else {
+                None
+            };
             let xfer_completion = self.inner.execute_local_transfer(
                 src,
                 dst,
@@ -135,14 +207,19 @@ impl WorkerTransfers for ReplicatedDataWorker {
                 options.clone(),
             )?;
 
-            if use_bcast {
-                self.broadcast(xfer_completion, dst, dst_block_ids, options)
+            if let Some(permit) = permit {
+                self.broadcast(xfer_completion, dst, dst_block_ids, options, permit)
             } else {
                 Ok(xfer_completion)
             }
         } else {
+            let permit = self
+                .pending
+                .clone()
+                .try_acquire_owned()
+                .map_err(|_| anyhow::anyhow!("replicated broadcast queue is full"))?;
             let xfer_completion = TransferCompleteNotification::completed();
-            self.broadcast(xfer_completion, dst, dst_block_ids, options)
+            self.broadcast(xfer_completion, dst, dst_block_ids, options, permit)
         }
     }
 
@@ -154,7 +231,7 @@ impl WorkerTransfers for ReplicatedDataWorker {
         dst_block_ids: Arc<[BlockId]>,
         options: kvbm_physical::transfer::TransferOptions,
     ) -> Result<TransferCompleteNotification> {
-        unimplemented!()
+        anyhow::bail!("replicated remote transfers are not enabled")
     }
 
     #[expect(unused_variables)]
@@ -165,7 +242,7 @@ impl WorkerTransfers for ReplicatedDataWorker {
         dst: RemoteDescriptor,
         options: kvbm_physical::transfer::TransferOptions,
     ) -> Result<TransferCompleteNotification> {
-        unimplemented!()
+        anyhow::bail!("replicated remote transfers are not enabled")
     }
 
     fn connect_remote(
@@ -191,6 +268,49 @@ impl WorkerTransfers for ReplicatedDataWorker {
         dst_block_ids: Arc<[BlockId]>,
         options: kvbm_physical::transfer::TransferOptions,
     ) -> Result<TransferCompleteNotification> {
-        unimplemented!()
+        anyhow::bail!("replicated remote transfers are not enabled")
+    }
+}
+
+impl Worker for ReplicatedDataWorker {
+    fn g1_handle(&self) -> Option<LayoutHandle> {
+        self.inner.g1_handle()
+    }
+    fn g2_handle(&self) -> Option<LayoutHandle> {
+        self.inner.g2_handle()
+    }
+    fn g3_handle(&self) -> Option<LayoutHandle> {
+        self.inner.g3_handle()
+    }
+    fn export_metadata(&self) -> Result<SerializedLayoutResponse> {
+        Worker::export_metadata(self.inner.as_ref())
+    }
+    fn import_metadata(&self, metadata: SerializedLayout) -> Result<ImportMetadataResponse> {
+        Worker::import_metadata(self.inner.as_ref(), metadata)
+    }
+}
+
+impl ObjectBlockOps for ReplicatedDataWorker {
+    fn has_blocks(
+        &self,
+        keys: Vec<SequenceHash>,
+    ) -> BoxFuture<'static, Vec<(SequenceHash, Option<usize>)>> {
+        Box::pin(async move { keys.into_iter().map(|k| (k, None)).collect() })
+    }
+    fn put_blocks(
+        &self,
+        keys: Vec<SequenceHash>,
+        _src: LogicalLayoutHandle,
+        _ids: Vec<BlockId>,
+    ) -> BoxFuture<'static, Vec<Result<SequenceHash, SequenceHash>>> {
+        Box::pin(async move { keys.into_iter().map(Err).collect() })
+    }
+    fn get_blocks(
+        &self,
+        keys: Vec<SequenceHash>,
+        _dst: LogicalLayoutHandle,
+        _ids: Vec<BlockId>,
+    ) -> BoxFuture<'static, Vec<Result<SequenceHash, SequenceHash>>> {
+        Box::pin(async move { keys.into_iter().map(Err).collect() })
     }
 }

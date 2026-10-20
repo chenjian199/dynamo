@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Physical layout types that combine abstract layouts with storage location metadata.
@@ -28,6 +30,7 @@ use std::sync::Arc;
 /// NIXL transfer descriptors.
 #[derive(Debug, Clone)]
 pub struct PhysicalLayout {
+    native: Option<Arc<crate::native::NativeLayout>>,
     /// The abstract layout defining memory organization
     layout: Arc<dyn Layout>,
 
@@ -70,6 +73,28 @@ impl NixlMetadata {
 }
 
 impl PhysicalLayout {
+    /// Local-only SDK layout. It cannot be exported as a NIXL registration.
+    pub fn from_native(layout: crate::native::NativeLayout) -> Self {
+        let location = layout.location();
+        let layout = Arc::new(layout);
+        Self {
+            native: Some(layout.clone()),
+            layout,
+            location,
+            nixl_metadata: NixlMetadata::new(String::new(), MemType::Dram, 0),
+        }
+    }
+
+    pub fn native_layout(&self) -> Result<&Arc<crate::native::NativeLayout>> {
+        self.native
+            .as_ref()
+            .ok_or_else(|| anyhow!("layout is not a local native layout"))
+    }
+
+    pub fn is_native(&self) -> bool {
+        self.native.is_some()
+    }
+
     /// Create a typed builder that enforces NIXL registration.
     pub fn builder(agent: NixlAgent) -> PhysicalLayoutBuilderDefault {
         PhysicalLayoutBuilder::new(agent)
@@ -86,6 +111,7 @@ impl PhysicalLayout {
         nixl_metadata: NixlMetadata,
     ) -> Self {
         Self {
+            native: None,
             layout,
             location,
             nixl_metadata,
@@ -161,6 +187,10 @@ impl PhysicalLayout {
     /// # Returns
     /// A serializable representation of this layout
     pub(crate) fn to_descriptor(&self) -> Result<LayoutDescriptor> {
+        anyhow::ensure!(
+            !self.is_native(),
+            "native local layout has no remote registration"
+        );
         // Extract memory descriptors
         let memory_descriptors = self
             .layout
@@ -264,6 +294,7 @@ impl PhysicalLayout {
         };
 
         Ok(Self {
+            native: None,
             layout,
             location: serialized.location,
             nixl_metadata: serialized.nixl_metadata,

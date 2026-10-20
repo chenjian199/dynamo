@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
@@ -319,6 +321,9 @@ impl BlockManagerBuilder {
         let runtime_config = dynamo_llm::block_manager::KvManagerRuntimeConfig::builder()
             .worker_id(worker_id)
             .cancellation_token(cancel_token.clone())
+            // This builder creates only logical LeaderWorkerSharded pools.
+            // Physical workers own their own transport agents, if needed.
+            .disable_nixl()
             .build()?;
 
         let mut config =

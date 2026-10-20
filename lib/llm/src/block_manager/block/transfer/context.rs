@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
@@ -172,7 +174,7 @@ pub struct PoolConfig {
 
 pub struct TransferContext {
     nixl_agent: Arc<Option<NixlAgent>>,
-    stream: Arc<CudaStream>,
+    stream: Option<Arc<CudaStream>>,
     async_rt_handle: Handle,
 
     // NEW: CUDA memory pool for stream-ordered host memory allocation
@@ -187,6 +189,22 @@ pub struct TransferContext {
 }
 
 impl TransferContext {
+    /// Logical leader transfers execute on remote physical workers. They need
+    /// only the host runtime, with no device SDK, stream or pinned allocation.
+    pub fn logical(async_rt_handle: Handle) -> Self {
+        let (cuda_event_tx, _) = mpsc::unbounded_channel();
+        Self {
+            nixl_agent: Arc::new(None),
+            stream: None,
+            async_rt_handle,
+            cuda_mem_pool: None,
+            pinned_buffer_pool: None,
+            cuda_event_tx,
+            cuda_event_worker: None,
+            cancel_token: CancellationToken::new(),
+        }
+    }
+
     pub fn new(
         nixl_agent: Arc<Option<NixlAgent>>,
         stream: Arc<CudaStream>,
@@ -247,7 +265,7 @@ impl TransferContext {
 
         Ok(Self {
             nixl_agent,
-            stream,
+            stream: Some(stream),
             async_rt_handle,
             cuda_mem_pool,
             pinned_buffer_pool: pool,
@@ -289,8 +307,10 @@ impl TransferContext {
         self.nixl_agent.clone()
     }
 
-    pub fn stream(&self) -> &Arc<CudaStream> {
-        &self.stream
+    pub fn stream(&self) -> Result<&Arc<CudaStream>, TransferError> {
+        self.stream.as_ref().ok_or_else(|| {
+            TransferError::ExecutionError("logical KVBM context has no CUDA stream".into())
+        })
     }
 
     pub fn async_rt_handle(&self) -> &Handle {
@@ -304,7 +324,7 @@ impl TransferContext {
 
     pub fn cuda_event(&self, tx: oneshot::Sender<()>) -> Result<(), TransferError> {
         let event = self
-            .stream
+            .stream()?
             .record_event(Some(CUevent_flags::CU_EVENT_BLOCKING_SYNC))
             .map_err(|e| TransferError::ExecutionError(e.to_string()))?;
 

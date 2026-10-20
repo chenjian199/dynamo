@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 mod coordinated;
@@ -9,6 +11,8 @@ mod protocol;
 pub mod velo;
 
 pub use coordinated::CoordinatedWorker;
+#[cfg(feature = "collectives")]
+pub use physical::ReplicatedDataWorker;
 pub use physical::{PhysicalWorker, PhysicalWorkerBuilder};
 
 /// Compatibility alias for [`PhysicalWorker`].

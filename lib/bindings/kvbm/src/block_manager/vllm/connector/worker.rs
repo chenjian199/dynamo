@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use dynamo_llm::block_manager::connector::protocol::TransferType;
@@ -34,6 +36,12 @@ pub trait Worker: Send + Sync {
         dtype_width_bytes: usize,
         kv_caches: Vec<(String, Arc<VllmTensor>)>,
         raw_event_handles: Vec<u64>,
+        owned_events: Vec<Py<PyAny>>,
+        platform_store: Option<
+            Arc<
+                parking_lot::Mutex<dynamo_llm::block_manager::distributed::platform::PlatformStore>,
+            >,
+        >,
         device_layout_type: Option<LayoutType>,
         host_layout_type: Option<LayoutType>,
         disk_layout_type: Option<LayoutType>,
@@ -76,6 +84,7 @@ pub struct KvConnectorWorker {
 
     /// cuda events created by the python side
     layer_events: Vec<u64>,
+    owned_events: Vec<Py<PyAny>>,
 }
 
 impl KvConnectorWorker {
@@ -114,6 +123,7 @@ impl KvConnectorWorker {
             layers_complete: 0,
             kv_cache_layers: Vec::new(),
             layer_events: Vec::new(),
+            owned_events: Vec::new(),
         })
     }
 }
@@ -131,6 +141,12 @@ impl Worker for KvConnectorWorker {
         dtype_width_bytes: usize,
         kv_caches: Vec<(String, Arc<VllmTensor>)>,
         raw_event_handles: Vec<u64>,
+        owned_events: Vec<Py<PyAny>>,
+        platform_store: Option<
+            Arc<
+                parking_lot::Mutex<dynamo_llm::block_manager::distributed::platform::PlatformStore>,
+            >,
+        >,
         device_layout_type: Option<LayoutType>,
         host_layout_type: Option<LayoutType>,
         disk_layout_type: Option<LayoutType>,
@@ -142,10 +158,14 @@ impl Worker for KvConnectorWorker {
             return Err(anyhow::anyhow!("kvbm worker already registered"));
         }
 
-        assert_eq!(
-            kv_caches.len(),
-            raw_event_handles.len(),
-            "kv_caches and raw_event_handles must have the same length"
+        let event_count = if owned_events.is_empty() {
+            raw_event_handles.len()
+        } else {
+            owned_events.len()
+        };
+        anyhow::ensure!(
+            !kv_caches.is_empty() && kv_caches.len() == event_count,
+            "one event per nonempty KV tensor is required"
         );
 
         // Process kv_caches in layer execution order (already sorted by layer index)
@@ -168,6 +188,7 @@ impl Worker for KvConnectorWorker {
         }
 
         self.layer_events = raw_event_handles;
+        self.owned_events = owned_events;
 
         // Auto-detect device layout type if not explicitly provided
         let detected_device_layout_type = match device_layout_type {
@@ -203,6 +224,7 @@ impl Worker for KvConnectorWorker {
             .num_device_blocks(num_device_blocks)
             .page_size(page_size)
             .tensors(vllm_tensors)
+            .platform_store(platform_store)
             .device_id(device_id)
             .dtype_width_bytes(dtype_width_bytes)
             .scheduler_client(Some(self.transfer_client.clone()))
@@ -316,7 +338,16 @@ impl Worker for KvConnectorWorker {
 
     /// Trigger layer-wise completion signals.
     /// Trigger block-wise completion signals afer last layer.
-    fn save_kv_layer(&mut self, _layer_name: String) -> anyhow::Result<()> {
+    fn save_kv_layer(&mut self, layer_name: String) -> anyhow::Result<()> {
+        anyhow::ensure!(self.bound, "KV connector metadata is not bound");
+        let expected = self
+            .kv_cache_layers
+            .get(self.layers_complete)
+            .ok_or_else(|| anyhow::anyhow!("too many layer completion notifications"))?;
+        anyhow::ensure!(
+            expected.0 == layer_name,
+            "out-of-order or duplicate KV layer notification"
+        );
         self.layers_complete += 1;
         tracing::debug!(
             iteration = self.iteration,
@@ -326,6 +357,18 @@ impl Worker for KvConnectorWorker {
             "save_kv_layer called"
         );
         if self.layers_complete == self.kv_cache_layers.len() {
+            if self.owned_events.is_empty() {
+                event_sync_blocking(self.layer_events[self.layers_complete - 1]);
+            } else {
+                // Layer callbacks may use distinct producer streams. Keep and
+                // synchronize every owner before exposing any layer to offload.
+                Python::with_gil(|py| -> PyResult<()> {
+                    for event in &self.owned_events {
+                        event.call_method0(py, "synchronize")?;
+                    }
+                    Ok(())
+                })?;
+            }
             let offloading_operations = std::mem::take(&mut self.offloading_operations);
 
             tracing::trace!(
@@ -338,7 +381,6 @@ impl Worker for KvConnectorWorker {
             // block on the the completion of the last layer
             // todo(ryan): capture the context, pass this to the scheduler to do the await on another thread
             // or put the event on a stream and use stream waits to keep it all on device.
-            event_sync_blocking(self.layer_events[self.layers_complete - 1]);
             for operation in &offloading_operations {
                 tracing::debug!(
                     request_id = %operation.request_id,
@@ -495,7 +537,7 @@ impl PyKvConnectorWorker {
     }
 
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (num_device_blocks, page_size, device_id, dtype_width_bytes, kv_caches, raw_event_handles, device_layout_type=None, host_layout_type=None, disk_layout_type=None, outer_dim=None, inner_dim=None))]
+    #[pyo3(signature = (num_device_blocks, page_size, device_id, dtype_width_bytes, kv_caches, raw_event_handles, device_layout_type=None, host_layout_type=None, disk_layout_type=None, outer_dim=None, inner_dim=None, platform=None, block_axes=None, events=None))]
     pub fn register_kv_caches(
         &mut self,
         num_device_blocks: usize,
@@ -509,13 +551,69 @@ impl PyKvConnectorWorker {
         disk_layout_type: Option<PyLayoutType>,
         outer_dim: Option<usize>,
         inner_dim: Option<usize>,
+        platform: Option<String>,
+        block_axes: Option<Vec<usize>>,
+        events: Option<Vec<Py<PyAny>>>,
     ) -> PyResult<()> {
         // Convert Python tensors to Rust VllmTensor objects
         let mut rust_kv_caches = Vec::new();
         for (layer_name, py_tensor) in kv_caches {
-            let vllm_tensor = Arc::new(VllmTensor::new(py_tensor).map_err(to_pyerr)?);
+            let vllm_tensor = Arc::new(
+                match platform.as_deref() {
+                    Some(id) => VllmTensor::new_for_platform(py_tensor, id, device_id),
+                    None => VllmTensor::new(py_tensor),
+                }
+                .map_err(to_pyerr)?,
+            );
             rust_kv_caches.push((layer_name, vllm_tensor));
         }
+
+        let owned_events = events.unwrap_or_default();
+        if owned_events.len() != rust_kv_caches.len() && !owned_events.is_empty() {
+            return Err(to_pyerr("one owned event per tensor is required"));
+        }
+        let platform_store = if let Some(id) = platform {
+            if owned_events.is_empty() || !raw_event_handles.is_empty() {
+                return Err(to_pyerr(
+                    "platform KVBM requires owned events, not raw CUDA handles",
+                ));
+            }
+            Python::with_gil(|py| -> PyResult<()> {
+                for event in &owned_events {
+                    let event_platform: String = event.getattr(py, "platform")?.extract(py)?;
+                    let event_device: usize = event.getattr(py, "device_index")?.extract(py)?;
+                    if event_platform != id || event_device != device_id {
+                        return Err(to_pyerr("event platform/device mismatch"));
+                    }
+                }
+                Ok(())
+            })?;
+            let axes = block_axes.ok_or_else(|| to_pyerr("explicit block axes required"))?;
+            let tensors: Vec<Arc<dyn TorchTensor>> = rust_kv_caches
+                .iter()
+                .map(|(_, tensor)| tensor.clone() as Arc<dyn TorchTensor>)
+                .collect();
+            Some(Arc::new(parking_lot::Mutex::new(
+                // Python tensor descriptors were checked above; retained tensor
+                // owners back every imported device range.
+                unsafe {
+                    dynamo_llm::block_manager::distributed::platform::PlatformStore::new(
+                        &id,
+                        device_id,
+                        &tensors,
+                        &axes,
+                        num_device_blocks,
+                        dtype_width_bytes,
+                    )
+                }
+                .map_err(to_pyerr)?,
+            )))
+        } else {
+            if block_axes.is_some() {
+                return Err(to_pyerr("block axes require a platform"));
+            }
+            None
+        };
 
         self.connector_worker
             .register_kv_caches(
@@ -525,6 +623,8 @@ impl PyKvConnectorWorker {
                 dtype_width_bytes,
                 rust_kv_caches,
                 raw_event_handles,
+                owned_events,
+                platform_store,
                 device_layout_type.map(|py_layout| py_layout.into()),
                 host_layout_type.map(|py_layout| py_layout.into()),
                 disk_layout_type.map(|py_layout| py_layout.into()),

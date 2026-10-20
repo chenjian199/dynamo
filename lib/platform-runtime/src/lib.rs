@@ -11,6 +11,9 @@ use libloading::Library;
 use std::ffi::c_void;
 use std::sync::Arc;
 
+pub mod kv;
+pub mod collectives;
+
 type Ptr = *mut c_void;
 type GetContext = unsafe extern "C" fn(*mut Ptr) -> i32;
 type SetContext = unsafe extern "C" fn(Ptr) -> i32;

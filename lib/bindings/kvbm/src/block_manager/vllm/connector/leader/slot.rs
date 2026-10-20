@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use std::{
@@ -1554,8 +1556,9 @@ impl LocalTransferEngine {
                     {
                         tracing::error!("LocalOffloadTask: error processing request: {:?}", e);
 
-                        // Create a fake/immediate transfer request that completes instantly.
-                        // Otherwise, worker side might stuck and cause memory leak.
+                        // Complete the original scheduled operation without copying.
+                        // An Immediate result would increment the wrong counter and
+                        // leave the worker's scheduled offload lease outstanding.
                         let fake_xfer = BlockTransferRequest {
                             from_pool: BlockTransferPool::Device, // Use valid Device->Host transfer type
                             to_pool: BlockTransferPool::Host,     // (offload path, but no blocks)
@@ -1564,7 +1567,7 @@ impl LocalTransferEngine {
                                 request_id: request_id.clone(),
                                 uuid: operation_id,
                                 requirement: None,
-                                request_type: RequestType::Immediate, // Immediate = completes instantly
+                                request_type: RequestType::Scheduled, // Match the original offload operation
                             }),
                         };
 

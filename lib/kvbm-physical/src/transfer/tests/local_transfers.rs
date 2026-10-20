@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Local transfer tests where source and destination use the same NIXL agent.
 //!
@@ -161,8 +163,14 @@ async fn test_p2p(
         .bounce_buffer(bounce_buffer_spec)
         .build()?;
 
-    let notification =
-        execute_transfer(&src, &dst, &src_blocks, &dst_blocks, options, ctx.context())?;
+    let notification = execute_transfer(
+        &src,
+        &dst,
+        &src_blocks,
+        &dst_blocks,
+        options,
+        ctx.context()?,
+    )?;
     notification.await?;
 
     verify_checksums_by_position(&checksums, &src_blocks, &dst, &dst_blocks)?;
@@ -218,7 +226,7 @@ async fn test_roundtrip(
         &src_blocks,
         &device_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -229,7 +237,7 @@ async fn test_roundtrip(
         &device_blocks,
         &dst_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -274,7 +282,7 @@ async fn test_gds(
         &src_blocks,
         &dst_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -306,7 +314,7 @@ async fn test_large_block_counts(#[case] block_count: usize) {
         &src_blocks,
         &device_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context().expect("CUDA test manager"),
     )
     .unwrap();
     notification.await.unwrap();
@@ -516,7 +524,7 @@ async fn test_bounce_with_guards_impl(
         &src_blocks,
         &src_blocks,
         options_builder.build()?,
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -531,7 +539,7 @@ async fn test_bounce_with_guards_impl(
         &src_blocks,
         &dst_blocks,
         options_builder.build()?,
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -674,7 +682,7 @@ async fn test_direct_transfer_impl(
         &src_blocks,
         &dst_blocks,
         options_builder.build()?,
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -812,7 +820,7 @@ async fn test_whole_block_transfer_fc_fc(
         &src_blocks,
         &dst_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -853,7 +861,7 @@ async fn test_layer_wise_transfer_fc_lw(
         &src_blocks,
         &dst_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -894,8 +902,14 @@ async fn test_partial_layer_transfer_uses_layer_wise() -> Result<()> {
         .layer_range(partial_range)
         .build()?;
 
-    let notification =
-        execute_transfer(&src, &dst, &src_blocks, &dst_blocks, options, ctx.context())?;
+    let notification = execute_transfer(
+        &src,
+        &dst,
+        &src_blocks,
+        &dst_blocks,
+        options,
+        ctx.context()?,
+    )?;
     notification.await?;
 
     verify_checksums_by_position_with_mode(
@@ -962,7 +976,7 @@ async fn test_layer_composition_equals_full_block(
         &src_blocks,
         &dst_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -976,7 +990,7 @@ async fn test_layer_composition_equals_full_block(
         &src_blocks,
         &dst_blocks,
         options_layer0,
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -989,7 +1003,7 @@ async fn test_layer_composition_equals_full_block(
         &src_blocks,
         &dst_blocks,
         options_layer1,
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -1058,7 +1072,7 @@ async fn test_cuda_fc_lw_roundtrip_uses_vectorized(
         &src_blocks,
         &device_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 
@@ -1069,7 +1083,7 @@ async fn test_cuda_fc_lw_roundtrip_uses_vectorized(
         &device_blocks,
         &dst_blocks,
         TransferOptionsInternal::default(),
-        ctx.context(),
+        ctx.context()?,
     )?;
     notification.await?;
 

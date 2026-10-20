@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 // todo: move this up one level to be on par with state and block
@@ -29,6 +31,10 @@ pub trait LocalityProvider: Send + Sync + 'static + std::fmt::Debug {
     // type Device: BlockDataExt<DeviceStorage>;
 
     type BlockData<S: Storage>: BlockDataExt<S>;
+
+    fn uses_physical_memory() -> bool {
+        true
+    }
 
     fn handle_transfer<RB, WB>(
         _sources: &[RB],
@@ -111,6 +117,9 @@ impl<R: LogicalResources> Logical<R> {
 }
 
 impl<R: LogicalResources> LocalityProvider for Logical<R> {
+    fn uses_physical_memory() -> bool {
+        false
+    }
     type BlockData<S: Storage> = LogicalBlockData<S, R>;
 
     fn handle_transfer<RB, WB>(

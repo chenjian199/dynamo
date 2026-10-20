@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Collective communication operations for distributed workers.
@@ -39,7 +41,9 @@
 //! notification.await_completion()?;
 //! ```
 
+mod native;
 mod stub;
+pub use native::NativeCollectives;
 
 #[cfg(feature = "nccl")]
 mod bootstrap;
@@ -88,14 +92,14 @@ pub trait CollectiveOps: Send + Sync {
     /// * `layer_range` - Optional range of layers to transfer. If None, all layers are transferred.
     ///
     /// # Returns
-    /// A notification that completes when the broadcast is done on all ranks.
+    /// A notification that completes after this rank finishes its broadcast.
     ///
     /// # Synchronization
     ///
     /// This is a collective operation - all ranks must call this method with
     /// the same arguments for the broadcast to complete correctly. The returned
-    /// notification signals local completion; global completion is guaranteed
-    /// by the collective semantics of the underlying implementation.
+    /// notification signals local completion. The coordinating worker group must
+    /// aggregate every rank before reporting group-wide completion.
     fn broadcast(
         &self,
         src: LogicalLayoutHandle,

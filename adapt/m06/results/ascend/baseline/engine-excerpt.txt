@@ -1,0 +1,11 @@
+[ENGINE] (APIServer pid=38426) INFO 10-19 07:14:53 [api_utils.py:273] non-default args: {'host': '127.0.0.1', 'port': 21300, 'model': '/NFS_62/Models/Qwen_Series/Qwen3-0.6B', 'dtype': 'bfloat16', 'max_model_len': 2048, 'enforce_eager': True, 'served_model_name': ['m06-model'], 'block_size': 128, 'gpu_memory_utilization': 0.15, 'num_gpu_blocks_override': 16, 'enable_prefix_caching': True, 'max_num_seqs': 2}
+[ENGINE] (EngineCore pid=39231) INFO 10-19 07:15:37 [kv_cache_utils.py:2035] Overriding num_gpu_blocks=578 with num_gpu_blocks_override=16
+[ENGINE] (EngineCore pid=39231) INFO 10-19 07:15:37 [kv_cache_utils.py:1744] GPU KV cache size: 2,048 tokens
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704] AsyncLLM output_handler failed.
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704] Traceback (most recent call last):
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704]   File "/vllm-workspace/vllm/vllm/v1/engine/async_llm.py", line 660, in output_handler
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704]     outputs = await engine_core.get_output_async()
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704]   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 1046, in get_output_async
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704]     raise self._format_exception(outputs) from None
+[ENGINE] (APIServer pid=38426) ERROR 10-19 07:16:03 [async_llm.py:704] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.

@@ -1,0 +1,29 @@
+[ENGINE] (APIServer pid=43860) INFO 10-19 07:18:48 [api_utils.py:273] non-default args: {'host': '127.0.0.1', 'port': 21368, 'model': '/NFS_62/Models/Qwen_Series/Qwen3-0.6B', 'dtype': 'bfloat16', 'max_model_len': 2048, 'enforce_eager': True, 'served_model_name': ['m06-model'], 'block_size': 128, 'gpu_memory_utilization': 0.15, 'num_gpu_blocks_override': 16, 'enable_prefix_caching': True, 'max_num_seqs': 2, 'kv_transfer_config': KVTransferConfig(kv_connector='DynamoConnector', engine_id='401b2875-925d-4960-8dfa-d9727b247fea', kv_buffer_device='npu', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='kvbm.vllm_integration.connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+[ENGINE] (APIServer pid=43860) INFO 10-19 07:18:48 [nixl_utils.py:32] Setting UCX_RCACHE_MAX_UNRELEASED to '1024' to avoid a rare memory leak in UCX when using NIXL.
+[ENGINE] (APIServer pid=43860) WARNING 10-19 07:18:48 [nixl_utils.py:58] NIXL is not available
+[ENGINE] (APIServer pid=43860) WARNING 10-19 07:18:48 [nixl_utils.py:60] NIXL agent config is not available
+[ENGINE] (EngineCore pid=44642) INFO 10-19 07:19:31 [kv_cache_utils.py:2035] Overriding num_gpu_blocks=578 with num_gpu_blocks_override=16
+[ENGINE] (EngineCore pid=44642) INFO 10-19 07:19:31 [kv_cache_utils.py:1744] GPU KV cache size: 2,048 tokens
+[ENGINE] (EngineCore pid=44642) WARNING 10-19 07:19:31 [nixl_utils.py:58] NIXL is not available
+[ENGINE] (EngineCore pid=44642) WARNING 10-19 07:19:31 [nixl_utils.py:60] NIXL agent config is not available
+[ENGINE] 2026-10-19T07:19:44.045458Z  INFO dynamo_llm::block_manager::distributed::worker: KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] 2026-10-19T07:19:48.875555Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Device target=Disk blocks=5 bytes_per_block=14680064
+[ENGINE] 2026-10-19T07:19:51.341309Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Device target=Disk blocks=1 bytes_per_block=14680064
+[ENGINE] 2026-10-19T07:19:54.170041Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Device target=Disk blocks=5 bytes_per_block=14680064
+[ENGINE] 2026-10-19T07:19:56.484432Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Device target=Disk blocks=5 bytes_per_block=14680064
+[ENGINE] 2026-10-19T07:19:58.782807Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Device target=Disk blocks=5 bytes_per_block=14680064
+[ENGINE] 2026-10-19T07:19:59.551334Z  INFO _core::block_manager::cache_stats: KVBM [worker-401b2875-925d-4960-8dfa-d9727b247fea-80f2375a1897453ea224bb349054d7a3] Cache Hit Rates - Host: 0.0% (0/16), Disk: 6.2% (1/16)
+[ENGINE] 2026-10-19T07:20:00.578314Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM reload byte verification passed block=11
+[ENGINE] 2026-10-19T07:20:00.828284Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM reload byte verification passed block=10
+[ENGINE] 2026-10-19T07:20:01.075414Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM reload byte verification passed block=9
+[ENGINE] 2026-10-19T07:20:01.325516Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM reload byte verification passed block=4
+[ENGINE] 2026-10-19T07:20:01.326934Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Disk target=Device blocks=4 bytes_per_block=14680064
+[ENGINE] 2026-10-19T07:20:01.531075Z DEBUG dynamo_llm::block_manager::distributed::platform: platform KVBM transfer completed source=Device target=Disk blocks=1 bytes_per_block=14680064
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704] AsyncLLM output_handler failed.
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704] Traceback (most recent call last):
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704]   File "/vllm-workspace/vllm/vllm/v1/engine/async_llm.py", line 660, in output_handler
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704]     outputs = await engine_core.get_output_async()
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704]   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 1046, in get_output_async
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704]     raise self._format_exception(outputs) from None
+[ENGINE] (APIServer pid=43860) ERROR 10-19 07:20:03 [async_llm.py:704] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.

@@ -155,6 +155,18 @@ def test_contract_uses_effective_model_configuration(monkeypatch):
     assert (
         build_pd_contract(cfg, "ascend")["config_sha256"] != original["config_sha256"]
     )
+    direct = build_pd_contract(cfg, "ascend")
+    transport = dict(vars(cfg.kv_transfer_config))
+    cfg.kv_transfer_config = SimpleNamespace(
+        kv_connector="PdConnector",
+        kv_connector_extra_config={
+            "connectors": [{"kv_connector": "DynamoConnector"}, transport]
+        },
+    )
+    assert build_pd_contract(cfg, "ascend") == direct
+    transport["kv_connector_module_path"] = "unknown.module"
+    with pytest.raises(ValueError, match="Unsupported PD connector module"):
+        build_pd_contract(cfg, "ascend")
 
 
 @pytest.mark.parametrize("platform", ["cuda", "metax", "metax-nixl", "ascend"])
@@ -287,3 +299,62 @@ def test_ascend_mooncake_libraries_are_loaded_globally_once(monkeypatch):
         ("/usr/local/Ascend/cann-9.1.0/lib64/libllm_datadist.so", ctypes.RTLD_GLOBAL)
     ]
     assert ascend_mooncake._cann_datadist is marker
+
+
+@pytest.mark.parametrize("platform", ["cuda", "metax", "ascend"])
+def test_kvbm_pd_preflight_validates_transport_child_and_prefill_only(platform):
+    from dynamo.common.platform.preflight import validate_kvbm_configuration
+
+    transport = dict(kv_connector="NixlConnector", kv_role="kv_both")
+    if platform != "cuda":
+        transport = dict(
+            kv_connector="MooncakeConnector",
+            kv_role="kv_producer",
+            kv_connector_extra_config={"mooncake_protocol": "maca"},
+        )
+    if platform == "ascend":
+        transport.update(
+            kv_connector_module_path=ASCEND_MOONCAKE_MODULE,
+            kv_connector_extra_config={
+                "prefill": {"tp_size": 1, "dp_size": 1},
+                "decode": {"tp_size": 1, "dp_size": 1},
+            },
+        )
+    offload = dict(
+        kv_connector="DynamoConnector",
+        kv_role="kv_both",
+        kv_connector_module_path="kvbm.vllm_integration.connector",
+    )
+    wrapper = SimpleNamespace(
+        kv_connector="PdConnector",
+        kv_role="kv_both",
+        kv_connector_module_path="kvbm.vllm_integration.connector",
+        kv_connector_extra_config={"connectors": [offload, transport]},
+    )
+    cfg = SimpleNamespace(
+        disaggregation_mode=DisaggregationMode.PREFILL,
+        enable_multimodal=False,
+        engine_args=SimpleNamespace(
+            kv_transfer_config=wrapper,
+            tensor_parallel_size=1,
+            data_parallel_size=1,
+            enforce_eager=True,
+            enable_lora=False,
+            quantization=None,
+            speculative_config=None,
+            enable_expert_parallel=False,
+        ),
+    )
+    validate_kvbm_configuration(cfg, platform, SimpleNamespace(**offload))
+    assert validate_pd_configuration(cfg, platform) == transport["kv_connector"]
+    offload["kv_connector_module_path"] = "unknown.module"
+    with pytest.raises(PlatformError, match="KVBM requires"):
+        validate_pd_configuration(cfg, platform)
+    offload["kv_connector_module_path"] = "kvbm.vllm_integration.connector"
+    cfg.disaggregation_mode = DisaggregationMode.DECODE
+    with pytest.raises(PlatformError, match="on prefill"):
+        validate_pd_configuration(cfg, platform)
+    cfg.disaggregation_mode = DisaggregationMode.PREFILL
+    transport["kv_role"] = "invalid"
+    with pytest.raises(PlatformError, match="peer parallel"):
+        validate_pd_configuration(cfg, platform)

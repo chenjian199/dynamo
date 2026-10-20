@@ -1,0 +1,276 @@
+{
+  "platform": "metax",
+  "aggregate": true,
+  "status": "passed",
+  "configuration": {
+    "platform": "metax",
+    "devices": "2,3",
+    "model": "/NFS_62/Models/Qwen_Series/Qwen3-0.6B",
+    "output": "/var/cache/dynamo-metax/m06-routing-disk-final",
+    "aggregate": true,
+    "kv_routing": true,
+    "kv_routing_tier": "disk",
+    "kvbm": true,
+    "prefill_workers": 1,
+    "decode_workers": 1,
+    "prefill_tp": 1,
+    "decode_tp": 1,
+    "allow_shared_devices": false,
+    "cancel": false,
+    "handoff_case": null,
+    "fault": null,
+    "inflight_fault": false,
+    "legacy": false,
+    "connector": "default",
+    "soak_seconds": 0,
+    "soak_requests": 1000
+  },
+  "vendor_connector": {
+    "platform": "metax",
+    "version": "0.26.0",
+    "path": "/opt/conda/lib/python3.12/site-packages/vllm/distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py",
+    "state": "patched",
+    "sha256": "5acaae034c2c928c298da7a0c5e0019cfaab84ceb610223380be09d6deaf0ae6"
+  },
+  "software": {
+    "vllm": "0.26.0",
+    "torch": "2.10.0+metax3.8.2.2",
+    "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0"
+  },
+  "runtime_environment": {
+    "SPT_NOENV": null,
+    "GOMAXPROCS": null,
+    "MALLOC_ARENA_MAX": null,
+    "LD_PRELOAD": null
+  },
+  "routing": {
+    "status": "passed",
+    "tier": "disk",
+    "workers": [
+      11524515753483095702,
+      14935965480393415522
+    ],
+    "chat_smoke": {
+      "id": "chatcmpl-1ebaa234-3aff-4583-8278-6c0ea4c9838b",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "content": "<think>\nOkay, the user just said",
+            "refusal": null,
+            "role": "assistant"
+          },
+          "finish_reason": "length",
+          "logprobs": null
+        }
+      ],
+      "created": 1792481351,
+      "model": "m05-model",
+      "object": "chat.completion",
+      "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 8,
+        "total_tokens": 17,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    "cold": {
+      "id": "cmpl-3e1b61da-bb31-4f41-9595-1ccbd3114f77",
+      "choices": [
+        {
+          "text": "\n        \\n\n\\n\\n\\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792481351,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 641,
+        "completion_tokens": 8,
+        "total_tokens": 649,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 11524515753483095702,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 11524515753483095702,
+          "decode_dp_rank": 0
+        }
+      }
+    },
+    "resident": {
+      "id": "cmpl-80f1f605-0f04-448b-a2a9-19fd2ea1672c",
+      "choices": [
+        {
+          "text": "\n        \\n\n\\n\\n\\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792481352,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 641,
+        "completion_tokens": 8,
+        "total_tokens": 649,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 640
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 11524515753483095702,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 11524515753483095702,
+          "decode_dp_rank": 0
+        }
+      }
+    },
+    "device_scores": {
+      "block_size": 64,
+      "num_blocks": 10,
+      "workers": [
+        {
+          "worker_id": 11524515753483095702,
+          "dp_rank": 0,
+          "device_blocks": 10,
+          "host_pinned_blocks": 10,
+          "disk_blocks": 10,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 10.0
+        },
+        {
+          "worker_id": 14935965480393415522,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    },
+    "offloaded_scores": {
+      "block_size": 64,
+      "num_blocks": 10,
+      "workers": [
+        {
+          "worker_id": 11524515753483095702,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 10,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 10,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 2.5
+        },
+        {
+          "worker_id": 14935965480393415522,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    },
+    "reload": {
+      "id": "cmpl-e6f8e12f-2d85-4cba-9e19-923c9a4e30d4",
+      "choices": [
+        {
+          "text": "\n        \\n\n\\n\\n\\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1792481370,
+      "model": "m05-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 641,
+        "completion_tokens": 8,
+        "total_tokens": 649,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 640
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 11524515753483095702,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 11524515753483095702,
+          "decode_dp_rank": 0
+        }
+      }
+    },
+    "reloaded_scores": {
+      "block_size": 64,
+      "num_blocks": 10,
+      "workers": [
+        {
+          "worker_id": 11524515753483095702,
+          "dp_rank": 0,
+          "device_blocks": 10,
+          "host_pinned_blocks": 10,
+          "disk_blocks": 10,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 10.0
+        },
+        {
+          "worker_id": 14935965480393415522,
+          "dp_rank": 0,
+          "device_blocks": 0,
+          "host_pinned_blocks": 0,
+          "disk_blocks": 0,
+          "host_pinned_extension_blocks": 0,
+          "disk_extension_blocks": 0,
+          "shared_beyond_device_blocks": null,
+          "router_credit_blocks": 0.0
+        }
+      ],
+      "shared_cache": {
+        "enabled": false,
+        "total_hit_blocks": 0,
+        "ranges": [],
+        "error": null
+      }
+    }
+  },
+  "kvbm_reload_byte_checks": 10
+}

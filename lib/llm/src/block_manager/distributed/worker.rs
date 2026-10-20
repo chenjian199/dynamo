@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 use super::*;
@@ -116,7 +118,7 @@ fn build_agent(worker_id: usize, use_gds: bool) -> anyhow::Result<NixlAgent> {
 
 // Helper: perform allocation and build transfer handler (factored from previous code)
 async fn perform_allocation_and_build_handler(
-    device_layout: Box<dyn NixlLayout<StorageType = DeviceStorage>>,
+    device_layout: Option<Box<dyn NixlLayout<StorageType = DeviceStorage>>>,
     mut layout_builder: LayoutConfigBuilder,
     worker_config: KvbmWorkerConfig,
     leader_meta: LeaderMetadata,
@@ -124,6 +126,18 @@ async fn perform_allocation_and_build_handler(
     device_id: usize,
     scheduler_client: Option<TransferSchedulerClient>,
 ) -> anyhow::Result<BlockTransferHandler> {
+    if let Some(store) = &worker_config.platform_store {
+        let store = store.clone();
+        let allocator = store.clone();
+        tokio::task::spawn_blocking(move || {
+            allocator
+                .lock()
+                .allocate(leader_meta.num_host_blocks, leader_meta.num_disk_blocks)
+        })
+        .await??;
+        return Ok(BlockTransferHandler::with_platform(store, scheduler_client));
+    }
+    let device_layout = device_layout.ok_or_else(|| anyhow::anyhow!("CUDA layout missing"))?;
     // Determine if this rank should allocate G2/G3 (host/disk)
     // - Sharded mode (rank=None): all ranks allocate
     // - Replicated mode (rank=Some(r)): only rank 0 allocates
@@ -246,7 +260,7 @@ impl Handler for WorkerMetadataHandler {
 // Leader sends allocation config -> allocate -> publish handler -> mark ready -> ACK
 struct LeaderMetadataHandler {
     state: Arc<WorkerState>,
-    device_layout: Mutex<Option<Box<dyn NixlLayout<StorageType = DeviceStorage>>>>,
+    device_layout: Mutex<Option<Option<Box<dyn NixlLayout<StorageType = DeviceStorage>>>>>,
     layout_builder: LayoutConfigBuilder,
     worker_config: KvbmWorkerConfig,
     worker_id: usize,
@@ -429,6 +443,9 @@ pub struct KvbmWorkerConfig {
     #[builder(default = "Vec::new()")]
     tensors: Vec<Arc<dyn TorchTensor>>,
 
+    #[builder(default = "None")]
+    platform_store: Option<Arc<parking_lot::Mutex<super::platform::PlatformStore>>>,
+
     #[builder(default = "0")]
     device_id: usize,
 
@@ -527,6 +544,44 @@ impl KvbmWorker {
             return Err(anyhow::anyhow!("num_device_blocks must be greater than 0"));
         }
 
+        if let Some(store) = &config.platform_store {
+            anyhow::ensure!(
+                config.rank.is_none() && !config.nccl_config.is_enabled(),
+                "platform host staging currently requires sharded ranks"
+            );
+            let bytes_per_block = {
+                let store = store.lock();
+                anyhow::ensure!(
+                    store.device_blocks == config.num_device_blocks,
+                    "platform block count mismatch"
+                );
+                store.bytes_per_block
+            };
+            let layout_type = config.device_layout_type;
+            let (task, handler_rx) = if layout_blocking {
+                Self::run_blocking_layout_initialization(
+                    config,
+                    bytes_per_block,
+                    None,
+                    LayoutConfigBuilder::default(),
+                    layout_type,
+                )
+                .await?
+            } else {
+                Self::run_non_blocking_layout_initialization(
+                    config,
+                    bytes_per_block,
+                    None,
+                    LayoutConfigBuilder::default(),
+                    layout_type,
+                )
+                .await?
+            };
+            return Ok(Self {
+                task: Some(task),
+                block_transfer_handler_rx: Some(handler_rx),
+            });
+        }
         let (device_tensors, shape) = load_and_validate_tensors(&config.tensors, config.device_id)?;
 
         if shape.len() < 3 {
@@ -616,6 +671,7 @@ impl KvbmWorker {
             .num_blocks(config.num_device_blocks)
             .build()?
             .create_layout(layout_type, device_tensors)?;
+        let device_layout = Some(device_layout);
 
         let layout_builder = layout_builder.clone();
 
@@ -648,7 +704,7 @@ impl KvbmWorker {
     async fn run_blocking_layout_initialization(
         config: KvbmWorkerConfig,
         bytes_per_block: usize,
-        device_layout: Box<dyn NixlLayout<StorageType = DeviceStorage>>,
+        device_layout: Option<Box<dyn NixlLayout<StorageType = DeviceStorage>>>,
         layout_builder: LayoutConfigBuilder,
         layout_type: LayoutType,
     ) -> anyhow::Result<(
@@ -699,7 +755,7 @@ impl KvbmWorker {
     async fn run_non_blocking_layout_initialization(
         config: KvbmWorkerConfig,
         bytes_per_block: usize,
-        device_layout: Box<dyn NixlLayout<StorageType = DeviceStorage> + Send + 'static>,
+        device_layout: Option<Box<dyn NixlLayout<StorageType = DeviceStorage>>>,
         layout_builder: LayoutConfigBuilder,
         layout_type: LayoutType,
     ) -> anyhow::Result<(
@@ -796,7 +852,7 @@ impl KvbmWorker {
 
     #[allow(clippy::too_many_arguments)]
     async fn worker_task(
-        device_layout: Box<dyn NixlLayout<StorageType = DeviceStorage>>,
+        device_layout: Option<Box<dyn NixlLayout<StorageType = DeviceStorage>>>,
         layout_builder: LayoutConfigBuilder,
         _device_layout_type: LayoutType,
         config: KvbmWorkerConfig,

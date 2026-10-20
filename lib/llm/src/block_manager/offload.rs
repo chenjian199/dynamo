@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! # Offload Manager
@@ -191,8 +193,6 @@ impl<Locality: LocalityProvider + 'static, Metadata: BlockMetadata>
             bypass_cpu_mem: config.bypass_cpu_mem,
         });
 
-        let cuda_ctx = Cuda::device_or_create(0)?;
-
         let max_concurrent_transfers = max_concurrent_transfers();
         let max_transfer_batch_size = max_transfer_batch_size();
 
@@ -210,23 +210,21 @@ impl<Locality: LocalityProvider + 'static, Metadata: BlockMetadata>
             num_layers: config.model_config.num_layers,
         };
 
-        // We want cuda offloads to happen in parallel with host onboards, so we need to use a different stream.
-        let device_offload_transfer_ctx = Arc::new(
-            TransferContext::new(
+        let make_context = || -> Result<Arc<TransferContext>> {
+            if !Locality::uses_physical_memory() {
+                return Ok(Arc::new(TransferContext::logical(
+                    config.async_rt_handle.clone(),
+                )));
+            }
+            let cuda_ctx = Cuda::device_or_create(0)?;
+            Ok(Arc::new(TransferContext::new(
                 config.nixl_agent.clone(),
                 cuda_ctx.new_stream()?,
                 config.async_rt_handle.clone(),
                 Some(pool_config.clone()),
-            )
-            .map_err(|e| {
-                anyhow::anyhow!(
-                    "Failed to create device offload transfer context with CUDA memory pool: {}. \
-                     This is a critical error - the system cannot operate without CUDA memory pools. \
-                     Please ensure sufficient GPU memory is available.",
-                    e
-                )
-            })?,
-        );
+            )?))
+        };
+        let device_offload_transfer_ctx = make_context()?;
 
         // Device -> Host offload
         let device_to_host_task = OffloadManager::offload_worker(
@@ -259,20 +257,7 @@ impl<Locality: LocalityProvider + 'static, Metadata: BlockMetadata>
         )?
         .detach();
 
-        let transfer_ctx = Arc::new(
-            TransferContext::new(
-                config.nixl_agent.clone(),
-                cuda_ctx.new_stream()?,
-                config.async_rt_handle.clone(),
-                Some(pool_config),
-            )
-            .map_err(|e| {
-                anyhow::anyhow!(
-                    "Failed to create transfer context for host onboard operations: {}",
-                    e
-                )
-            })?,
-        );
+        let transfer_ctx = make_context()?;
 
         // Host -> Disk offload
         let host_to_disk_task = OffloadManager::offload_worker(

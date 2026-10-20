@@ -6,9 +6,12 @@
 
 import argparse
 import contextlib
+import hashlib
 import importlib.metadata
+import importlib.util
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -73,6 +76,11 @@ def main():
     parser.add_argument("--model", default="/NFS_62/Models/Qwen_Series/Qwen3-0.6B")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--aggregate", action="store_true")
+    parser.add_argument("--kv-routing", action="store_true")
+    parser.add_argument("--kv-routing-tier", choices=("host", "disk"), default="host")
+    parser.add_argument(
+        "--kvbm", action="store_true", help="M06: add local KVBM to prefill/aggregate"
+    )
     parser.add_argument("--prefill-workers", type=int, default=1)
     parser.add_argument("--decode-workers", type=int, default=1)
     parser.add_argument("--prefill-tp", type=int, choices=[1, 2], default=1)
@@ -105,12 +113,26 @@ def main():
     if min(args.prefill_workers, args.decode_workers) < 1:
         parser.error("worker counts must be positive")
     multi = args.prefill_workers != 1 or args.decode_workers != 1
+    if args.kv_routing_tier == "disk" and not args.kv_routing:
+        parser.error("--kv-routing-tier=disk requires --kv-routing")
+    if args.kv_routing and (
+        not args.aggregate
+        or not args.kvbm
+        or multi
+        or args.decode_tp != 1
+        or args.soak_seconds
+        or args.cancel
+        or args.handoff_case
+        or args.fault
+        or args.inflight_fault
+    ):
+        parser.error("--kv-routing requires aggregate KVBM with two TP1 workers")
     if args.soak_seconds and (args.aggregate or args.fault or multi):
         parser.error("soak currently requires one P and one D without exit injection")
     if multi and (args.aggregate or args.fault or args.inflight_fault):
         parser.error("multi-worker topology cannot combine with aggregate/fault")
     roles = (
-        ["aggregate"]
+        (["aggregate-0", "aggregate-1"] if args.kv_routing else ["aggregate"])
         if args.aggregate
         else (
             ["decode", "prefill"]
@@ -120,13 +142,22 @@ def main():
         )
     )
     count = len(roles)
-    if not all(item.isdigit() for item in devices) or len(devices) < (
-        args.decode_tp
+
+    def valid_device(item):
+        return item.isdigit() or (
+            args.platform == "cuda"
+            and re.fullmatch(
+                r"GPU-[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", item
+            )
+        )
+
+    if not all(valid_device(item) for item in devices) or len(devices) < (
+        args.decode_tp * count
         if args.aggregate
         else args.decode_workers * args.decode_tp
         + args.prefill_workers * args.prefill_tp
     ):
-        parser.error("--devices must provide a non-negative ordinal for each worker")
+        parser.error("--devices requires non-negative ordinals (or CUDA GPU UUIDs)")
     if len(set(devices)) != len(devices) and not args.allow_shared_devices:
         parser.error("duplicate devices require --allow-shared-devices")
     groups = []
@@ -157,6 +188,12 @@ def main():
         DYN_SYSTEM_PORT="18201",
     )
     env.pop("DYN_PLATFORM", None)
+    if args.kv_routing:
+        env.update(
+            DYN_ROUTER_USE_KV_EVENTS="true",
+            DYN_KVBM_KV_EVENTS_ENABLE_CONSOLIDATOR="true",
+            DYN_KVBM_KV_EVENTS_CONSOLIDATOR_MODE="passthrough",
+        )
     command = [
         sys.executable,
         "-m",
@@ -178,8 +215,49 @@ def main():
         "128" if args.platform == "ascend" else "64",
         "--no-enable-prefix-caching",
     ]
-    ports = [allocate_port(19000 + i * 100) for i in range(2 + 4 * count)]
+    if args.kvbm:
+        command[-1] = "--enable-prefix-caching"
+        # DynamoConnector disables HMA on prefill. NIXL includes this setting
+        # in its compatibility hash, so configure the matching decode explicitly.
+        command.append("--disable-hybrid-kv-cache-manager")
+        env.update(
+            DYN_RUNTIME_ENABLED_KVBM="0",
+            DYN_KVBM_TRANSFER_BACKEND="platform",
+            DYN_KVBM_CPU_CACHE_OVERRIDE_NUM_BLOCKS="128",
+            DYN_KVBM_DISK_CACHE_OVERRIDE_NUM_BLOCKS="0",
+            DYN_KVBM_VERIFY_TRANSFERS="1",
+            DYN_LOG="info,dynamo_llm::block_manager::distributed::platform=debug",
+        )
+        root = Path(__file__).resolve().parents[2]
+        sources = (root / "adapt/m06/sources.txt").read_text().splitlines()
+        kvbm_spec = importlib.util.find_spec("kvbm")
+        if kvbm_spec is None or kvbm_spec.origin is None:
+            raise RuntimeError("KVBM package is not installed")
+        kvbm_core = Path(kvbm_spec.origin).parent / "_core.abi3.so"
+        (args.output / "source.json").write_text(
+            json.dumps(
+                {
+                    "python": sys.executable,
+                    "versions": {
+                        name: importlib.metadata.version(name)
+                        for name in ("torch", "vllm", "kvbm")
+                    },
+                    "kvbm_core_sha256": hashlib.sha256(
+                        kvbm_core.read_bytes()
+                    ).hexdigest(),
+                    "files": {
+                        name: hashlib.sha256((root / name).read_bytes()).hexdigest()
+                        for name in sources
+                        if (root / name).is_file()
+                    },
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+    ports = [allocate_port(19000 + i * 100) for i in range(2 + 3 * count)]
     http_port, frontend_system, *worker_ports = ports
+    worker_ports.extend([0] * count)
     env.update(DYN_HTTP_PORT=str(http_port), DYN_SYSTEM_PORT=str(frontend_system))
     commands = {}
     workers = {}
@@ -217,7 +295,8 @@ def main():
         }
         with contextlib.ExitStack() as stack:
             frontend = ManagedProcess(
-                command=[sys.executable, "-m", "dynamo.frontend"],
+                command=[sys.executable, "-m", "dynamo.frontend"]
+                + (["--router-mode", "kv"] if args.kv_routing else []),
                 env=dict(env, DYN_PLATFORM="cpu"),
                 log_dir=str(args.output.resolve()),
                 display_name="frontend",
@@ -226,6 +305,12 @@ def main():
             stack.enter_context(frontend)
             for index, label in enumerate(roles):
                 role = label.split("-")[0]
+                # Allocate after earlier engines have started: Mooncake/ADXL
+                # chooses RPC ports outside the test allocator's registry and
+                # can otherwise take a later worker's not-yet-bound port.
+                bootstrap_port = allocate_port(26000 + index * 100)
+                ports.append(bootstrap_port)
+                worker_ports[3 * count + index] = bootstrap_port
                 worker_env = dict(
                     env,
                     DYN_SYSTEM_PORT=str(worker_ports[index]),
@@ -242,6 +327,52 @@ def main():
                     worker_env["DYN_PLATFORM"] = args.platform
                 tp = args.prefill_tp if role == "prefill" else args.decode_tp
                 argv = command + ["--tensor-parallel-size", str(tp)]
+                if args.kv_routing:
+                    event_port = allocate_port(29000 + index * 100)
+                    ports.append(event_port)
+                    argv += [
+                        "--kv-events-config",
+                        json.dumps(
+                            dict(
+                                publisher="zmq",
+                                topic="kv-events",
+                                endpoint=f"tcp://*:{event_port}",
+                                enable_kv_cache_events=True,
+                            )
+                        ),
+                    ]
+                if args.kvbm and role in ("prefill", "aggregate"):
+                    kvbm_ports = [
+                        allocate_port(24000 + offset * 100) for offset in range(3)
+                    ]
+                    ports.extend(kvbm_ports)
+                    worker_env.update(
+                        DYN_KVBM_LEADER_ZMQ_PUB_PORT=str(kvbm_ports[0]),
+                        DYN_KVBM_LEADER_ZMQ_ACK_PORT=str(kvbm_ports[1]),
+                        DYN_KVBM_METRICS_PORT=str(kvbm_ports[2]),
+                    )
+                    if args.kv_routing_tier == "disk":
+                        disk_dir = args.output.resolve() / "disk" / label
+                        disk_dir.mkdir(parents=True)
+                        worker_env.update(
+                            DYN_KVBM_CPU_CACHE_OVERRIDE_NUM_BLOCKS=(
+                                "12" if args.platform == "ascend" else "24"
+                            ),
+                            DYN_KVBM_DISK_CACHE_OVERRIDE_NUM_BLOCKS="128",
+                            DYN_KVBM_DISABLE_DISK_OFFLOAD_FILTER="1",
+                            DYN_KVBM_DISK_CACHE_DIR=str(disk_dir),
+                        )
+                    argv += [
+                        "--num-gpu-blocks-override",
+                        "16" if args.platform == "ascend" else "32",
+                    ]
+                    offload = {
+                        "kv_connector": "DynamoConnector",
+                        "kv_role": "kv_both",
+                        "kv_connector_module_path": "kvbm.vllm_integration.connector",
+                    }
+                    if role == "aggregate":
+                        argv += ["--kv-transfer-config", json.dumps(offload)]
                 if args.soak_seconds or args.inflight_fault:
                     worker_env.update(
                         M05_OBSERVER_DIR=str(
@@ -290,6 +421,18 @@ def main():
                                 "decode": {"tp_size": args.decode_tp, "dp_size": 1},
                             },
                         }
+                    if args.kvbm and role == "prefill":
+                        kv = {
+                            "kv_connector": "PdConnector",
+                            "kv_role": "kv_both",
+                            "kv_connector_module_path": "kvbm.vllm_integration.connector",
+                            "kv_connector_extra_config": {
+                                "connectors": [
+                                    offload,
+                                    kv,
+                                ]
+                            },
+                        }
                     argv += [
                         "--disaggregation-mode",
                         role,
@@ -301,6 +444,9 @@ def main():
                     "device": groups[index],
                     "system_port": worker_ports[index],
                 }
+                (args.output / "commands.json").write_text(
+                    json.dumps(commands, indent=2) + "\n"
+                )
                 process = ManagedProcess(
                     command=argv,
                     env=worker_env,
@@ -327,14 +473,63 @@ def main():
                 if time.monotonic() >= deadline:
                     raise RuntimeError("model did not register")
                 time.sleep(1)
+            if args.kv_routing:
+                report = args.output.resolve() / "routing.json"
+                with ManagedProcess(
+                    command=[
+                        sys.executable,
+                        str(Path(__file__).parents[1] / "m06" / "routing.py"),
+                        "--namespace",
+                        namespace,
+                        "--http-port",
+                        str(http_port),
+                        "--worker-ports",
+                        ",".join(str(p) for p in worker_ports[:count]),
+                        "--block-size",
+                        "128" if args.platform == "ascend" else "64",
+                        "--tier",
+                        args.kv_routing_tier,
+                        "--output",
+                        str(report),
+                    ],
+                    env=dict(env, DYN_PLATFORM="cpu", DYN_SYSTEM_PORT="0"),
+                    log_dir=str(args.output.resolve()),
+                    display_name="routing",
+                    terminate_all_matching_process_names=False,
+                ) as client:
+                    code = client.proc.wait(timeout=300)
+                summary["routing"] = json.loads(report.read_text())
+                if code or summary["routing"]["status"] != "passed":
+                    raise RuntimeError("KVBM tier-aware routing failed")
+                local_logs = re.sub(
+                    r"\x1b\[[0-9;]*m",
+                    "",
+                    "\n".join(process.read_logs() for process in workers.values()),
+                )
+                checks = local_logs.count(
+                    "platform KVBM reload byte verification passed"
+                )
+                if checks == 0:
+                    raise RuntimeError("Routing did not trigger a verified KVBM reload")
+                if args.kv_routing_tier == "disk" and not all(
+                    direction in local_logs
+                    for direction in (
+                        "source=Host target=Disk",
+                        "source=Disk target=Device",
+                    )
+                ):
+                    raise RuntimeError("Missing disk offload/reload during routing")
+                summary["kvbm_reload_byte_checks"] = checks
+                summary["status"] = "passed"
+                return
             prompt = "Explain why the sky is blue. " * 80
 
-            def complete(_):
+            def complete(_, text=None):
                 response = requests.post(
                     f"http://127.0.0.1:{http_port}/v1/completions",
                     json={
                         "model": "m05-model",
-                        "prompt": prompt,
+                        "prompt": prompt if text is None else text,
                         "max_tokens": 32,
                         "temperature": 0,
                         "seed": 42,
@@ -375,6 +570,30 @@ def main():
             if any(item["choices"] != outputs[0]["choices"] for item in outputs):
                 raise RuntimeError("Deterministic completions differ across workers")
             summary.update(responses=outputs)
+            if args.kvbm:
+                # Evict the original device prefix while retaining its G2 copy.
+                # Compare reload against the equivalent resident-cache request;
+                # full and cached BF16 prefill can choose different tied tokens.
+                evictions = []
+                for index in range(4):
+                    evictions.append(complete(index, f"Case {index}: " + prompt))
+                    time.sleep(8)
+                reload = complete(0)
+                summary["kvbm_evictions"] = evictions
+                summary["kvbm_reload"] = reload
+                if reload["choices"] != outputs[-1]["choices"]:
+                    raise RuntimeError("KVBM reload differs from resident prefix")
+                local_logs = "\n".join(
+                    process.read_logs()
+                    for label, process in workers.items()
+                    if label.startswith(("prefill", "aggregate"))
+                )
+                checks = local_logs.count(
+                    "platform KVBM reload byte verification passed"
+                )
+                summary["kvbm_reload_byte_checks"] = checks
+                if checks == 0:
+                    raise RuntimeError("No KVBM reload byte verification observed")
             time.sleep(6)  # Wait for the engine's metrics publication interval.
             summary["idle"] = collect_idle_metrics(
                 args.output, worker_ports, roles, "normal"
@@ -602,6 +821,7 @@ def main():
                 (args.output / (role + ".metrics.txt")).write_text(response.text)
         summary["status"] = "passed"
     except Exception as exc:
+        summary["status"] = "failed"
         summary["error"] = f"{type(exc).__name__}: {exc}"
         raise
     finally:

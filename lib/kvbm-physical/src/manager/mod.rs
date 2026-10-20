@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Transport manager for local and remote physical layouts with transfer execution.
@@ -40,11 +42,23 @@ use std::sync::{Arc, RwLock};
 /// - Managing CUDA, NIXL, and other execution resources
 #[derive(Clone)]
 pub struct TransferManager {
+    worker_id: u64,
     registry: Arc<RwLock<LayoutRegistry>>,
-    context: Arc<TransferContext>,
+    context: Option<Arc<TransferContext>>,
+    native: Option<Arc<crate::native::NativeTransfers>>,
 }
 
 impl TransferManager {
+    pub fn from_native(native: crate::native::NativeTransfers) -> Self {
+        let registry = Arc::new(RwLock::new(LayoutRegistry::local(native.worker_id())));
+        Self {
+            worker_id: native.worker_id(),
+            registry,
+            context: None,
+            native: Some(Arc::new(native)),
+        }
+    }
+
     /// Create a new TransferManager builder.
     ///
     /// The builder configures the worker ID, NIXL agent, CUDA device,
@@ -78,8 +92,10 @@ impl TransferManager {
         let registry = Arc::new(RwLock::new(LayoutRegistry::new(nixl_agent, worker_id)));
 
         Self {
+            worker_id,
             registry,
-            context: Arc::new(context),
+            context: Some(Arc::new(context)),
+            native: None,
         }
     }
 
@@ -99,6 +115,16 @@ impl TransferManager {
     /// # Errors
     /// Returns an error if layout IDs are exhausted (u16::MAX reached)
     pub fn register_layout(&self, layout: PhysicalLayout) -> Result<LayoutHandle> {
+        anyhow::ensure!(
+            layout.is_native() == self.native.is_some(),
+            "layout and executor backend differ"
+        );
+        if let Some(native) = &self.native {
+            anyhow::ensure!(
+                layout.native_layout()?.identity() == native.identity(),
+                "layout belongs to another device/context"
+            );
+        }
         self.registry.write().unwrap().register_local(layout)
     }
 
@@ -174,8 +200,8 @@ impl TransferManager {
     ///
     /// This is useful for building layouts that need to register memory
     /// with the same agent that the TransferManager uses.
-    pub fn nixl_agent(&self) -> &NixlAgent {
-        self.context.nixl_agent()
+    pub fn nixl_agent(&self) -> Result<&NixlAgent> {
+        Ok(self.context()?.nixl_agent())
     }
 
     /// Get the layout configuration for a registered layout.
@@ -246,6 +272,10 @@ impl TransferManager {
             (src, dst)
         }; // Lock released here
 
+        if let Some(native) = &self.native {
+            return native.execute(&src_layout, &dst_layout, src_blocks, dst_blocks, options);
+        }
+
         let (
             layer_range,
             nixl_write_notification,
@@ -300,7 +330,7 @@ impl TransferManager {
             src_blocks,
             dst_blocks,
             options,
-            &self.context,
+            self.context()?,
         )
     }
 
@@ -332,7 +362,7 @@ impl TransferManager {
 
     /// Get the worker ID for this manager.
     pub fn worker_id(&self) -> u64 {
-        self.context.worker_id()
+        self.worker_id
     }
 
     /// Get handles for all locally registered layouts.
@@ -380,8 +410,10 @@ impl TransferManager {
 
     /// Get the internal transfer context.
     #[doc(hidden)]
-    pub fn context(&self) -> &TransferContext {
-        &self.context
+    pub fn context(&self) -> Result<&TransferContext> {
+        self.context
+            .as_deref()
+            .ok_or_else(|| anyhow!("local native executor has no CUDA/NIXL context"))
     }
 
     /// Get access to the internal layout registry.
@@ -397,21 +429,30 @@ impl TransferManager {
     #[cfg(test)]
     #[allow(dead_code)]
     pub(crate) fn h2d_stream(&self) -> &std::sync::Arc<cudarc::driver::CudaStream> {
-        self.context.h2d_stream()
+        self.context
+            .as_ref()
+            .expect("CUDA test manager")
+            .h2d_stream()
     }
 
     /// Get the D2H stream (for testing only).
     #[cfg(test)]
     #[allow(dead_code)]
     pub(crate) fn d2h_stream(&self) -> &std::sync::Arc<cudarc::driver::CudaStream> {
-        self.context.d2h_stream()
+        self.context
+            .as_ref()
+            .expect("CUDA test manager")
+            .d2h_stream()
     }
 
     /// Get the CUDA context (for testing only).
     #[cfg(test)]
     #[allow(dead_code)]
     pub(crate) fn cuda_context(&self) -> &std::sync::Arc<cudarc::driver::CudaContext> {
-        self.context.cuda_context()
+        self.context
+            .as_ref()
+            .expect("CUDA test manager")
+            .cuda_context()
     }
 
     /// Register a CUDA event for completion (for testing only).
@@ -421,14 +462,20 @@ impl TransferManager {
         &self,
         event: cudarc::driver::CudaEvent,
     ) -> TransferCompleteNotification {
-        self.context.register_cuda_event(event)
+        self.context
+            .as_ref()
+            .expect("CUDA test manager")
+            .register_cuda_event(event)
     }
 
     /// Get the CUDA memory pool (for testing only).
     #[cfg(test)]
     #[expect(dead_code)]
     pub(crate) fn cuda_pool(&self) -> &std::sync::Arc<dynamo_memory::CudaMemPool> {
-        self.context.cuda_pool()
+        self.context
+            .as_ref()
+            .expect("CUDA test manager")
+            .cuda_pool()
     }
 }
 
@@ -443,7 +490,7 @@ impl TransferManager {
 #[doc(hidden)]
 pub struct LayoutRegistry {
     /// NIXL agent for memory registration
-    nixl_agent: NixlAgent,
+    nixl_agent: Option<NixlAgent>,
     /// Worker ID for this manager
     worker_id: u64,
     /// Next layout ID to assign (monotonically increasing)
@@ -458,6 +505,22 @@ pub struct LayoutRegistry {
 
 #[expect(dead_code)]
 impl LayoutRegistry {
+    fn local(worker_id: u64) -> Self {
+        Self {
+            nixl_agent: None,
+            worker_id,
+            next_layout_id: AtomicU16::new(0),
+            local_layouts: HashMap::new(),
+            remote_layouts: HashMap::new(),
+            loaded_remotes: HashSet::new(),
+        }
+    }
+    fn require_nixl(&self) -> Result<&NixlAgent> {
+        self.nixl_agent
+            .as_ref()
+            .ok_or_else(|| anyhow!("remote registration is unavailable for local native layouts"))
+    }
+
     /// Create a new layout manager.
     ///
     /// # Arguments
@@ -465,7 +528,7 @@ impl LayoutRegistry {
     /// * `worker_id` - Unique identifier for this worker
     pub(crate) fn new(nixl_agent: NixlAgent, worker_id: u64) -> Self {
         Self {
-            nixl_agent,
+            nixl_agent: Some(nixl_agent),
             worker_id,
             next_layout_id: AtomicU16::new(0),
             local_layouts: HashMap::new(),
@@ -519,12 +582,13 @@ impl LayoutRegistry {
     pub(crate) fn export_metadata(&self) -> Result<SerializedLayout> {
         // Get NIXL metadata from agent
         let nixl_metadata = self
-            .nixl_agent
+            .require_nixl()?
             .get_local_md()
             .map_err(|e| anyhow!("failed to get NIXL local metadata: {:?}", e))?;
 
         // Create worker address
-        let worker_address = WorkerAddress::new(self.worker_id, self.nixl_agent.name().to_string());
+        let worker_address =
+            WorkerAddress::new(self.worker_id, self.require_nixl()?.name().to_string());
 
         // Filter and serialize layouts (only host and device, skip disk)
         let mut serialized_layouts = Vec::new();
@@ -593,7 +657,7 @@ impl LayoutRegistry {
 
         // Load NIXL metadata
         let returned_agent_name = self
-            .nixl_agent
+            .require_nixl()?
             .load_remote_md(&inner.nixl_metadata)
             .map_err(|e| anyhow!("failed to load remote NIXL metadata: {:?}", e))?;
 
@@ -656,14 +720,20 @@ impl LayoutRegistry {
 
     /// Get the NIXL metadata for this worker.
     pub(crate) fn get_nixl_metadata(&self) -> Result<Vec<u8>> {
-        self.nixl_agent
+        self.require_nixl()?
             .get_local_md()
             .map_err(|e| anyhow!("failed to get NIXL local metadata: {:?}", e))
     }
 
     /// Get the worker address for this registry.
     pub(crate) fn worker_address(&self) -> WorkerAddress {
-        WorkerAddress::new(self.worker_id, self.nixl_agent.name().to_string())
+        WorkerAddress::new(
+            self.worker_id,
+            self.nixl_agent
+                .as_ref()
+                .map(|a| a.name().to_string())
+                .unwrap_or_default(),
+        )
     }
 
     /// Get a local layout by handle.

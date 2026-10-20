@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 // SPDX-License-Identifier: Apache-2.0
 
 //! Transfer capability flags for controlling direct path enablement.
@@ -133,7 +135,7 @@ impl TransferCapabilities {
             &src_blocks,
             &dst_blocks,
             TransferOptionsInternal::default(),
-            ctx.context(),
+            ctx.context()?,
         )?;
 
         Ok(())

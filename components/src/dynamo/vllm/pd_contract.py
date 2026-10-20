@@ -13,6 +13,7 @@ import json
 import os
 
 from dynamo.llm.exceptions import InvalidArgument
+from dynamo.vllm.kv_connector_protocols import resolve_pd_connector_config
 
 CONTRACT_KEY = "_dynamo_pd_contract"
 
@@ -23,7 +24,9 @@ def build_pd_contract(config, platform_id):
     # Library metadata and mount locations do not describe the tensor layout.
     for key in ("_name_or_path", "transformers_version"):
         hf_config.pop(key, None)
-    kv = config.kv_transfer_config
+    # Offload is local to the prefill worker. Peers must agree on the child
+    # transport's wire contract, not on the presence of a local cache wrapper.
+    kv = resolve_pd_connector_config(config).kv_transfer_config
     parallel = config.parallel_config
     software = {"vllm": importlib.metadata.version("vllm")}
     if platform_id in ("metax", "ascend"):

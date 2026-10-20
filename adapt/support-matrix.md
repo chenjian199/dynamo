@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 平台支持情况与验收矩阵
 
-本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，并完成 [MetaX C500 单卡文本推理首轮适配与验收](metax/metax-bringup.md)。M01 平台身份与能力契约第一版已实现并在 MetaX 上验收，见 [平台验收](metax/metax-platform.md)。设备内存基础原语已完成 [M04 三平台验收](m04/README.md)，引擎原生 PD 已完成 [M05 部分验收](m05/README.md)，补充不同 TP、传输途中故障及有界长稳见 [M05 补充验收](m05/completion.md)；跨节点、KVBM 传输及 MetaX 可选 NIXL 中断错误路径仍未完成。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
+本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，并完成 [MetaX C500 单卡文本推理首轮适配与验收](metax/metax-bringup.md)。M01 平台身份与能力契约第一版已实现并在 MetaX 上验收，见 [平台验收](metax/metax-platform.md)。设备内存基础原语已完成 [M04 三平台验收](m04/README.md)，引擎原生 PD 已完成 [M05 部分验收](m05/README.md)，补充不同 TP、传输途中故障及有界长稳见 [M05 补充验收](m05/completion.md)；跨节点及 MetaX 可选 NIXL 中断错误路径仍未完成。本地 KVBM 的实现与分项结果见 [M06](m06/README.md)，不能扩展为全部 KVBM 能力已完成。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
 
 ## 状态定义
 
@@ -33,10 +33,14 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | KV-aware 路由 | 有限支持：H800 / 0.24.0，本地 TP=2/DP=2，逐 rank 事件、容量、选路和清空；[M03](m03/README.md) | 有限支持：910B3、0.23.0、单机双 Worker、TP=1/DP=1、block=128，真实事件/选路/淘汰/清空已验证；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
 | P/D 分离 | 有限支持：H800 / 0.24.0 / NIXL；2P3D、TP1/TP2 双向、故障重启 | 有限支持：910B3 / 0.23.0 / Mooncake；2P3D、受限 TP1/TP2 双向及故障回收；使用配套补丁/入口 | 有限支持：C500 / 0.26.0 / Mooncake maca；2P3D、TP1/TP2 双向、超时失败退出与重启；可选 NIXL 中断 abort 未修复 | 正常 PD、取消、契约、故障及有界长稳的[逐项证据](m05/completion.md) | M05 |
 | 设备分配/主机注册/异步复制 | 已验证：H800 / CUDA 13 | 已验证：910B3 / CANN 9.1 | 已验证：C500 / MACA 3.8.2.208 | 同设备 H2D/D2H/D2D、owner/context/事件/取消/回收；P2P 拒绝；[M04](m04/README.md) | M04 |
-| Dynamo KVBM 主机缓存 | 源码已有 | 待调查 | 待调查 | 注册内存、异步复制、引擎布局与事件桥接 | M04/M06 |
-| Dynamo KVBM SSD/远端缓存 | 源码已有 | 待调查 | 待调查 | 回读、一致性、中转与直接路径 | M05/M06 |
+| Dynamo KVBM 主机缓存 | 有限支持：原 CUDA 物理路径及通用 SDK 路径 | 有限支持：ACL pinned staging，ND K/V | 有限支持：MACA pinned staging，dense NHD/HND | eager Qwen3-0.6B、TP1/TP2 DP1；[分项验收](m06/README.md) | M04/M06 |
+| Dynamo KVBM 本地 SSD | 通用 SDK 路径已实现；原 CUDA 快路径保留 | 有限支持：buffered 文件 + pinned staging | 有限支持：buffered 文件 + pinned staging | G2→G3→G1、无 G2 的 G1↔G3；非 GDS；[M06](m06/README.md) | M06 |
+| Dynamo KVBM 远端缓存 | 源码已有相关入口，本轮未验收 | 待实现/验证 | 待实现/验证 | 不能由 M05 引擎 PD 或本地 SSD 推导 G4 支持 | M05/M06 |
 | 设备直连 RDMA | 源码已有可选路径 | 待调查 | 待调查 | 设备内存注册、NIC/驱动、跨节点验证 | M04/M05 |
-| KVBM 集合通信 | 源码已有 NCCL 路径 | 待调查 | 待调查 | 对应 collective 的语义与完成通知 | M06 |
+| KVBM sharded 多 rank | TP2 原 CUDA / 通用 SDK 路径均通过；基线与 KVBM 使用相同 NCCL 配置 | TP2 已验证 | TP2 已验证 | 每 rank 自有分片及 all-rank ACK；不是 replicated 广播 | M06 |
+| KVBM G2/G3 分层路由 | 双 worker 淘汰、选路、回载已验证 | 双 worker 淘汰、选路、回载已验证 | 双 worker 淘汰、选路、回载已验证 | consolidator passthrough 模式；实际 KV 回读和 resident 输出一致；[证据](m06/README.md) | M06 |
+| 独立 KVBM 本地调用链 | native SDK 路径已验证 | ACL native 路径已验证 | MACA native 路径已验证 | PhysicalWorker/TransferManager、G1/G2/G3 与 owned 引擎缓冲区；[证据](m06/independent.md) | M06 |
+| KVBM replicated 集合通信 | 双卡 NCCL 已验证 | 双卡 HCCL 已验证 | 双卡 MCCL 已验证 | 独立 Rust 入口；rank 0 独占 G2/G3，六组布局/宽度配置；不等于 vLLM MLA 模型端到端验收；[证据](m06/independent.md) | M06 |
 | Kubernetes 基础部署 | 源码已有 | 待调查 | 待调查 | 资源名、镜像、设备插件、调度与计数 | M08 |
 | SLO Planner/Profiler | 源码已有 | 待调查 | 待调查 | 指标、资源计数、平台实测画像 | M09 |
 | 设备健康与功耗控制 | 源码已有 NVIDIA 路径 | 待调查 | 待调查 | 指标语义、错误码、功耗 API 与权限 | M08/M09 |

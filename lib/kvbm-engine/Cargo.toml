@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 [package]
@@ -11,6 +13,9 @@ repository.workspace = true
 description = "Distributed coordination primitives for KVBM"
 
 [dependencies]
+dynamo-platform = { workspace = true }
+dynamo-platform-runtime = { workspace = true }
+kvbm-kernels = { workspace = true }
 kvbm-common = { workspace = true }
 kvbm-config = { workspace = true }
 kvbm-logical = { workspace = true }
@@ -79,3 +84,7 @@ required-features = ["bench"]
 
 [package.metadata.cargo-machete]
 ignored = ["rayon"]
+
+[[example]]
+name = "native_replicated"
+required-features = ["collectives"]

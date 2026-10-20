@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+Derived from NVIDIA Dynamo. Modified by HEYI.
+-->
+
 # Worker Module
 
 The worker module defines execution primitives for data transfers between
@@ -83,3 +89,44 @@ The Velo (RPC) layer enables remote worker execution:
 
 Together they allow the leader to drive workers on remote nodes as if they
 were local.
+
+## Local platform workers
+
+`TransferManager::from_native(NativeTransfers::new(...))` selects a local SDK
+executor without constructing a CUDA context or NIXL agent. Register
+`PhysicalLayout::from_native(NativeLayout::allocate(...))` for contiguous buffers,
+`allocate_layers(...)` for separate NHD/HND layer tensors, or `disk(...)` for
+buffered anonymous files. `from_allocations(...)` retains existing M04 allocation
+owners without changing their contents. Engine writes must finish before a
+transfer; the caller retains exclusive block leases until notification completion.
+
+The same `PhysicalWorker` and `WorkerTransfers` interfaces execute G1/G2/G3
+operations. Layouts carry explicit platform/context identity and cannot be mixed
+with legacy CUDA/NIXL layouts. Native layouts cannot be exported/imported for
+remote transfer. `TransferManager::context()` and `nixl_agent()` return `Result`
+and report an unavailable backend for local native managers. Local coordinators
+can obtain G1/G2/G3 handles through `Worker`; remote metadata is not a substitute
+for local handle setup.
+
+## Replicated local cache
+
+`ReplicatedDataWorker::with_events(...)` validates rank and tier ownership. Only
+rank zero owns G2/G3. Onboard waits for rank zero's local copy, then broadcasts G1;
+other ranks receive through the same ordered collective sequence. Offload and
+host/disk movement execute only on rank zero. G1-to-G1 local copies run on every
+rank. Dropping a notification does not cancel the queued work or release its
+allocation owners. The enclosing worker group must aggregate all rank completions.
+
+`NativeCollectives` implements this contract using NCCL, MCCL, or HCCL selected
+from the explicit M04 device identity. Each communicator owns a separate stream;
+real SDK events establish local completion. The correctness fallback stages a
+canonical block and preserves each rank's NHD/HND layout. Partial-layer updates
+preserve other layers but do not implement a fused layer pipeline. Bootstrap
+requires a supervisor timeout; a failed collective with pending device work
+terminates the worker rather than acknowledging success or releasing live leases.
+G4 and remote replicated operations are not enabled.
+
+The hardware example `native_replicated` exercises the independent engine,
+physical and kernel crates. This does not switch the existing Python vLLM
+connector from its `dynamo-llm/block_manager` implementation or certify a complete
+MLA model inference configuration.

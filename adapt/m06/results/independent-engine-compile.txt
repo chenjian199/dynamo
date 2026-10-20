@@ -1,0 +1,47 @@
+warning: kvbm-kernels@1.5.1: Building stub kernels (no CUDA available, dynamic linking)
+warning: kvbm-kernels@1.5.1: Compiling stubs.c...
+warning: kvbm-kernels@1.5.1: Linking stub shared library...
+   Compiling kvbm-engine v1.5.1 (/workspace/dynamo/lib/kvbm-engine)
+warning: unused imports: `Arc` and `Barrier`
+   --> lib/kvbm-engine/src/collectives/nccl.rs:501:21
+    |
+501 |     use std::sync::{Arc, Barrier};
+    |                     ^^^  ^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::thread`
+   --> lib/kvbm-engine/src/collectives/nccl.rs:502:9
+    |
+502 |     use std::thread;
+    |         ^^^^^^^^^^^
+
+warning: function `cuda_device_count` is never used
+   --> lib/kvbm-engine/src/collectives/nccl.rs:505:8
+    |
+505 |     fn cuda_device_count() -> usize {
+    |        ^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `init_all_comms` is never used
+   --> lib/kvbm-engine/src/collectives/nccl.rs:513:15
+    |
+513 |     unsafe fn init_all_comms(num_devices: usize) -> Result<Vec<usize>> {
+    |               ^^^^^^^^^^^^^^
+
+warning: function `destroy_comms` is never used
+   --> lib/kvbm-engine/src/collectives/nccl.rs:527:15
+    |
+527 |     unsafe fn destroy_comms(comms: &[usize]) {
+    |               ^^^^^^^^^^^^^
+
+warning: function `get_device_ptr` is never used
+   --> lib/kvbm-engine/src/collectives/nccl.rs:537:8
+    |
+537 |     fn get_device_ptr(slice: &CudaSlice<u8>, stream: &CudaStream) -> usize {
+    |        ^^^^^^^^^^^^^^
+
+warning: `kvbm-engine` (lib test) generated 6 warnings (run `cargo fix --lib -p kvbm-engine --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized] target(s) in 8.36s
+  Executable unittests src/lib.rs (/var/cache/dynamo-metax/m06-independent-target/debug/deps/kvbm_engine-c92997f75a6bc60a)
