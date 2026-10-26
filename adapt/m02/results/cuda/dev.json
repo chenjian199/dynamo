@@ -1,0 +1,175 @@
+{
+  "imports": {
+    "dynamo._core": "/workspace/dynamo/lib/bindings/python/src/dynamo/_core.abi3.so",
+    "dynamo.common.platform": "/workspace/dynamo/components/src/dynamo/common/platform/__init__.py",
+    "kvbm._core": "/workspace/dynamo/lib/bindings/kvbm/python/kvbm/_core.abi3.so",
+    "gpu_memory_service": "/workspace/dynamo/lib/gpu_memory_service/__init__.py"
+  },
+  "module_sha256": {
+    "dynamo._core": "b2a4cf512829e8764ab5e149b30e4d8e9942a35a3c9098a1c4ac75c7b62795fb",
+    "dynamo.common.platform": "1f74067e85424e14d3b74c4da00eb4f29c7918e52f27245f7bdc0360866d6f81",
+    "kvbm._core": "562d5cba0fdca8e812c25671c746d3dac56235772e2688e233d71c281b6eb541",
+    "gpu_memory_service": "39b67a3543de12fbe919327958818a53222b223688ef8ece33a12bc1e46d1f14"
+  },
+  "editable": {
+    "ai-dynamo-runtime": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo/lib/bindings/python"
+    },
+    "ai-dynamo": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo"
+    },
+    "kvbm": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo/lib/bindings/kvbm"
+    },
+    "gpu-memory-service": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo/lib/gpu_memory_service"
+    }
+  },
+  "tools": {
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+    "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+    "maturin": "maturin 1.15.0",
+    "gdb": "GNU gdb (Ubuntu 15.1-1ubuntu1~24.04.1) 15.1",
+    "strace": "strace -- version 6.8"
+  },
+  "source_manifest_sha256": "af992a21e39383a1ecf9db52fa9a0446a3faa1b91588a69ec54440292e1b0be4",
+  "status": "passed",
+  "image": {
+    "id": "sha256:916f5a0138181635d84dde8b8c092f7535a6b82c552e0cd36b9d6d34769578f2",
+    "tag": "heyi/dynamo-vllm-cuda-dev:1.5.1-m02",
+    "target": "dev",
+    "runtime_id": "sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d",
+    "profile": {
+      "id": "cuda",
+      "architecture": "amd64",
+      "python": "python",
+      "base_image": "nvcr.io/nvidia/ai-dynamo/vllm-runtime@sha256:2b224a823d52a198ec0eeb0e3e4f5cf26cd8a7fc2e9812ee16204b6b1e974870",
+      "versions": {
+        "vllm": "0.28.0",
+        "torch": "2.13.0+cu130"
+      },
+      "protected_packages": [
+        "vllm",
+        "torch",
+        "torchvision",
+        "torchaudio",
+        "nixl",
+        "nvidia-nccl-cu13",
+        "triton",
+        "nixl-cu12",
+        "nixl-cu13",
+        "vllm-omni",
+        "cuda-python",
+        "cuda-bindings",
+        "cuda-core",
+        "nvidia-cublas",
+        "nvidia-cudnn-cu13",
+        "mooncake-transfer-engine-cuda13"
+      ],
+      "runtime_features": [
+        "mm-routing",
+        "request-trace-s3"
+      ],
+      "kvbm_features": [
+        "nccl"
+      ],
+      "gms": true,
+      "omni": "inherited",
+      "kernel_mode": "cuda",
+      "nixl_link_mode": "runtime-capi"
+    },
+    "inputs": {
+      "runtime_id": "sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d",
+      "profile": {
+        "id": "cuda",
+        "architecture": "amd64",
+        "python": "python",
+        "base_image": "nvcr.io/nvidia/ai-dynamo/vllm-runtime@sha256:2b224a823d52a198ec0eeb0e3e4f5cf26cd8a7fc2e9812ee16204b6b1e974870",
+        "versions": {
+          "vllm": "0.28.0",
+          "torch": "2.13.0+cu130"
+        },
+        "protected_packages": [
+          "vllm",
+          "torch",
+          "torchvision",
+          "torchaudio",
+          "nixl",
+          "nvidia-nccl-cu13",
+          "triton",
+          "nixl-cu12",
+          "nixl-cu13",
+          "vllm-omni",
+          "cuda-python",
+          "cuda-bindings",
+          "cuda-core",
+          "nvidia-cublas",
+          "nvidia-cudnn-cu13",
+          "mooncake-transfer-engine-cuda13"
+        ],
+        "runtime_features": [
+          "mm-routing",
+          "request-trace-s3"
+        ],
+        "kvbm_features": [
+          "nccl"
+        ],
+        "gms": true,
+        "omni": "inherited",
+        "kernel_mode": "cuda",
+        "nixl_link_mode": "runtime-capi"
+      },
+      "files": {
+        "dev-editable.sh": "b34eb418d01290177cf07ac807065c467d6ea30b5464c090b5f5a9f2abb9e0ab",
+        "dev-check.py": "33fea34e65691b5b96709d1fc6107768d1f1667539181511a594fd38df5f3455",
+        "dev.txt": "729d04f7bb048d8d9b386f55f2e04fbf22ad227a3a9e7bcb52c3b37f20c89dcb",
+        "rust-toolchain.toml": "6791dcb04edcb490caaf08590dbe1dd9d9954b46dab2095df12dc984f704f1a8",
+        "dev-setup.sh": "5aad8313d3e9c207188cd4699d953c5c4103c8736e24813a6429de4718cb5c55",
+        "dev.Dockerfile": "42eab5ab1106e63fbc34d4dcb50b67b6c83a4c082733077abc331dbfcd6617ba"
+      }
+    }
+  },
+  "mounts": [
+    {
+      "Type": "bind",
+      "Source": "/NFS_62/Models",
+      "Destination": "/models",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/var/tmp/dynamo-m02-dev-checkout",
+      "Destination": "/workspace/dynamo",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "volume",
+      "Name": "dynamo-m02-build-cuda-c41849ed-cache",
+      "Source": "/var/lib/docker/volumes/dynamo-m02-build-cuda-c41849ed-cache/_data",
+      "Destination": "/build-cache",
+      "Driver": "local",
+      "Mode": "z",
+      "RW": true,
+      "Propagation": ""
+    }
+  ],
+  "runtime_layers_preserved": true,
+  "runtime_versions_preserved": true,
+  "frontend_help": true
+}

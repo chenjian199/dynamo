@@ -26,17 +26,19 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 ## 当前功能矩阵
 
-2026-10-21 起按[版本基线](version-baselines.md)锁定 CUDA 0.28.0、MetaX 0.26.0、Ascend 0.23.0。下表标注 CUDA 0.24 的条目保留历史验收含义，不能自动提升为 0.28 已支持；M07 新基线单独记录。
+2026-10-21 起按[版本基线](version-baselines.md)锁定 CUDA 0.28.0、MetaX 0.26.0、Ascend 0.23.0。下表标注 CUDA 0.24 的条目保留历史验收含义，不能自动提升为 0.28 已支持；M07 新基线单独记录；M02 新运行镜像的验收配置见 [镜像交付记录](m02/README.md)。
 
 | 功能 | CUDA 基线 | Ascend | MetaX | 核查重点 | 模块 |
 | --- | --- | --- | --- | --- | --- |
+| 固定官方栈的增量运行镜像 | 已验证：amd64、vLLM 0.28.0 | 已验证：arm64、vLLM 0.23.0 | 已验证：amd64、vLLM 0.26.0 | wheel 安装、无源码挂载、版本保护、零新增依赖冲突；[M02](m02/README.md) | M02 |
+| runtime 派生 dev 镜像 | 已验证：vLLM 0.28.0 | 已验证：vLLM 0.23.0 | 已验证：vLLM 0.26.0 | 继承 runtime 层与版本锁、Rust/调试工具、挂载源码完整 editable、基础推理/双 Worker KV 路由；[M02 dev](m02/README.md#dev-镜像验收记录) | M02 |
 | 平台身份与能力注册 | 有限支持：H800 / vLLM 0.24.0，显式 CUDA 身份与发现已验证；[M03](m03/README.md) | 有限支持：910B3、schema 1、真实身份/能力预检查/发现注册；[验收](ascend/ascend-bringup.md) | 有限支持：schema 1、真实设备/软件身份、能力预检查、发现注册与绑定已验证 | CPU 无 SDK、配置冻结、缺能力拒绝、非 CUDA 不误标 | M01 |
-| 引擎基础推理 | 有限支持：H800 / 0.24.0，Qwen3-0.6B，本地 eager；[M03](m03/README.md) | 有限支持：910B3、vLLM Ascend 0.23.0、Qwen3-0.6B、单卡 eager；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
-| KV-aware 路由 | 有限支持：H800 / 0.24.0，本地 TP=2/DP=2，逐 rank 事件、容量、选路和清空；[M03](m03/README.md) | 有限支持：910B3、0.23.0、单机双 Worker、TP=1/DP=1、block=128，真实事件/选路/淘汰/清空已验证；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
-| P/D 分离 | 有限支持：H800 / 0.24.0 / NIXL；2P3D、TP1/TP2 双向、故障重启 | 有限支持：910B3 / 0.23.0 / Mooncake；2P3D、受限 TP1/TP2 双向及故障回收；使用配套补丁/入口 | 有限支持：C500 / 0.26.0 / Mooncake maca；2P3D、TP1/TP2 双向、超时失败退出与重启；可选 NIXL 中断 abort 未修复 | 正常 PD、取消、契约、故障及有界长稳的[逐项证据](m05/completion.md) | M05 |
+| 引擎基础推理 | 有限支持：H800 / 0.28.0 新镜像，Qwen3-0.6B，本地 eager；[M02](m02/README.md) | 有限支持：910B3、vLLM Ascend 0.23.0、Qwen3-0.6B、单卡 eager；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单卡 eager 文本推理；[验收记录](metax/metax-bringup.md) | 锁定引擎/插件组合，验证生命周期及输出 | M02/M03 |
+| KV-aware 路由 | 有限支持：0.28.0 双 Worker TP1 真实 KV 命中/选路通过 [M02](m02/README.md)；0.24.0 TP2/DP2 及清空为 [M03 历史证据](m03/README.md) | 有限支持：910B3、0.23.0、单机双 Worker、TP=1/DP=1、block=128，真实事件/选路/淘汰/清空已验证；[验收](ascend/ascend-bringup.md) | 有限支持：C500、vLLM-metax 0.26.0、Qwen3-0.6B、单机双 Worker、TP=1/DP=1；真实事件、分叉前缀选择、淘汰与清空已验证；[验收记录](metax/metax-kv-routing.md) | 事件、哈希、block size、容量、DP rank | M03 |
+| P/D 分离 | 有限支持：0.28.0 NIXL 1P1D 新镜像通过；0.24.0 的 2P3D、TP1/TP2 双向、故障重启保留历史范围 | 有限支持：910B3 / 0.23.0 / Mooncake；2P3D、受限 TP1/TP2 双向及故障回收；使用配套补丁/入口 | 有限支持：C500 / 0.26.0 / Mooncake maca；2P3D、TP1/TP2 双向、超时失败退出与重启；可选 NIXL 中断 abort 未修复 | 正常 PD、取消、契约、故障及有界长稳的[逐项证据](m05/completion.md) | M05 |
 | 设备分配/主机注册/异步复制 | 已验证：H800 / CUDA 13 | 已验证：910B3 / CANN 9.1 | 已验证：C500 / MACA 3.8.2.208 | 同设备 H2D/D2H/D2D、owner/context/事件/取消/回收；P2P 拒绝；[M04](m04/README.md) | M04 |
 | Dynamo KVBM 主机缓存 | 有限支持：原 CUDA 物理路径及通用 SDK 路径 | 有限支持：ACL pinned staging，ND K/V | 有限支持：MACA pinned staging，dense NHD/HND | eager Qwen3-0.6B、TP1/TP2 DP1；[分项验收](m06/README.md) | M04/M06 |
-| Dynamo KVBM 本地 SSD | 通用 SDK 路径已实现；原 CUDA 快路径保留 | 有限支持：buffered 文件 + pinned staging | 有限支持：buffered 文件 + pinned staging | G2→G3→G1、无 G2 的 G1↔G3；非 GDS；[M06](m06/README.md) | M06 |
+| Dynamo KVBM 本地 SSD | 原生 SDK 磁盘路径在 0.28.0 新镜像通过；NIXL/GDS 报 5027，官方原镜像也复现，见 [M02](m02/README.md) | 有限支持：buffered 文件 + pinned staging | 有限支持：buffered 文件 + pinned staging | G2→G3→G1、无 G2 的 G1↔G3；非 GDS；[M06](m06/README.md) | M06 |
 | Dynamo KVBM 远端缓存 | 源码已有相关入口，本轮未验收 | 待实现/验证 | 待实现/验证 | 不能由 M05 引擎 PD 或本地 SSD 推导 G4 支持 | M05/M06 |
 | 设备直连 RDMA | 源码已有可选路径 | 待调查 | 待调查 | 设备内存注册、NIC/驱动、跨节点验证 | M04/M05 |
 | KVBM sharded 多 rank | TP2 原 CUDA / 通用 SDK 路径均通过；基线与 KVBM 使用相同 NCCL 配置 | TP2 已验证 | TP2 已验证 | 每 rank 自有分片及 all-rank ACK；不是 replicated 广播 | M06 |

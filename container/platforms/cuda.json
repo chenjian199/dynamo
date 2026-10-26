@@ -1,0 +1,39 @@
+{
+  "id": "cuda",
+  "architecture": "amd64",
+  "python": "python",
+  "base_image": "nvcr.io/nvidia/ai-dynamo/vllm-runtime@sha256:2b224a823d52a198ec0eeb0e3e4f5cf26cd8a7fc2e9812ee16204b6b1e974870",
+  "versions": {
+    "vllm": "0.28.0",
+    "torch": "2.13.0+cu130"
+  },
+  "protected_packages": [
+    "vllm",
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "nixl",
+    "nvidia-nccl-cu13",
+    "triton",
+    "nixl-cu12",
+    "nixl-cu13",
+    "vllm-omni",
+    "cuda-python",
+    "cuda-bindings",
+    "cuda-core",
+    "nvidia-cublas",
+    "nvidia-cudnn-cu13",
+    "mooncake-transfer-engine-cuda13"
+  ],
+  "runtime_features": [
+    "mm-routing",
+    "request-trace-s3"
+  ],
+  "kvbm_features": [
+    "nccl"
+  ],
+  "gms": true,
+  "omni": "inherited",
+  "kernel_mode": "cuda",
+  "nixl_link_mode": "runtime-capi"
+}

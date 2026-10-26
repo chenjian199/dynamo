@@ -7,15 +7,21 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M02 构建与依赖隔离
 
-状态：部分完成（MetaX 与 Ascend 当前阶段）。依赖：M01 平台命名与注册契约；支撑所有模块的产物构建。
+状态：当前三平台 vLLM 增量 runtime / dev 镜像范围完成并通过真机回归；全量厂商软件栈重建留待后续。依赖：M01 平台命名与注册契约；支撑后续部署模块。
 
-## 实施进度（2026-10-16）
+## 实施进度（2026-10-26）
 
-已复用官方 MetaX 0.26.0 镜像，提供挂载源码、独立 venv、Rust 绑定及 editable 安装脚本。M01 新 crate 及相关 Cargo workspace 锁文件已接入；正式 MetaX 镜像模板、完整依赖隔离和可发布产物仍待实现。
+在各平台官方固定 digest 镜像中，分别编译并打包 Runtime、Dynamo、KVBM、GMS 和独立 KVBM 诊断程序，生成不依赖源码挂载或 editable 安装的运行镜像。CUDA / MetaX / Ascend 的 vLLM 分别锁定 0.28.0 / 0.26.0 / 0.23.0。构建入口、镜像清单、复现命令及逐平台验收见 [M02 交付记录](../../m02/README.md)。此前的挂载源码开发脚本继续保留。
 
-证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+本轮实际交付采用 `container/platform-build.py`、`container/platform-run.py`、`container/platforms/*.json` 及独立 Dockerfile，不修改原有 renderer 的参数含义。构建保存 Cargo 锁文件、features、OS/Python/编译器清单、源码与 wheel 哈希；最终镜像离线安装并核对厂商核心包版本、非 editable 导入位置和新增依赖冲突。AISimulate 改为显式 `simulation` extra，KVBM 的 CUDA NIXL 依赖保留在 CUDA extras 中。
 
-Ascend 910B3 / vLLM Ascend 0.23.0 已完成 ARM64 editable 构建、M01、基础推理与真实 KV 路由验证；共享改动已在 MetaX 0.26.0 回归。环境、命令、证据及限制见 [华为验收](../../ascend/ascend-bringup.md)。
+依赖验收口径为“不新增官方基础镜像已有的冲突”，不是宣称官方镜像全量 `pip check` 无告警。新增依赖的完整解析结果和下载哈希随每次构建归档，支持重放该次最终打包；尚不承诺跨日期冷构建字节一致。
+
+下方目标设计及“拟新增”清单是完整方案，不能等同于本轮全部交付。厂商 SDK 全量源码构建、独立平台 distribution、SGLang 镜像、其他硬件架构及镜像仓库发布留待后续。Ascend GMS、独立 Omni stage 与 CUDA GDS 的限制见交付记录，不因镜像构建成功而提升支持状态。
+
+### dev / runtime 两阶段交付
+
+新增 `platform-build.py --target dev --runtime-image ...`：直接继承已构建的 runtime image ID，在同一厂商版本配置下安装 Rust、编译与调试工具，冻结已有 Python 包版本。`platform-run.py --source ...` 只允许 dev 镜像挂载源码；容器内 `dev-editable.sh python|all` 分别安装纯 Python editable，或连同 Rust Runtime/KVBM 绑定和独立 KVBM 程序一起编译。镜像本身不包含源码，原有开发脚本仍可使用。实际验证与命令见 [M02 dev 流程](../../m02/README.md#从-runtime-派生-dev-镜像)。
 
 ## 当前功能与约束
 
@@ -23,7 +29,7 @@ Ascend 910B3 / vLLM Ascend 0.23.0 已完成 ARM64 editable 构建、M01、基础
 
 `container/render.py` 已区分 framework、device 和主机架构。`--device` 当前接受 cuda/xpu/cpu；`--platform` 表示 Docker 的 linux/amd64 等主机架构，不能将其改作芯片平台参数。`context.yaml` 及 Jinja 模板是容器配置源。
 
-主 Python 扩展位于独立 Cargo workspace，`lib/bindings/python/Cargo.toml` 对 dynamo-llm 使用 `default-features=false`；KVBM 绑定是另一构建入口，默认 block-manager。`lib/memory`、`lib/kvbm-physical` 的 cudarc 依赖仍需隔离。内核 stub 构建通过仅表示编译可行。
+主 Python 扩展位于独立 Cargo workspace；`lib/bindings/python/Cargo.toml` 的 Linux 分支启用 dynamo-llm 默认特性，非 Linux 分支才使用 `default-features=false`。KVBM 绑定是另一构建入口，默认 block-manager。`lib/memory`、`lib/kvbm-physical` 的 cudarc 依赖仍需隔离。内核 stub 构建通过仅表示编译可行。
 
 ## 目标设计
 
@@ -71,4 +77,4 @@ Rust 契约 crate 不依赖 CUDA/NIXL。厂商实现 crate 封装 FFI，选定 f
 
 验收：CPU 控制面不加载厂商 SDK；选择某平台不拉入其他平台；pip 依赖一致性通过；Python 扩展和 KVBM 扩展分别构建；各镜像记录 digest、主机架构和工具链；未支持的 engine/platform 组合明确拒绝。
 
-当前已验证 MetaX x86_64 和 Ascend ARM64 官方开发镜像组合；正式 SDK 获取/分发条件及发布产物仍待落实。构建成功不能将支持矩阵标为硬件已验证。
+当前产物及硬件验证以 [M02 交付记录](../../m02/README.md) 为准。更换基础镜像、引擎版本、硬件架构或能力组合后需重新验收；厂商 SDK 分发条件与外部镜像发布仍需单独处理。

@@ -1,0 +1,33 @@
+{
+  "id": "metax",
+  "architecture": "amd64",
+  "python": "/opt/conda/bin/python",
+  "base_image": "cr.metax-tech.com/public-ai-release/maca/vllm-metax@sha256:e7e59c3713ad4ef1290cc0d5029759f2844b2695f36de0bca2f4630c671add95",
+  "versions": {
+    "vllm": "0.26.0",
+    "torch": "2.10.0+metax3.8.2.2",
+    "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0"
+  },
+  "protected_packages": [
+    "vllm",
+    "vllm-metax",
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "nixl",
+    "mccl",
+    "triton",
+    "mooncake-transfer-engine",
+    "maca-python",
+    "maca-tile"
+  ],
+  "runtime_features": [
+    "mm-routing",
+    "request-trace-s3"
+  ],
+  "kvbm_features": [],
+  "gms": true,
+  "omni": "optional-overlay",
+  "kernel_mode": "vendor-host-staging",
+  "nixl_link_mode": "runtime-capi"
+}

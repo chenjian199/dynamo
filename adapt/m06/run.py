@@ -154,6 +154,10 @@ def main():
         if args.platform == "ascend"
         else "CUDA_VISIBLE_DEVICES"
     ] = args.devices
+    if args.platform == "metax":
+        # A runtime container may already export a wider MACA device list.
+        # PyTorch and the native SDK must see the same per-engine subset.
+        env["MACA_VISIBLE_DEVICES"] = args.devices
     if args.native_cuda:
         env["DYN_KVBM_TRANSFER_BACKEND"] = "platform"
     if args.platform == "cuda" and not args.baseline and not args.native_cuda:

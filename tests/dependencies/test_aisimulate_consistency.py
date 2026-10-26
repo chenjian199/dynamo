@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """Keep Dynamo on one published AISimulate release."""
@@ -49,10 +51,12 @@ def _root_configs() -> tuple[dict, dict]:
 def _python_requirement(pyproject: dict) -> Requirement:
     matches = [
         Requirement(requirement)
-        for requirement in pyproject["project"]["dependencies"]
+        for requirement in pyproject["project"]["optional-dependencies"]["simulation"]
         if canonicalize_name(Requirement(requirement).name) == "aisimulate"
     ]
-    assert len(matches) == 1, "ai-dynamo must declare one AISimulate dependency"
+    assert (
+        len(matches) == 1
+    ), "ai-dynamo[simulation] must declare one AISimulate dependency"
     return matches[0]
 
 
@@ -170,7 +174,13 @@ def test_installed_aisimulate_matches_the_declared_release() -> None:
     pyproject, _ = _root_configs()
     expected = _exact_version(_python_requirement(pyproject))
 
-    assert Version(metadata.version("aisimulate")) == expected
+    try:
+        installed = metadata.version("aisimulate")
+    except metadata.PackageNotFoundError:
+        pytest.skip(
+            "AISimulate is optional; install ai-dynamo[simulation] for this check"
+        )
+    assert Version(installed) == expected
 
 
 def test_ai_dynamo_registers_only_its_aisimulate_providers() -> None:
@@ -178,7 +188,8 @@ def test_ai_dynamo_registers_only_its_aisimulate_providers() -> None:
     project = pyproject["project"]
 
     extras = set(project.get("optional-dependencies", {}))
-    assert {"sweeper", "simulate", "simulation"}.isdisjoint(extras)
+    assert {"sweeper", "simulate"}.isdisjoint(extras)
+    assert "simulation" in extras
     assert project["entry-points"]["aisimulate.sweep_config_providers"] == {
         "dynamo.planner": "dynamo.planner.simulation:create_provider",
         "dynamo.router": "dynamo.router.simulation:create_provider",

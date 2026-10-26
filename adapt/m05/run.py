@@ -323,6 +323,8 @@ def main():
                     if args.platform == "ascend"
                     else "CUDA_VISIBLE_DEVICES"
                 ] = groups[index]
+                if args.platform == "metax":
+                    worker_env["MACA_VISIBLE_DEVICES"] = groups[index]
                 if not args.legacy:
                     worker_env["DYN_PLATFORM"] = args.platform
                 tp = args.prefill_tp if role == "prefill" else args.decode_tp

@@ -7,7 +7,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 模块细化与实施工作清单
 
-本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02/M03/M05/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
+本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02 已完成三平台 vLLM 增量 runtime / dev 镜像；M03/M05/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
 
 ## 依赖顺序
 
@@ -29,13 +29,14 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M02 构建与依赖隔离
 
-当前状态：部分完成：官方镜像 + editable；正式产物待实现。
+当前状态：三平台 vLLM 增量 runtime / dev 镜像范围完成；固定官方栈、runtime wheel 安装、dev 工具链与完整 editable 安装，以及两类镜像的基础推理/KV 路由回归通过；[镜像与命令](m02/README.md)。
 
 详细设计：[依赖图、产物设计与文件计划](modules/m02-build-packaging/README.md)。
 
 - 源码入口：[pyproject.toml](../pyproject.toml)、[context.yaml](../container/context.yaml)、[memory Cargo.toml](../lib/memory/Cargo.toml)、[kvbm-physical Cargo.toml](../lib/kvbm-physical/Cargo.toml)、[Python 绑定](../lib/bindings/python/Cargo.toml)、[KVBM 绑定](../lib/bindings/kvbm/Cargo.toml)。
 - 工作：绘制 SDK 传递依赖；拆分公共依赖与平台 extras/features；确定镜像、wheel、厂商库加载和版本锁定方式。
-- 待细化：同一厂商引擎版本与 Dynamo 集成接口如何匹配；平台包注册方式；x86_64/aarch64 产物范围；SDK 分发条件。
+- 已交付：CUDA 0.28.0 / MetaX 0.26.0 amd64、Ascend 0.23.0 arm64；基础镜像 digest、版本保护、构建/产物哈希、无源码挂载验收。原有 editable 开发工作流保留。
+- 后续：厂商完整 SDK 从源码重建、独立平台 distribution、SGLang、其他硬件架构及外部镜像仓库发布。
 - 验收：公共包构建/导入不触发未选 SDK；各平台镜像可复现；已有容器配置由源模板生成。
 
 ## M03 引擎与 KV 事件接入

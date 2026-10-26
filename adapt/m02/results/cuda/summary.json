@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "platform": "cuda",
+  "image_id": "sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d",
+  "source_snapshot_sha256": "af992a21e39383a1ecf9db52fa9a0446a3faa1b91588a69ec54440292e1b0be4",
+  "source_commit": "1e816c7afebb71f86d5b8fb009af8f7d22a9435b",
+  "tests": {
+    "basic-kv.json": "passed",
+    "independent-kvbm.json": "passed",
+    "kvbm-baseline.json": "passed",
+    "kvbm-disk.json": "passed",
+    "pd.json": "passed",
+    "kvbm-nixl.json": "passed",
+    "gms.xml": "passed"
+  },
+  "cpu_without_device_sdk": true,
+  "new_dependency_conflicts": 0,
+  "vendor_dependency_conflicts": 21,
+  "mounts": [
+    {
+      "Type": "bind",
+      "Source": "/NFS_62/Models",
+      "Destination": "/models",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    }
+  ],
+  "raw_build_directory": "/var/tmp/dynamo-m02-cuda-1",
+  "test_container": "dynamo-m02-cuda-smoke",
+  "deferred": [],
+  "limitations": [
+    "GDS disk registration fails in this container configuration, also reproduced in the unchanged official image; local disk acceptance uses the native platform backend"
+  ]
+}

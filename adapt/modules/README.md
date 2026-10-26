@@ -9,12 +9,12 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 这些文档基于 Dynamo `v1.5.1`（`2093662a4d4e5fd318732935213dde08dc7be818`）源码分析，面向同厂商部署。每个模块分别说明当前功能、实际调用关系、目标设计、现有文件修改、新文件建议、实施步骤和验收条件。
 
-当前进度已按 2026-10-19 的实现与验收更新。M01 第一版完成 MetaX、Ascend 与 CUDA 当前配置接入；M04 基础原语第一版完成三平台验收；M02/M03/M10 部分完成，其余工作见各模块状态。“拟新增文件”仍表示设计计划，不应视为已经存在。硬件结论限定于记录中的平台、模型和配置，详见 [MetaX 验收](../metax/metax-platform.md) 和 [Ascend 验收](../ascend/ascend-bringup.md)。
+当前进度已按 2026-10-26 的实现与验收更新。M01 第一版完成 MetaX、Ascend 与 CUDA 当前配置接入；M04 基础原语第一版完成三平台验收；M02 当前 runtime / dev 增量镜像范围完成；M03/M10 按限定范围交付，其余工作见各模块状态。“拟新增文件”仍表示设计计划，不应视为已经存在。硬件结论限定于记录中的平台、模型和配置，详见 [MetaX 验收](../metax/metax-platform.md) 和 [Ascend 验收](../ascend/ascend-bringup.md)。
 
 | 模块 | 详细设计 | 主交付 | 当前进度 |
 | --- | --- | --- | --- |
 | M01 | [平台契约与能力注册](m01-platform-contract/README.md) | 平台身份、能力条件、注册与兼容规则 | 第一版完成：MetaX/Ascend/CUDA 身份/能力/发现已做当前配置真机回归 |
-| M02 | [构建与依赖隔离](m02-build-packaging/README.md) | features、依赖配置、镜像与版本锁定 | 部分完成：官方镜像 + editable；正式产物待实现 |
+| M02 | [构建与依赖隔离](m02-build-packaging/README.md) | features、依赖配置、镜像与版本锁定 | 当前 vLLM runtime / dev 镜像范围完成：三平台版本锁定、wheel、工具链、完整 editable 及真机回归；全量 SDK 重建后续；[交付](../m02/README.md) |
 | M03 | [引擎与 KV 事件](m03-engine-integration/README.md) | 引擎接入、生命周期、路由事件与容量 | 本轮 vLLM 聚合模式范围完成：TP/DP、生命周期及高级能力三平台验收；SGLang 暂缓 |
 | M04 | [设备运行时与内存](m04-device-memory/README.md) | 分配、注册、上下文、流和事件 | 基础原语第一版完成：三平台真实复制、所有权、事件与回收；[验收](../m04/README.md) |
 | M05 | [PD 协调与数据传输](m05-pd-transfer/README.md) | 协议策略、传输提供者与完成语义 | 部分完成：单机原生 PD、2P3D、受限不同 TP、故障恢复与有界长稳；[证据与路径限制](../m05/completion.md)，跨节点待验收 |
