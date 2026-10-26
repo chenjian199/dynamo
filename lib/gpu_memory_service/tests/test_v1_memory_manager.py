@@ -1,10 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 from __future__ import annotations
 
 import threading
-from contextlib import ExitStack, contextmanager
+from contextlib import ExitStack, contextmanager, nullcontext
 
 import pytest
 from _deps import HAS_GMS
@@ -179,6 +181,40 @@ def _connected_client(tmp_path, monkeypatch, *, slab_size: int):
             client.close()
     finally:
         _stop(server, thread)
+
+
+@pytest.mark.timeout(10)
+@pytest.mark.parametrize("fail_remap", [False, True])
+def test_commit_replaces_mapping_before_publication(tmp_path, monkeypatch, fail_remap):
+    close_result = (
+        pytest.raises(RuntimeError, match="commit failed")
+        if fail_remap
+        else nullcontext()
+    )
+    with close_result:
+        with _connected_client(tmp_path, monkeypatch, slab_size=384) as (client, vmm):
+            vmm.access_requires_remap = True
+            address = client.create_mapping(65)
+            original = client.mappings[0].handle
+            set_access = vmm.set_access
+
+            def verify_access(va, size, device, access):
+                assert original not in vmm.imports
+                if fail_remap:
+                    raise RuntimeError("permission failure")
+                set_access(va, size, device, access)
+
+            monkeypatch.setattr(vmm, "set_access", verify_access)
+            if fail_remap:
+                with pytest.raises(RuntimeError, match="commit failed"):
+                    client.commit()
+                assert not vmm.imports
+                assert not vmm.mapped
+            else:
+                client.commit()
+                assert client.mappings[0].base == address
+                assert client.mappings[0].handle != original
+                assert vmm.access[address] == GrantedLockType.RO
 
 
 @pytest.mark.timeout(10)

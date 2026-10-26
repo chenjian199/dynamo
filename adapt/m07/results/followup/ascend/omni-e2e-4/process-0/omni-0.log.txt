@@ -1,0 +1,209 @@
+[OMNI-0] INFO 10-26 04:42:53 [__init__.py:44] Available plugins for group vllm.platform_plugins:
+[OMNI-0] INFO 10-26 04:42:53 [__init__.py:46] - ascend -> vllm_ascend:register
+[OMNI-0] INFO 10-26 04:42:53 [__init__.py:49] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[OMNI-0] INFO 10-26 04:42:53 [__init__.py:238] Platform plugin ascend is activated
+[OMNI-0] INFO 10-26 04:42:53 [platform.py:62] Breakable cudagraph is force disabled on Ascend because DeepSeek V4 PIECEWISE cudagraph is not supported yet.
+[OMNI-0] WARNING 10-26 04:43:03 [patch.py:165] Monkey-patched unregister_vllm_metrics() to scope drops to non-omni vllm:* collectors. Remove this patch once vLLM adds _STAT_LOGGER_METRIC_NAMES.
+[OMNI-0] 2026-10-26T04:43:10.721193Z  INFO patch_getenv._log_once: get env DYN_PLATFORM = ascend
+[OMNI-0] 2026-10-26T04:43:10.826349Z  INFO patch_getenv._log_once: get env DYN_NAMESPACE = m07-omni-6d8fd8eb5e
+[OMNI-0] 2026-10-26T04:43:10.826696Z  INFO patch_getenv._log_once: get env DYN_DISCOVERY_BACKEND = file
+[OMNI-0] 2026-10-26T04:43:10.826874Z  INFO patch_getenv._log_once: get env DYN_REQUEST_PLANE = tcp
+[OMNI-0] 2026-10-26T04:43:10.827038Z  INFO patch_getenv._log_once: get env DYN_EVENT_PLANE = zmq
+[OMNI-0] 2026-10-26 04:43:10,991 - 18286 - ServiceProfiler - INFO - VLLM_USE_V1 not set, auto-detected via vLLM 0.23.0+empty: default 1
+[OMNI-0] 2026-10-26T04:43:11.070605Z WARNING arg_utils._register_omni_hf_configs: Skipping omni HF config registration due to import error: No module named 'x_transformers'
+[OMNI-0] 2026-10-26T04:43:11.131356Z  INFO __init__._wrapper: Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[OMNI-0] 2026-10-26T04:43:11.156378Z  INFO __init__._wrapper: Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[OMNI-0] 2026-10-26T04:43:11.158709Z  INFO dynamo_runtime::worker: dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=12733, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[OMNI-0] 2026-10-26T04:43:11.186806Z  INFO dynamo_runtime::distributed: Initializing KV store discovery backend: File(/var/cache/dynamo-ascend/m07-followup/omni-e2e-4/discovery)
+[OMNI-0] 2026-10-26T04:43:11.188516Z  INFO dynamo_runtime::pipeline::network::manager: Initializing NetworkManager with TCP request plane mode=tcp host=172.17.0.2 port=OS-assigned
+[OMNI-0] 2026-10-26T04:43:11.196207Z  INFO dynamo_runtime::system_status_server: [spawn_system_status_server] binding to: 0.0.0.0:12733
+[OMNI-0] 2026-10-26T04:43:11.196407Z  INFO dynamo_runtime::system_status_server: [spawn_system_status_server] system status server bound to: 0.0.0.0:12733
+[OMNI-0] 2026-10-26T04:43:11.196637Z  INFO dynamo_runtime::distributed: System status server started successfully on 0.0.0.0:12733
+[OMNI-0] 2026-10-26T04:43:12.229637Z  INFO graceful_shutdown.install_signal_handlers: Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[OMNI-0] 2026-10-26T04:43:12.562800Z  INFO stage_worker._ensure_stage_connectors: Synthesized default SharedMemoryConnector edges in /tmp/dynamo_omni_stage_18286_en2bxmd9/stage_config.yaml from /var/cache/dynamo-ascend/m07-followup/omni-e2e-4/stages.yaml
+[OMNI-0] 2026-10-26T04:43:12.817693Z  INFO omni_base.__init__: [AsyncOmni] Initializing with model /NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B
+[OMNI-0] 2026-10-26T04:43:12.817857Z  INFO async_omni_engine.__init__: [AsyncOmniEngine] Initializing with model /NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B
+[OMNI-0] 2026-10-26T04:43:13.076999Z  INFO async_omni_engine.__init__: [AsyncOmniEngine] Launching Orchestrator thread with 1 stages
+[OMNI-0] 2026-10-26T04:43:13.078149Z  INFO stage_init_utils.prepare_engine_environment: [stage_init] Set VLLM_WORKER_MULTIPROC_METHOD=spawn
+[OMNI-0] 2026-10-26T04:43:13.086206Z  INFO initialization.load_omni_transfer_config: Loaded OmniTransferConfig with 0 connector configurations
+[OMNI-0] 2026-10-26T04:43:42.159670Z ERROR registry._try_inspect_model_cls: Error in inspecting model architecture 'Qwen2_5OmniForConditionalGeneration'
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/model_executor/models/registry.py", line 1396, in _run_in_subprocess
+[OMNI-0]     returned.check_returncode()
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/subprocess.py", line 502, in check_returncode
+[OMNI-0]     raise CalledProcessError(self.returncode, self.args, self.stdout,
+[OMNI-0] subprocess.CalledProcessError: Command '['/opt/dynamo/venv/bin/python', '-m', 'vllm.model_executor.models.registry']' died with <Signals.SIGABRT: 6>.
+[OMNI-0]
+[OMNI-0] The above exception was the direct cause of the following exception:
+[OMNI-0]
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/model_executor/models/registry.py", line 959, in _try_inspect_model_cls
+[OMNI-0]     return model.inspect_model_cls()
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/logging_utils/log_time.py", line 21, in _wrapper
+[OMNI-0]     result = func(*args, **kwargs)
+[OMNI-0]              ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/model_executor/models/registry.py", line 920, in inspect_model_cls
+[OMNI-0]     mi = _run_in_subprocess(
+[OMNI-0]          ^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/model_executor/models/registry.py", line 1399, in _run_in_subprocess
+[OMNI-0]     raise RuntimeError(
+[OMNI-0] RuntimeError: Error raised in subprocess:
+[OMNI-0] <frozen runpy>:128: RuntimeWarning: 'vllm.model_executor.models.registry' found in sys.modules after import of package 'vllm.model_executor.models', but prior to execution of 'vllm.model_executor.models.registry'; this may result in unpredictable behaviour
+[OMNI-0] 2026-10-26 04:43:34,499 - 19700 - ServiceProfiler - INFO - VLLM_USE_V1 not set, auto-detected via vLLM 0.23.0+empty: default 1
+[OMNI-0] corrupted size vs. prev_size
+[OMNI-0]
+[OMNI-0] 2026-10-26T04:43:42.163094Z ERROR async_omni_engine._bootstrap_orchestrator: [AsyncOmniEngine] Orchestrator thread crashed
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1394, in _bootstrap_orchestrator
+[OMNI-0]     loop.run_until_complete(_run_orchestrator())
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+[OMNI-0]     return future.result()
+[OMNI-0]            ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1365, in _run_orchestrator
+[OMNI-0]     self._initialize_stages(stage_init_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1280, in _initialize_stages
+[OMNI-0]     stage_plans, prompt_expand_func = self._build_logical_stage_init_plans(
+[OMNI-0]                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 569, in _build_logical_stage_init_plans
+[OMNI-0]     stage_vllm_config, executor_class = build_vllm_config(
+[OMNI-0]                                         ^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_init_utils.py", line 830, in build_vllm_config
+[OMNI-0]     vllm_config = omni_engine_args.create_engine_config(
+[OMNI-0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/engine/arg_utils.py", line 1735, in create_engine_config
+[OMNI-0]     model_config = self.create_model_config()
+[OMNI-0]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/arg_utils.py", line 312, in create_model_config
+[OMNI-0]     model_config = super().create_model_config()
+[OMNI-0]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/engine/arg_utils.py", line 1565, in create_model_config
+[OMNI-0]     return ModelConfig(
+[OMNI-0]            ^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+[OMNI-0]     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+[OMNI-0] pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelConfig
+[OMNI-0]   Value error, Model architectures ['Qwen2_5OmniForConditionalGeneration'] failed to be inspected. Please check the logs for more details. [type=value_error, input_value=ArgsKwargs((), {'model': ...nderer_num_workers': 1}), input_type=ArgsKwargs]
+[OMNI-0]     For further information visit https://errors.pydantic.dev/2.13/v/value_error
+[OMNI-0] 2026-10-26T04:43:42.164298Z  INFO async_omni_engine.shutdown: [AsyncOmniEngine] Shutting down Orchestrator
+[OMNI-0] Exception in thread orchestrator:
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[OMNI-0]     self.run()
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/threading.py", line 1012, in run
+[OMNI-0]     self._target(*self._args, **self._kwargs)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1394, in _bootstrap_orchestrator
+[OMNI-0]     loop.run_until_complete(_run_orchestrator())
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+[OMNI-0]     return future.result()
+[OMNI-0]            ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1365, in _run_orchestrator
+[OMNI-0]     self._initialize_stages(stage_init_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1280, in _initialize_stages
+[OMNI-0]     stage_plans, prompt_expand_func = self._build_logical_stage_init_plans(
+[OMNI-0]                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 569, in _build_logical_stage_init_plans
+[OMNI-0]     stage_vllm_config, executor_class = build_vllm_config(
+[OMNI-0]                                         ^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_init_utils.py", line 830, in build_vllm_config
+[OMNI-0]     vllm_config = omni_engine_args.create_engine_config(
+[OMNI-0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/engine/arg_utils.py", line 1735, in create_engine_config
+[OMNI-0]     model_config = self.create_model_config()
+[OMNI-0]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/arg_utils.py", line 312, in create_model_config
+[OMNI-0]     model_config = super().create_model_config()
+[OMNI-0]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/engine/arg_utils.py", line 1565, in create_model_config
+[OMNI-0]     return ModelConfig(
+[OMNI-0]            ^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+[OMNI-0]     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+[OMNI-0] pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelConfig
+[OMNI-0]   Value error, Model architectures ['Qwen2_5OmniForConditionalGeneration'] failed to be inspected. Please check the logs for more details. [type=value_error, input_value=ArgsKwargs((), {'model': ...nderer_num_workers': 1}), input_type=ArgsKwargs]
+[OMNI-0]     For further information visit https://errors.pydantic.dev/2.13/v/value_error
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[OMNI-0]     self.run()
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/threading.py", line 1012, in run
+[OMNI-0]     self._target(*self._args, **self._kwargs)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1394, in _bootstrap_orchestrator
+[OMNI-0]     loop.run_until_complete(_run_orchestrator())
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+[OMNI-0]     return future.result()
+[OMNI-0]            ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1365, in _run_orchestrator
+[OMNI-0]     self._initialize_stages(stage_init_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1280, in _initialize_stages
+[OMNI-0]     stage_plans, prompt_expand_func = self._build_logical_stage_init_plans(
+[OMNI-0]                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 569, in _build_logical_stage_init_plans
+[OMNI-0]     stage_vllm_config, executor_class = build_vllm_config(
+[OMNI-0]                                         ^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_init_utils.py", line 830, in build_vllm_config
+[OMNI-0]     vllm_config = omni_engine_args.create_engine_config(
+[OMNI-0]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/engine/arg_utils.py", line 1735, in create_engine_config
+[OMNI-0]     model_config = self.create_model_config()
+[OMNI-0]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/arg_utils.py", line 312, in create_model_config
+[OMNI-0]     model_config = super().create_model_config()
+[OMNI-0]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/vllm-workspace/vllm/vllm/engine/arg_utils.py", line 1565, in create_model_config
+[OMNI-0]     return ModelConfig(
+[OMNI-0]            ^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+[OMNI-0]     s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+[OMNI-0] pydantic_core._pydantic_core.ValidationError: 1 validation error for ModelConfig
+[OMNI-0]   Value error, Model architectures ['Qwen2_5OmniForConditionalGeneration'] failed to be inspected. Please check the logs for more details. [type=value_error, input_value=ArgsKwargs((), {'model': ...nderer_num_workers': 1}), input_type=ArgsKwargs]
+[OMNI-0]     For further information visit https://errors.pydantic.dev/2.13/v/value_error
+[OMNI-0]
+[OMNI-0] The above exception was the direct cause of the following exception:
+[OMNI-0]
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "<frozen runpy>", line 198, in _run_module_as_main
+[OMNI-0]   File "<frozen runpy>", line 88, in _run_code
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/__main__.py", line 12, in <module>
+[OMNI-0]     main()
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 264, in main
+[OMNI-0]     uvloop.run(worker())
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+[OMNI-0]     return __asyncio.run(
+[OMNI-0]            ^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/runners.py", line 195, in run
+[OMNI-0]     return runner.run(main)
+[OMNI-0]            ^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/runners.py", line 118, in run
+[OMNI-0]     return self._loop.run_until_complete(task)
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+[OMNI-0]     return await main
+[OMNI-0]            ^^^^^^^^^^
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 250, in worker
+[OMNI-0]     await init_omni_stage(runtime, config, shutdown_endpoints, shutdown_event)
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/stage_worker.py", line 551, in init_omni_stage
+[OMNI-0]     engine = _create_engine(
+[OMNI-0]              ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/stage_worker.py", line 964, in _create_engine
+[OMNI-0]     return AsyncOmni(
+[OMNI-0]            ^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/entrypoints/async_omni.py", line 141, in __init__
+[OMNI-0]     OmniBase.__init__(self, model=model, **kwargs)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/entrypoints/omni_base.py", line 173, in __init__
+[OMNI-0]     self.engine = AsyncOmniEngine(
+[OMNI-0]                   ^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 379, in __init__
+[OMNI-0]     self._wait_for_orchestrator_init(startup_future, startup_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 1438, in _wait_for_orchestrator_init
+[OMNI-0]     startup_future.result(
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+[OMNI-0]     return self.__get_result()
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/local/python3.12.13/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+[OMNI-0]     raise self._exception
+[OMNI-0] RuntimeError: Orchestrator initialization failed: 1 validation error for ModelConfig
+[OMNI-0]   Value error, Model architectures ['Qwen2_5OmniForConditionalGeneration'] failed to be inspected. Please check the logs for more details. [type=value_error, input_value=ArgsKwargs((), {'model': ...nderer_num_workers': 1}), input_type=ArgsKwargs]
+[OMNI-0]     For further information visit https://errors.pydantic.dev/2.13/v/value_error
+[OMNI-0] [ERROR] 2026-10-26-04:43:42 (PID:18286, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[OMNI-0] corrupted size vs. prev_size

@@ -1,8 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for load_multimodal_embeddings in prefill_worker_utils."""
 
+import asyncio
+import os
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -26,6 +30,67 @@ pytestmark = [
 
 MODEL = "test-model"
 DTYPE = torch.float16
+
+
+@pytest.mark.asyncio
+async def test_local_fetch_unlinks_file_but_keeps_tensor(tmp_path, monkeypatch):
+    from dynamo.common.multimodal.embedding_transfer import (
+        LocalEmbeddingReceiver,
+        LocalEmbeddingSender,
+    )
+
+    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
+    source = torch.ones(1, 2, 4)
+    transfer, _ = await LocalEmbeddingSender().send_embeddings(source)
+    group = MultiModalGroup(embeddings_shape=(1, 2, 4), serialized_request=transfer)
+    monkeypatch.setattr(
+        mod.vLLMMultimodalRequest,
+        "model_validate_json",
+        Mock(return_value=SimpleNamespace(multimodal_inputs=[group])),
+    )
+
+    async def stream():
+        yield SimpleNamespace(data=lambda: "")
+
+    client = SimpleNamespace(
+        instance_ids=lambda: [1],
+        round_robin=AsyncMock(return_value=stream()),
+    )
+    receiver = LocalEmbeddingReceiver()
+    groups, pending = await mod._fetch_from_encode_workers(
+        client,
+        ["http://image.invalid/test.png"],
+        "test",
+        receiver,
+    )
+    assert pending is None
+    assert torch.equal(groups[0].loaded_embedding, source)
+    assert not os.path.exists(transfer.serialized_request)
+    assert not receiver.received_tensors
+
+
+@pytest.mark.asyncio
+@pytest.mark.timeout(10)
+@pytest.mark.parametrize("cancel", [False, True])
+async def test_failed_embedding_batch_releases_completed_siblings(cancel):
+    entered = asyncio.Event()
+
+    async def receive(value):
+        if value == 1:
+            return 1, torch.ones(2)
+        entered.set()
+        if cancel:
+            await asyncio.Future()
+        raise ValueError("failed transfer")
+
+    receiver = SimpleNamespace(receive_embeddings=receive, release_tensor=Mock())
+    task = asyncio.create_task(mod._receive_embedding_batch(receiver, [1, 2]))
+    await entered.wait()
+    if cancel:
+        task.cancel()
+    with pytest.raises(asyncio.CancelledError if cancel else ValueError):
+        await task
+    receiver.release_tensor.assert_called_once_with(1)
 
 
 def test_attach_coalesced_embedding_transfer_uses_group_shapes():

@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Single-stage omni worker for disaggregated pipelines."""
 
@@ -18,14 +20,10 @@ from typing import Any, AsyncGenerator, Iterator
 
 import torch
 import yaml
-from vllm_omni.config import register_pipeline
-from vllm_omni.config.config_factory import StageConfigFactory
-from vllm_omni.config.pipeline_registry import OMNI_PIPELINES
 from vllm_omni.distributed.omni_connectors import initialize_orchestrator_connectors
 from vllm_omni.engine.orchestrator import build_engine_core_request_from_tokens
 from vllm_omni.entrypoints.async_omni import AsyncOmni
 from vllm_omni.entrypoints.stage_utils import serialize_obj, shm_write_bytes
-from vllm_omni.entrypoints.utils import load_and_resolve_stage_configs
 from vllm_omni.inputs.data import OmniTokensPrompt
 
 from dynamo import prometheus_names
@@ -35,9 +33,16 @@ from dynamo.vllm.health_check import VllmOmniHealthCheckPayload
 from dynamo.vllm.main import setup_metrics_collection
 from dynamo.vllm.omni.args import OmniConfig
 from dynamo.vllm.omni.connectors import register_dynamoomni_nixl_connector
+from dynamo.vllm.omni.pipeline_compat import (
+    OMNI_PIPELINES,
+    StageConfigFactory,
+    load_and_resolve_stage_configs,
+    register_pipeline,
+)
 from dynamo.vllm.omni.types import StageEngine, StageRequest, _int_keyed
 from dynamo.vllm.omni.utils import (
     _build_sampling_params,
+    call_connector,
     ensure_awaited,
     is_empty_payload,
     parse_omni_request,
@@ -96,6 +101,32 @@ class OmniStageWorker:
         )
 
     async def generate(self, request: dict, context) -> AsyncGenerator[dict, None]:
+        request_id = request.get("request_id") or context.id()
+        stream = self._generate(request, context)
+        try:
+            async for response in stream:
+                yield response
+        except (asyncio.CancelledError, GeneratorExit):
+            try:
+                await self.engine.abort(request_id)
+            except Exception:
+                logger.exception(
+                    "Stage %d abort failed for %s", self.stage_id, request_id
+                )
+            for connector in self.connectors.values():
+                try:
+                    await ensure_awaited(
+                        await asyncio.to_thread(connector.cleanup, request_id)
+                    )
+                except Exception:
+                    logger.exception(
+                        "Stage %d cleanup failed for %s", self.stage_id, request_id
+                    )
+            raise
+        finally:
+            await stream.aclose()
+
+    async def _generate(self, request: dict, context) -> AsyncGenerator[dict, None]:
         req = StageRequest.model_validate(request)
         request_id = req.request_id or context.id()
         original_prompt = req.original_prompt
@@ -198,17 +229,17 @@ class OmniStageWorker:
         connector = self.connectors.get((from_s, to_s))
         if connector is not None:
             try:
-                put_result = await ensure_awaited(
-                    connector.put(  # type: ignore[arg-type]
-                        from_s,
-                        to_s,
-                        request_id,
-                        _prepare_connector_payload(
-                            last_result,
-                            from_stage=self.stage_id,
-                            to_stage=self.stage_id + 1,
-                        ),
-                    )
+                put_result = await call_connector(
+                    connector,
+                    "put",
+                    from_s,
+                    to_s,
+                    request_id,
+                    _prepare_connector_payload(
+                        last_result,
+                        from_stage=self.stage_id,
+                        to_stage=self.stage_id + 1,
+                    ),
                 )
                 ok, _, metadata = put_result
             except Exception as e:
@@ -244,17 +275,17 @@ class OmniStageWorker:
         router_connector = self.connectors.get(_connector_key(self.stage_id, "router"))
         if router_connector is not None:
             try:
-                rput_result = await ensure_awaited(
-                    router_connector.put(  # type: ignore[arg-type]
-                        from_s,
-                        "router",
-                        request_id,
-                        _prepare_connector_payload(
-                            last_result,
-                            from_stage=self.stage_id,
-                            to_stage="router",
-                        ),
-                    )
+                rput_result = await call_connector(
+                    router_connector,
+                    "put",
+                    from_s,
+                    "router",
+                    request_id,
+                    _prepare_connector_payload(
+                        last_result,
+                        from_stage=self.stage_id,
+                        to_stage="router",
+                    ),
                 )
                 ok, _, metadata = rput_result
             except Exception as e:
@@ -322,7 +353,8 @@ class OmniStageWorker:
         )
         # The token request factory omits duplex-only fields, while the output
         # processor expects session_id to exist for every registered request.
-        prompt.session_id = None
+        if "session_id" in prompt.__struct_fields__:
+            prompt.session_id = None
         # Pre-built EngineCoreRequests skip the output processor registration
         # in _build_add_request_message (the isinstance(prompt, EngineCoreRequest)
         # branch bypasses that block).  Register manually so that the engine's
@@ -433,13 +465,13 @@ class OmniStageWorker:
                     f"Stage {self.stage_id}: no connector for edge ({stage_k}→{self.stage_id})"
                 )
             try:
-                get_result = await ensure_awaited(
-                    connector.get(
-                        str(stage_k),
-                        str(self.stage_id),
-                        request_id,
-                        metadata=meta_k,
-                    )
+                get_result = await call_connector(
+                    connector,
+                    "get",
+                    str(stage_k),
+                    str(self.stage_id),
+                    request_id,
+                    metadata=meta_k,
                 )
             except Exception as e:
                 raise RuntimeError(
@@ -858,6 +890,13 @@ def _register_single_stage_pipeline(
             f"(pipeline declares stage ids {available})"
         )
 
+    if getattr(source_stage, "requires_full_payload_input", False):
+        raise NotImplementedError(
+            "This Omni stage requires the engine worker full-payload transport. "
+            "Dynamo's independent stage connector does not yet bridge that channel; "
+            "a token-only request would lose hidden states."
+        )
+
     single_stage = replace(
         source_stage,
         stage_id=0,
@@ -872,7 +911,11 @@ def _register_single_stage_pipeline(
             pipeline,
             model_type=pipeline_key,
             stages=(single_stage,),
-            default_deploy_config_name=None,
+            **(
+                {"default_deploy_config_name": None}
+                if hasattr(pipeline, "default_deploy_config_name")
+                else {}
+            ),
         ),
         model_type=pipeline_key,
     )
@@ -989,11 +1032,16 @@ def _normalize_single_stage_runtime_devices(stage_arg: dict) -> None:
 
 
 def _get_visible_devices() -> list[str]:
-    for env_var in (
-        "CUDA_VISIBLE_DEVICES",
-        "ASCEND_RT_VISIBLE_DEVICES",
-        "ZE_AFFINITY_MASK",
-    ):
+    from dynamo.common.multimodal.tensor_contract import selected_platform
+
+    names = {
+        "cuda": ("CUDA_VISIBLE_DEVICES",),
+        "metax": ("MACA_VISIBLE_DEVICES", "CUDA_VISIBLE_DEVICES"),
+        "ascend": ("ASCEND_RT_VISIBLE_DEVICES",),
+        "xpu": ("ZE_AFFINITY_MASK",),
+        "cpu": (),
+    }
+    for env_var in names[selected_platform()]:
         if devices := os.environ.get(env_var):
             return _parse_runtime_devices(devices)
     return []

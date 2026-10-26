@@ -1,0 +1,36 @@
+WARNING 10-26 04:23:54 [cuda.py:967] Detected different devices in the system: NVIDIA H100 PCIe, NVIDIA H100 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.
+INFO 10-26 04:24:02 [patch.py:252] NVFP4 W4A4 weight_scale NaN-clamp: installed.
+INFO 10-26 04:24:03 [patch.py:503] inductor factorable-divisibility patch: installed.
+INFO 10-26 04:24:03 [patch.py:568] [cumem-cuda] CuMemAllocator._python_free_callback patched: asleep guard extended to all platforms.
+........................F
+=================================== FAILURES ===================================
+_______ test_single_stage_runtime_devices_normalized_for_xpu_visibility ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x728327bbd9a0>
+
+    def test_single_stage_runtime_devices_normalized_for_xpu_visibility(monkeypatch):
+        monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+        monkeypatch.delenv("ASCEND_RT_VISIBLE_DEVICES", raising=False)
+        monkeypatch.setenv("ZE_AFFINITY_MASK", "2")
+        stage_arg = {
+            "stage_id": 0,
+            "stage_type": "diffusion",
+            "runtime": {"devices": "2"},
+        }
+
+        _normalize_single_stage_runtime_devices(stage_arg)
+
+>       assert stage_arg["runtime"]["devices"] == "0"
+E       AssertionError: assert '2' == '0'
+E
+E         - 0
+E         + 2
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x728327bbd9a0>
+stage_arg  = {'runtime': {'devices': '2'}, 'stage_id': 0, 'stage_type': 'diffusion'}
+
+components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py:609: AssertionError
+=========================== short test summary info ============================
+FAILED components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py::test_single_stage_runtime_devices_normalized_for_xpu_visibility
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 24 passed in 13.99s

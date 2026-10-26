@@ -1,0 +1,241 @@
+[excerpt: final 240 lines; full raw hash in manifest]
+    ???
+        fromlist   = ('AutoencoderKL',)
+        import_    = <built-in function __import__>
+        module     = <module 'diffusers.models' from '/opt/dynamo/omni-overlay/diffusers/models/__init__.py'>
+        recursive  = False
+        x          = 'AutoencoderKL'
+/opt/dynamo/omni-overlay/diffusers/utils/import_utils.py:1005: in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        name       = 'AutoencoderKL'
+        self       = <module 'diffusers.models' from '/opt/dynamo/omni-overlay/diffusers/models/__init__.py'>
+/opt/dynamo/omni-overlay/diffusers/utils/import_utils.py:1017: in _get_module
+    raise RuntimeError(
+E   RuntimeError: Failed to import diffusers.models.autoencoders.autoencoder_kl because of the following error (look up to see its traceback):
+E   `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+        module_name = 'autoencoders.autoencoder_kl'
+        self       = <module 'diffusers.models' from '/opt/dynamo/omni-overlay/diffusers/models/__init__.py'>
+
+The above exception was the direct cause of the following exception:
+components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py:18: in <module>
+    from dynamo.vllm.omni.stage_worker import (
+        MagicMock  = <class 'unittest.mock.MagicMock'>
+        SimpleNamespace = <class 'types.SimpleNamespace'>
+        __builtins__ = <builtins>
+        __cached__ = '/workspace/dynamo/components/src/dynamo/vllm/tests/omni/__pycache__/test_omni_stage_worker.cpython-312.pyc'
+        __doc__    = 'Unit tests for OmniStageWorker.\n\nNo GPU, no vllm_omni — uses mock StageEngine matching AsyncOmni.generate() signature.\n'
+        __file__   = '/workspace/dynamo/components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py'
+        __loader__ = <_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f720144e4e0>
+        __name__   = 'test_omni_stage_worker'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_omni_stage_worker', loader=<_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f720144e4e0>, origin='/workspace/dynamo/components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py')
+        patch      = <function patch at 0x7f7200986ac0>
+        pytest     = <module 'pytest' from '/opt/conda/lib/python3.12/site-packages/pytest/__init__.py'>
+        yaml       = <module 'yaml' from '/opt/conda/lib/python3.12/site-packages/yaml/__init__.py'>
+components/src/dynamo/vllm/omni/__init__.py:6: in <module>
+    from .base_handler import BaseOmniHandler
+        __builtins__ = <builtins>
+        __cached__ = '/workspace/dynamo/components/src/dynamo/vllm/omni/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = 'vLLM-Omni integration for Dynamo.'
+        __file__   = '/workspace/dynamo/components/src/dynamo/vllm/omni/__init__.py'
+        __loader__ = <_frozen_importlib_external.SourceFileLoader object at 0x7f6a876e7740>
+        __name__   = 'dynamo.vllm.omni'
+        __package__ = 'dynamo.vllm.omni'
+        __path__   = ['/workspace/dynamo/components/src/dynamo/vllm/omni']
+        __spec__   = ModuleSpec(name='dynamo.vllm.omni', loader=<_frozen_importlib_external.SourceFileLoader object at 0x7f6a876e7740>, ori...ts/src/dynamo/vllm/omni/__init__.py', submodule_search_locations=['/workspace/dynamo/components/src/dynamo/vllm/omni'])
+components/src/dynamo/vllm/omni/base_handler.py:13: in <module>
+    from vllm_omni.entrypoints import AsyncOmni
+        Any        = typing.Any
+        AsyncGenerator = typing.AsyncGenerator
+        Dict       = typing.Dict
+        SamplingParams = <class 'vllm.sampling_params.SamplingParams'>
+        __builtins__ = <builtins>
+        __cached__ = '/workspace/dynamo/components/src/dynamo/vllm/omni/__pycache__/base_handler.cpython-312.pyc'
+        __doc__    = 'Base handler for vLLM-Omni multi-stage pipelines.'
+        __file__   = '/workspace/dynamo/components/src/dynamo/vllm/omni/base_handler.py'
+        __loader__ = <_frozen_importlib_external.SourceFileLoader object at 0x7f72006d0c20>
+        __name__   = 'dynamo.vllm.omni.base_handler'
+        __package__ = 'dynamo.vllm.omni'
+        __spec__   = ModuleSpec(name='dynamo.vllm.omni.base_handler', loader=<_frozen_importlib_external.SourceFileLoader object at 0x7f72006d0c20>, origin='/workspace/dynamo/components/src/dynamo/vllm/omni/base_handler.py')
+        asyncio    = <module 'asyncio' from '/opt/conda/lib/python3.12/asyncio/__init__.py'>
+        dataclasses = <module 'dataclasses' from '/opt/conda/lib/python3.12/dataclasses.py'>
+        logging    = <module 'logging' from '/opt/conda/lib/python3.12/logging/__init__.py'>
+        time       = <module 'time' (built-in)>
+<frozen importlib._bootstrap>:1412: in _handle_fromlist
+    ???
+        fromlist   = ('AsyncOmni',)
+        import_    = <built-in function __import__>
+        module     = <module 'vllm_omni.entrypoints' from '/opt/dynamo/omni-overlay/vllm_omni/entrypoints/__init__.py'>
+        recursive  = False
+        x          = 'AsyncOmni'
+/opt/dynamo/omni-overlay/vllm_omni/entrypoints/__init__.py:14: in __getattr__
+    from vllm_omni.entrypoints.async_omni import AsyncOmni
+        name       = 'AsyncOmni'
+/opt/dynamo/omni-overlay/vllm_omni/entrypoints/async_omni.py:29: in <module>
+    from vllm_omni.diffusion.data import CuMemTag, OmniACK, OmniSleepTask, OmniWakeTask
+        Any        = typing.Any
+        AsyncGenerator = <class 'collections.abc.AsyncGenerator'>
+        EngineClient = <class 'vllm.engine.protocol.EngineClient'>
+        EngineDeadError = <class 'vllm.v1.engine.exceptions.EngineDeadError'>
+        Iterable   = <class 'collections.abc.Iterable'>
+        LoRARequest = <class 'vllm.lora.request.LoRARequest'>
+        Mapping    = <class 'collections.abc.Mapping'>
+        PoolingParams = <class 'vllm.pooling_params.PoolingParams'>
+        PoolingRequestOutput = <class 'vllm.outputs.PoolingRequestOutput'>
+        RequestOutputKind = <enum 'RequestOutputKind'>
+        SamplingParams = <class 'vllm.sampling_params.SamplingParams'>
+        Sequence   = <class 'collections.abc.Sequence'>
+        StreamingInput = <class 'vllm.engine.protocol.StreamingInput'>
+        SupportedTask = typing.Literal['generate', 'transcription', 'realtime', 'embed', 'classify', 'token_embed', 'token_classify', 'plugin', 'embed&token_classify', 'render']
+        TYPE_CHECKING = False
+        TokensPrompt = <class 'vllm_omni.inputs.data.OmniTokensPrompt'>
+        __builtins__ = <builtins>
+        __cached__ = '/opt/dynamo/omni-overlay/vllm_omni/entrypoints/__pycache__/async_omni.cpython-312.pyc'
+        __doc__    = '\nAsyncOmni - Refactored async orchestrator using AsyncOmniEngine.\n\nThis is the new implementation that uses AsyncOmniEngine (which manages\nStageEngineCoreClient instances) instead of OmniStage with worker processes.\n'
+        __file__   = '/opt/dynamo/omni-overlay/vllm_omni/entrypoints/async_omni.py'
+        __loader__ = <_frozen_importlib_external.SourceFileLoader object at 0x7f6ef6c7d9a0>
+        __name__   = 'vllm_omni.entrypoints.async_omni'
+        __package__ = 'vllm_omni.entrypoints'
+        __spec__   = ModuleSpec(name='vllm_omni.entrypoints.async_omni', loader=<_frozen_importlib_external.SourceFileLoader object at 0x7f6ef6c7d9a0>, origin='/opt/dynamo/omni-overlay/vllm_omni/entrypoints/async_omni.py')
+        annotations = _Feature((3, 7, 0, 'beta', 1), None, 16777216)
+        asyncio    = <module 'asyncio' from '/opt/conda/lib/python3.12/asyncio/__init__.py'>
+        extract_prompt_components = <function extract_prompt_components at 0x7f6aa435dbc0>
+        get_io_processor = <function get_io_processor at 0x7f6a86e7f600>
+        init_logger = <function init_logger at 0x7f6fbe5032e0>
+        random_uuid = <function random_uuid at 0x7f6fbe5037e0>
+        time       = <module 'time' (built-in)>
+        uuid       = <module 'uuid' from '/opt/conda/lib/python3.12/uuid.py'>
+/opt/dynamo/omni-overlay/vllm_omni/diffusion/data.py:598: in <module>
+    class OmniDiffusionConfig:
+        Any        = typing.Any
+        Callable   = <class 'collections.abc.Callable'>
+        DiffusionCacheConfig = <class 'vllm_omni.diffusion.data.DiffusionCacheConfig'>
+        DiffusionParallelConfig = <class 'vllm_omni.diffusion.data.DiffusionParallelConfig'>
+        Enum       = <enum 'Enum'>
+        Field      = <function Field at 0x7f6faf6e31a0>
+        Image      = <module 'PIL.Image' from '/opt/conda/lib/python3.12/site-packages/PIL/Image.py'>
+        Mapping    = <class 'collections.abc.Mapping'>
+        QuantizationConfig = <class 'vllm.model_executor.layers.quantization.base_config.QuantizationConfig'>
+        Self       = typing.Self
+        TYPE_CHECKING = False
+        TransformerConfig = <class 'vllm_omni.diffusion.data.TransformerConfig'>
+        __builtins__ = <builtins>
+        __cached__ = '/opt/dynamo/omni-overlay/vllm_omni/diffusion/__pycache__/data.cpython-312.pyc'
+        __doc__    = None
+        __file__   = '/opt/dynamo/omni-overlay/vllm_omni/diffusion/data.py'
+        __loader__ = <_frozen_importlib_external.SourceFileLoader object at 0x7f6a86dce510>
+        __name__   = 'vllm_omni.diffusion.data'
+        __package__ = 'vllm_omni.diffusion'
+        __spec__   = ModuleSpec(name='vllm_omni.diffusion.data', loader=<_frozen_importlib_external.SourceFileLoader object at 0x7f6a86dce510>, origin='/opt/dynamo/omni-overlay/vllm_omni/diffusion/data.py')
+        build_quant_config = <function build_quant_config at 0x7f6fae635580>
+        client_error_metadata = <function client_error_metadata at 0x7f6fae5ffc40>
+        config     = <function config at 0x7f6faf53ba60>
+        copy       = <module 'copy' from '/opt/conda/lib/python3.12/copy.py'>
+        dataclass  = <function dataclass at 0x7f7201f46ac0>
+        diffusers  = <module 'diffusers' from '/opt/dynamo/omni-overlay/diffusers/__init__.py'>
+        field      = <function field at 0x7f7201f453a0>
+        fields     = <function fields at 0x7f7201f46b60>
+        get_diffusion_model_metadata = <function get_diffusion_model_metadata at 0x7f6fae5ff740>
+        get_model_path = <function get_model_path at 0x7f6ef8722200>
+        huggingface_hub = <module 'huggingface_hub' from '/opt/conda/lib/python3.12/site-packages/huggingface_hub/__init__.py'>
+        init_logger = <function init_logger at 0x7f6fbe5032e0>
+        is_port_available = <function is_port_available at 0x7f6fae5fef20>
+        logger     = <Logger vllm_omni.diffusion.data (INFO)>
+        math       = <module 'math' from '/opt/conda/lib/python3.12/lib-dynload/math.cpython-312-x86_64-linux-gnu.so'>
+        model_validator = <function model_validator at 0x7f6faf5f1080>
+        normalize_omni_diffusion_kwargs = <function normalize_omni_diffusion_kwargs at 0x7f6a86e7c900>
+        os         = <module 'os' (frozen)>
+        parse_kv_cache_skip_selector = <function parse_kv_cache_skip_selector at 0x7f6a86e7c180>
+        random     = <module 'random' from '/opt/conda/lib/python3.12/random.py'>
+        resolve_model_class_name = <function resolve_model_class_name at 0x7f6a86e7c680>
+        torch      = <module 'torch' from '/opt/conda/lib/python3.12/site-packages/torch/__init__.py'>
+/opt/dynamo/omni-overlay/vllm_omni/diffusion/data.py:751: in OmniDiffusionConfig
+    diffusers_pipeline_cls: type[diffusers.DiffusionPipeline] | None = None  # pyright: ignore[reportPrivateImportUsage]
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        VSA_sparsity = 0.0
+        __annotations__ = {'VSA_sparsity': <class 'float'>, 'cache_backend': <class 'str'>, 'cache_config': vllm_omni.diffusion.data.DiffusionCacheConfig | dict[str, typing.Any], 'cache_strategy': <class 'str'>, ...}
+        __module__ = 'vllm_omni.diffusion.data'
+        __qualname__ = 'OmniDiffusionConfig'
+        cache_backend = 'none'
+        cache_config = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<class 'dict'>,...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        cache_strategy = 'none'
+        custom_pipeline_args = None
+        diffusers_call_kwargs = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<class 'dict'>,...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        diffusers_load_kwargs = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<class 'dict'>,...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        diffusers_pipeline_cls = None
+        diffusion_attention_config = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<function OmniD...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        diffusion_compile_dynamic = True
+        diffusion_compile_granularity = 'regional'
+        diffusion_load_format = 'default'
+        diffusion_model_runner_cls = None
+        disable_autocast = False
+        dist_timeout = None
+        distributed_executor_backend = 'mp'
+        dlo_use_allgather = True
+        dtype      = torch.bfloat16
+        enable_cache_dit_summary = False
+        enable_cpu_offload = False
+        enable_distributed_layerwise_offload = False
+        enable_layerwise_offload = False
+        enable_multithread_weight_load = True
+        enable_prompt_embed_cache = False
+        enable_session_state_manager = False
+        enable_sleep_mode = False
+        enforce_eager = False
+        engine_backend = 'default'
+        lora_path  = None
+        lora_scale = 1.0
+        mask_strategy_file_path = None
+        master_port = None
+        max_cpu_loras = None
+        moba_config_path = None
+        model      = None
+        model_class_name = None
+        model_config = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<class 'dict'>,...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        moe_backend = 'auto'
+        nccl_port  = None
+        num_gpus   = None
+        num_weight_load_threads = 4
+        output_type = 'pil'
+        parallel_config = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<class 'vllm_om...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        pin_cpu_memory = True
+        prompt_embed_cache_size = 32
+        revision   = None
+        skip_time_steps = 15
+        stage_id   = 0
+        tf_model_config = Field(name=None,type=None,default=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,default_factory=<class 'vllm_om...e,compare=True,metadata=mappingproxy({}),kw_only=<dataclasses._MISSING_TYPE object at 0x7f7202089700>,_field_type=None)
+        trust_remote_code = False
+        vae_use_slicing = False
+        vae_use_tiling = False
+        worker_extension_cls = None
+/opt/dynamo/omni-overlay/diffusers/utils/import_utils.py:1006: in __getattr__
+    value = getattr(module, name)
+            ^^^^^^^^^^^^^^^^^^^^^
+        module     = <module 'diffusers.pipelines' from '/opt/dynamo/omni-overlay/diffusers/pipelines/__init__.py'>
+        name       = 'DiffusionPipeline'
+        self       = <module 'diffusers' from '/opt/dynamo/omni-overlay/diffusers/__init__.py'>
+/opt/dynamo/omni-overlay/diffusers/utils/import_utils.py:1005: in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        name       = 'DiffusionPipeline'
+        self       = <module 'diffusers.pipelines' from '/opt/dynamo/omni-overlay/diffusers/pipelines/__init__.py'>
+/opt/dynamo/omni-overlay/diffusers/utils/import_utils.py:1017: in _get_module
+    raise RuntimeError(
+E   RuntimeError: Failed to import diffusers.pipelines.pipeline_utils because of the following error (look up to see its traceback):
+E   Failed to import diffusers.models.autoencoders.autoencoder_kl because of the following error (look up to see its traceback):
+E   `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+        module_name = 'pipeline_utils'
+        self       = <module 'diffusers.pipelines' from '/opt/dynamo/omni-overlay/diffusers/pipelines/__init__.py'>
+=========================== short test summary info ============================
+SKIPPED [1] components/src/dynamo/vllm/tests/omni/test_omni_nixl_connector.py:15: vLLM omni dependencies not available
+ERROR components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py - Runti...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 skipped, 1 error in 27.15s
+/opt/conda/lib/python3.12/site-packages/xformers/ops/swiglu_op.py:106: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  @torch.cuda.amp.custom_fwd
+/opt/conda/lib/python3.12/site-packages/xformers/ops/swiglu_op.py:127: FutureWarning: `torch.cuda.amp.custom_bwd(args...)` is deprecated. Please use `torch.amp.custom_bwd(args..., device_type='cuda')` instead.
+  @torch.cuda.amp.custom_bwd
+/opt/conda/lib/python3.12/site-packages/flashinfer/gdn_prefill.py:27: UserWarning: fla package is not installed, gdn_prefill module will not be available. Install via: pip install flash_linear_attention-*.whl
+  warnings.warn(

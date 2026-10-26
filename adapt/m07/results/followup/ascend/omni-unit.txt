@@ -1,0 +1,138 @@
+INFO 10-26 04:25:38 [__init__.py:44] Available plugins for group vllm.platform_plugins:
+INFO 10-26 04:25:38 [__init__.py:46] - ascend -> vllm_ascend:register
+INFO 10-26 04:25:38 [__init__.py:49] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 10-26 04:25:38 [__init__.py:238] Platform plugin ascend is activated
+INFO 10-26 04:25:38 [platform.py:62] Breakable cudagraph is force disabled on Ascend because DeepSeek V4 PIECEWISE cudagraph is not supported yet.
+WARNING 10-26 04:25:48 [patch.py:165] Monkey-patched unregister_vllm_metrics() to scope drops to non-omni vllm:* collectors. Remove this patch once vLLM adds _STAT_LOGGER_METRIC_NAMES.
+..F
+=================================== FAILURES ===================================
+_____________ test_stage_connector_refs_builds_engine_core_request _____________
+
+    @pytest.mark.asyncio
+    async def test_stage_connector_refs_builds_engine_core_request():
+        """Stage N>0 without processor: upstream with .outputs builds OmniEngineCoreRequest."""
+        engine = _MockEngine()
+
+        # Mock upstream output that looks like a real RequestOutput (has .outputs[0].token_ids)
+        mock_output = SimpleNamespace(
+            outputs=[SimpleNamespace(token_ids=[100, 200, 300])],
+            prompt_token_ids=[1, 2],
+        )
+
+        in_connector = MagicMock()
+        in_connector.get.return_value = (
+            mock_output  # raw object, not {"engine_inputs": ...}
+        )
+
+        out_connector = MagicMock()
+        out_connector.put.return_value = (True, 0, {"name": "ref1"})
+
+        worker = _make_worker(
+            engine=engine,
+            connectors={("0", "1"): in_connector, ("1", "2"): out_connector},
+            stage_id=1,
+            stage_config=_make_stage_config(
+                default_sampling_params={"temperature": 0.9, "max_tokens": 100},
+            ),
+        )
+        # Mock the engine's output_processors for registration
+        engine.engine = MagicMock()
+        request = {
+            "request_id": "req-ecr",
+            "original_prompt": {"prompt": "hello"},
+            "stage_connector_refs": {"0": {"name": "ref0"}},
+        }
+
+>       _ = [chunk async for chunk in worker.generate(request, _MockContext())]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engine     = <test_omni_stage_worker._MockEngine object at 0xeef8b0442000>
+in_connector = <MagicMock id='262751876830064'>
+mock_output = namespace(outputs=[namespace(token_ids=[100, 200, 300], cumulative_token_ids=[100, 200, 300])], prompt_token_ids=[1, 2])
+out_connector = <MagicMock id='262751876838320'>
+request    = {'request_id': 'req-ecr', 'original_prompt': {'prompt': 'hello'}, 'stage_connector_refs': {'0': {'name': 'ref0'}}}
+worker     = <dynamo.vllm.omni.stage_worker.OmniStageWorker object at 0xeef8b04795e0>
+
+components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py:184:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+components/src/dynamo/vllm/omni/stage_worker.py:142: in generate
+    prompt = self._build_engine_core_request_from_upstream(
+        context    = <test_omni_stage_worker._MockContext object at 0xeef8b047a510>
+        original_prompt = {'prompt': 'hello'}
+        req        = StageRequest(request_id='req-ecr', engine_inputs=None, original_prompt={'prompt': 'hello'}, stage_connector_refs={'0': {'name': 'ref0'}}, sampling_params_list=None)
+        request    = {'request_id': 'req-ecr', 'original_prompt': {'prompt': 'hello'}, 'stage_connector_refs': {'0': {'name': 'ref0'}}}
+        request_id = 'req-ecr'
+        sampling_params_list_override = None
+        self       = <dynamo.vllm.omni.stage_worker.OmniStageWorker object at 0xeef8b04795e0>
+        stage_connector_refs = {0: {'name': 'ref0'}}
+        stage_list = [_Proxy(engine_outputs=[namespace(outputs=[namespace(token_ids=[100, 200, 300], cumulative_token_ids=[100, 200, 300])], prompt_token_ids=[1, 2])])]
+        upstream   = namespace(outputs=[namespace(token_ids=[100, 200, 300], cumulative_token_ids=[100, 200, 300])], prompt_token_ids=[1, 2])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <dynamo.vllm.omni.stage_worker.OmniStageWorker object at 0xeef8b04795e0>
+stage_list = [_Proxy(engine_outputs=[namespace(outputs=[namespace(token_ids=[100, 200, 300], cumulative_token_ids=[100, 200, 300])], prompt_token_ids=[1, 2])])]
+request_id = 'req-ecr', sampling_params_list_override = None
+
+    def _build_engine_core_request_from_upstream(
+        self,
+        stage_list: list[_Proxy],
+        request_id: str,
+        sampling_params_list_override: dict | None,
+    ):
+        """Build an OmniEngineCoreRequest from the upstream stage output.
+
+        Used for stages without a custom processor (e.g. code2wav).  Mirrors
+        what the native orchestrator does via ``build_engine_core_request_from_tokens``
+        and ``_forward_to_next_stage``.  Building an ``EngineCoreRequest``
+        bypasses ``InputProcessor.process_inputs()`` which would fail for
+        non-autoregressive stages (``worker_type: generation``) with
+        "This model does not support generation".
+
+        Raises RuntimeError on unexpected upstream output structure.
+        """
+        try:
+            # engine_outputs[0]: first (and only) RequestOutput — Dynamo
+            # processes one request at a time per stage.
+            # outputs[0]: first CompletionOutput (n=1 sampling).
+            # Matches native orchestrator's process_engine_inputs pattern.
+            upstream = stage_list[-1].engine_outputs[0]
+            token_ids = upstream.outputs[0].token_ids
+        except (IndexError, AttributeError) as e:
+            raise RuntimeError(
+                f"Stage {self.stage_id}: cannot extract token_ids from "
+                f"upstream output: {e}"
+            ) from e
+
+        tokens_prompt = OmniTokensPrompt(prompt_token_ids=list(token_ids))
+        sp_list = _build_sampling_params(
+            self.stage_config, sampling_params_list_override
+        )
+        params = sp_list[0] if sp_list else None
+        prompt = build_engine_core_request_from_tokens(
+            request_id=request_id,
+            prompt=tokens_prompt,
+            params=params,
+        )
+        # The token request factory omits duplex-only fields, while the output
+        # processor expects session_id to exist for every registered request.
+>       prompt.session_id = None
+        ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'OmniEngineCoreRequest' object has no attribute 'session_id'
+
+params     = SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.9, top_p=1.0, t..._logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, structured_outputs=None, extra_args=None)
+prompt     = OmniEngineCoreRequest(request_id='req-ecr', prompt_token_ids=[100, 200, 300], mm_features=None, sampling_params=Sampli..._req_id=None, reasoning_ended=None, reasoning_parser_kwargs=None, abort_immediately=False, additional_information=None)
+request_id = 'req-ecr'
+sampling_params_list_override = None
+self       = <dynamo.vllm.omni.stage_worker.OmniStageWorker object at 0xeef8b04795e0>
+sp_list    = [SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.9, top_p=1.0, ...logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, structured_outputs=None, extra_args=None)]
+stage_list = [_Proxy(engine_outputs=[namespace(outputs=[namespace(token_ids=[100, 200, 300], cumulative_token_ids=[100, 200, 300])], prompt_token_ids=[1, 2])])]
+token_ids  = [100, 200, 300]
+tokens_prompt = {'prompt_token_ids': [100, 200, 300]}
+upstream   = namespace(outputs=[namespace(token_ids=[100, 200, 300], cumulative_token_ids=[100, 200, 300])], prompt_token_ids=[1, 2])
+
+components/src/dynamo/vllm/omni/stage_worker.py:327: AttributeError
+=========================== short test summary info ============================
+FAILED components/src/dynamo/vllm/tests/omni/test_omni_stage_worker.py::test_stage_connector_refs_builds_engine_core_request
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 2 passed in 28.60s
+corrupted size vs. prev_size

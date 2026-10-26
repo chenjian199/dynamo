@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Common utilities shared across GMS integrations."""
 
@@ -28,7 +30,7 @@ def torch_device():
     from gpu_memory_service.common.vmm import VMMDeviceType, get_vmm_device_type
 
     device_type = get_vmm_device_type()
-    if device_type == VMMDeviceType.CUDA:
+    if device_type in (VMMDeviceType.CUDA, VMMDeviceType.METAX):
         return torch.cuda
     if device_type == VMMDeviceType.XPU:
         return torch.xpu

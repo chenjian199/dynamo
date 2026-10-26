@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """GPU (NVDEC) video decode for H.264/H.265 via PyNvVideoCodec.
 
@@ -40,6 +42,7 @@ import warnings
 
 import numpy as np
 
+from dynamo.common.multimodal.tensor_contract import selected_platform
 from dynamo.common.utils.env import env_bool
 
 logger = logging.getLogger(__name__)
@@ -106,7 +109,7 @@ def nvdec_available() -> bool:
     reliable signal. ``DYN_DISABLE_NVDEC`` forces the software path. A GPU that is
     absent at decode time still raises and is caught by the caller's fallback.
     """
-    if env_bool(DISABLE_ENV):
+    if env_bool(DISABLE_ENV) or selected_platform() != "cuda":
         return False
     try:
         with warnings.catch_warnings():
@@ -257,6 +260,8 @@ def decode_video_nvdec(
     that many frames per second of source, i.e. ``floor(duration * fps)``.
     ``fps <= 0`` (the default) leaves sampling to ``num_frames`` alone.
     """
+    if selected_platform() != "cuda":
+        raise RuntimeError("NVDEC requires the CUDA platform; use a CPU video decoder")
     import PyNvVideoCodec as nvc
 
     if gpu_id is None:

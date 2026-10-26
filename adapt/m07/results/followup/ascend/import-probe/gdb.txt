@@ -1,0 +1,55 @@
+warning: Error disabling address space randomization: Operation not permitted
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+[New Thread 0xefee83cbb100 (LWP 20651)]
+[New Thread 0xefee834ab100 (LWP 20652)]
+[New Thread 0xefee82c9b100 (LWP 20653)]
+[Detaching after vfork from child process 20665]
+[Detaching after vfork from child process 20676]
+INFO 10-26 04:44:56 [__init__.py:44] Available plugins for group vllm.platform_plugins:
+INFO 10-26 04:44:56 [__init__.py:46] - ascend -> vllm_ascend:register
+INFO 10-26 04:44:56 [__init__.py:49] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 10-26 04:44:56 [__init__.py:238] Platform plugin ascend is activated
+INFO 10-26 04:44:56 [platform.py:62] Breakable cudagraph is force disabled on Ascend because DeepSeek V4 PIECEWISE cudagraph is not supported yet.
+[Detaching after vfork from child process 20691]
+[Detaching after vfork from child process 20696]
+WARNING 10-26 04:45:17 [patch.py:165] Monkey-patched unregister_vllm_metrics() to scope drops to non-omni vllm:* collectors. Remove this patch once vLLM adds _STAT_LOGGER_METRIC_NAMES.
+[New Thread 0xefee200cf100 (LWP 21751)]
+[Thread 0xefee200cf100 (LWP 21751) exited]
+[New Thread 0xefee200cf100 (LWP 21752)]
+[New Thread 0xefedd0f5f100 (LWP 21753)]
+[New Thread 0xefedcbfff100 (LWP 21754)]
+[New Thread 0xefedcafdf100 (LWP 21756)]
+[New Thread 0xefedcb7ef100 (LWP 21755)]
+[New Thread 0xefedca7cf100 (LWP 21757)]
+[New Thread 0xefedc9fbf100 (LWP 21758)]
+[New Thread 0xefedc97af100 (LWP 21759)]
+[Detaching after vfork from child process 21760]
+corrupted size vs. prev_size
+
+Thread 1 "python" received signal SIGABRT, Aborted.
+__pthread_kill_implementation (threadid=263808421108512, signo=signo@entry=6, no_tid=no_tid@entry=0) at ./nptl/pthread_kill.c:44
+44	./nptl/pthread_kill.c: No such file or directory.
+#0  __pthread_kill_implementation (threadid=263808421108512, signo=signo@entry=6, no_tid=no_tid@entry=0) at ./nptl/pthread_kill.c:44
+#1  0x0000efeeaeb82084 in __pthread_kill_internal (signo=6, threadid=<optimized out>) at ./nptl/pthread_kill.c:78
+#2  0x0000efeeaeb3a83c in __GI_raise (sig=sig@entry=6) at ../sysdeps/posix/raise.c:26
+#3  0x0000efeeaeb27134 in __GI_abort () at ./stdlib/abort.c:79
+#4  0x0000efeeaeb76030 in __libc_message (action=action@entry=do_abort, fmt=fmt@entry=0xefeeaec5a500 "%s\n") at ../sysdeps/posix/libc_fatal.c:156
+#5  0x0000efeeaeb8c4bc in malloc_printerr (str=str@entry=0xefeeaec555e8 "corrupted size vs. prev_size") at ./malloc/malloc.c:5666
+#6  0x0000efeeaeb8ce18 in unlink_chunk (p=p@entry=0xc4d72ca84300, av=<optimized out>) at ./malloc/malloc.c:1629
+#7  0x0000efeeaeb8cf84 in malloc_consolidate (av=av@entry=0xefeeaeca1b10 <main_arena>) at ./malloc/malloc.c:4779
+#8  0x0000efeeaeb8e61c in _int_free (av=0xefeeaeca1b10 <main_arena>, p=0xc4d7254dfde0, have_lock=<optimized out>) at ./malloc/malloc.c:4674
+#9  0x0000efeeaeb90bd4 in __GI___libc_free (mem=<optimized out>) at ./malloc/malloc.c:3391
+#10 0x0000efee8e2631bc in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#11 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#12 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#13 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#14 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#15 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#16 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#17 0x0000efee8e263068 in std::_Rb_tree<std::string, std::pair<std::string const, ErrorManager::ErrorInfoConfig>, std::_Select1st<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >, std::less<std::string>, std::allocator<std::pair<std::string const, ErrorManager::ErrorInfoConfig> > >::_M_erase(std::_Rb_tree_node<std::pair<std::string const, ErrorManager::ErrorInfoConfig> >*) () from /usr/local/Ascend/cann-9.1.0/lib64/liberror_manager.so
+#18 0x0000efeeaeb3d048 in __run_exit_handlers (status=0, listp=0xefeeaeca1730 <__exit_funcs>, run_list_atexit=run_list_atexit@entry=true, run_dtors=run_dtors@entry=true) at ./stdlib/exit.c:113
+#19 0x0000efeeaeb3d16c in __GI_exit (status=<optimized out>) at ./stdlib/exit.c:143
+#20 0x0000efeeaeb27404 in __libc_start_call_main (main=main@entry=0xc4d716780840 <main>, argc=argc@entry=3, argv=argv@entry=0xffffe9c727f8) at ../sysdeps/nptl/libc_start_call_main.h:74
+#21 0x0000efeeaeb274d8 in __libc_start_main_impl (main=0xc4d716780840 <main>, argc=3, argv=0xffffe9c727f8, init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>, stack_end=<optimized out>) at ../csu/libc-start.c:392
+#22 0x0000c4d7167808b0 in _start ()

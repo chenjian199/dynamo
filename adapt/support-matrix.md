@@ -26,6 +26,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 ## 当前功能矩阵
 
+2026-10-21 起按[版本基线](version-baselines.md)锁定 CUDA 0.28.0、MetaX 0.26.0、Ascend 0.23.0。下表标注 CUDA 0.24 的条目保留历史验收含义，不能自动提升为 0.28 已支持；M07 新基线单独记录。
+
 | 功能 | CUDA 基线 | Ascend | MetaX | 核查重点 | 模块 |
 | --- | --- | --- | --- | --- | --- |
 | 平台身份与能力注册 | 有限支持：H800 / vLLM 0.24.0，显式 CUDA 身份与发现已验证；[M03](m03/README.md) | 有限支持：910B3、schema 1、真实身份/能力预检查/发现注册；[验收](ascend/ascend-bringup.md) | 有限支持：schema 1、真实设备/软件身份、能力预检查、发现注册与绑定已验证 | CPU 无 SDK、配置冻结、缺能力拒绝、非 CUDA 不误标 | M01 |
@@ -44,14 +46,16 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | Kubernetes 基础部署 | 源码已有 | 待调查 | 待调查 | 资源名、镜像、设备插件、调度与计数 | M08 |
 | SLO Planner/Profiler | 源码已有 | 待调查 | 待调查 | 指标、资源计数、平台实测画像 | M09 |
 | 设备健康与功耗控制 | 源码已有 NVIDIA 路径 | 待调查 | 待调查 | 指标语义、错误码、功耗 API 与权限 | M08/M09 |
-| GMS/共享内存恢复 | 已有 VMM 抽象和 CUDA 实现 | 待调查 | 待调查 | 复用 VMMDevice；共享句柄、内存存活与恢复语义仍需实测 | M07 |
+| GMS/共享内存恢复 | 有限支持：官方 1.5.1 / vLLM 0.28，V1 真机内存存活、MemPool 与 vLLM sleep/wake；旧 tensor/module 回归通过 | 当前组合不支持：HDK 26.1.1 的 RW/查询可用，但 READ 权限与 POSIX 分配失败；预检查拒绝 | 有限支持：MACA FD/VMM，提交前 RO 重映射；V1 真机及旧 tensor/module 回归通过 | 单卡 eager；未认证完整引擎 checkpoint/CRIU；[M07 证据与阻塞原因](m07/README.md) | M07 |
 | 本地 TP/DP | 已验证：TP=2/DP=2 | 已验证：TP=2/DP=2 | 已验证：TP=2/DP=2 | Qwen3-0.6B / Qwen3-8B，eager；逐 rank 容量必须等于物理 KV 容量；[M03 记录](m03/README.md) | M03 |
 | LoRA | 已验证：TP=1/DP=2 | 已验证：TP=1/DP=2 | 已验证：TP=1/DP=2 | Qwen3-0.6B + 非零 rank-8 fixture；加载/卸载/回滚/并发/缓存隔离 | M03 |
 | 量化 | 已验证：W8A8 dynamic | 已验证：W8A8 dynamic | 已验证：W8A8 dynamic | Qwen3-0.6B，compressed-tensors；仅验证 INT8 执行路径，不认证精度质量 | M03 |
 | 推测解码 | 已验证：ngram、draft_model | 已验证：ngram、draft_model | 已验证：ngram、draft_model | Qwen3-0.6B，3 speculative tokens；draft/accepted 计数非零 | M03 |
 | MoE/静态 EP | 已验证：Qwen3-30B-A3B，EP=4 | 已验证：Qwen3-30B-A3B，EP=4 | 已验证：Qwen3-30B-A3B，EP=4 | TP=2/DP=2、专家分布与 per-rank KV；动态 EP 未验证 | M03 |
 | 聚合图文 | 已验证：Qwen3-VL-2B | 已验证：Qwen3-VL-2B | 已验证：Qwen3-VL-2B | 识图、并发、流式、取消、引擎前缀缓存；精确多模态前端选路未认证 | M03 |
-| 编码器分离/媒体传输 | 源码已有集成路径 | 待调查 | 待调查 | 编码阶段独立部署、NIXL embedding/媒体传输与完成语义 | M07 |
+| 编码器分离/媒体传输 | 有限支持：官方 1.5.1 / vLLM 0.28，LOCAL 端到端及 NIXL READ 张量往返 | 有限支持：LOCAL 端到端；完整模型初始化，NIXL 包缺失 | 有限支持：LOCAL 端到端及 CPU staging NIXL READ 张量往返 | 单机不同卡独立进程已验证，Qwen3-VL-2B，TP1/DP1/eager；取消/文件清理；[M07](m07/README.md) | M07 |
+| 视频解码 | CPU VP9 已验证；本轮未验证 NVDEC 硬件路径 | CPU VP9 已验证；无加速解码认证 | CPU VP9 已验证；当前镜像 AV1 解码未通过 | 600 秒/6000 帧 VP9、22 轮抽帧、40 次取消恢复；不代表模型完整长视频或全部 codec；[M07](m07/README.md) | M07 |
+| Omni / 媒体故障协议 | 原生聚合三卡音频、WRITE 晚到 DMA 通过 | LOCAL 生命周期通过；Omni 原生库退出异常 | 原生聚合三卡音频、WRITE 晚到 DMA 通过 | 三平台 LOCAL 回收已验证；独立 stage full-payload、永久失联回收仍未闭环，见 [分项证据](m07/followup.md) | M07 |
 
 “源码已有”不表示所有引擎、型号、模型和功能组合均支持；CUDA 也需要建立实际基线。高级功能按独立行记录，不能从一种量化格式或推测算法推导出全部组合支持。高级条目均以 [M03 三平台验收](m03/README.md) 的版本、模型及边界为准。
 
@@ -97,3 +101,11 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 外部问题或依赖：
 最近验证日期：
 ```
+
+### M07 2026-10-26 补充
+
+三平台 LOCAL lease/TTL、长视频抽帧与同机不同卡编码器已验证。
+WRITE v2 的正常/超时晚到回收认证限 CUDA/MetaX；Ascend NIXL Python 未就绪。
+CUDA/MetaX 原生聚合 Omni 各 30 分钟并发取消回归通过，见 [稳定性验收](m07/omni-regression.md)。
+Omni 独立阶段 full-payload worker 通道与华为相关未完成项按用户决定暂缓。
+这些边界不扩大 GMS 或跨节点能力声明，详见 [M07 后续矩阵](m07/followup.md)。

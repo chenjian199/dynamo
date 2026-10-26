@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +22,7 @@ import os
 import re
 from typing import Any, Awaitable, Dict, Final, List
 from urllib.parse import urlparse
+from weakref import WeakKeyDictionary
 
 import numpy as np
 
@@ -46,6 +49,33 @@ from dynamo.common.multimodal.nvdec_decoder import (
 from dynamo.common.utils.runtime import run_async
 
 logger = logging.getLogger(__name__)
+
+_decode_slots = WeakKeyDictionary()
+
+
+async def _bounded_decode(function, *args, **kwargs):
+    """Keep cancelled CPU decodes charged until their thread actually finishes."""
+    loop = asyncio.get_running_loop()
+    if loop not in _decode_slots:
+        limit = int(os.environ.get("DYN_VIDEO_DECODE_CONCURRENCY", "2"))
+        if limit < 1:
+            raise ValueError("DYN_VIDEO_DECODE_CONCURRENCY must be positive")
+        _decode_slots[loop] = asyncio.Semaphore(limit)
+    slots = _decode_slots[loop]
+    await slots.acquire()
+    try:
+        task = asyncio.create_task(asyncio.to_thread(function, *args, **kwargs))
+    except BaseException:
+        slots.release()
+        raise
+
+    def finished(task):
+        slots.release()
+        if not task.cancelled():
+            task.exception()
+
+    task.add_done_callback(finished)
+    return await asyncio.shield(task)
 
 
 def _attributable_to_cv2(exc: BaseException, media_io: Any | None = None) -> bool:
@@ -210,7 +240,7 @@ class VideoLoader:
         codec = probe_video_codec(content)
         if should_use_nvdec(codec):
             try:
-                return await asyncio.to_thread(
+                return await _bounded_decode(
                     decode_video_nvdec,
                     content,
                     **self._extract_nvdec_args(media_io),
@@ -222,7 +252,7 @@ class VideoLoader:
                     exc,
                 )
         try:
-            return await asyncio.to_thread(media_io.load_bytes, content)
+            return await _bounded_decode(media_io.load_bytes, content)
         except ImportError as exc:
             if not _attributable_to_cv2(exc):
                 raise

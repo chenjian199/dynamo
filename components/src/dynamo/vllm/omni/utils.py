@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Shared utilities for the vLLM-Omni backend."""
 
@@ -62,6 +64,54 @@ async def ensure_awaited(value: Any) -> Any:
     if asyncio.iscoroutine(value):
         return await value
     return value
+
+
+_connector_cleanup_tasks: set[asyncio.Task] = set()
+
+
+async def call_connector(
+    connector, operation, from_stage, to_stage, request_id, *args, **kwargs
+):
+    """Keep blocking connector work alive until cancellation cleanup is safe."""
+
+    async def invoke():
+        return await ensure_awaited(
+            await asyncio.to_thread(
+                getattr(connector, operation),
+                from_stage,
+                to_stage,
+                request_id,
+                *args,
+                **kwargs,
+            )
+        )
+
+    task = asyncio.create_task(invoke())
+    try:
+        return await asyncio.shield(task)
+    except asyncio.CancelledError:
+
+        async def clean_after_completion():
+            try:
+                await task
+            except Exception:
+                logging.getLogger(__name__).exception(
+                    "Cancelled connector operation failed"
+                )
+            finally:
+                try:
+                    await ensure_awaited(
+                        await asyncio.to_thread(connector.cleanup, request_id)
+                    )
+                except Exception:
+                    logging.getLogger(__name__).exception(
+                        "Late connector cleanup failed"
+                    )
+
+        cleanup = asyncio.create_task(clean_after_completion())
+        _connector_cleanup_tasks.add(cleanup)
+        cleanup.add_done_callback(_connector_cleanup_tasks.discard)
+        raise
 
 
 def unwrap_connector_payload(payload: Any) -> Any:
@@ -310,6 +360,8 @@ async def parse_omni_request(
 
     # Chat / text
     messages = request.get("messages", [])
+    if not messages and request.get("input"):
+        messages = [{"role": "user", "content": request["input"]}]
     text = next(
         (m.get("content", "") for m in reversed(messages) if m.get("role") == "user"),
         request.get("prompt", ""),

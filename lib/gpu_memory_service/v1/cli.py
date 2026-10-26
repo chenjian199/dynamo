@@ -1,9 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 from __future__ import annotations
 
 import argparse
+import os
 import signal
 from collections.abc import Sequence
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
@@ -52,9 +55,14 @@ def main(argv: list[str] | None = None) -> None:
         allow_abbrev=False,
     )
     parser.add_argument("--device", type=int, default=0)
+    parser.add_argument(
+        "--device-type",
+        default=os.environ.get("DYN_PLATFORM", "cuda"),
+        choices=[d.value for d in VMMDeviceType],
+    )
     args = parser.parse_args(argv)
 
-    init_vmm(VMMDeviceType.CUDA)
+    init_vmm(VMMDeviceType.from_str(args.device_type))
     vmm = get_vmm()
     gpu_uuid = device_identity.get_device_uuid(args.device)
     with ExitStack() as stack:

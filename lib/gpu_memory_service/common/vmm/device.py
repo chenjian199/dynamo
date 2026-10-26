@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Abstract VMM device base class.
 
@@ -29,6 +31,9 @@ class VMMDevice(ABC):
     raise ``TypeError`` if any are missing.
 
     """
+
+    # Some SDKs only establish read-only access on a fresh mapping.
+    access_requires_remap = False
 
     # ----- driver lifecycle -------------------------------------------------
 

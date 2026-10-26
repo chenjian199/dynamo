@@ -1,0 +1,241 @@
+[excerpt: final 240 lines; full raw hash in manifest]
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:15 [weight_utils.py:792] Prefetching checkpoint files: 50% (5/5)
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:15 [weight_utils.py:815] Prefetching checkpoint files into page cache finished in 0.77s
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:17 [default_loader.py:430] Loading weights took 2.69 seconds
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:18 [gpu_model_runner.py:5515] Model loading took 16.78 GiB memory and 3.027971 seconds
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:18 [gpu_model_runner.py:6590] Encoder cache will be initialized with a budget of 16384 tokens, and profiled with 1 video items of the maximum feature size.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:19 [base.py:168] Available KV cache memory: 30.21 GiB (profiling fallback)
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:19 [kv_cache_utils.py:1869] GPU KV cache size: 565,648 tokens, Maximum concurrency for 2,048 tokens per request: 276.20x
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) WARNING 10-26 04:52:19 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:20 [kernel_warmup.py:170] Skipping FlashInfer autotune because it is disabled.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:20 [gpu_worker.py:804] Free memory on device (78.73/79.18 GiB) on startup. Desired GPU memory utilization is (0.6, 47.51 GiB). Actual usage is 17.25 GiB for consumed memory (weights + non-torch), 0.3 GiB for peak activation, and 0.0 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=32010313831` (29.81 GiB) to fit into requested memory, or `--kv-cache-memory=65536211456` (61.04 GiB) to fully utilize gpu memory. Current kv cache memory in use is 30.21 GiB.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:20 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:20 [torch_utils.py:262] Reducing Torch threads from 64 to 1 for serving. Set OMP_NUM_THREADS in the external environment to override.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:20 [core.py:354] init engine (profile, create kv cache, warmup model) took 2.53 s
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) WARNING 10-26 04:52:20 [scheduler.py:182] Using custom scheduler class vllm_omni.core.sched.omni_ar_scheduler.OmniARAsyncScheduler. This scheduler interface is not public and compatibility may not be maintained. If you have subclassed Scheduler instead of AsyncScheduler, you will see degraded performance due to async scheduling being disabled.
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) INFO 10-26 04:52:20 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] 2026-10-26T04:52:20.867554Z  INFO stage_runtime._initialize_local_llm_replica: [StageRuntime] Stage 0 engine startup completed
+[OMNI-0] 2026-10-26T04:52:20.870384Z  INFO stage_engine_core_client.__init__: [StageEngineCoreClient] stage-0 [rep-0] initializing EngineCore
+[OMNI-0] 2026-10-26T04:52:21.051455Z  INFO stage_engine_core_client.__init__: [StageEngineCoreClient] stage-0 [rep-0] EngineCore running
+[OMNI-0] 2026-10-26T04:52:21.051699Z  INFO stage_runtime._initialize_local_llm_replica: [StageRuntime] Stage 0 initialized
+[OMNI-0] WARNING 10-26 04:52:22 [cuda.py:967] Detected different devices in the system: NVIDIA H100 PCIe, NVIDIA H100 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.
+[OMNI-0] INFO 10-26 04:52:30 [patch.py:252] NVFP4 W4A4 weight_scale NaN-clamp: installed.
+[OMNI-0] INFO 10-26 04:52:30 [patch.py:503] inductor factorable-divisibility patch: installed.
+[OMNI-0] INFO 10-26 04:52:30 [patch.py:568] [cumem-cuda] CuMemAllocator._python_free_callback patched: asleep guard extended to all platforms.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:32 [__init__.py:109] Registered model loader `<class 'modelexpress.engines.vllm.loader.MxModelLoader'>` with load format `mx`
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:32 [core.py:122] Initializing a V1 LLM engine (v0.28.0) with config: model='/NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B', speculative_config=None, tokenizer='/NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=False, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: tts_text_start_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151860. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: tts_text_end_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151861. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: tts_text_pad_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151859. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: vision_start_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151652. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: vision_end_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151653. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: audio_start_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151647. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] Model config: audio_end_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151648. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:32 [parallel_state.py:1638] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_a302da00ff1d42dd95a6440502ebeccb backend=nccl
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:32 [parallel_state.py:1982] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:33 [gpu_ar_worker.py:118] OMNI GPUARWorker forces v1 model runner for omni hooks.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:33 [topk_topp_sampler.py:62] Using FlashInfer for top-p & top-k sampling.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) [transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:36 [factory.py:46] Created connector: SharedMemoryConnector
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:36 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:36 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:36 [gpu_model_runner.py:5419] Starting to load model /NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B...
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:37 [vllm.py:1285] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:37 [vllm.py:1354] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [vllm.py:1533] Cudagraph is disabled under eager mode
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [cuda.py:486] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [flash_attn.py:866] Using FlashAttention version 3
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [weight_utils.py:858] Filesystem type for checkpoints: NFS4. Checkpoint size: 20.83 GiB. Available RAM: 857.49 GiB.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [weight_utils.py:820] Prefetching checkpoint files into page cache started (in background, num_threads=8, block_size=16777216 bytes)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064)
+Loading safetensors checkpoint shards:   0% Completed | 0/5 [00:00<?, ?it/s]
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064)
+Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:00<00:00, 145.54it/s]
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:37 [weight_utils.py:792] Prefetching checkpoint files: 10% (1/5)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:38 [weight_utils.py:792] Prefetching checkpoint files: 20% (2/5)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:38 [weight_utils.py:792] Prefetching checkpoint files: 30% (3/5)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:38 [weight_utils.py:792] Prefetching checkpoint files: 40% (4/5)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:38 [weight_utils.py:792] Prefetching checkpoint files: 50% (5/5)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:38 [weight_utils.py:815] Prefetching checkpoint files into page cache finished in 0.72s
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:40 [qwen2_5_omni_talker.py:154] [Model Loaded] name=Qwen2_5OmniTalkerForConditionalGeneration, success=True, size=2577.52 MB, device=cuda:0
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:40 [default_loader.py:430] Loading weights took 3.39 seconds
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:41 [gpu_model_runner.py:5515] Model loading took 3.63 GiB memory and 3.594507 seconds
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:41 [gpu_model_runner.py:6563] Skipping memory profiling for multimodal encoder and encoder cache.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [base.py:168] Available KV cache memory: 19.65 GiB (profiling fallback)
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [kv_cache_utils.py:1869] GPU KV cache size: 429,152 tokens, Maximum concurrency for 2,048 tokens per request: 209.55x
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:43 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [kernel_warmup.py:170] Skipping FlashInfer autotune because it is disabled.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [gpu_worker.py:804] Free memory on device (78.73/79.18 GiB) on startup. Desired GPU memory utilization is (0.3, 23.75 GiB). Actual usage is 3.92 GiB for consumed memory (weights + non-torch), 0.26 GiB for peak activation, and 0.0 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=20860056372` (19.43 GiB) to fit into requested memory, or `--kv-cache-memory=79891202048` (74.4 GiB) to fully utilize gpu memory. Current kv cache memory in use is 19.65 GiB.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [torch_utils.py:262] Reducing Torch threads from 64 to 1 for serving. Set OMP_NUM_THREADS in the external environment to override.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:43 [core.py:354] init engine (profile, create kv cache, warmup model) took 2.33 s
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:52:43 [scheduler.py:182] Using custom scheduler class vllm_omni.core.sched.omni_ar_scheduler.OmniARAsyncScheduler. This scheduler interface is not public and compatibility may not be maintained. If you have subclassed Scheduler instead of AsyncScheduler, you will see degraded performance due to async scheduling being disabled.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) INFO 10-26 04:52:44 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] 2026-10-26T04:52:44.009894Z  INFO stage_runtime._initialize_local_llm_replica: [StageRuntime] Stage 1 engine startup completed
+[OMNI-0] 2026-10-26T04:52:44.012747Z  INFO stage_engine_core_client.__init__: [StageEngineCoreClient] stage-1 [rep-0] initializing EngineCore
+[OMNI-0] 2026-10-26T04:52:44.193567Z  INFO stage_engine_core_client.__init__: [StageEngineCoreClient] stage-1 [rep-0] EngineCore running
+[OMNI-0] 2026-10-26T04:52:44.193814Z  INFO stage_runtime._initialize_local_llm_replica: [StageRuntime] Stage 1 initialized
+[OMNI-0] WARNING 10-26 04:52:45 [cuda.py:967] Detected different devices in the system: NVIDIA H100 PCIe, NVIDIA H100 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe, NVIDIA H800 PCIe. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.
+[OMNI-0] INFO 10-26 04:52:53 [patch.py:252] NVFP4 W4A4 weight_scale NaN-clamp: installed.
+[OMNI-0] INFO 10-26 04:52:53 [patch.py:503] inductor factorable-divisibility patch: installed.
+[OMNI-0] INFO 10-26 04:52:53 [patch.py:568] [cumem-cuda] CuMemAllocator._python_free_callback patched: asleep guard extended to all platforms.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:54 [__init__.py:109] Registered model loader `<class 'modelexpress.engines.vllm.loader.MxModelLoader'>` with load format `mx`
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:54 [core.py:122] Initializing a V1 LLM engine (v0.28.0) with config: model='/NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B', speculative_config=None, tokenizer='/NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=False, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: tts_text_start_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151860. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: tts_text_end_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151861. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: tts_text_pad_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151859. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: vision_start_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151652. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: vision_end_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151653. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: audio_start_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151647. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] Model config: audio_end_token_id must be `None` or an integer within the vocabulary (between 0 and 8447), got 151648. This may result in unexpected behavior.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:55 [parallel_state.py:1638] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_fc1109963e364a71bce993e1026b9d66 backend=nccl
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:55 [parallel_state.py:1982] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:52:56 [gpu_generation_worker.py:101] OMNI GPUGenerationWorker forces v1 model runner for omni hooks.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:56 [topk_topp_sampler.py:62] Using FlashInfer for top-p & top-k sampling.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) [transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:59 [factory.py:46] Created connector: SharedMemoryConnector
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:52:59 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:52:59 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:52:59 [gpu_model_runner.py:5419] Starting to load model /NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B...
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:00 [vllm.py:1285] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:00 [vllm.py:1354] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [vllm.py:1533] Cudagraph is disabled under eager mode
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:00 [utils.py:71] Trying to guess the arguments for old-style model class <class 'vllm_omni.model_executor.models.qwen2_5_omni.qwen2_5_omni_token2wav.Qwen2_5OmniToken2WavModel'>
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [weight_utils.py:858] Filesystem type for checkpoints: NFS4. Checkpoint size: 20.83 GiB. Available RAM: 855.20 GiB.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [weight_utils.py:820] Prefetching checkpoint files into page cache started (in background, num_threads=8, block_size=16777216 bytes)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597)
+Loading safetensors checkpoint shards:   0% Completed | 0/5 [00:00<?, ?it/s]
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597)
+Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:00<00:00, 150.16it/s]
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [weight_utils.py:792] Prefetching checkpoint files: 10% (1/5)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:00 [weight_utils.py:792] Prefetching checkpoint files: 20% (2/5)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:01 [weight_utils.py:792] Prefetching checkpoint files: 30% (3/5)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:01 [weight_utils.py:792] Prefetching checkpoint files: 40% (4/5)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:01 [qwen2_5_omni_token2wav.py:1500] [Model Loaded] name=Qwen2_5OmniToken2WavForConditionalGenerationVLLM, success=True, size=1492.80 MB, device=cuda:0
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:01 [default_loader.py:430] Loading weights took 0.83 seconds
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:02 [gpu_model_runner.py:5515] Model loading took 1.46 GiB memory and 1.119310 seconds
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:02 [base.py:193] [LLM Worker 0] Sleep Mode DISABLED.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:02 [weight_utils.py:792] Prefetching checkpoint files: 50% (5/5)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:02 [weight_utils.py:815] Prefetching checkpoint files into page cache finished in 2.19s
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:02 [kernel_warmup.py:170] Skipping FlashInfer autotune because it is disabled.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:02 [qwen2_5_omni.py:995] Currently, we do not use the chunked process, we only use the token2wav.process_chunk for the whole sequence. The stream mode will be implemented in the future.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:03 [gpu_generation_model_runner.py:554] Dummy sampler run is not implemented for generation model
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:04 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:04 [torch_utils.py:262] Reducing Torch threads from 64 to 1 for serving. Set OMP_NUM_THREADS in the external environment to override.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:04 [core.py:354] init engine (profile, create kv cache, warmup model) took 2.12 s
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:04 [scheduler.py:182] Using custom scheduler class vllm_omni.core.sched.omni_generation_scheduler.OmniGenerationScheduler. This scheduler interface is not public and compatibility may not be maintained. If you have subclassed Scheduler instead of AsyncScheduler, you will see degraded performance due to async scheduling being disabled.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:04 [core.py:154] Disabling chunked prefill for model without KVCache
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:04 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+[OMNI-0] 2026-10-26T04:53:04.618956Z  INFO stage_runtime._initialize_local_llm_replica: [StageRuntime] Stage 2 engine startup completed
+[OMNI-0] 2026-10-26T04:53:04.619468Z  INFO stage_engine_core_client.__init__: [StageEngineCoreClient] stage-2 [rep-0] initializing EngineCore
+[OMNI-0] 2026-10-26T04:53:04.802631Z  INFO stage_engine_core_client.__init__: [StageEngineCoreClient] stage-2 [rep-0] EngineCore running
+[OMNI-0] 2026-10-26T04:53:04.802840Z  INFO stage_runtime._initialize_local_llm_replica: [StageRuntime] Stage 2 initialized
+[OMNI-0] [transformers] The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+[OMNI-0] 2026-10-26T04:53:17.842799Z  INFO orchestrator.run: [Orchestrator] Starting event loop
+[OMNI-0] 2026-10-26T04:53:17.843932Z  INFO async_omni_engine.__init__: [AsyncOmniEngine] Orchestrator ready with 3 stages
+[OMNI-0] 2026-10-26T04:53:17.844188Z  INFO omni_base.__init__: [AsyncOmni] AsyncOmniEngine initialized in 80.92 seconds
+[OMNI-0] 2026-10-26T04:53:17.844980Z  INFO omni_base.__init__: [AsyncOmni] Initialized with 3 stages for model /NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B
+[OMNI-0] 2026-10-26T04:53:17.848463Z  INFO base_handler.__init__: OmniHandler initialized successfully
+[OMNI-0] 2026-10-26T04:53:17.848646Z  INFO main.init_omni: Omni worker initialized for model: /NFS_62/Models/Qwen_Series/Qwen2.5-Omni-7B
+[OMNI-0] 2026-10-26T04:53:17.875495Z  INFO _core: Registered base model 'm07-omni' MDC
+[OMNI-0] 2026-10-26T04:53:17.875955Z  INFO main.init_omni: Starting to serve Omni worker endpoint...
+[OMNI-0] 2026-10-26T04:53:17.878480Z  INFO dynamo_runtime::pipeline::network::manager: Creating TCP request plane server bind_addr=192.168.10.50:0 port_source="OS-assigned"
+[OMNI-0] 2026-10-26T04:53:17.878537Z  INFO dynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint: Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+[OMNI-0] 2026-10-26T04:53:17.878588Z  INFO dynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint: Started TCP worker dispatcher with concurrency limit 10000
+[OMNI-0] 2026-10-26T04:53:17.878636Z  INFO dynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint: Binding TCP server to 192.168.10.50:0
+[OMNI-0] 2026-10-26T04:53:17.878696Z  INFO dynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint: TCP server bound successfully requested=192.168.10.50:0 actual=192.168.10.50:32837
+[OMNI-0] 2026-10-26T04:53:17.878732Z  INFO dynamo_runtime::pipeline::network::manager: TCP request plane server started actual_addr=192.168.10.50:32837 actual_port=32837
+[OMNI-0] 2026-10-26T04:53:17.879220Z  INFO dynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint: Registered endpoint 'm07-omni-9c7db27ec8.backend.generate' with shared TCP server on 192.168.10.50:32837
+[OMNI-0] 2026-10-26T04:53:18.365196Z  INFO handle_payload: dynamo_runtime::pipeline::network::ingress::push_handler: request received request_id=cae2c586-e97d-4557-a933-b0d5b48ac296 otel.kind="server" request_id="cae2c586-e97d-4557-a933-b0d5b48ac296" component="backend" endpoint="generate" namespace="m07-omni-9c7db27ec8" instance_id=14227805280914741808
+[OMNI-0] 2026-10-26T04:53:18.370034Z  WARN audio_handler._is_tts_model: _is_tts_model: could not detect TTS model. stage_list=False, stage_configs=True
+[OMNI-0] 2026-10-26T04:53:18.370298Z  INFO audio_handler.build_engine_inputs: Audio request (generic): input='Say hello in one short sentence....'
+[OMNI-0] 2026-10-26T04:53:18.419427Z WARNING input_processor.process_inputs: Passing raw prompts to InputProcessor is deprecated and will be removed in v0.18. You should instead pass the outputs of Renderer.render_cmpl() or Renderer.render_chat().
+[OMNI-0] (StageEngineCoreProc_stage0_replica0 pid=30528) WARNING 10-26 04:53:18 [jit_monitor.py:141] Triton kernel JIT compilation during inference: _triton_mrope_forward. This causes a latency spike; consider extending warmup to cover this shape/config.
+[OMNI-0] (StageEngineCoreProc_stage1_replica0 pid=31064) WARNING 10-26 04:53:18 [jit_monitor.py:141] Triton kernel JIT compilation during inference: _triton_mrope_forward. This causes a latency spike; consider extending warmup to cover this shape/config.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) INFO 10-26 04:53:20 [qwen2_5_omni.py:995] Currently, we do not use the chunked process, we only use the token2wav.process_chunk for the whole sequence. The stream mode will be implemented in the future.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=31597) WARNING 10-26 04:53:21 [jit_monitor.py:141] Triton kernel JIT compilation during inference: SnakeBeta._init_triton.<locals>._kernel. This causes a latency spike; consider extending warmup to cover this shape/config.
+[OMNI-0] 2026-10-26T04:53:21.423698Z  INFO handle_payload: dynamo_runtime::pipeline::network::ingress::push_handler: request completed request_id=cae2c586-e97d-4557-a933-b0d5b48ac296 otel.kind="server" request_id="cae2c586-e97d-4557-a933-b0d5b48ac296" component="backend" endpoint="generate" namespace="m07-omni-9c7db27ec8" instance_id=14227805280914741808
+[OMNI-0] 2026-10-26T04:53:21.543152Z  INFO graceful_shutdown.graceful_shutdown_with_discovery: Received shutdown signal; unregistering endpoints from discovery
+[OMNI-0] 2026-10-26T04:53:21.545908Z  INFO dynamo_runtime::component::endpoint: Successfully unregistered endpoint instance from discovery - worker removed from routing pool instance_id=14227805280914741808
+[OMNI-0] 2026-10-26T04:53:21.547160Z  INFO graceful_shutdown.graceful_shutdown_with_discovery: Grace period 5.00s before stopping endpoints
+[OMNI-0] 2026-10-26T04:53:24.247652Z  INFO utils.shutdown: [shutdown] Process manager: send sigterm to process StageEngineCoreProc_stage1_replica0
+[OMNI-0] 2026-10-26T04:53:24.272371Z  INFO utils.shutdown: [shutdown] Process manager: send sigterm to process StageEngineCoreProc_stage2_replica0
+[OMNI-0] 2026-10-26T04:53:24.379258Z WARNING core_client.monitor_engine_cores: [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+[OMNI-0] 2026-10-26T04:53:24.379479Z  INFO core_client.shutdown: [shutdown] MPClient: start timeout=default
+[OMNI-0] 2026-10-26T04:53:24.379618Z  INFO core_client.shutdown: [shutdown] MPClient: stopping engine manager
+[OMNI-0] 2026-10-26T04:53:24.379731Z  INFO core_client.shutdown: [shutdown] MPClient: engine manager stopped
+[OMNI-0] 2026-10-26T04:53:24.379817Z  INFO core_client.shutdown: [shutdown] MPClient: cleaning up background resources
+[OMNI-0] 2026-10-26T04:53:24.380398Z  INFO core_client.shutdown: [shutdown] MPClient: complete
+[OMNI-0] 2026-10-26T04:53:24.383065Z ERROR stage_pool.poll_llm_raw_output: [StagePool] _poll_stage_raw failed for stage-1 replica-0
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm_omni/engine/stage_pool.py", line 1165, in poll_llm_raw_output
+[OMNI-0]     return await asyncio.wait_for(
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+[OMNI-0]     return await fut
+[OMNI-0]            ^^^^^^^^^
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm_omni/engine/stage_pool.py", line 1112, in _poll_stage_raw
+[OMNI-0]     outputs = await client.get_output_async()
+[OMNI-0]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 1104, in get_output_async
+[OMNI-0]     raise self._format_exception(outputs) from None
+[OMNI-0] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.
+[OMNI-0] 2026-10-26T04:53:24.385120Z ERROR orchestrator._handle_dead_replica: [Orchestrator] Stage-1 replica-0 is dead; evicting it and failing its in-flight requests: EngineCore encountered an issue. See stack trace (above) for the root cause.
+[OMNI-0] 2026-10-26T04:53:24.385235Z  INFO stage_pool.shutdown_replica: [StagePool] Stage 1 replica 0 shut down
+[OMNI-0] 2026-10-26T04:53:24.428930Z  INFO core_client.shutdown: [shutdown] MPClient: start timeout=default
+[OMNI-0] 2026-10-26T04:53:24.432052Z ERROR stage_pool.poll_llm_raw_output: [StagePool] _poll_stage_raw failed for stage-2 replica-0
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm_omni/engine/stage_pool.py", line 1165, in poll_llm_raw_output
+[OMNI-0]     return await asyncio.wait_for(
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+[OMNI-0]     return await fut
+[OMNI-0]            ^^^^^^^^^
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm_omni/engine/stage_pool.py", line 1112, in _poll_stage_raw
+[OMNI-0]     outputs = await client.get_output_async()
+[OMNI-0]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 1104, in get_output_async
+[OMNI-0]     raise self._format_exception(outputs) from None
+[OMNI-0] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.
+[OMNI-0] 2026-10-26T04:53:24.432956Z ERROR orchestrator._handle_dead_replica: [Orchestrator] Stage-2 replica-0 is dead; evicting it and failing its in-flight requests: EngineCore encountered an issue. See stack trace (above) for the root cause.
+[OMNI-0] 2026-10-26T04:53:24.433027Z  INFO stage_pool.shutdown_replica: [StagePool] Stage 2 replica 0 shut down
+[OMNI-0] 2026-10-26T04:53:24.553355Z  INFO utils.shutdown: [shutdown] Process manager: send sigterm to process StageEngineCoreProc_stage0_replica0
+[OMNI-0] 2026-10-26T04:53:24.695826Z  INFO core_client.shutdown: [shutdown] MPClient: start timeout=default
+[OMNI-0] 2026-10-26T04:53:24.696725Z ERROR stage_pool.poll_llm_raw_output: [StagePool] _poll_stage_raw failed for stage-0 replica-0
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm_omni/engine/stage_pool.py", line 1165, in poll_llm_raw_output
+[OMNI-0]     return await asyncio.wait_for(
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+[OMNI-0]     return await fut
+[OMNI-0]            ^^^^^^^^^
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm_omni/engine/stage_pool.py", line 1112, in _poll_stage_raw
+[OMNI-0]     outputs = await client.get_output_async()
+[OMNI-0]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 1104, in get_output_async
+[OMNI-0]     raise self._format_exception(outputs) from None
+[OMNI-0] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.
+[OMNI-0] 2026-10-26T04:53:24.697843Z ERROR orchestrator._handle_dead_replica: [Orchestrator] Stage-0 replica-0 is dead; evicting it and failing its in-flight requests: EngineCore encountered an issue. See stack trace (above) for the root cause.
+[OMNI-0] 2026-10-26T04:53:24.697996Z  INFO stage_pool.shutdown_replica: [StagePool] Stage 0 replica 0 shut down
+[OMNI-0] 2026-10-26T04:53:26.548278Z  INFO graceful_shutdown.graceful_shutdown_with_discovery: Initiating runtime shutdown
+[OMNI-0] 2026-10-26T04:53:26.548525Z  INFO dynamo_runtime::runtime: Runtime shutdown initiated
+[OMNI-0] 2026-10-26T04:53:26.548887Z  INFO dynamo_runtime::runtime: Phase 1: Cancelling endpoint shutdown token
+[OMNI-0] 2026-10-26T04:53:26.549150Z  INFO dynamo_runtime::runtime: Phase 2: Waiting for graceful endpoints to complete
+[OMNI-0] 2026-10-26T04:53:26.549204Z  INFO dynamo_runtime::runtime: Active graceful endpoints: 1
+[OMNI-0] 2026-10-26T04:53:26.549619Z  WARN dynamo_runtime::component::endpoint: Failed to unregister endpoint from discovery error=Could not find key '/var/cache/dynamo-cuda/m07-followup/omni-aggregated-3/discovery/v1/instances/m07%2Domni%2D9c7db27ec8%2Fbackend%2Fgenerate%2Fc573518556599a30'
+[OMNI-0] 2026-10-26T04:53:26.550166Z  INFO dynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint: Unregistered TCP endpoint handler endpoint_name=generate endpoint_path=c573518556599a30/generate
+[OMNI-0] 2026-10-26T04:53:26.550350Z  INFO dynamo_runtime::utils::graceful_shutdown: Last endpoint completed, notifying all waiters
+[OMNI-0] 2026-10-26T04:53:26.550567Z  INFO dynamo_runtime::runtime: Phase 3: Connections to backend services will now be disconnected
+[OMNI-0] 2026-10-26T04:53:26.551052Z  INFO omni_base.shutdown: [AsyncOmni] Shutting down
+[OMNI-0] 2026-10-26T04:53:26.551175Z  INFO async_omni_engine.shutdown: [AsyncOmniEngine] Shutting down Orchestrator
+[OMNI-0] 2026-10-26T04:53:26.551631Z  INFO orchestrator._request_handler: [Orchestrator] Received shutdown signal
+[OMNI-0] 2026-10-26T04:53:26.553178Z  INFO orchestrator._shutdown_stages: [Orchestrator] Shutting down all 0 client(s)
+[OMNI-0] 2026-10-26T04:53:26.554142Z  INFO base_handler.cleanup: AsyncOmni orchestrator closed

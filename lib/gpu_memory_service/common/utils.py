@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Shared utilities for GPU Memory Service."""
 
@@ -64,14 +66,23 @@ def get_socket_path(device: int, tag: str = "weights") -> str:
     """
     uuid = _uuid_cache.get(device)
     if uuid is None:
-        import pynvml  # deferred: not available in all environments
+        from gpu_memory_service.common.vmm import (
+            VMMDeviceType,
+            get_vmm,
+            get_vmm_device_type,
+        )
 
-        pynvml.nvmlInit()
-        try:
-            handle = pynvml.nvmlDeviceGetHandleByIndex(device)
-            uuid = pynvml.nvmlDeviceGetUUID(handle)
-        finally:
-            pynvml.nvmlShutdown()
+        if get_vmm_device_type() == VMMDeviceType.METAX:
+            uuid = get_vmm().device_uuid(device)
+        else:
+            import pynvml  # deferred: CUDA legacy identity
+
+            pynvml.nvmlInit()
+            try:
+                handle = pynvml.nvmlDeviceGetHandleByIndex(device)
+                uuid = pynvml.nvmlDeviceGetUUID(handle)
+            finally:
+                pynvml.nvmlShutdown()
         _uuid_cache[device] = uuid
     socket_dir = os.environ.get("GMS_SOCKET_DIR") or tempfile.gettempdir()
     return os.path.join(socket_dir, f"gms_{uuid}_{tag}.sock")

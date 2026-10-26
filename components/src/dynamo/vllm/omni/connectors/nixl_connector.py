@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """NixlConnector adapter for vllm-omni OmniConnector interface.
 
@@ -16,7 +18,7 @@ Transfer model (PULL / READ):
         - Wrap each tensor in nixl_connect.Descriptor
         - Await connector.create_readable(descriptor_or_list)
         - Return serialized RdmaMetadata + tensor specs in metadata
-        - Keep tensors pinned in _pending until RDMA completes or cleanup occurs
+        - Keep tensors pinned in _pending until remote RDMA completion is acknowledged
 
     2. Receiver (get)
         - Decode tensor specs from metadata and allocate matching local tensors
@@ -34,6 +36,12 @@ from typing import Any
 
 import torch
 from vllm_omni.distributed.omni_connectors.connectors.base import OmniConnectorBase
+
+from dynamo.common.multimodal.tensor_contract import (
+    tensor_dtype,
+    tensor_nbytes,
+    transfer_tensor,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +98,14 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
             self.config.get("cleanup_interval_s", _DEFAULT_CLEANUP_INTERVAL_S)
         )
         # Keeps pending ReadableOperation + payload tensor(s) alive until
-        # remote read completion, timeout, explicit cleanup, or connector close.
+        # remote read completion; timeout/cleanup only retire the lease.
         # { request_id: (token, ReadableOperation, Any, asyncio.Task, deadline_monotonic) }
         self._pending: dict[str, tuple[str, Any, Any, asyncio.Task[Any], float]] = {}
+        self._publishing: dict[str, int] = {}
+        self._retired = {}
+        self._reads = {}
+        self._read_bytes = 0
+        self._max_pending_bytes = int(config.get("max_pending_bytes", 8 * 1024**3))
         self._cleanup_task: asyncio.Task[Any] | None = None
         self._closed = False
         self._metrics: dict[str, int] = {"puts": 0, "gets": 0, "errors": 0}
@@ -178,9 +191,9 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
         pending = self._pending.pop(request_id, None)
         if pending is None:
             return
-        _, _, _, task, _ = pending
-        if not task.done():
-            task.cancel()
+        # Published descriptors may still be read remotely. Retire the request
+        # without cancelling its completion task or releasing registered storage.
+        self._retired[pending[0]] = pending
         logger.warning(
             "[DynamoOmniNixlConnector] cleaned pending request req=%s reason=%s",
             request_id,
@@ -190,30 +203,29 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
     def _maybe_pop_pending(self, request_id: str, token: str) -> None:
         if (pending := self._pending.get(request_id)) and pending[0] == token:
             self._pending.pop(request_id, None)
+        self._retired.pop(token, None)
 
     async def _close_async(self) -> None:
-        for request_id in tuple(self._pending):
-            self._cancel_pending(request_id, "connector closed")
+        if self._pending or self._retired or self._reads or self._publishing:
+            raise RuntimeError(
+                "Omni connector has outstanding DMA leases; cannot close"
+            )
+        self._closed = True
         if self._cleanup_task is not None:
             self._cleanup_task.cancel()
+            await asyncio.gather(self._cleanup_task, return_exceptions=True)
             self._cleanup_task = None
 
     def close(self) -> None:
-        """Release all resources; safe to call multiple times."""
+        """Close only after published reads and local DMA have completed."""
         if self._closed:
             return
+        self._run_in_loop(self._close_async())
         self._closed = True
-
-        try:
-            if self._loop is not None and self._loop.is_running():
-                self._run_in_loop(self._close_async())
-        except Exception:
-            logger.exception("[DynamoOmniNixlConnector] close cleanup failed")
-
-        if self._loop is not None and self._loop.is_running():
-            self._loop.call_soon_threadsafe(self._loop.stop)
-        if self._loop_thread is not None and self._loop_thread.is_alive():
-            self._loop_thread.join(timeout=5.0)
+        self._loop.call_soon_threadsafe(self._loop.stop)
+        self._loop_thread.join(timeout=5.0)
+        if self._loop_thread.is_alive():
+            raise RuntimeError("Omni connector loop failed to stop")
         self._loop = None
         self._loop_thread = None
         self._loop_ready.clear()
@@ -248,6 +260,7 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
             )
             return False, 0, None
 
+        reserved = False
         try:
             self._ensure_cleanup_task()
 
@@ -263,13 +276,22 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
                 tensors, tensor_specs = _normalize_tensor_payload(payload_tensor)
                 kind = _SERIALIZED_PAYLOAD_KIND
 
+            if put_key in self._pending or put_key in self._publishing:
+                raise ValueError("duplicate active Omni request ID")
+            occupied = sum(
+                sum(t.nbytes for t in item[2])
+                for item in (*self._pending.values(), *self._retired.values())
+            )
+            size = sum(t.nbytes for t in tensors)
+            occupied += sum(self._publishing.values())
+            if occupied + size > self._max_pending_bytes:
+                raise BufferError("Omni published memory budget exhausted")
+            self._publishing[put_key] = size
+            reserved = True
             descriptors = [_nixl_connect.Descriptor(t) for t in tensors]
             readable_op = await self._connector.create_readable(
                 descriptors[0] if len(descriptors) == 1 else descriptors
             )
-
-            if put_key in self._pending:
-                self._cancel_pending(put_key, "duplicate request id replaced")
 
             token = str(id(readable_op))
             deadline = time.monotonic() + max(0.0, self._pending_timeout_s)
@@ -288,8 +310,11 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
                         req_id,
                         exc,
                     )
-                finally:
-                    self._maybe_pop_pending(req_id, token)
+                    self._cancel_pending(
+                        req_id, "read completion failed; lease retained"
+                    )
+                    return
+                self._maybe_pop_pending(req_id, token)
 
             task = asyncio.create_task(_wait_release())
             self._pending[put_key] = (token, readable_op, tensors, task, deadline)
@@ -323,6 +348,9 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
                 exc_info=True,
             )
             return False, 0, None
+        finally:
+            if reserved:
+                self._publishing.pop(put_key, None)
 
     # ------------------------------------------------------------------
     # Receiver side
@@ -386,6 +414,16 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
             if not isinstance(tensor_specs, list) or not tensor_specs:
                 raise RuntimeError(f"Invalid tensor_specs for req={get_key}")
 
+            total_bytes = sum(
+                tensor_nbytes(spec["shape"], spec["dtype"]) for spec in tensor_specs
+            )
+            if total_bytes + self._read_bytes > self._max_pending_bytes:
+                raise BufferError("Omni receive memory budget exhausted")
+            if len(rdma_meta.descriptors) != len(tensor_specs) or any(
+                desc.size != spec["size"]
+                for desc, spec in zip(rdma_meta.descriptors, tensor_specs, strict=True)
+            ):
+                raise ValueError("Omni RDMA descriptors disagree with tensor metadata")
             local_tensors: list[torch.Tensor] = []
             local_descriptors: list[Any] = []
             for spec in tensor_specs:
@@ -397,13 +435,30 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
                 local_tensors.append(tensor)
                 local_descriptors.append(_nixl_connect.Descriptor(tensor))
 
-            read_op = await self._connector.begin_read(
-                rdma_meta,
-                local_descriptors[0]
-                if len(local_descriptors) == 1
-                else local_descriptors,
-            )
-            await read_op.wait_for_completion()
+            async def read_to_completion():
+                read_op = await self._connector.begin_read(
+                    rdma_meta,
+                    (
+                        local_descriptors[0]
+                        if len(local_descriptors) == 1
+                        else local_descriptors
+                    ),
+                )
+                await read_op.wait_for_completion()
+
+            task = asyncio.create_task(read_to_completion())
+            self._reads[task] = local_descriptors
+            self._read_bytes += total_bytes
+
+            def finished_read(task):
+                if not task.cancelled() and task.exception() is None:
+                    self._reads.pop(task, None)
+                    self._read_bytes -= total_bytes
+                # Unknown failed DMA keeps its local descriptors reachable via
+                # the task traceback. Restart the owning worker for recovery.
+
+            task.add_done_callback(finished_read)
+            await asyncio.shield(task)
 
             total_size = sum(spec.get("size", 0) for spec in tensor_specs)
             if payload_kind == _SERIALIZED_PAYLOAD_KIND:
@@ -415,6 +470,8 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
                 raw_bytes = _tensor_uint8_to_bytes(local_tensors[0])
                 result = self.deserialize_obj(raw_bytes)
             else:
+                if self._receive_device is not None:
+                    local_tensors = [t.to(self._receive_device) for t in local_tensors]
                 result = local_tensors[0] if len(local_tensors) == 1 else local_tensors
 
             self._metrics["gets"] += 1
@@ -464,7 +521,7 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
         )
 
     def cleanup(self, request_id: str) -> None:
-        """Cancel and discard any pinned tensors/operations for *request_id*."""
+        """Retire a published lease; only remote completion releases its storage."""
         if self._closed:
             return
 
@@ -479,6 +536,8 @@ class DynamoOmniNixlConnector(OmniConnectorBase):
             "status": "unhealthy" if self._closed or not _NIXL_AVAILABLE else "healthy",
             "nixl_available": _NIXL_AVAILABLE,
             "pending_requests": len(self._pending),
+            "retired_requests": len(self._retired),
+            "pending_reads": len(self._reads),
             **self._metrics,
         }
 
@@ -519,7 +578,7 @@ def _normalize_tensor_payload(
     for tensor in tensors:
         if not isinstance(tensor, torch.Tensor):
             raise TypeError("Tensor payload must contain only torch.Tensor values")
-        contiguous = tensor.detach().contiguous()
+        contiguous = transfer_tensor(tensor).clone()
         normalized.append(contiguous)
         tensor_specs.append(
             {
@@ -537,40 +596,17 @@ def _allocate_tensor_from_spec(
     receive_device: torch.device | None = None,
 ) -> torch.Tensor:
     shape = spec.get("shape")
-    dtype = _resolve_torch_dtype(spec.get("dtype"))
-    if not isinstance(shape, list):
-        raise RuntimeError(f"Invalid tensor spec shape: {shape!r}")
-
-    shape_tuple = tuple(int(dim) for dim in shape)
-    source_device = _parse_torch_device(spec.get("device"))
-
-    last_error: Exception | None = None
-    for device in _candidate_receive_devices(source_device, receive_device):
-        try:
-            return torch.empty(shape_tuple, dtype=dtype, device=device)
-        except Exception as exc:
-            last_error = exc
-
-    try:
-        return torch.empty(shape_tuple, dtype=dtype)
-    except Exception as exc:
-        message = (
-            f"Failed to allocate tensor for spec={spec!r} "
-            f"with receive_device={receive_device!r}"
-        )
-        if last_error is not None:
-            raise RuntimeError(message) from last_error
-        raise RuntimeError(message) from exc
+    dtype = tensor_dtype(spec.get("dtype"))
+    size = tensor_nbytes(shape, spec["dtype"])
+    if spec.get("size") != size:
+        raise ValueError("Omni tensor size does not match shape/dtype")
+    # Source ordinals belong to another process. Transport via host memory;
+    # stage engines explicitly move tensors to their own logical device.
+    return torch.empty(tuple(shape), dtype=dtype, device="cpu")
 
 
 def _resolve_torch_dtype(dtype_name: Any) -> torch.dtype:
-    if not isinstance(dtype_name, str):
-        raise RuntimeError(f"Invalid tensor dtype: {dtype_name!r}")
-    normalized = dtype_name.removeprefix("torch.")
-    dtype = getattr(torch, normalized, None)
-    if dtype is None:
-        raise RuntimeError(f"Unsupported tensor dtype: {dtype_name!r}")
-    return dtype
+    return tensor_dtype(dtype_name)
 
 
 def _resolve_configured_receive_device(config: dict[str, Any]) -> torch.device | None:

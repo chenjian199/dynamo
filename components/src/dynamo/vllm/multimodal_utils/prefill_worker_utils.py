@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import asyncio
 import logging
@@ -239,6 +241,24 @@ def _ensure_owned_tensors(multi_modal_data: Dict[str, Any]) -> None:
         multi_modal_data["image"] = img.clone()
 
 
+async def _receive_embedding_batch(receiver, requests):
+    """A failed/cancelled batch releases completed siblings and drains the rest."""
+    tasks = [
+        asyncio.create_task(receiver.receive_embeddings(request))
+        for request in requests
+    ]
+    try:
+        return await asyncio.gather(*tasks)
+    except BaseException:
+        for task in tasks:
+            task.cancel()
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for result in results:
+            if not isinstance(result, BaseException):
+                receiver.release_tensor(result[0])
+        raise
+
+
 async def _fetch_from_encode_workers(
     encode_worker_client: Client,
     image_items: List[Any],
@@ -313,18 +333,16 @@ async def _fetch_from_encode_workers(
             for idx, group in enumerate(multimodal_groups)
             if group.serialized_request is not None
         ]
-        tasks = [
-            asyncio.create_task(
-                receiver.receive_embeddings(
-                    multimodal_groups[idx].serialized_request  # type: ignore[arg-type]
-                )
-            )
-            for idx in transfer_group_indices
-        ]
-        loaded = await asyncio.gather(*tasks)
+        loaded = await _receive_embedding_batch(
+            receiver,
+            [
+                multimodal_groups[idx].serialized_request
+                for idx in transfer_group_indices
+            ],
+        )
 
     is_local = isinstance(receiver, LocalEmbeddingReceiver)
-    pending: _PendingRelease | None = None if is_local else _PendingRelease(receiver)
+    pending = _PendingRelease(receiver)
     try:
         _attach_received_embedding_transfers(
             multimodal_groups,
@@ -332,14 +350,16 @@ async def _fetch_from_encode_workers(
             loaded,
             pending,
         )
-    except RuntimeError:
-        if pending is not None:
-            for tensor_id, _ in loaded:
-                pending.track(tensor_id)
-            pending.release_all()
+    except BaseException:
+        for tensor_id, _ in loaded:
+            pending.track(tensor_id)
+        pending.release_all()
         raise
-
-    return multimodal_groups, pending
+    if is_local:
+        # safetensors tensors retain their mapped storage after unlink on Linux.
+        # Unlike NIXL ring slots, the file name is no longer needed by consumers.
+        pending.release_all()
+    return multimodal_groups, None if is_local else pending
 
 
 async def _fetch_embeddings(

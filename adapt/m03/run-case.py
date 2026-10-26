@@ -25,6 +25,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--startup-timeout", type=int, default=600)
     parser.add_argument(
+        "--launch-script", type=Path, default=Path("adapt/m03/serve.sh")
+    )
+    parser.add_argument(
         "--check", choices=("text", "lora", "vision", "spec"), default="text"
     )
     parser.add_argument("engine_args", nargs=argparse.REMAINDER)
@@ -37,7 +40,7 @@ def main():
     extra = args.engine_args
     if extra[:1] == ["--"]:
         extra = extra[1:]
-    command = ["bash", str(root / "adapt/m03/serve.sh"), *extra]
+    command = ["bash", str(root / args.launch_script), *extra]
     report = dict(
         passed=False,
         started=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -60,6 +63,7 @@ def main():
                 "components/src/dynamo/vllm",
                 "components/src/dynamo/common/platform",
                 "adapt/m03",
+                "adapt/m07",
             )
             for path in (root / base).rglob("*")
             if path.suffix in (".py", ".sh")

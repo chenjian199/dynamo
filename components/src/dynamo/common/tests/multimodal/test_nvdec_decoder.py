@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for the NVDEC video decoder (PyNvVideoCodec mocked, no GPU)."""
 
@@ -18,7 +20,8 @@ pytestmark = [pytest.mark.pre_merge, pytest.mark.unit, pytest.mark.gpu_0]
 
 
 @pytest.fixture(autouse=True)
-def _clear_cache():
+def _clear_cache(monkeypatch):
+    monkeypatch.setenv("DYN_PLATFORM", "cuda")  # This suite mocks a CUDA decoder.
     nd.nvdec_available.cache_clear()
     yield
     nd.nvdec_available.cache_clear()

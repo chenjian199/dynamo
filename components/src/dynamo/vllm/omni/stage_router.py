@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Stage router for disaggregated omni pipelines."""
 
@@ -9,7 +11,6 @@ import uuid
 from typing import Any, AsyncGenerator, Dict, List
 
 from vllm_omni.distributed.omni_connectors import initialize_orchestrator_connectors
-from vllm_omni.entrypoints.utils import load_and_resolve_stage_configs
 
 from dynamo import prometheus_names
 from dynamo.common.model_taints import register_model_taint_route
@@ -25,6 +26,7 @@ from dynamo.vllm.main import setup_metrics_collection
 from dynamo.vllm.omni.args import OmniConfig
 from dynamo.vllm.omni.connectors import register_dynamoomni_nixl_connector
 from dynamo.vllm.omni.output_formatter import OutputFormatter
+from dynamo.vllm.omni.pipeline_compat import load_and_resolve_stage_configs
 from dynamo.vllm.omni.stage_worker import (
     _connector_key,
     _ensure_stage_connectors,

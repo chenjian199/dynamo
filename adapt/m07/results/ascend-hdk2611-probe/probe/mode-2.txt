@@ -1,0 +1,17 @@
+aclInit(nullptr) rc=0
+aclrtSetDevice(device) rc=0
+aclrtMemGetAllocationGranularity(&prop, ACL_RT_MEM_ALLOC_GRANULARITY_MINIMUM, &size) rc=0
+granularity=2097152 prop_size=32 access_size=24
+aclrtMallocPhysical(&handle, size, &prop, 0) rc=0
+aclrtReserveMemAddress(&va, size, 0, nullptr, 0) rc=0
+aclrtMapMem(va, size, 0, handle, 0) rc=0
+access_sequence=fresh-ro
+[INFO] DRV(693,probe-vmm):2026-10-26-03:41:49.403.921 [devmm_svm.c:5781][ascend][curpid:693,693][drv][devmm][devmm_access_desc_check]Not support type. (index=0; type=1)
+[WARNING] RUNTIME(693,probe-vmm):2026-10-26-03:41:49.403.927 [npu_driver_mem.cc:447] 693 MemSetAccess: [drv api] halMemSetAccess does not support.
+set_access_ro rc=207000
+get_access rc=0 read_access=3
+aclrtMemExportToShareableHandle(handle, prop.handleType, 0, &share) rc=0
+exported_handle_type=0
+unmap_rc=0
+address_free_rc=0
+release_rc=0

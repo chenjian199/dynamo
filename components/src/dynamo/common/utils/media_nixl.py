@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 from __future__ import annotations
 
@@ -11,10 +13,46 @@ from typing import TYPE_CHECKING, Any, Dict, Literal, Tuple, overload
 import numpy as np
 import torch
 
+from dynamo.common.multimodal.tensor_contract import (
+    selected_platform,
+    tensor_dtype,
+    tensor_nbytes,
+)
+
 if TYPE_CHECKING:
     from dynamo import nixl_connect
 
 logger = logging.getLogger(__name__)
+
+
+def validate_media_descriptor(decoded_meta: Dict[str, Any]) -> tuple[str, torch.dtype]:
+    """Validate wire layout before allocating or constructing an RDMA operation."""
+    if decoded_meta.get("schema_version", 1) != 1:
+        raise ValueError("unsupported media descriptor schema")
+    descriptor = decoded_meta["nixl_descriptor"]
+    shape = decoded_meta["shape"]
+    dtype = decoded_meta.get("dtype", "uint8")
+    size = tensor_nbytes(shape, dtype)
+    if type(descriptor["size"]) is not int or descriptor["size"] != size:
+        raise ValueError("media descriptor byte size does not match shape/dtype")
+    if type(descriptor["addr"]) is not int or descriptor["addr"] <= 0:
+        raise ValueError("media descriptor requires a positive address")
+    memory = descriptor.get("mem_type", "dram").lower()
+    if memory == "dram":
+        return "cpu", tensor_dtype(dtype)
+    platform = decoded_meta.get("source_platform", "cuda")
+    if (
+        memory not in ("vram", "cuda")
+        or platform != "cuda"
+        or selected_platform() != "cuda"
+    ):
+        raise ValueError(
+            "device media requires CUDA descriptors; stage vendor media on CPU"
+        )
+    ordinal = descriptor.get("device_id", 0)
+    if type(ordinal) is not int or ordinal < 0:
+        raise ValueError("invalid remote CUDA device ordinal")
+    return f"cuda:{ordinal}", tensor_dtype(dtype)
 
 
 @overload
@@ -51,6 +89,7 @@ async def read_decoded_media_via_nixl(
         np.ndarray containing the transferred media data.
         Dict[str, Any] containing the media metadata.
     """
+    remote_device, dtype = validate_media_descriptor(decoded_meta)
     try:
         from dynamo import nixl_connect
         from dynamo.nixl_connect import (
@@ -66,12 +105,6 @@ async def read_decoded_media_via_nixl(
 
     rdma_metadata = decoded_meta["nixl_metadata"]
     descriptor = decoded_meta["nixl_descriptor"]
-    remote_device = (
-        "cpu"
-        if descriptor.get("mem_type", "dram").lower() == "dram"
-        else f"cuda:{descriptor.get('device_id', 0)}"
-    )
-
     rdma_metadata = RdmaMetadata(
         descriptors=[
             SerializedDescriptor(
@@ -87,9 +120,8 @@ async def read_decoded_media_via_nixl(
 
     # Create empty tensor to receive RDMA data
     shape = decoded_meta["shape"]
-    dtype_str = decoded_meta.get("dtype", "uint8").lower()
     alloc_start = time.perf_counter()
-    tensor = torch.empty(shape, dtype=getattr(torch, dtype_str))
+    tensor = torch.empty(shape, dtype=dtype)
     alloc_end = time.perf_counter()
     local_descriptor = nixl_connect.Descriptor(tensor)
 
@@ -105,7 +137,8 @@ async def read_decoded_media_via_nixl(
     )
 
     array = tensor.numpy()  # zero-copy
-    array = array[..., :3]  # ignore alpha
+    if array.dtype == np.uint8 and array.ndim in (3, 4) and array.shape[-1] == 4:
+        array = array[..., :3]  # RGB(A) image/video only; preserve audio samples.
     if return_metadata:
         return array, decoded_meta.get("metadata")
     else:

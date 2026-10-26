@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Protocol types for disaggregated omni stage workers and connectors.
 """
@@ -28,6 +30,10 @@ class StageEngine(Protocol):
         *,
         sampling_params_list: Any = None,
     ) -> AsyncGenerator[Any, None]:
+        ...
+
+    async def abort(self, request_id: str) -> None:
+        """Cancel an engine request and release its scheduler resources."""
         ...
 
     def get_tokenizer(self) -> Any:

@@ -19,7 +19,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | M04 | [设备运行时与内存](m04-device-memory/README.md) | 分配、注册、上下文、流和事件 | 基础原语第一版完成：三平台真实复制、所有权、事件与回收；[验收](../m04/README.md) |
 | M05 | [PD 协调与数据传输](m05-pd-transfer/README.md) | 协议策略、传输提供者与完成语义 | 部分完成：单机原生 PD、2P3D、受限不同 TP、故障恢复与有界长稳；[证据与路径限制](../m05/completion.md)，跨节点待验收 |
 | M06 | [KVBM 与集合通信](m06-kvbm-collectives/README.md) | 缓存调用链、布局内核、跨语言桥接 | vLLM 本地路径三平台验收完成；补齐独立 Rust 本地调用链与 replicated 双卡广播；G4/跨节点暂缓，完整设计仍部分完成；[分项证据](../m06/README.md) |
-| M07 | [GMS 与多模态](m07-gms-multimodal/README.md) | VMM 扩展、共享恢复、媒体数据面 | 待实现 |
+| M07 | [GMS 与多模态](m07-gms-multimodal/README.md) | VMM 扩展、共享恢复、媒体数据面 | 阶段性收口 / 有限支持：MetaX/CUDA GMS、三平台跨卡编码器/LOCAL 回收/长视频；CUDA/MetaX 原生 Omni 并发取消与 30 分钟回归通过；暂缓项见分项证据 |
 | M08 | [Kubernetes 部署](m08-kubernetes/README.md) | 平台配置、资源解析、调度和生成产物 | 待实现 |
 | M09 | [遥测与 Planner](m09-telemetry-planner/README.md) | 设备观测、功耗、性能画像与伸缩 | 基础引擎指标可用；平台遥测/Planner 待实现 |
 | M10 | [测试与认证](m10-validation/README.md) | 契约测试、硬件矩阵与证据规范 | 部分完成：契约及当前硬件冒烟验收 |

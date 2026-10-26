@@ -1,0 +1,15 @@
+mcSetDevice(device) rc=0
+mcMemGetAllocationGranularity(&size, &prop, MC_MEM_ALLOC_GRANULARITY_MINIMUM) rc=0
+granularity=67108864 prop_size=32 access_size=12
+mcMemCreate(&handle, size, &prop, 0) rc=0
+mcMemAddressReserve(&va, size, size, 0, 0) rc=0
+mcMemMap(va, size, 0, handle, 0) rc=0
+mcMemSetAccess(va, size, &desc, 1) rc=0
+mcMemSetAccess(va, size, &desc, 1) rc=0
+mcMemGetAccess(&flags, &prop.location, va) rc=0
+read_access=3
+mcMemExportToShareableHandle(&fd, handle, mcMemHandleTypePosixFileDescriptor, 0) rc=0
+posix_fd=true
+unmap_rc=0
+address_free_rc=0
+release_rc=0

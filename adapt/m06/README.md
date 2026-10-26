@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # M06 KVBM 适配与验收
 
+> 2026-10-21 基线变更：NVIDIA 后续固定官方 Dynamo 1.5.1 / vLLM 0.28.0。本页 CUDA 0.24 结果为历史证据，不代表 0.28 已通过；详见[版本基线](../version-baselines.md)。
+
 2026-10-20 已闭环当前 vLLM 调用链的三平台本地分层 KV 缓存验收。
 随后按用户要求补齐独立 Rust 本地调用链与 replicated 广播，详见 [独立 KVBM 验收](independent.md)；G4/跨节点暂缓。
 **当前路径已验收；完整 M06 设计仍为部分完成**。范围是 eager、BF16、

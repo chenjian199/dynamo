@@ -1,13 +1,17 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for OmniStageWorker.
 
 No GPU, no vllm_omni — uses mock StageEngine matching AsyncOmni.generate() signature.
 """
 
+import asyncio
+import threading
 from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import yaml
@@ -498,13 +502,11 @@ def test_prepare_connector_payload_preserves_empty_attr_positions():
 
 def test_ensure_stage_connectors_adds_missing_shared_memory_edge(tmp_path):
     config_path = tmp_path / "glm_image.yaml"
-    config_path.write_text(
-        """
+    config_path.write_text("""
 stages:
   - stage_id: 0
   - stage_id: 1
-""".lstrip()
-    )
+""".lstrip())
     stage_configs = [
         SimpleNamespace(stage_id=0, engine_input_source=[]),
         SimpleNamespace(stage_id=1, engine_input_source=[0]),
@@ -522,15 +524,13 @@ stages:
 
 def test_ensure_stage_connectors_rejects_non_mapping_connectors(tmp_path):
     config_path = tmp_path / "glm_image.yaml"
-    config_path.write_text(
-        """
+    config_path.write_text("""
 connectors:
   - not-a-mapping
 stages:
   - stage_id: 0
   - stage_id: 1
-""".lstrip()
-    )
+""".lstrip())
     stage_configs = [
         SimpleNamespace(stage_id=0, engine_input_source=[]),
         SimpleNamespace(stage_id=1, engine_input_source=[0]),
@@ -569,6 +569,7 @@ def test_stage_config_to_dict_preserves_runtime_devices():
 def test_single_stage_runtime_devices_normalized_when_visibility_is_narrowed(
     monkeypatch,
 ):
+    monkeypatch.setenv("DYN_PLATFORM", "cuda")
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "1")
     stage_arg = {
         "stage_id": 0,
@@ -582,6 +583,7 @@ def test_single_stage_runtime_devices_normalized_when_visibility_is_narrowed(
 
 
 def test_single_stage_runtime_devices_preserve_visible_subset(monkeypatch):
+    monkeypatch.setenv("DYN_PLATFORM", "cuda")
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0,1")
     stage_arg = {
         "stage_id": 0,
@@ -597,6 +599,7 @@ def test_single_stage_runtime_devices_preserve_visible_subset(monkeypatch):
 def test_single_stage_runtime_devices_normalized_for_xpu_visibility(monkeypatch):
     monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
     monkeypatch.delenv("ASCEND_RT_VISIBLE_DEVICES", raising=False)
+    monkeypatch.setenv("DYN_PLATFORM", "xpu")
     monkeypatch.setenv("ZE_AFFINITY_MASK", "2")
     stage_arg = {
         "stage_id": 0,
@@ -612,6 +615,7 @@ def test_single_stage_runtime_devices_normalized_for_xpu_visibility(monkeypatch)
 def test_single_stage_runtime_devices_preserve_xpu_visible_subset(monkeypatch):
     monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
     monkeypatch.delenv("ASCEND_RT_VISIBLE_DEVICES", raising=False)
+    monkeypatch.setenv("DYN_PLATFORM", "xpu")
     monkeypatch.setenv("ZE_AFFINITY_MASK", "0,1")
     stage_arg = {
         "stage_id": 0,
@@ -867,3 +871,103 @@ def test_create_engine_resolves_pipeline_with_the_configured_deploy_config():
         trust_remote_code=False,
         deploy_config_path="/deploy/dit_only.yaml",
     )
+
+
+@pytest.mark.parametrize(
+    "platform,variable",
+    [("ascend", "ASCEND_RT_VISIBLE_DEVICES"), ("metax", "MACA_VISIBLE_DEVICES")],
+)
+def test_vendor_stage_visibility_ignores_cuda_environment(
+    monkeypatch, platform, variable
+):
+    monkeypatch.setenv("DYN_PLATFORM", platform)
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0,1,2,3")
+    monkeypatch.setenv(variable, "3")
+    stage = {"runtime": {"devices": "3"}}
+    _normalize_single_stage_runtime_devices(stage)
+    assert stage["runtime"]["devices"] == "0"
+
+
+@pytest.mark.asyncio
+async def test_cancelled_stage_aborts_engine_and_cleans_connectors():
+    entered = asyncio.Event()
+
+    class WaitingEngine(_MockEngine):
+        abort = AsyncMock()
+
+        async def generate(self, *args, **kwargs):
+            entered.set()
+            await asyncio.Event().wait()
+            yield {}
+
+    engine = WaitingEngine()
+    connector = MagicMock()
+    worker = _make_worker(engine=engine, connectors={("0", "1"): connector})
+
+    async def consume():
+        async for _ in worker.generate({"engine_inputs": {}}, _MockContext()):
+            pass
+
+    task = asyncio.create_task(consume())
+    await asyncio.wait_for(entered.wait(), 2)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    engine.abort.assert_awaited_once_with("test-req-id")
+    connector.cleanup.assert_called_once_with("test-req-id")
+
+
+@pytest.mark.asyncio
+async def test_cancelled_connector_cleans_after_blocking_write_finishes():
+    from dynamo.vllm.omni.utils import call_connector
+
+    entered = threading.Event()
+    release = threading.Event()
+    cleaned = threading.Event()
+    payload = []
+
+    class BlockingConnector:
+        def put(self, *args):
+            entered.set()
+            assert release.wait(3)
+            payload.append("published")
+            return True, 1, {}
+
+        def cleanup(self, request_id):
+            payload.clear()
+            cleaned.set()
+
+    task = asyncio.create_task(
+        call_connector(BlockingConnector(), "put", "0", "1", "cancel")
+    )
+    try:
+        assert await asyncio.to_thread(entered.wait, 2)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        assert not cleaned.is_set()
+    finally:
+        release.set()
+    assert await asyncio.to_thread(cleaned.wait, 2)
+    assert payload == []
+
+
+@pytest.mark.asyncio
+async def test_audio_stage_input_is_not_dropped():
+    from dynamo.vllm.omni.utils import parse_omni_request
+
+    result = await parse_omni_request({"input": "Hello"}, ["audio"], 16)
+    assert result["engine_inputs"] == "Hello"
+
+
+def test_worker_transport_pipeline_fails_before_engine_start():
+    from dynamo.vllm.omni.stage_worker import _register_single_stage_pipeline
+
+    pipeline = SimpleNamespace(
+        get_stage=lambda _: SimpleNamespace(requires_full_payload_input=True)
+    )
+    with patch("dynamo.vllm.omni.stage_worker.StageConfigFactory") as factory:
+        factory.get_pipeline_config.return_value = pipeline
+        with pytest.raises(NotImplementedError, match="full-payload transport"):
+            with _register_single_stage_pipeline("model", 1, False, None):
+                pytest.fail("Unsupported pipeline must not be registered")

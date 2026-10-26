@@ -1,0 +1,65 @@
+[OMNI-1] INFO 10-26 04:37:24 [__init__.py:44] Available plugins for group vllm.platform_plugins:
+[OMNI-1] INFO 10-26 04:37:24 [__init__.py:46] - ascend -> vllm_ascend:register
+[OMNI-1] INFO 10-26 04:37:24 [__init__.py:49] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[OMNI-1] INFO 10-26 04:37:24 [__init__.py:238] Platform plugin ascend is activated
+[OMNI-1] INFO 10-26 04:37:24 [platform.py:62] Breakable cudagraph is force disabled on Ascend because DeepSeek V4 PIECEWISE cudagraph is not supported yet.
+[OMNI-1] WARNING 10-26 04:37:35 [patch.py:165] Monkey-patched unregister_vllm_metrics() to scope drops to non-omni vllm:* collectors. Remove this patch once vLLM adds _STAT_LOGGER_METRIC_NAMES.
+[OMNI-1] 2026-10-26T04:37:41.532397Z  INFO patch_getenv._log_once: get env DYN_PLATFORM = ascend
+[OMNI-1] 2026-10-26T04:37:41.633098Z  INFO patch_getenv._log_once: get env DYN_NAMESPACE = m07-omni-ae03a010c1
+[OMNI-1] 2026-10-26T04:37:41.633389Z  INFO patch_getenv._log_once: get env DYN_DISCOVERY_BACKEND = file
+[OMNI-1] 2026-10-26T04:37:41.633563Z  INFO patch_getenv._log_once: get env DYN_REQUEST_PLANE = tcp
+[OMNI-1] 2026-10-26T04:37:41.633786Z  INFO patch_getenv._log_once: get env DYN_EVENT_PLANE = zmq
+[OMNI-1] 2026-10-26T04:37:41.838479Z WARNING arg_utils._register_omni_hf_configs: Skipping omni HF config registration due to import error: No module named 'x_transformers'
+[OMNI-1] 2026-10-26T04:37:41.901818Z  INFO __init__._wrapper: Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[OMNI-1] 2026-10-26T04:37:41.924621Z  INFO __init__._wrapper: Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[OMNI-1] 2026-10-26T04:37:41.926862Z  INFO dynamo_runtime::worker: dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=10546, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[OMNI-1] 2026-10-26T04:37:41.956371Z  INFO dynamo_runtime::distributed: Initializing KV store discovery backend: File(/var/cache/dynamo-ascend/m07-followup/omni-e2e-1/discovery)
+[OMNI-1] 2026-10-26T04:37:41.958032Z  INFO dynamo_runtime::pipeline::network::manager: Initializing NetworkManager with TCP request plane mode=tcp host=172.17.0.2 port=OS-assigned
+[OMNI-1] 2026-10-26T04:37:41.965761Z  INFO dynamo_runtime::system_status_server: [spawn_system_status_server] binding to: 0.0.0.0:10546
+[OMNI-1] 2026-10-26T04:37:41.965942Z  INFO dynamo_runtime::system_status_server: [spawn_system_status_server] system status server bound to: 0.0.0.0:10546
+[OMNI-1] 2026-10-26T04:37:41.966138Z  INFO dynamo_runtime::distributed: System status server started successfully on 0.0.0.0:10546
+[OMNI-1] Traceback (most recent call last):
+[OMNI-1]   File "/workspace/dynamo/components/src/dynamo/common/platform/registry.py", line 71, in prepare
+[OMNI-1]     descriptor = provider(context)
+[OMNI-1]                  ^^^^^^^^^^^^^^^^^
+[OMNI-1]   File "/workspace/dynamo/components/src/dynamo/common/platform/ascend.py", line 112, in ascend
+[OMNI-1]     acl = importlib.import_module("acl")
+[OMNI-1]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-1]   File "/usr/local/python3.12.13/lib/python3.12/importlib/__init__.py", line 90, in import_module
+[OMNI-1]     return _bootstrap._gcd_import(name[level:], package, level)
+[OMNI-1]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-1]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+[OMNI-1]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+[OMNI-1]   File "<frozen importlib._bootstrap>", line 1324, in _find_and_load_unlocked
+[OMNI-1] ModuleNotFoundError: No module named 'acl'
+[OMNI-1]
+[OMNI-1] The above exception was the direct cause of the following exception:
+[OMNI-1]
+[OMNI-1] Traceback (most recent call last):
+[OMNI-1]   File "<frozen runpy>", line 198, in _run_module_as_main
+[OMNI-1]   File "<frozen runpy>", line 88, in _run_code
+[OMNI-1]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/__main__.py", line 12, in <module>
+[OMNI-1]     main()
+[OMNI-1]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 264, in main
+[OMNI-1]     uvloop.run(worker())
+[OMNI-1]   File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+[OMNI-1]     return __asyncio.run(
+[OMNI-1]            ^^^^^^^^^^^^^^
+[OMNI-1]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/runners.py", line 195, in run
+[OMNI-1]     return runner.run(main)
+[OMNI-1]            ^^^^^^^^^^^^^^^^
+[OMNI-1]   File "/usr/local/python3.12.13/lib/python3.12/asyncio/runners.py", line 118, in run
+[OMNI-1]     return self._loop.run_until_complete(task)
+[OMNI-1]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-1]   File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+[OMNI-1]   File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+[OMNI-1]     return await main
+[OMNI-1]            ^^^^^^^^^^
+[OMNI-1]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 239, in worker
+[OMNI-1]     descriptor = registry.prepare(
+[OMNI-1]                  ^^^^^^^^^^^^^^^^^
+[OMNI-1]   File "/workspace/dynamo/components/src/dynamo/common/platform/registry.py", line 75, in prepare
+[OMNI-1]     raise PlatformError(
+[OMNI-1] dynamo.common.platform.registry.PlatformError: ascend: probe_failed: No module named 'acl'
+[OMNI-1] [ERROR] 2026-10-26-04:37:42 (PID:12745, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[OMNI-1] corrupted size vs. prev_size

@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """GPU Memory Service — VMM device abstraction.
 
@@ -22,6 +24,8 @@ The VMM instance is process-global singleton and immutable once initialized.
 
 from __future__ import annotations
 
+import importlib.util
+import os
 import threading
 from enum import Enum
 
@@ -33,6 +37,8 @@ class VMMDeviceType(str, Enum):
 
     CUDA = "cuda"
     XPU = "xpu"
+    METAX = "metax"
+    ASCEND = "ascend"
 
     @classmethod
     def from_str(cls, value: str) -> "VMMDeviceType":
@@ -73,10 +79,18 @@ def init_vmm(device_type: VMMDeviceType) -> None:
 def _detect_device_type() -> VMMDeviceType:
     """Auto-detect the available accelerator device type at runtime.
 
-    Priority: CUDA > XPU > fallback to CUDA (will fail at actual device use).
+    Explicit DYN_PLATFORM wins; vendor runtimes precede CUDA-compatible APIs.
     """
+    explicit = os.environ.get("DYN_PLATFORM")
+    if explicit:
+        return VMMDeviceType.from_str(explicit)
     try:
         import torch
+
+        if getattr(torch.version, "maca", None):
+            return VMMDeviceType.METAX
+        if hasattr(torch, "npu") or importlib.util.find_spec("torch_npu") is not None:
+            return VMMDeviceType.ASCEND
 
         if torch.cuda.is_available():
             return VMMDeviceType.CUDA
@@ -124,6 +138,18 @@ def _create_vmm(device_type: VMMDeviceType) -> VMMDevice:
         from .cuda_utils import CudaVMM
 
         return CudaVMM()
+
+    if device_type is VMMDeviceType.METAX:
+        from .metax import MetaXVMM
+
+        return MetaXVMM()
+
+    if device_type is VMMDeviceType.ASCEND:
+        raise NotImplementedError(
+            "Ascend GMS requires verified read-only VMM access and a versioned "
+            "sharing protocol; 910B3/CANN 9.1/HDK 26.1.1 rejects READ access "
+            "(207000) and POSIX allocation (100000); no Ascend GMS provider"
+        )
 
     if device_type is VMMDeviceType.XPU:
         raise NotImplementedError("'xpu' VMM backend is not implemented yet")

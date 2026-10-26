@@ -90,13 +90,16 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M07 GMS 与多模态高级能力
 
-当前状态：待实现。
+当前状态：部分交付 / 有限支持。MetaX GMS V1、CUDA 回归和三平台单机独立编码器通过；Ascend GMS 被当前驱动组合阻塞。分项结果见 [M07 验收](m07/README.md)。
 
 详细设计：[现有 VMM 抽象、媒体数据面与文件计划](modules/m07-gms-multimodal/README.md)。
 
 - 源码入口：[gpu_memory_service](../lib/gpu_memory_service)、[multimodal](../components/src/dynamo/common/multimodal)、[media_nixl.py](../components/src/dynamo/common/utils/media_nixl.py)、[vLLM Omni](../components/src/dynamo/vllm/omni)。
 - 工作：分成 GMS 与多模态两个子工作包；GMS 验证 VMM、IPC 和共享内存生命周期；多模态平台化设备描述、embedding 传输、编解码与缓存。
-- 待细化：厂商是否具有必要的 VMM/句柄/恢复原语；CPU 解码与厂商加速的支持边界；编码器与推理阶段的同平台配置约束。
+- 已交付：MACA VMM/FD/稳定身份、RO 重映射与实际 GMS 内存存活及 sleep/wake；三平台 LOCAL、CUDA/MetaX NIXL READ、CPU VP9、独立编码器图文及取消/文件清理回归。通用单元测试 CUDA/MetaX/Ascend 分别 141/141/117 项通过，追加生命周期/张量契约回归各 25 项通过。
+- 2026-10-26 后续：LOCAL lease/TTL/GC、三平台长视频抽帧/取消和同机跨卡编码器通过；WRITE v2 的 CUDA/MetaX 正常及超时晚到回收通过。
+- Omni：CUDA/MetaX 原生聚合三卡音频生成及并发度 2、各 30 分钟取消/恢复回归通过，当前约定范围阶段性收口；[证据](m07/omni-regression.md)。独立 stage 通道按用户决定暂缓，不在通过范围。
+- 剩余：华为 GMS/NIXL/Omni 问题与独立 Omni full-payload 通道均记录后暂缓；完整 checkpoint/CRIU、永久失联回收、硬件加速与跨节点仍未认证。见 [四项后续验收](m07/followup.md)。华为编码器仍按完整模型预留显存。
 - 验收：声明的 GMS 共享与恢复语义通过；多模态输入、缓存、传输与释放正确。普通重启不得冒充 GMS 等价恢复。
 
 ## M08 Kubernetes 与平台部署

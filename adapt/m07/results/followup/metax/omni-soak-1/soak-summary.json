@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "platform": "metax",
+  "packages": {
+    "vllm": "0.26.0",
+    "torch": "2.10.0+metax3.8.2.2",
+    "vllm-omni": "0.26.0"
+  },
+  "soak": {
+    "passed": true,
+    "duration_requested_seconds": 1800,
+    "concurrency": 2,
+    "cancel_delay_seconds": 1.0,
+    "completed": 499,
+    "client_cancelled": 50,
+    "rounds": 246,
+    "rss_growth_limit_bytes": 2147483648,
+    "fd_growth_limit": 32,
+    "elapsed_seconds": 1837.0767384008504,
+    "workload_seconds": 1814.2300606241915,
+    "rss_growth_bytes": 175468544,
+    "fd_growth": -1,
+    "media_file_growth": 0,
+    "backend_abort_log_count": 50,
+    "backend_abort_errors": 0,
+    "abort_shield_background_count": 0,
+    "checks": {
+      "cancellations_observed": true,
+      "no_abort_errors": true,
+      "rss_bounded": true,
+      "fds_bounded": true,
+      "no_media_growth": true,
+      "process_set_stable": true,
+      "duration_met": true
+    }
+  },
+  "rss_initial_bytes": 48862146560,
+  "rss_final_bytes": 49037615104,
+  "rss_peak_bytes": 49037615104,
+  "rss_first_quarter_median_bytes": 48954173440.0,
+  "rss_last_quarter_median_bytes": 49036857344.0,
+  "fd_initial": 312,
+  "fd_final": 311,
+  "fd_peak": 312,
+  "latency_seconds": {
+    "p50": 6.7682250218931586,
+    "p95": 7.518823868827894,
+    "max": 7.9006332298740745
+  },
+  "distinct_audio_hashes": 480,
+  "audio_frames_range": [
+    9120,
+    122880
+  ],
+  "limits": [
+    "1800s bounded regression; not indefinite leak freedom",
+    "HTTP disconnect + backend abort logs; no per-stage KV counters",
+    "Nonempty nonsilent waveform; no semantic/audio quality certification",
+    "Host RSS sums include shared pages; not unique physical RAM"
+  ],
+  "raw_sha256": {
+    "result.json": "779af2f5d017f3ec191ae59c65490c0f0fe14dc18a1efa774cf3d3e92a114317",
+    "soak-result.json": "0d0878e76f6ac3c99504360b9e81520a790e60d9c59c0e43b306e7789b2bf155",
+    "soak-resources.json": "01c39f64d668ab3b5b70664a2c64a0a2ec7cbf67e461672a285dc2f8f5d8f7c8",
+    "soak-requests.json": "f34a957c90cd5200338d21304ebcdedea40c5011f3d8ad392b980d589fb23956",
+    "gpu-samples.jsonl": "7adc01168846ceb574ba98c8a7f21f4db65f8beb9014e68972eec970d40f4f5f"
+  }
+}

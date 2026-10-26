@@ -1,0 +1,26 @@
+{
+  "container_mounts": {
+    "command": "docker inspect dynamo-ascend-m03-nfs --format \"{{json .Mounts}}\"",
+    "returncode": 0,
+    "stdout": "[{\"Type\":\"bind\",\"Source\":\"/home/huawei/CJ_workspaces/dynamo\",\"Destination\":\"/workspace/dynamo\",\"Mode\":\"\",\"RW\":true,\"Propagation\":\"rprivate\"},{\"Type\":\"volume\",\"Name\":\"dynamo-ascend-cache\",\"Source\":\"/var/lib/docker/volumes/dynamo-ascend-cache/_data\",\"Destination\":\"/var/cache/dynamo-ascend\",\"Driver\":\"local\",\"Mode\":\"\",\"RW\":true,\"Propagation\":\"\"},{\"Type\":\"bind\",\"Source\":\"/usr/local/Ascend/driver\",\"Destination\":\"/usr/local/Ascend/driver\",\"Mode\":\"\",\"RW\":false,\"Propagation\":\"rprivate\"},{\"Type\":\"bind\",\"Source\":\"/usr/local/dcmi\",\"Destination\":\"/usr/local/dcmi\",\"Mode\":\"\",\"RW\":false,\"Propagation\":\"rprivate\"},{\"Type\":\"bind\",\"Source\":\"/NFS_62\",\"Destination\":\"/NFS_62\",\"Mode\":\"\",\"RW\":false,\"Propagation\":\"rprivate\"},{\"Type\":\"bind\",\"Source\":\"/usr/local/sbin/npu-smi\",\"Destination\":\"/usr/local/sbin/npu-smi\",\"Mode\":\"\",\"RW\":false,\"Propagation\":\"rprivate\"}]\n",
+    "stderr": ""
+  },
+  "host_library": {
+    "command": "sha256sum /usr/local/Ascend/driver/lib64/driver/libascend_hal.so",
+    "returncode": 0,
+    "stdout": "bbde1dae7c55c8ffebe23595d8febd1762c7cd85314fc599267e44c70a8f4f02  /usr/local/Ascend/driver/lib64/driver/libascend_hal.so\n",
+    "stderr": ""
+  },
+  "container_library": {
+    "command": "docker exec dynamo-ascend-m03-nfs sha256sum /usr/local/Ascend/driver/lib64/driver/libascend_hal.so",
+    "returncode": 0,
+    "stdout": "bbde1dae7c55c8ffebe23595d8febd1762c7cd85314fc599267e44c70a8f4f02  /usr/local/Ascend/driver/lib64/driver/libascend_hal.so\n",
+    "stderr": ""
+  },
+  "host_access_symbols": {
+    "command": "nm -D /usr/local/Ascend/driver/lib64/driver/libascend_hal.so | grep -E \"halMem(Set|Get)Access\"",
+    "returncode": 1,
+    "stdout": "",
+    "stderr": ""
+  }
+}

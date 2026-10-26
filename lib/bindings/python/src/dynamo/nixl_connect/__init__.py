@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +21,7 @@ import asyncio
 import base64
 import ctypes
 import logging
+import os
 import socket
 import threading
 import time
@@ -29,6 +32,7 @@ from enum import IntEnum
 from functools import cached_property
 from typing import Any, List, Optional
 
+import numpy as np
 from pydantic import BaseModel, ConfigDict, field_validator
 
 try:
@@ -86,20 +90,27 @@ except ImportError as e:
 
 logger = logging.getLogger(__name__)
 
-try:
-    import cupy as array_module
-    from cupy_backends.cuda.api.runtime import CUDARuntimeError
+# CuPy is optional and CUDA-specific. MACA's torch.cuda alias is not evidence
+# that a CUDA CuPy wheel can safely use the device.
+array_module = np
 
-    logger.info("dynamo.nixl_connect: Utilizing CuPy to enable GPU acceleration.")
-except ImportError:
+_cupy_runtime_errors = ()
+if (
+    os.environ.get("DYN_PLATFORM", "cuda") == "cuda"
+    and not getattr(torch.version, "maca", None)
+    and not hasattr(torch, "npu")
+):
     try:
-        import numpy as array_module
+        import cupy
+        from cupy_backends.cuda.api.runtime import CUDARuntimeError
 
-        logger.warning(
-            "dynamo.nixl_connect: Failed to load CuPy for GPU acceleration, utilizing numpy to provide CPU based operations."
-        )
-    except ImportError as e:
-        raise ImportError("Numpy or CuPy must be installed to use this module.") from e
+        array_module = cupy
+        _cupy_runtime_errors = (CUDARuntimeError,)
+    except (ImportError, AttributeError) as exc:
+        # Older optional CuPy wheels may reference removed NumPy 2 aliases.
+        array_module = np
+
+        logger.warning("CuPy unavailable; using host array descriptors: %s", exc)
 
 
 class AbstractOperation(ABC):
@@ -764,8 +775,9 @@ class Connector:
         #       care should be taken to only call it within
         #       subprocesses or use 'spawn'
         try:
-            return array_module.cuda is not None and array_module.cuda.is_available()
-        except CUDARuntimeError:
+            cuda = getattr(array_module, "cuda", None)
+            return cuda is not None and cuda.is_available()
+        except _cupy_runtime_errors:
             return False
 
     @property

@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # M03 vLLM 引擎适配验收
 
+> 2026-10-21 基线变更：NVIDIA 后续固定官方 Dynamo 1.5.1 / vLLM 0.28.0。本页 CUDA 0.24 结果为历史证据，不代表 0.28 已通过；详见[版本基线](../version-baselines.md)。
+
 本轮 vLLM 聚合模式适配与验收已完成，包含 TP/DP、生命周期、scheduler/KV 兼容、LoRA、量化、推测解码、MoE/EP 和聚合多模态。SGLang 按用户要求暂缓。日期：2026-10-16。
 
 ## 当前结果

@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """VA-stable client memory ownership for one GMS V1 socket domain."""
 
@@ -150,12 +152,23 @@ class GMSClientMemoryManager:
                 self._select_device()
                 self._vmm.synchronize()
                 for mapping in self._ordered_mappings():
-                    self._vmm.set_access(
-                        mapping.base,
-                        mapping.aligned_size,
-                        self._device,
-                        GrantedLockType.RO,
-                    )
+                    if self._vmm.access_requires_remap:
+                        self._unmap(mapping)
+                        handle = install_mapping(
+                            self._vmm,
+                            mapping,
+                            session.export(mapping.allocation_id),
+                            self._device,
+                            GrantedLockType.RO,
+                        )
+                        self._mappings[mapping.base] = replace(mapping, handle=handle)
+                    else:
+                        self._vmm.set_access(
+                            mapping.base,
+                            mapping.aligned_size,
+                            self._device,
+                            GrantedLockType.RO,
+                        )
                 session.commit()
             except Exception as exc:
                 raise self._latch("GMS commit failed", exc) from exc

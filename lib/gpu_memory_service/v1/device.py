@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
-"""V1-local CUDA device identity and socket naming."""
+"""V1-local platform device identity and socket naming."""
 
 from __future__ import annotations
 
@@ -11,21 +13,22 @@ import tempfile
 from functools import cache
 from uuid import UUID
 
-from gpu_memory_service.common.vmm.cuda_utils import cuda_ensure_initialized
+from gpu_memory_service.common.vmm import VMMDeviceType, get_vmm, get_vmm_device_type
 
-try:
-    from cuda.bindings import driver as cuda
-except ImportError:
-    cuda = None
+
+def _cuda_driver():
+    try:
+        from cuda.bindings import driver
+    except ImportError as exc:
+        raise RuntimeError("cuda-python is required for CUDA device identity") from exc
+    return driver
+
 
 _AF_UNIX_PATH_LIMIT = 104 if sys.platform == "darwin" else 108
 
 
 def _check_cuda(result, operation: str) -> None:
-    if cuda is None:
-        raise RuntimeError(
-            "cuda-python is required for GPU Memory Service device identity"
-        )
+    cuda = _cuda_driver()
     if result == cuda.CUresult.CUDA_SUCCESS:
         return
 
@@ -43,11 +46,14 @@ def _check_cuda(result, operation: str) -> None:
 
 @cache
 def get_device_uuid(device: int) -> str:
-    """Return the UUID of a CUDA-visible device ordinal."""
-    if cuda is None:
-        raise RuntimeError(
-            "cuda-python is required for GPU Memory Service device identity"
-        )
+    """Return the UUID of a platform-visible device ordinal."""
+    if get_vmm_device_type() == VMMDeviceType.METAX:
+        return get_vmm().device_uuid(device)
+    if get_vmm_device_type() != VMMDeviceType.CUDA:
+        raise RuntimeError("GMS device identity is unavailable for this platform")
+    cuda = _cuda_driver()
+
+    from gpu_memory_service.common.vmm.cuda_utils import cuda_ensure_initialized
 
     cuda_ensure_initialized()
     result, cuda_device = cuda.cuDeviceGet(device)
@@ -63,7 +69,7 @@ def invalidate_device_uuid_cache() -> None:
 
 
 def get_socket_path(device: int, tag: str = "weights") -> str:
-    """Return the V1 socket path for a CUDA-visible device and domain."""
+    """Return the V1 socket path for a platform-visible device and domain."""
     socket_dir = os.environ.get("GMS_SOCKET_DIR") or tempfile.gettempdir()
     path = os.path.join(
         socket_dir,

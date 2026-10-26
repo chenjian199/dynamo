@@ -8,6 +8,7 @@ import importlib.metadata
 import re
 
 from dynamo.common.platform.registry import PlatformError
+from dynamo.common.platform.versions import validate_vllm_versions
 
 
 def capability(state, provider, reason, conditions=None):
@@ -124,18 +125,34 @@ def build_capabilities(platform_id, context, software):
             )
         },
     }
-    if context.get("engine") == "vllm":
-        software["vllm"] = importlib.metadata.version("vllm")
-        expected = {"metax": "0.26.0", "ascend": "0.23.0"}.get(platform_id)
-        if expected is not None and (
-            software["vllm"].split("+")[0] != expected
-            or software[f"vllm-{platform_id}"].split("+")[0] != expected
-        ):
-            raise PlatformError(
-                "unsupported_stack",
-                platform_id,
-                f"validated vLLM/{platform_id} combination is {expected}",
+    if platform_id == "ascend":
+        caps["gms.vmm"] = capability(
+            "unavailable",
+            platform_id,
+            "tested 910B3/CANN 9.1/HDK 26.1.1 rejects read-only VMM access "
+            "and POSIX allocation; GMS provider unavailable",
+        )
+    elif context.get("gms") == "true":
+        try:
+            software["gpu-memory-service"] = importlib.metadata.version(
+                "gpu-memory-service"
             )
+            from gpu_memory_service.common.vmm import VMMDeviceType
+
+            provider_present = platform_id in {kind.value for kind in VMMDeviceType}
+        except (ImportError, importlib.metadata.PackageNotFoundError):
+            provider_present = False
+        eligible = provider_present and platform_id in ("cuda", "metax")
+        caps["gms.vmm"] = capability(
+            "available" if eligible else "unavailable",
+            platform_id,
+            "GMS provider installed; device VMM, permissions and socket identity checked at use"
+            if eligible
+            else "install the platform-enabled gpu-memory-service package",
+            context,
+        )
+    if context.get("engine") == "vllm":
+        software.update(validate_vllm_versions(platform_id))
         supported = (
             context.get("task") in ("text", "multimodal")
             and context.get("tp") in ("1", "2", "4")

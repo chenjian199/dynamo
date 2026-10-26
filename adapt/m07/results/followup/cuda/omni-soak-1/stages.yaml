@@ -1,0 +1,47 @@
+async_chunk: false
+stages:
+- default_sampling_params:
+    max_tokens: 32
+    repetition_penalty: 1.0
+    seed: 42
+    temperature: 0
+  devices: '0'
+  engine_args:
+    enable_flashinfer_autotune: false
+    enable_prefix_caching: false
+    enforce_eager: true
+    gpu_memory_utilization: 0.6
+    max_model_len: 2048
+    max_num_batched_tokens: 2048
+    max_num_seqs: 2
+  stage_id: 0
+- default_sampling_params:
+    max_tokens: 128
+    repetition_penalty: 1.05
+    seed: 42
+    temperature: 0
+  devices: '1'
+  engine_args:
+    enable_flashinfer_autotune: false
+    enable_prefix_caching: false
+    enforce_eager: true
+    gpu_memory_utilization: 0.3
+    max_model_len: 2048
+    max_num_batched_tokens: 2048
+    max_num_seqs: 2
+  stage_id: 1
+- default_sampling_params:
+    max_tokens: 128
+    repetition_penalty: 1.0
+    seed: 42
+    temperature: 0
+  devices: '2'
+  engine_args:
+    enable_flashinfer_autotune: false
+    enable_prefix_caching: false
+    enforce_eager: true
+    gpu_memory_utilization: 0.3
+    max_model_len: 2048
+    max_num_batched_tokens: 2048
+    max_num_seqs: 2
+  stage_id: 2

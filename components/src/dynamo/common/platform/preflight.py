@@ -193,13 +193,39 @@ def prepare_vllm_platform(config):
     if platform_id is None:
         return None  # Legacy invocation; no vendor probing or behavior change.
     engine = config.engine_args
+    gms = os.environ.get("DYN_GMS_USE_V1") == "true"
+    gms = gms or getattr(engine, "load_format", None) == "gms"
+    if gms and platform_id == "ascend":
+        raise PlatformError(
+            "missing_capability",
+            platform_id,
+            "GMS requires enforced read-only VMM and POSIX handles; the tested "
+            "910B3/CANN 9.1/HDK 26.1.1 stack rejects read-only access and "
+            "POSIX allocation; Ascend GMS provider remains unavailable",
+        )
     if config.headless or config.embedding_worker:
         raise PlatformError(
             "unsupported_configuration",
             platform_id,
             "explicit platform integration requires generation workers",
         )
-    pd = config.disaggregation_mode != DisaggregationMode.AGGREGATED
+    pd = config.disaggregation_mode in (
+        DisaggregationMode.PREFILL,
+        DisaggregationMode.DECODE,
+    )
+    if config.disaggregation_mode == DisaggregationMode.ENCODE:
+        if (
+            not config.enable_multimodal
+            or engine.tensor_parallel_size != 1
+            or engine.data_parallel_size != 1
+            or not engine.enforce_eager
+            or engine.kv_transfer_config is not None
+        ):
+            raise PlatformError(
+                "unsupported_configuration",
+                platform_id,
+                "standalone encode requires eager multimodal TP1 DP1 without a KV connector",
+            )
     connector = validate_pd_configuration(config, platform_id) if pd else None
     kvbm = (
         engine.kv_transfer_config is not None
@@ -239,6 +265,7 @@ def prepare_vllm_platform(config):
         expert_parallel=str(engine.enable_expert_parallel).lower(),
         pd_connector=connector or "none",
         kvbm=str(kvbm).lower(),
+        gms=str(gms).lower(),
     )
     required = [
         "device.compute",
@@ -250,6 +277,8 @@ def prepare_vllm_platform(config):
         required.append("pd.transfer")
     if kvbm:
         required.append("kvbm.offload")
+    if gms:
+        required.append("gms.vmm")
     required.extend(
         name.strip()
         for name in os.environ.get("DYN_REQUIRED_CAPABILITIES", "").split(",")

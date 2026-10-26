@@ -7,21 +7,52 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M07 GMS 与多模态高级能力
 
-状态：待实现（MetaX 当前阶段）。分为 GMS 和多模态两个独立工作包，分别记录支持情况。依赖 M01/M02/M03；设备原语与传输分别引用 M04/M05。
+状态：部分交付 / 有限支持。MetaX GMS V1 与 CUDA 回归通过，三平台单机独立编码器及 LOCAL 媒体路径通过；Ascend GMS 被当前驱动组合阻塞。依赖 M01/M02/M03；设备原语与传输分别引用 M04/M05。
 
-## 实施进度（2026-10-15）
+2026-10-26：按用户决定，Ascend GMS 自研暂缓，保留
+[候选设计](../../m07/ascend-gms-design.md)，优先推进其它 M07 遗留项；
+现有 GMS 能力声明及拒绝逻辑保持不变。
 
-GMS/VMM、共享恢复和多模态数据面均未验收。M01 中 gms.vmm 为 unknown；基础文本验证不覆盖本模块。
+2026-10-26 后续决定：华为相关未完成项统一记录后暂缓，包括 Ascend GMS、
+NIXL READ/WRITE 环境补齐、Omni 用户态退出 SIGABRT。保留证据与已通过能力，
+不将暂缓项标为完成。独立 Omni full-payload 通道也按用户决定暂缓；
+原生聚合模式的通过结果不覆盖独立 stage 服务。
 
-证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+## 阶段性收口（2026-10-26）
+
+CUDA/MetaX 原生聚合 Omni 并发度 2、各 30 分钟持续负载及取消恢复通过。正常请求
+1099/499 个全部成功，取消和后端 abort 为 110/50 次；资源增量满足本轮有界条件。
+[详细记录](../../m07/omni-regression.md)。当前约定范围收口，模块总体仍为有限支持，
+独立 stage 和华为未完成项继续暂缓，其余未认证组合沿用原边界。
+
+## 后续进度（2026-10-26）
+
+- LOCAL lease/TTL 与进程死亡后的回收、后台视频解码并发配额已实现。
+- 三平台不同物理卡的编码器/LLM 回归、6000 帧 VP9 抽帧压力和取消恢复通过。
+- WRITE v2 的 CUDA/MetaX 真机正常与超时晚到回收通过；Ascend 缺 NIXL Python，永久失联仍采取有界隔离。
+- Omni 基础 factory/设备/取消与内存预算已适配，CUDA/MetaX 44 项单元及原生聚合三卡音频生成通过；独立 worker 的 full-payload 通道和 Ascend 用户态退出 SIGABRT 未闭环。
+- 通用单元最新为 CUDA 141、MetaX 141、Ascend 117。详见 [四项后续验收及范围](../../m07/followup.md)，本模块仍标记部分交付。
+
+## 实施进度（2026-10-21）
+
+实现、复现命令、分平台原始证据及未完成项见 [M07 分项验收](../../m07/README.md)。
+
+- 固定基线：CUDA vLLM 0.28.0 / 官方 Dynamo 1.5.1；MetaX 0.26.0；Ascend 0.23.0。已撤销为 CUDA 0.24 添加的 GMS 兼容分支，恢复原生 SleepModeBackend；详见[版本锁定](../../version-baselines.md)。
+- GMS：复用 VMM 工厂新增 `MetaXVMM`，使用 MACA POSIX FD、稳定 UUID 和真实权限查询。RW→RO 原地切换不生效，提交前保持原地址重新映射 RO；失败禁止发布。CUDA/MetaX 各 4 项真机测试和 6 项旧 tensor/module 测试通过，包括客户端退出后的 allocation 回读、MemPool 恢复和 vLLM 两轮 sleep/wake。
+- Ascend：2026-10-26 已复测 CANN 9.1/HDK 26.1.1，权限接口符号、RW 设置及查询可用，但切换/新建/重映射三种 READ 设置均失败，POSIX 分配仍失败。GMS 工厂与预检查明确拒绝；[新驱动证据及原语限制](../../m07/ascend-hdk2611.md)。旧 25.2.0 缺失符号的结论仅保留为历史记录。
+- 多模态：新增 `tensor_contract.py`，严格校验描述，厂商设备显式 CPU staging；三平台 LOCAL、CUDA/MetaX NIXL READ 和三平台 CPU VP9 解码通过。三平台独立编码器图文、并发/流式/取消/非法输入恢复通过，测试临时文件残留为零；华为使用完整模型初始化兼容 0.23，仍需预留完整模型显存。
+- 最新单元回归：CUDA 132、MetaX 132、Ascend 108 项通过。M01 `gms.vmm` 在选择 GMS 时检查已安装 provider，实际 SDK/权限仍在使用时验证；不能把可配置能力当作所有设备已验收。
+- 未完成：Ascend GMS、完整 checkpoint/CRIU/旧引擎 loader、Omni stage、NIXL WRITE 故障协议、发布后进程崩溃的媒体 lease/GC、长视频及硬件加速解码。没有跨节点验收。
+
+以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。实现复用了现有工厂与 `v1/device.py`，未另外增加 registry/device_identity；文件计划不代表每个拟新增文件均已创建。
 
 ## GMS 的当前功能与扩展基础
 
 GMS 管理设备物理内存、跨进程共享句柄和虚拟地址映射，使内存生命周期与具体模型执行进程分离。客户端映射、服务端 allocation、权重加载和恢复必须共同维护所有权。
 
-当前已存在 `common/vmm/device.py::VMMDevice` 抽象，提供 create/release、地址预留、map/unmap、访问权限、FD 导入导出、host register 和 stream/copy。`common/vmm/__init__.py` 的工厂选择进程级不可变单例：CUDA 对应 `CudaVMM`；XPU 虽有枚举，但工厂明确抛 `NotImplementedError`。应扩展已有抽象，而非重建第二套 GMS VMM 接口。
+当前已存在 `common/vmm/device.py::VMMDevice` 抽象，提供 create/release、地址预留、map/unmap、访问权限、FD 导入导出、host register 和 stream/copy。`common/vmm/__init__.py` 的工厂选择进程级不可变单例：CUDA 对应 `CudaVMM`，MetaX 对应 `MetaXVMM`；Ascend/XPU 保留明确不可用错误。继续扩展已有抽象，而非重建第二套 GMS VMM 接口。
 
-抽象之外仍有 CUDA 绑定，例如 `v1/device.py` 使用 CUDA 获取 UUID；框架 allocator、checkpoint 和 integration 还要逐条验证。存在 VMM ABC 不代表整个 GMS 已厂商无关。
+`v1/device.py` 已按平台获取 UUID 并延迟加载 CUDA；框架 allocator、checkpoint 和 integration 仍要逐条验证。存在 VMM ABC 不代表整个 GMS 已厂商无关。
 
 ## GMS 目标设计
 
@@ -33,7 +64,7 @@ GMS 管理设备物理内存、跨进程共享句柄和虚拟地址映射，使�
 
 ## 多模态的当前功能与设计
 
-公共媒体层负责 embedding/媒体描述、传输和视频解码；vLLM Omni 还涉及 stage 间数据交接。`media_nixl.py` 对非 CPU descriptor 默认构造 CUDA 设备，`nvdec_decoder.py` 使用 CUDA tensor，embedding 传输存在 CUDA/CPU 分类假设。
+公共媒体层负责 embedding/媒体描述、传输和视频解码；vLLM Omni 还涉及 stage 间数据交接。本轮 `media_nixl.py` 拒绝未知空间/平台并验证字节数，`nvdec_decoder.py` 限制 CUDA，embedding 对厂商设备使用 CPU staging。独立编码器路径不代表 Omni stage 生命周期已适配。
 
 扩展媒体描述的版本、空间类型、平台/设备、shape/stride/dtype 与 provider 元数据；M05 负责传输，M07 负责输入/输出契约及媒体缓存生命周期。数据描述中的设备 ordinal 只能在对应进程上下文解释。
 

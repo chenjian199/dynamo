@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +29,8 @@ import torch
 from transformers import AutoModel
 from vllm import LLM
 from vllm.utils.system_utils import update_environment_variables
+
+from dynamo.common.multimodal.tensor_contract import selected_platform
 
 logger = logging.getLogger(__name__)
 
@@ -188,6 +192,15 @@ def load_vision_model(
     Load a vision model from a HuggingFace model ID.
     """
     if VLLM_ENCODER and resolve_model_family(model_id) is ModelFamily.QWEN_VL:
+        # Ascend 0.23 profiles the language model even in encoder-only mode,
+        # which dereferences its meta-device weights. Load real weights for that
+        # initialization, then retain only the vision model below.
+        encoder_only = selected_platform() != "ascend"
+        if not encoder_only:
+            logger.info(
+                "Ascend encoder initialization loads the full model before "
+                "retaining the vision module; budget for full-model peak memory"
+            )
         # Disable to get ViT from the same process
         update_environment_variables(
             {
@@ -215,8 +228,8 @@ def load_vision_model(
                     )
                 ),  # Encoder-only needs only enough KV for vLLM's init lifecycle.
                 max_num_seqs=int(os.getenv("DYN_VLLM_ENCODER_MAX_NUM_SEQS", "64")),
-                max_model_len=1,
-                mm_encoder_only=True,
+                max_model_len=1 if encoder_only else 128,
+                mm_encoder_only=encoder_only,
                 enable_prefix_caching=False,
             )
         return (

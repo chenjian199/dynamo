@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # M05：引擎原生 PD 接入与验收
 
+> 2026-10-21 基线变更：NVIDIA 后续固定官方 Dynamo 1.5.1 / vLLM 0.28.0。本页 CUDA 0.24 结果为历史证据，不代表 0.28 已通过；详见[版本基线](../version-baselines.md)。
+
 当前补充验收见 [不同 TP、传输中故障与 30 分钟长稳](completion.md)。本目录实现 vLLM 引擎原生 PD；三平台单机 1P1D、2P3D、TP1/TP2 互转已有真实验证。跨节点、物理断卡/网络黑洞和 Dynamo 自有 TransferProvider/KVBM 不在已验证范围，SGLang 暂缓。MetaX NIXL 的传输中对端退出仍存在 native abort 限制，不能认定所有可选传输路径全部完成。
 
 下文保存 2026-10-16 初轮与 2P3D 验收；运行命令已更新为当前入口。2026-10-19 的补丁、资源检查与最新边界以补充验收为准。

@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Omni worker entrypoint for python -m dynamo.vllm.omni."""
 
@@ -230,6 +232,20 @@ async def worker():
         request_plane=config.request_plane,
         event_plane=config.event_plane,
     )
+
+    if platform_id := os.environ.get("DYN_PLATFORM"):
+        from dynamo.common.platform import registry
+
+        descriptor = registry.prepare(
+            platform_id,
+            {
+                "engine": "vllm-omni",
+                "model": config.model,
+                "role": "router" if config.omni_router else "worker",
+            },
+            required=() if config.omni_router else ("device.compute",),
+        )
+        runtime.configure_platform(descriptor)
 
     install_signal_handlers(loop, runtime, shutdown_endpoints, shutdown_event)
 

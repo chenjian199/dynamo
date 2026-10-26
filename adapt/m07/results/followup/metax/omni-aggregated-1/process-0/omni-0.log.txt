@@ -1,0 +1,241 @@
+[excerpt: final 240 lines; full raw hash in manifest]
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     self.model_executor.initialize_from_config(kv_cache_configs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 124, in initialize_from_config
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     compilation_times: list[CompilationTimes] = self.collective_rpc(
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)                                                 ^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 92, in collective_rpc
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     result = run_method(self.driver_worker, method, args, kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/serial_utils.py", line 510, in run_method
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     return func(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)            ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     return func(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)            ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 784, in compile_or_warm_up_model
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     cuda_graph_memory_bytes = self.model_runner.capture_model()
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     return func(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)            ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6811, in capture_model
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     self._capture_cudagraphs(
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6938, in _capture_cudagraphs
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     self._warmup_and_capture(
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6883, in _warmup_and_capture
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     self._dummy_run(
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     return func(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)            ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/dynamo/omni-overlay/vllm_omni/worker/gpu_generation_model_runner.py", line 851, in _dummy_run
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     outputs = self.model(
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)               ^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/vllm/compilation/cuda_graph.py", line 319, in __call__
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     output = self.runnable(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     return self._call_impl(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/conda/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     return forward_call(*args, **kwargs)
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)   File "/opt/dynamo/omni-overlay/vllm_omni/model_executor/models/qwen2_5_omni/qwen2_5_omni.py", line 369, in forward
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)     if code.numel() and code[-1] == TALKER_CODEC_EOS_TOKEN_ID:
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089) torch.AcceleratorError: CUDA error: operation would make the legacy stream depend on a capturing blocking stream
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089) Search for `cudaErrorStreamCaptureImplicit' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089) CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089) For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089) Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+[OMNI-0] (StageEngineCoreProc_stage2_replica0 pid=284089)
+[OMNI-0] [rank0]:[W1026 12:51:24.583710138 ProcessGroupNCCL.cpp:1559] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+[OMNI-0] 2026-10-26T04:51:38.653155Z ERROR stage_runtime.initialize: [StageRuntime] Stage initialization failed; shutting down 2 initialized client(s)
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 240, in initialize
+[OMNI-0]     initialized_clients = self._initialize_stage_replicas(stage_plans, self._stage_init_timeout)
+[OMNI-0]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 504, in _initialize_stage_replicas
+[OMNI-0]     raise primary_exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 465, in _init_group
+[OMNI-0]     client = self._initialize_replica(
+[OMNI-0]              ^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 530, in _initialize_replica
+[OMNI-0]     return self._initialize_local_llm_replica(plan, stage_init_timeout)
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 577, in _initialize_local_llm_replica
+[OMNI-0]     with launch_stage_replica(
+[OMNI-0]          ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/contextlib.py", line 144, in __exit__
+[OMNI-0]     next(self.gen)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_engine_startup.py", line 1127, in launch_stage_replica
+[OMNI-0]     wait_for_engine_startup(
+[OMNI-0]   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/engine/utils.py", line 1272, in wait_for_engine_startup
+[OMNI-0]     raise RuntimeError(
+[OMNI-0] RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[OMNI-0] 2026-10-26T04:51:38.656887Z  INFO core_client.shutdown: [shutdown] MPClient: start timeout=default
+[OMNI-0] 2026-10-26T04:51:38.657038Z  INFO core_client.shutdown: [shutdown] MPClient: stopping engine manager
+[OMNI-0] 2026-10-26T04:51:43.662315Z WARNING utils.shutdown: [shutdown] Process manager: force killing remaining processes count=1
+[OMNI-0] 2026-10-26T04:51:43.669613Z  INFO core_client.shutdown: [shutdown] MPClient: engine manager stopped
+[OMNI-0] 2026-10-26T04:51:43.670943Z  INFO core_client.shutdown: [shutdown] MPClient: cleaning up background resources
+[OMNI-0] 2026-10-26T04:51:43.671504Z  INFO core_client.shutdown: [shutdown] MPClient: complete
+[OMNI-0] 2026-10-26T04:51:43.671585Z  INFO core_client.shutdown: [shutdown] MPClient: start timeout=default
+[OMNI-0] 2026-10-26T04:51:48.677369Z WARNING utils.shutdown: [shutdown] Process manager: force killing remaining processes count=1
+[OMNI-0] 2026-10-26T04:51:48.682920Z ERROR async_omni_engine._bootstrap_orchestrator: [AsyncOmniEngine] Orchestrator thread crashed
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 434, in _bootstrap_orchestrator
+[OMNI-0]     loop.run_until_complete(_run_orchestrator())
+[OMNI-0]   File "/opt/conda/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+[OMNI-0]     return future.result()
+[OMNI-0]            ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 392, in _run_orchestrator
+[OMNI-0]     self._initialize_stages(stage_init_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 342, in _initialize_stages
+[OMNI-0]     self._runtime.initialize()
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 259, in initialize
+[OMNI-0]     raise exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 240, in initialize
+[OMNI-0]     initialized_clients = self._initialize_stage_replicas(stage_plans, self._stage_init_timeout)
+[OMNI-0]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 504, in _initialize_stage_replicas
+[OMNI-0]     raise primary_exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 465, in _init_group
+[OMNI-0]     client = self._initialize_replica(
+[OMNI-0]              ^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 530, in _initialize_replica
+[OMNI-0]     return self._initialize_local_llm_replica(plan, stage_init_timeout)
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 577, in _initialize_local_llm_replica
+[OMNI-0]     with launch_stage_replica(
+[OMNI-0]          ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/contextlib.py", line 144, in __exit__
+[OMNI-0]     next(self.gen)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_engine_startup.py", line 1127, in launch_stage_replica
+[OMNI-0]     wait_for_engine_startup(
+[OMNI-0]   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/engine/utils.py", line 1272, in wait_for_engine_startup
+[OMNI-0]     raise RuntimeError(
+[OMNI-0] RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[OMNI-0] 2026-10-26T04:51:48.684072Z  INFO async_omni_engine.shutdown: [AsyncOmniEngine] Shutting down Orchestrator
+[OMNI-0] Exception in thread orchestrator:
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/opt/conda/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[OMNI-0]     self.run()
+[OMNI-0]   File "/opt/conda/lib/python3.12/threading.py", line 1012, in run
+[OMNI-0]     self._target(*self._args, **self._kwargs)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 434, in _bootstrap_orchestrator
+[OMNI-0]     loop.run_until_complete(_run_orchestrator())
+[OMNI-0]   File "/opt/conda/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+[OMNI-0]     return future.result()
+[OMNI-0]            ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 392, in _run_orchestrator
+[OMNI-0]     self._initialize_stages(stage_init_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 342, in _initialize_stages
+[OMNI-0]     self._runtime.initialize()
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 259, in initialize
+[OMNI-0]     raise exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 240, in initialize
+[OMNI-0]     initialized_clients = self._initialize_stage_replicas(stage_plans, self._stage_init_timeout)
+[OMNI-0]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 504, in _initialize_stage_replicas
+[OMNI-0]     raise primary_exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 465, in _init_group
+[OMNI-0]     client = self._initialize_replica(
+[OMNI-0]              ^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 530, in _initialize_replica
+[OMNI-0]     return self._initialize_local_llm_replica(plan, stage_init_timeout)
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 577, in _initialize_local_llm_replica
+[OMNI-0]     with launch_stage_replica(
+[OMNI-0]          ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/contextlib.py", line 144, in __exit__
+[OMNI-0]     next(self.gen)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_engine_startup.py", line 1127, in launch_stage_replica
+[OMNI-0]     wait_for_engine_startup(
+[OMNI-0]   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/engine/utils.py", line 1272, in wait_for_engine_startup
+[OMNI-0]     raise RuntimeError(
+[OMNI-0] RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "/opt/conda/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+[OMNI-0]     self.run()
+[OMNI-0]   File "/opt/conda/lib/python3.12/threading.py", line 1012, in run
+[OMNI-0]     self._target(*self._args, **self._kwargs)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 434, in _bootstrap_orchestrator
+[OMNI-0]     loop.run_until_complete(_run_orchestrator())
+[OMNI-0]   File "/opt/conda/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+[OMNI-0]     return future.result()
+[OMNI-0]            ^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 392, in _run_orchestrator
+[OMNI-0]     self._initialize_stages(stage_init_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 342, in _initialize_stages
+[OMNI-0]     self._runtime.initialize()
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 259, in initialize
+[OMNI-0]     raise exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 240, in initialize
+[OMNI-0]     initialized_clients = self._initialize_stage_replicas(stage_plans, self._stage_init_timeout)
+[OMNI-0]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 504, in _initialize_stage_replicas
+[OMNI-0]     raise primary_exc
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 465, in _init_group
+[OMNI-0]     client = self._initialize_replica(
+[OMNI-0]              ^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 530, in _initialize_replica
+[OMNI-0]     return self._initialize_local_llm_replica(plan, stage_init_timeout)
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_runtime.py", line 577, in _initialize_local_llm_replica
+[OMNI-0]     with launch_stage_replica(
+[OMNI-0]          ^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/contextlib.py", line 144, in __exit__
+[OMNI-0]     next(self.gen)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/stage_engine_startup.py", line 1127, in launch_stage_replica
+[OMNI-0]     wait_for_engine_startup(
+[OMNI-0]   File "/opt/conda/lib/python3.12/site-packages/vllm/v1/engine/utils.py", line 1272, in wait_for_engine_startup
+[OMNI-0]     raise RuntimeError(
+[OMNI-0] RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[OMNI-0]
+[OMNI-0] The above exception was the direct cause of the following exception:
+[OMNI-0]
+[OMNI-0] Traceback (most recent call last):
+[OMNI-0]   File "<frozen runpy>", line 198, in _run_module_as_main
+[OMNI-0]   File "<frozen runpy>", line 88, in _run_code
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/__main__.py", line 12, in <module>
+[OMNI-0]     main()
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 264, in main
+[OMNI-0]
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+[OMNI-0]     return __asyncio.run(
+[OMNI-0]            ^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/asyncio/runners.py", line 195, in run
+[OMNI-0]     return runner.run(main)
+[OMNI-0]            ^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/asyncio/runners.py", line 118, in run
+[OMNI-0]     return self._loop.run_until_complete(task)
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+[OMNI-0]   File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+[OMNI-0]     return await main
+[OMNI-0]            ^^^^^^^^^^
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 259, in worker
+[OMNI-0]     await init_omni_realtime(runtime, config, shutdown_endpoints, shutdown_event)
+[OMNI-0]     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/main.py", line 113, in init_omni
+[OMNI-0]     handler = OmniHandler(
+[OMNI-0]               ^^^^^^^^^^^^
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/omni_handler.py", line 234, in __init__
+[OMNI-0]     super().__init__(
+[OMNI-0]   File "/workspace/dynamo/components/src/dynamo/vllm/omni/base_handler.py", line 53, in __init__
+[OMNI-0]     self.engine_client = AsyncOmni(**omni_kwargs)
+[OMNI-0]                          ^^^^^^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/entrypoints/async_omni.py", line 147, in __init__
+[OMNI-0]     OmniBase.__init__(self, model=model, **kwargs)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/entrypoints/omni_base.py", line 178, in __init__
+[OMNI-0]     self.engine = AsyncOmniEngine(
+[OMNI-0]                   ^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 289, in __init__
+[OMNI-0]     self._wait_for_orchestrator_init(startup_future, startup_timeout)
+[OMNI-0]   File "/opt/dynamo/omni-overlay/vllm_omni/engine/async_omni_engine.py", line 485, in _wait_for_orchestrator_init
+[OMNI-0]     startup_future.result(
+[OMNI-0]   File "/opt/conda/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+[OMNI-0]     return self.__get_result()
+[OMNI-0]            ^^^^^^^^^^^^^^^^^^^
+[OMNI-0]   File "/opt/conda/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+[OMNI-0]     raise self._exception
+[OMNI-0] RuntimeError: Orchestrator initialization failed: Engine core initialization failed. See root cause above. Failed core proc(s): {}

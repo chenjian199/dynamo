@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """GMS server entry point.
 
@@ -75,7 +77,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--device-type",
         type=str,
-        default=VMMDeviceType.CUDA.value,
+        default=os.environ.get("DYN_PLATFORM", VMMDeviceType.CUDA.value),
         choices=[d.value for d in VMMDeviceType],
         help="VMM device type forwarded to server (default: cuda).",
     )
@@ -103,8 +105,6 @@ def main(argv: list[str] | None = None) -> None:
         )
     args = parser.parse_args(argv)
     use_v1 = os.environ.get("DYN_GMS_USE_V1") == "true"
-    if use_v1 and args.device_type != VMMDeviceType.CUDA.value:
-        parser.error("DYN_GMS_USE_V1=true only supports --device-type=cuda")
 
     init_vmm(VMMDeviceType.from_str(args.device_type))
     vmm = get_vmm()
@@ -143,8 +143,7 @@ def main(argv: list[str] | None = None) -> None:
         for device in devices:
             command = [sys.executable, "-m", "gpu_memory_service"]
             command.extend(["--device", str(device)])
-            if not use_v1:
-                command.extend(["--device-type", args.device_type])
+            command.extend(["--device-type", args.device_type])
             process = subprocess.Popen(command)
             logger.info(
                 "Started GMS%s device=%d pid=%d",
