@@ -7,13 +7,15 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M08 Kubernetes 与平台部署
 
-状态：待实现（MetaX 当前阶段）。依赖 M01 平台描述和 M02 镜像；为 M09 提供规范化资源语义。基础部署不依赖 GMS，GMS/DRA 作为高级组合验收。
+状态：基础 Device Plugin 代码与本地测试完成，目标集群回归待用户导入镜像后执行。依赖 M01 平台契约和 M02 runtime 镜像；基础部署不依赖 GMS。
 
-## 实施进度（2026-10-15）
+## 实施进度（2026-10-28）
 
-当前使用 Docker 开发容器与脚本显式设置 DYN_PLATFORM；尚未修改 Operator、DGD、Helm 或 MetaX 设备资源计数。
+当前交付复用既有 v1beta1 PodTemplate、component 工作负载路径和 Helm 镜像配置，增加 CUDA/MetaX/Ascend 整卡资源识别、华为计数、平台一致性与不支持能力拒绝；提供聚合/KV 路由和同节点 2P3D 清单生成及只读集群预检查。部署与官方来源见 [M08 交付记录](../../m08/README.md)。Operator 的双架构镜像构建、离线包及导入安装步骤见 [镜像交付说明](../../m08/operator-image.md)。
 
-证据见 [平台验收](../../metax/metax-platform.md)、[基础推理](../../metax/metax-bringup.md)、[KV 路由](../../metax/metax-kv-routing.md)。以下目标设计和文件计划中未由本节明确列为已交付的部分，仍是后续工作。
+本轮没有新增 `spec.platform` 或修改 CRD schema。原设计中的 PlatformSpec 仍是后续候选方案，当前使用现有资源声明与 `DYN_PLATFORM`，避免两处配置冲突；已有 alpha/beta 转换通过回归。DGDR 厂商硬件自动发现、拓扑、共享设备/DRA、GMS/failover 和自动规划不包含在本轮基础路径中。
+
+下方为完整目标设计，未在实施进度中列为已完成的内容仍是后续工作。三平台的 Pod 调度、设备注入、扩缩容、重建和跨 Pod PD 只有本地逻辑验证，不能标成硬件集群验收通过。
 
 ## 当前功能与调用关系
 

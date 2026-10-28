@@ -1,0 +1,110 @@
+{
+  "scope": "M08 whole-device Device Plugin code and local tests; no hardware cluster acceptance",
+  "recorded_at": "2026-10-28T11:20:38.513538+08:00",
+  "base_commit": "48af593cbd83bb14478e8d79f146af3c7b8e8937",
+  "source_sha256": {
+    ".github/codeowners/areas.yaml": "059b8c1aa84a10704bbbccbb929bf1d1527917b013dfe258d2d423d5c3bced2e",
+    "CODEOWNERS": "da140dec861d04a46267b0aaaf3f7c0de07f8e83d27b50560cea93860e78ad8b",
+    "adapt/m08/README.md": "c1b1a8e4b53acadace8f40f4491a17796b25d0b05d7136791c80323ee5467c30",
+    "adapt/m08/check-cluster.py": "b83806ad0db9016d2fec96f9637b9cc9529290265b8e9fd1d09ff343baf8ad32",
+    "adapt/m08/render.py": "3970a4cc88068331bd8d0e332f8cbdd4d19757adf0302e979e24eaaed27c499f",
+    "adapt/modules.md": "ee88c6dd5e53551b71f9fab67a3f5d8844d186832aef92ec090946483f1b3da7",
+    "adapt/modules/README.md": "419821b8dd0585720cd0879eed5fcd24f2f468c3729e472c416288206d6d3b14",
+    "adapt/modules/m08-kubernetes/README.md": "3f4dde8f11be50c354ccd28e9164e619e3fa216cb0ee8a15ba411b4f9483a9ba",
+    "adapt/support-matrix.md": "90902d0e2560c9ddc7634802320e0ed7cddeb1825cc14e054a279fe996cc0924",
+    "deploy/operator/internal/dra/dra.go": "240eace13f002ac6282482c61352143aab534ca048a9db6c3661bee0034eb655",
+    "deploy/operator/internal/dra/platform_test.go": "4e07ce5aeea16f86788f786559b11692a245ada1740c1290f6da817160a36200",
+    "deploy/operator/internal/dynamo/graph.go": "8b272131ed6dbe256978b22c9c0e2e9d9e39de35c5976073a42a0c2ac8697dcf",
+    "deploy/operator/internal/dynamo/platform.go": "83ebe79519d32f27e1a0c86ea3e2fa490bc99ec36973a6d5ff73a44d9cb81275",
+    "deploy/operator/internal/dynamo/platform_test.go": "9fc53ac355ac6bd4e3a61d0ea674bb2ee09057585de806aaf41a71ba985e6fe6",
+    "deploy/operator/internal/platform/resources.go": "a230d3c2ea74e0a258e359f3e9d498eab9c7c0c2a6c023d9cbac08433c205231",
+    "deploy/operator/internal/platform/resources_test.go": "ad7237e1228fb9f5446bc435d015e04f8211bd8f67781f4706719e5478dbda59",
+    "deploy/operator/internal/webhook/validation/dynamocomponentdeployment_validation_envtest_test.go": "80394e9320d25b40ec3f51c4b5678a69c0538967ec01f665114e4a2f647aab4d",
+    "deploy/operator/internal/webhook/validation/dynamographdeployment.go": "b57bf7cd25eacd3e8447fa5de1136e607a761d80ff1d564c8fa67db07a557c12",
+    "deploy/operator/internal/webhook/validation/dynamographdeployment_validation_envtest_test.go": "6ff27fac27cd105e3c1a2cda142b4b67d71852bd36b068d459aacf6ac514520c",
+    "deploy/operator/internal/webhook/validation/shared_v1beta1.go": "9f915baee8fa674444140e1c95f7c32096b657cf9c9c66794e21defec26cc50c"
+  },
+  "go_version": "go version go1.26.6 linux/amd64",
+  "test_command": "go test -json ./internal/platform ./internal/dra ./internal/dynamo ./internal/webhook/validation ./api/v1alpha1 ./api/v1beta1",
+  "packages": [
+    {
+      "package": "github.com/ai-dynamo/dynamo/deploy/operator/internal/platform",
+      "status": "pass",
+      "elapsed_seconds": 0.018
+    },
+    {
+      "package": "github.com/ai-dynamo/dynamo/deploy/operator/internal/dra",
+      "status": "pass",
+      "elapsed_seconds": 0.009
+    },
+    {
+      "package": "github.com/ai-dynamo/dynamo/deploy/operator/internal/dynamo",
+      "status": "pass",
+      "elapsed_seconds": 0.054
+    },
+    {
+      "package": "github.com/ai-dynamo/dynamo/deploy/operator/api/v1beta1",
+      "status": "pass",
+      "elapsed_seconds": 0.004
+    },
+    {
+      "package": "github.com/ai-dynamo/dynamo/deploy/operator/api/v1alpha1",
+      "status": "pass",
+      "elapsed_seconds": 0.015
+    },
+    {
+      "package": "github.com/ai-dynamo/dynamo/deploy/operator/internal/webhook/validation",
+      "status": "pass",
+      "elapsed_seconds": 23.678
+    }
+  ],
+  "test_actions_including_subtests": {
+    "pass": 1653
+  },
+  "m08_admission_cases": [
+    "TestDynamoComponentDeploymentValidator_Validate/M08_standalone_vendor_component",
+    "TestDynamoComponentDeploymentValidator_Validate/M08_standalone_rejects_virtual_units",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_generated_cuda_aggregate",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_generated_cuda_pd",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_generated_metax_aggregate",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_generated_metax_pd",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_generated_ascend_aggregate",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_generated_ascend_pd",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_mixed_vendors_rejected",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_vendor_worker_without_allocation_rejected",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_alpha_mismatch_reports_source_service_path",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_MetaX_whole-device_create",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_Ascend_whole-device_create",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_resource_identity_mismatch_on_update",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_missing_explicit_vendor_identity",
+    "TestDynamoGraphDeploymentValidator_Validate/M08_alpha_custom_resources_and_environment_convert"
+  ],
+  "go_test_log_sha256": "79e0b67a3a0b8ed4573c37409731bad644e94bac6daa4affb9d0da42fac88475",
+  "manager_builds": {
+    "amd64": {
+      "status": "passed",
+      "CGO_ENABLED": "0",
+      "sha256": "f9018008bf8987ff30103755057f4db11bb7474e19323be275a9dcb38efd8e49"
+    },
+    "arm64": {
+      "status": "passed",
+      "CGO_ENABLED": "0",
+      "sha256": "ce4242118b1fd879b334014b86325767fbbb54ddba78ac867eb3ed6e33e50139"
+    }
+  },
+  "python_checks": {
+    "black": "passed",
+    "ruff": "passed",
+    "cluster_precheck_simulation": "three platforms: capacity success and missing-resource rejection; fake kubectl, not a real cluster"
+  },
+  "git_diff_check": "passed",
+  "codeowners": "new paths covered; strict full-tree check still reports 2378 inherited catch-all files",
+  "hardware_cluster": "not_run",
+  "operator_image_build": "not_run",
+  "limitations": [
+    "whole-device allocation contract only; cluster plugin sharing mode must be checked",
+    "DGDR vendor hardware discovery and Planner deferred",
+    "vendor GMS/failover/checkpoint/DRA refused",
+    "cross-node and actual cross-Pod transport not validated"
+  ]
+}

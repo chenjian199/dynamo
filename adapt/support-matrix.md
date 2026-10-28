@@ -45,7 +45,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | KVBM G2/G3 分层路由 | 双 worker 淘汰、选路、回载已验证 | 双 worker 淘汰、选路、回载已验证 | 双 worker 淘汰、选路、回载已验证 | consolidator passthrough 模式；实际 KV 回读和 resident 输出一致；[证据](m06/README.md) | M06 |
 | 独立 KVBM 本地调用链 | native SDK 路径已验证 | ACL native 路径已验证 | MACA native 路径已验证 | PhysicalWorker/TransferManager、G1/G2/G3 与 owned 引擎缓冲区；[证据](m06/independent.md) | M06 |
 | KVBM replicated 集合通信 | 双卡 NCCL 已验证 | 双卡 HCCL 已验证 | 双卡 MCCL 已验证 | 独立 Rust 入口；rank 0 独占 G2/G3，六组布局/宽度配置；不等于 vLLM MLA 模型端到端验收；[证据](m06/independent.md) | M06 |
-| Kubernetes 基础部署 | 源码已有 | 待调查 | 待调查 | 资源名、镜像、设备插件、调度与计数 | M08 |
+| Kubernetes 基础部署 | 原路径及本地回归通过；集群待测 | 整卡资源/计数/准入/Pod 渲染已实现；集群待测 | 整卡资源/计数/准入/Pod 渲染已实现；集群待测 | Device Plugin 基础路径，硬件调度/注入/扩缩容/跨 Pod PD 尚未认证；[M08](m08/README.md) | M08 |
 | SLO Planner/Profiler | 源码已有 | 待调查 | 待调查 | 指标、资源计数、平台实测画像 | M09 |
 | 设备健康与功耗控制 | 源码已有 NVIDIA 路径 | 待调查 | 待调查 | 指标语义、错误码、功耗 API 与权限 | M08/M09 |
 | GMS/共享内存恢复 | 有限支持：官方 1.5.1 / vLLM 0.28，V1 真机内存存活、MemPool 与 vLLM sleep/wake；旧 tensor/module 回归通过 | 当前组合不支持：HDK 26.1.1 的 RW/查询可用，但 READ 权限与 POSIX 分配失败；预检查拒绝 | 有限支持：MACA FD/VMM，提交前 RO 重映射；V1 真机及旧 tensor/module 回归通过 | 单卡 eager；未认证完整引擎 checkpoint/CRIU；[M07 证据与阻塞原因](m07/README.md) | M07 |

@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +20,10 @@
 package validation_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
+	"os/exec"
 	"strings"
 	"testing"
 
@@ -71,6 +75,83 @@ func TestDynamoGraphDeploymentValidator_Validate(t *testing.T) {
 		wantPodAnnotations map[string]string
 		wantProvider       string
 	}{
+		{name: "M08 generated cuda aggregate", deployment: m08DGDForAdmission(t, "cuda", "aggregate")},
+		{name: "M08 generated cuda pd", deployment: m08DGDForAdmission(t, "cuda", "pd")},
+		{name: "M08 generated metax aggregate", deployment: m08DGDForAdmission(t, "metax", "aggregate")},
+		{name: "M08 generated metax pd", deployment: m08DGDForAdmission(t, "metax", "pd")},
+		{name: "M08 generated ascend aggregate", deployment: m08DGDForAdmission(t, "ascend", "aggregate")},
+		{name: "M08 generated ascend pd", deployment: m08DGDForAdmission(t, "ascend", "pd")},
+		{
+			name: "M08 mixed vendors rejected",
+			deployment: betaDGDForAdmission(func(dgd *nvidiacomv1beta1.DynamoGraphDeployment) {
+				second := betaWorkerComponent(dgd).DeepCopy()
+				second.ComponentName = "other"
+				second.PodTemplate.Spec.Containers[0].Env = []corev1.EnvVar{{Name: "DYN_PLATFORM", Value: "metax"}}
+				second.PodTemplate.Spec.Containers[0].Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"metax-tech.com/gpu": resource.MustParse("1")}}
+				dgd.Spec.Components = append(dgd.Spec.Components, *second)
+			}),
+			wantWebhookErrs: []string{`spec.components[2].podTemplate: Forbidden: accelerator workers in one DGD must use the same platform`},
+		},
+		{
+			name: "M08 vendor worker without allocation rejected",
+			deployment: betaDGDForAdmission(func(dgd *nvidiacomv1beta1.DynamoGraphDeployment) {
+				betaWorkerComponent(dgd).PodTemplate.Spec.Containers[0].Env = []corev1.EnvVar{{Name: "DYN_PLATFORM", Value: "ascend"}}
+			}),
+			wantWebhookErrs: []string{`spec.components[1].podTemplate: Forbidden: ascend worker requires the huawei.com/Ascend910 whole-device resource`},
+		},
+		{
+			name: "M08 alpha mismatch reports source service path",
+			deployment: alphaDGDForAdmission(func(dgd *nvidiacomv1alpha1.DynamoGraphDeployment) {
+				worker := dgd.Spec.Services["worker"]
+				worker.Resources = nil
+				worker.Envs = []corev1.EnvVar{{Name: "DYN_PLATFORM", Value: "cuda"}}
+				worker.ExtraPodSpec.MainContainer.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"huawei.com/Ascend910": resource.MustParse("2")}}
+			}),
+			wantWebhookErrs: []string{`spec.services[worker]: Forbidden: container "main": DYN_PLATFORM "cuda" conflicts with ascend device resources`},
+		},
+		// Whole-device platform admission uses the existing PodTemplate API.
+		{
+			name: "M08 MetaX whole-device create",
+			deployment: betaDGDForAdmission(func(dgd *nvidiacomv1beta1.DynamoGraphDeployment) {
+				main := &betaWorkerComponent(dgd).PodTemplate.Spec.Containers[0]
+				main.Env = append(main.Env, corev1.EnvVar{Name: "DYN_PLATFORM", Value: "metax"})
+				main.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"metax-tech.com/gpu": resource.MustParse("2")}}
+			}),
+		},
+		{
+			name: "M08 Ascend whole-device create",
+			deployment: betaDGDForAdmission(func(dgd *nvidiacomv1beta1.DynamoGraphDeployment) {
+				main := &betaWorkerComponent(dgd).PodTemplate.Spec.Containers[0]
+				main.Env = append(main.Env, corev1.EnvVar{Name: "DYN_PLATFORM", Value: "ascend"})
+				main.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"huawei.com/Ascend910": resource.MustParse("2")}}
+			}),
+		},
+		{
+			name:          "M08 resource identity mismatch on update",
+			oldDeployment: betaDGDForAdmission(nil),
+			deployment: betaDGDForAdmission(func(dgd *nvidiacomv1beta1.DynamoGraphDeployment) {
+				main := &betaWorkerComponent(dgd).PodTemplate.Spec.Containers[0]
+				main.Env = append(main.Env, corev1.EnvVar{Name: "DYN_PLATFORM", Value: "cuda"})
+				main.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"huawei.com/Ascend910": resource.MustParse("1")}}
+			}),
+			wantWebhookErrs: []string{`spec.components[1].podTemplate: Forbidden: container "main": DYN_PLATFORM "cuda" conflicts with ascend device resources`},
+		},
+		{
+			name: "M08 missing explicit vendor identity",
+			deployment: betaDGDForAdmission(func(dgd *nvidiacomv1beta1.DynamoGraphDeployment) {
+				betaWorkerComponent(dgd).PodTemplate.Spec.Containers[0].Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"metax-tech.com/gpu": resource.MustParse("1")}}
+			}),
+			wantWebhookErrs: []string{`spec.components[1].podTemplate: Forbidden: container "main": vendor containers require one literal DYN_PLATFORM matching their device resource`},
+		},
+		{
+			name: "M08 alpha custom resources and environment convert",
+			deployment: alphaDGDForAdmission(func(dgd *nvidiacomv1alpha1.DynamoGraphDeployment) {
+				worker := dgd.Spec.Services["worker"]
+				worker.Resources = nil
+				worker.Envs = []corev1.EnvVar{{Name: "DYN_PLATFORM", Value: "ascend"}}
+				worker.ExtraPodSpec.MainContainer.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"huawei.com/Ascend910": resource.MustParse("2")}}
+			}),
+		},
 		// Baseline create-path rules.
 		{
 			name:       "valid deployment with components",
@@ -3217,4 +3298,18 @@ func enableBetaInterPodFailover(
 		Mode:       nvidiacomv1beta1.GMSModeInterPod,
 		NumShadows: numShadows,
 	}
+}
+
+// m08DGDForAdmission consumes the same manifest users will import into a cluster.
+func m08DGDForAdmission(t *testing.T, platform, mode string) *nvidiacomv1beta1.DynamoGraphDeployment {
+	t.Helper()
+	data, err := exec.Command("python3", "../../../../../adapt/m08/render.py", "--platform", platform, "--mode", mode, "--model-pvc", "models").Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var dgd nvidiacomv1beta1.DynamoGraphDeployment
+	if err := json.Unmarshal(data, &dgd); err != nil {
+		t.Fatal(err)
+	}
+	return &dgd
 }

@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -271,10 +273,29 @@ func (v *dynamoGraphDeploymentValidation) validateDynamoGraphDeploymentSpec(
 	if len(spec.Components) == 0 {
 		allErrs = append(allErrs, field.Required(componentsPath, "must have at least one component"))
 	}
+	acceleratorPlatform := ""
 	components := componentsByName(spec.Components)
 	for i := range spec.Components {
 		component := &spec.Components[i]
 		componentPath := componentsPath.Index(i)
+		platformPath := componentPath.Child("podTemplate")
+		if v.hasRuntimeVersionSource(runtimeVersionSourceV1Alpha1) {
+			platformPath = fldPath.Child("services").Key(component.ComponentName)
+		}
+
+		// Keep accelerator workers in one graph on the same vendor platform.
+		if dynamo.IsWorkerComponent(string(component.ComponentType)) {
+			id, err := dynamo.ResolveComponentPlatform(component)
+			if err == nil {
+				if id == "" {
+					id = "cuda"
+				}
+				if acceleratorPlatform != "" && acceleratorPlatform != id {
+					allErrs = append(allErrs, field.Forbidden(platformPath, "accelerator workers in one DGD must use the same platform"))
+				}
+				acceleratorPlatform = id
+			}
+		}
 
 		if opts.grovePathway {
 			combinedLength, detail := dgdComponentResourceNameLength(opts.dgdName, spec.Components, component)
@@ -322,6 +343,7 @@ func (v *dynamoGraphDeploymentValidation) validateDynamoGraphDeploymentSpec(
 			component,
 			componentPath,
 			dynamoComponentDeploymentSharedSpecValidationOptions{
+				platformErrorPath:                 platformPath,
 				grovePathway:                      opts.grovePathway,
 				validateInferencePoolAvailability: validateInferencePoolAvailability,
 				providerOverridesSupported:        true,

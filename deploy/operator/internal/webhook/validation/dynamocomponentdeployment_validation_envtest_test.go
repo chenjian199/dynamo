@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,6 +64,23 @@ func TestDynamoComponentDeploymentValidator_Validate(t *testing.T) {
 		wantWarnings       []string
 		wantPodAnnotations map[string]string
 	}{
+		{
+			name: "M08 standalone vendor component",
+			deployment: betaDCDForAdmission(func(dcd *nvidiacomv1beta1.DynamoComponentDeployment) {
+				main := &dcd.Spec.PodTemplate.Spec.Containers[0]
+				main.Env = []corev1.EnvVar{{Name: "DYN_PLATFORM", Value: "ascend"}}
+				main.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"huawei.com/Ascend910": resource.MustParse("2")}}
+			}),
+		},
+		{
+			name: "M08 standalone rejects virtual units",
+			deployment: betaDCDForAdmission(func(dcd *nvidiacomv1beta1.DynamoComponentDeployment) {
+				main := &dcd.Spec.PodTemplate.Spec.Containers[0]
+				main.Env = []corev1.EnvVar{{Name: "DYN_PLATFORM", Value: "metax"}}
+				main.Resources = corev1.ResourceRequirements{Limits: corev1.ResourceList{"metax-tech.com/sgpu": resource.MustParse("16")}}
+			}),
+			wantWebhookErrs: []string{`spec.podTemplate: Forbidden: container "main": resource "metax-tech.com/sgpu" has an unsupported allocation unit; use whole-device metax-tech.com/gpu or huawei.com/Ascend910`},
+		},
 		// Baseline schema and webhook behavior.
 		{
 			name: "valid deployment",

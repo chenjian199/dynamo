@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,6 +10,7 @@ package dra
 import (
 	"context"
 	"fmt"
+	"github.com/ai-dynamo/dynamo/deploy/operator/internal/platform"
 	"regexp"
 	"sort"
 	"strings"
@@ -102,6 +105,9 @@ func ResourceClaimTemplateName(parentName, componentName string) string {
 }
 
 func ExtractGPUCountFromResourceRequirements(resources corev1.ResourceRequirements) (int, error) {
+	if err := platform.CheckResources(resources); err != nil {
+		return 0, err
+	}
 	names := gpuResourceRequirementNames(resources)
 	if len(names) > 1 {
 		return 0, fmt.Errorf(
@@ -580,6 +586,9 @@ func gpuCountFromQuantity(name corev1.ResourceName, q resource.Quantity) (int, e
 }
 
 func isGPUResourceName(name corev1.ResourceName) bool {
+	if platform.ResourcePlatform(name) != "" {
+		return true
+	}
 	normalized := strings.ToLower(string(name))
 	return normalized == commonconsts.KubeResourceGPUNvidia ||
 		normalized == "gpu" ||

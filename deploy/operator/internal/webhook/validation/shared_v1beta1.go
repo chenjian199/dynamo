@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,6 +61,8 @@ func (v *sharedValidation) warnf(format string, args ...any) {
 }
 
 type dynamoComponentDeploymentSharedSpecValidationOptions struct {
+	// platformErrorPath is supplied by DGD to map converted alpha services; nil uses the component path.
+	platformErrorPath                 *field.Path
 	grovePathway                      bool
 	validateInferencePoolAvailability bool
 	providerOverridesSupported        bool
@@ -73,6 +77,18 @@ func (v *sharedValidation) validateDynamoComponentDeploymentSharedSpec(
 	options dynamoComponentDeploymentSharedSpecValidationOptions,
 ) field.ErrorList {
 	allErrs := field.ErrorList{}
+
+	// Platform identity and resource ownership are represented by PodTemplate.
+	if _, err := dynamo.ResolveComponentPlatform(spec); err != nil {
+		errorPath := options.platformErrorPath
+		if errorPath == nil {
+			errorPath = fldPath.Child("podTemplate")
+			if v.hasRuntimeVersionSource(runtimeVersionSourceV1Alpha1) {
+				errorPath = fldPath
+			}
+		}
+		allErrs = append(allErrs, field.Forbidden(errorPath, err.Error()))
+	}
 
 	// Validate the provider-native fragment in this component context.
 	if spec.ProviderOverride != nil {
