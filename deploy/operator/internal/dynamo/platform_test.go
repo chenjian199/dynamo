@@ -20,7 +20,7 @@ func TestM08RenderedPodContracts(t *testing.T) {
 		for _, mode := range []string{"aggregate", "pd"} {
 			t.Run(id+"/"+mode, func(t *testing.T) {
 				t.Log("Render the actual handoff manifest, then run the production Pod renderer")
-				output, err := exec.Command("python3", "../../../../adapt/m08/render.py", "--platform", id, "--mode", mode, "--model-pvc", "models").Output()
+				output, err := exec.Command("python3", "../../../../adapter/m08/render.py", "--platform", id, "--mode", mode, "--model-pvc", "models").Output()
 				require.NoError(t, err)
 				var dgd v1beta1.DynamoGraphDeployment
 				require.NoError(t, json.Unmarshal(output, &dgd))

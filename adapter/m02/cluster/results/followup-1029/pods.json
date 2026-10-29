@@ -1,0 +1,4184 @@
+{
+  "snapshots": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "d3b26441bc51e2ad008d7d9f8805743b444485dbfa954f5da56e8f7016fbb260",
+          "cni.projectcalico.org/podIP": "10.244.229.167/32",
+          "cni.projectcalico.org/podIPs": "10.244.229.167/32",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.167\"\n    ],\n    \"mac\": \"a2:f5:0d:18:c0:5e\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:31:50Z",
+        "finalizers": [
+          "batch.kubernetes.io/job-tracking"
+        ],
+        "generateName": "cache-disk-barrier-1029-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "e5175d39-e664-475e-8c6e-16545b51682d",
+          "batch.kubernetes.io/job-name": "cache-disk-barrier-1029",
+          "campaign": "dynamo-regression-1028",
+          "controller-uid": "e5175d39-e664-475e-8c6e-16545b51682d",
+          "job-name": "cache-disk-barrier-1029"
+        },
+        "name": "cache-disk-barrier-1029-qpzdw",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "cache-disk-barrier-1029",
+            "uid": "e5175d39-e664-475e-8c6e-16545b51682d"
+          }
+        ],
+        "resourceVersion": "40268891",
+        "uid": "85a1a71e-5aaf-4d29-ab01-a0fc8a4fb759"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "/harness/adapt/m02/cluster/cache-system.py",
+              "--case",
+              "routing-disk",
+              "--repeat",
+              "3",
+              "--full-logs"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "items": [
+                {
+                  "key": "0",
+                  "path": "adapt/m06/run.py"
+                },
+                {
+                  "key": "1",
+                  "path": "adapt/m06/sources.txt"
+                },
+                {
+                  "key": "2",
+                  "path": "adapt/m05/run.py"
+                },
+                {
+                  "key": "3",
+                  "path": "tests/__init__.py"
+                },
+                {
+                  "key": "4",
+                  "path": "tests/utils/managed_process.py"
+                },
+                {
+                  "key": "5",
+                  "path": "tests/utils/port_utils.py"
+                },
+                {
+                  "key": "6",
+                  "path": "tests/utils/constants.py"
+                },
+                {
+                  "key": "7",
+                  "path": "tests/utils/test_output.py"
+                },
+                {
+                  "key": "8",
+                  "path": "adapt/m02/cluster/cache-system.py"
+                },
+                {
+                  "key": "9",
+                  "path": "adapt/m06/routing.py"
+                },
+                {
+                  "key": "10",
+                  "path": "adapt/m05/patch_vendor.py"
+                },
+                {
+                  "key": "11",
+                  "path": "adapt/m05/patches/manifest.json"
+                },
+                {
+                  "key": "12",
+                  "path": "adapt/m05/patches/ascend-tp-manifest.json"
+                }
+              ],
+              "name": "cache-disk-barrier-1029-scripts"
+            },
+            "name": "harness"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "emptyDir": {
+              "sizeLimit": "16Gi"
+            },
+            "name": "results"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:52Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:50Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:52Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:52Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:50Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "containerID": "containerd://95e8d00536cd588ccbe39142ab5d516b400ad7b9a818757e25a5693d7476b229",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T02:31:52Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.229.167",
+        "podIPs": [
+          {
+            "ip": "10.244.229.167"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:31:50Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "0a8a5cd06fe0461a1abd9b652c7a7a3b8ad7cecf4b2a4dd8b2dd4d4d6677b6b6",
+          "cni.projectcalico.org/podIP": "",
+          "cni.projectcalico.org/podIPs": "",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.165\"\n    ],\n    \"mac\": \"8a:a7:24:0e:1c:23\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:23:31Z",
+        "generateName": "cache-disk-debug-1029-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "b39a11e4-c8d4-4fcb-80cc-bd9ad657d1ca",
+          "batch.kubernetes.io/job-name": "cache-disk-debug-1029",
+          "campaign": "dynamo-regression-1028",
+          "controller-uid": "b39a11e4-c8d4-4fcb-80cc-bd9ad657d1ca",
+          "job-name": "cache-disk-debug-1029"
+        },
+        "name": "cache-disk-debug-1029-vf7rx",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "cache-disk-debug-1029",
+            "uid": "b39a11e4-c8d4-4fcb-80cc-bd9ad657d1ca"
+          }
+        ],
+        "resourceVersion": "40266956",
+        "uid": "be7d6b39-8f9b-4c59-969e-5e11471a7c88"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "/harness/adapt/m02/cluster/cache-system.py",
+              "--case",
+              "routing-disk",
+              "--repeat",
+              "3",
+              "--full-logs"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              },
+              {
+                "name": "RUST_LOG",
+                "value": "info,dynamo_llm::block_manager=debug,dynamo_kv_router::indexer=debug"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "items": [
+                {
+                  "key": "0",
+                  "path": "adapt/m06/run.py"
+                },
+                {
+                  "key": "1",
+                  "path": "adapt/m06/sources.txt"
+                },
+                {
+                  "key": "2",
+                  "path": "adapt/m05/run.py"
+                },
+                {
+                  "key": "3",
+                  "path": "tests/__init__.py"
+                },
+                {
+                  "key": "4",
+                  "path": "tests/utils/managed_process.py"
+                },
+                {
+                  "key": "5",
+                  "path": "tests/utils/port_utils.py"
+                },
+                {
+                  "key": "6",
+                  "path": "tests/utils/constants.py"
+                },
+                {
+                  "key": "7",
+                  "path": "tests/utils/test_output.py"
+                },
+                {
+                  "key": "8",
+                  "path": "adapt/m02/cluster/cache-system.py"
+                },
+                {
+                  "key": "9",
+                  "path": "adapt/m06/routing.py"
+                },
+                {
+                  "key": "10",
+                  "path": "adapt/m05/patch_vendor.py"
+                },
+                {
+                  "key": "11",
+                  "path": "adapt/m05/patches/manifest.json"
+                },
+                {
+                  "key": "12",
+                  "path": "adapt/m05/patches/ascend-tp-manifest.json"
+                }
+              ],
+              "name": "cache-disk-debug-1029-scripts"
+            },
+            "name": "harness"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "emptyDir": {
+              "sizeLimit": "16Gi"
+            },
+            "name": "results"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:27Z",
+            "observedGeneration": 1,
+            "status": "False",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:23:31Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:25Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:25Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:23:31Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "containerID": "containerd://2ca8fb862d1333b204ec86a8fbe7c7b23f17af785436dfaa7c3e6b1fa4b927e0",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": false,
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://2ca8fb862d1333b204ec86a8fbe7c7b23f17af785436dfaa7c3e6b1fa4b927e0",
+                "exitCode": 1,
+                "finishedAt": "2026-10-29T02:26:24Z",
+                "reason": "Error",
+                "startedAt": "2026-10-29T02:23:32Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Failed",
+        "podIP": "10.244.229.165",
+        "podIPs": [
+          {
+            "ip": "10.244.229.165"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:23:31Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "db4f7abb81af007e1de9d967f2a8c52e73bf0d6fb5c6e4b767489e5db621ea7b",
+          "cni.projectcalico.org/podIP": "",
+          "cni.projectcalico.org/podIPs": "",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.153\"\n    ],\n    \"mac\": \"32:f7:3c:b7:49:62\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:26:39Z",
+        "generateName": "cache-disk-trace-1029-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "9df203e0-989b-42ab-a279-9a3a237f125d",
+          "batch.kubernetes.io/job-name": "cache-disk-trace-1029",
+          "campaign": "dynamo-regression-1028",
+          "controller-uid": "9df203e0-989b-42ab-a279-9a3a237f125d",
+          "job-name": "cache-disk-trace-1029"
+        },
+        "name": "cache-disk-trace-1029-5rksz",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "cache-disk-trace-1029",
+            "uid": "9df203e0-989b-42ab-a279-9a3a237f125d"
+          }
+        ],
+        "resourceVersion": "40268065",
+        "uid": "2f8013b0-c22f-4709-8592-18dade32506d"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "/harness/adapt/m02/cluster/cache-system.py",
+              "--case",
+              "routing-disk",
+              "--repeat",
+              "3",
+              "--full-logs"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              },
+              {
+                "name": "DYN_LOG",
+                "value": "info,dynamo_llm::block_manager=debug,dynamo_kv_router::indexer=debug"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "items": [
+                {
+                  "key": "0",
+                  "path": "adapt/m06/run.py"
+                },
+                {
+                  "key": "1",
+                  "path": "adapt/m06/sources.txt"
+                },
+                {
+                  "key": "2",
+                  "path": "adapt/m05/run.py"
+                },
+                {
+                  "key": "3",
+                  "path": "tests/__init__.py"
+                },
+                {
+                  "key": "4",
+                  "path": "tests/utils/managed_process.py"
+                },
+                {
+                  "key": "5",
+                  "path": "tests/utils/port_utils.py"
+                },
+                {
+                  "key": "6",
+                  "path": "tests/utils/constants.py"
+                },
+                {
+                  "key": "7",
+                  "path": "tests/utils/test_output.py"
+                },
+                {
+                  "key": "8",
+                  "path": "adapt/m02/cluster/cache-system.py"
+                },
+                {
+                  "key": "9",
+                  "path": "adapt/m06/routing.py"
+                },
+                {
+                  "key": "10",
+                  "path": "adapt/m05/patch_vendor.py"
+                },
+                {
+                  "key": "11",
+                  "path": "adapt/m05/patches/manifest.json"
+                },
+                {
+                  "key": "12",
+                  "path": "adapt/m05/patches/ascend-tp-manifest.json"
+                }
+              ],
+              "name": "cache-disk-trace-1029-scripts"
+            },
+            "name": "harness"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "emptyDir": {
+              "sizeLimit": "16Gi"
+            },
+            "name": "results"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:29:33Z",
+            "observedGeneration": 1,
+            "status": "False",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:39Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:29:31Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:29:31Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:39Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "containerID": "containerd://156c57cc6351849a221465782831379679008279daf285a1b7acf3e18e9300e4",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": false,
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://156c57cc6351849a221465782831379679008279daf285a1b7acf3e18e9300e4",
+                "exitCode": 1,
+                "finishedAt": "2026-10-29T02:29:30Z",
+                "reason": "Error",
+                "startedAt": "2026-10-29T02:26:40Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Failed",
+        "podIP": "10.244.229.153",
+        "podIPs": [
+          {
+            "ip": "10.244.229.153"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:26:39Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "32804a74d05903a098373a75c6eebcb380502e9a243ce955a84eda9a55a8c2fe",
+          "cni.projectcalico.org/podIP": "10.244.229.51/32",
+          "cni.projectcalico.org/podIPs": "10.244.229.51/32",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.51\"\n    ],\n    \"mac\": \"02:00:44:bf:86:3b\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:33:18Z",
+        "generateName": "native-pp-frontend-bd5d6448f-",
+        "generation": 1,
+        "labels": {
+          "app": "native-pp-frontend",
+          "app.kubernetes.io/part-of": "dynamo-regression",
+          "campaign": "dynamo-regression-1028",
+          "pod-template-hash": "bd5d6448f"
+        },
+        "name": "native-pp-frontend-bd5d6448f-t87vf",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "native-pp-frontend-bd5d6448f",
+            "uid": "1c7e20e2-f994-4e4d-b563-20deb04769f7"
+          }
+        ],
+        "resourceVersion": "40269532",
+        "uid": "b4fc5552-0aff-4943-85d8-e0bd064b0551"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "-m",
+              "dynamo.frontend",
+              "--router-mode",
+              "kv"
+            ],
+            "env": [
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "native-pp"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "etcd"
+              },
+              {
+                "name": "ETCD_ENDPOINTS",
+                "value": "http://regression-etcd:2379"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "8081"
+              },
+              {
+                "name": "TOKENIZERS_PARALLELISM",
+                "value": "false"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cpu"
+              },
+              {
+                "name": "DYN_HTTP_PORT",
+                "value": "8000"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "void"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "tcpSocket": {
+                "port": 8000
+              },
+              "timeoutSeconds": 1
+            },
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "2",
+                "memory": "4Gi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:18Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:25Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:25Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:18Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "2",
+              "memory": "4Gi"
+            },
+            "containerID": "containerd://f39353d79d71d2c7f006ffd8ee22933c9afc50263ca77f6655af52e7c3b602a9",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "2",
+                "memory": "4Gi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T02:33:19Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.229.51",
+        "podIPs": [
+          {
+            "ip": "10.244.229.51"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:33:18Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "heyi.validation/source": "development overlay; vLLM and native libraries unchanged"
+        },
+        "creationTimestamp": "2026-10-29T02:33:18Z",
+        "generateName": "native-pp-worker-0-69584d45b9-",
+        "generation": 1,
+        "labels": {
+          "app": "native-pp-worker-0",
+          "app.kubernetes.io/part-of": "dynamo-regression",
+          "campaign": "dynamo-regression-1028",
+          "pod-template-hash": "69584d45b9"
+        },
+        "name": "native-pp-worker-0-69584d45b9-x56j6",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "native-pp-worker-0-69584d45b9",
+            "uid": "29b6df00-072f-44c1-884b-76b957d58fd9"
+          }
+        ],
+        "resourceVersion": "40269484",
+        "uid": "69754c32-2e9c-423f-8f58-d72ae3b9d5e1"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "-m",
+              "dynamo.vllm",
+              "--model",
+              "/models/Qwen3-0.6B",
+              "--served-model-name",
+              "native-pp-model",
+              "--enforce-eager",
+              "--enable-prefix-caching",
+              "--block-size",
+              "64",
+              "--max-model-len",
+              "4096",
+              "--max-num-seqs",
+              "4",
+              "--kv-cache-memory-bytes",
+              "1073741824",
+              "--kv-events-config",
+              "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20310\", \"enable_kv_cache_events\": true}",
+              "--tensor-parallel-size",
+              "2",
+              "--pipeline-parallel-size",
+              "2",
+              "--nnodes",
+              "2",
+              "--node-rank",
+              "0",
+              "--master-addr",
+              "192.168.4.6",
+              "--master-port",
+              "29680",
+              "--distributed-executor-backend",
+              "mp",
+              "--distributed-timeout-seconds",
+              "180"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "native-pp"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "etcd"
+              },
+              {
+                "name": "ETCD_ENDPOINTS",
+                "value": "http://regression-etcd:2379"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "18310"
+              },
+              {
+                "name": "TOKENIZERS_PARALLELISM",
+                "value": "false"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "VLLM_HOST_IP",
+                "value": "192.168.4.6"
+              },
+              {
+                "name": "DYN_FORWARDPASS_METRIC_PORT",
+                "value": "18320"
+              },
+              {
+                "name": "NCCL_DEBUG",
+                "value": "INFO"
+              },
+              {
+                "name": "NCCL_NET",
+                "value": "IB"
+              },
+              {
+                "name": "NCCL_IB_HCA",
+                "value": "=mlx5_10"
+              },
+              {
+                "name": "NCCL_SOCKET_IFNAME",
+                "value": "=bond0"
+              },
+              {
+                "name": "GLOO_SOCKET_IFNAME",
+                "value": "bond0"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "24",
+                "memory": "128Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              },
+              "requests": {
+                "cpu": "8",
+                "memory": "32Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              }
+            },
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "IPC_LOCK"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "0"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/providers.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "1"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/platform.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "2"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirstWithHostNet",
+        "enableServiceLinks": true,
+        "hostNetwork": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "native-topology-source-1029"
+            },
+            "name": "candidate-source"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:18Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:18Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "containerID": "containerd://e72ea8a6ca4a1324524318b9d01ea642892e28b8ea402f9c71c0a4d56e3e82c7",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "24",
+                "memory": "128Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              },
+              "requests": {
+                "cpu": "8",
+                "memory": "32Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T02:33:19Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/providers.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/platform.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "192.168.4.6",
+        "podIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:33:18Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "heyi.validation/source": "development overlay; vLLM and native libraries unchanged"
+        },
+        "creationTimestamp": "2026-10-29T02:33:18Z",
+        "generateName": "native-pp-worker-1-6954c4d5b8-",
+        "generation": 1,
+        "labels": {
+          "app": "native-pp-worker-1",
+          "app.kubernetes.io/part-of": "dynamo-regression",
+          "campaign": "dynamo-regression-1028",
+          "pod-template-hash": "6954c4d5b8"
+        },
+        "name": "native-pp-worker-1-6954c4d5b8-2pxjh",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "native-pp-worker-1-6954c4d5b8",
+            "uid": "a2169bca-c854-4406-851f-db31eb130c6b"
+          }
+        ],
+        "resourceVersion": "40269477",
+        "uid": "35a8c5cc-c10f-4e10-a0a3-b7b2eea35cef"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker28"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "-m",
+              "dynamo.vllm",
+              "--model",
+              "/models/Qwen3-0.6B",
+              "--served-model-name",
+              "native-pp-model",
+              "--enforce-eager",
+              "--enable-prefix-caching",
+              "--block-size",
+              "64",
+              "--max-model-len",
+              "4096",
+              "--max-num-seqs",
+              "4",
+              "--kv-cache-memory-bytes",
+              "1073741824",
+              "--kv-events-config",
+              "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20311\", \"enable_kv_cache_events\": true}",
+              "--tensor-parallel-size",
+              "2",
+              "--pipeline-parallel-size",
+              "2",
+              "--nnodes",
+              "2",
+              "--node-rank",
+              "1",
+              "--master-addr",
+              "192.168.4.6",
+              "--master-port",
+              "29680",
+              "--distributed-executor-backend",
+              "mp",
+              "--distributed-timeout-seconds",
+              "180",
+              "--headless"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "native-pp"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "etcd"
+              },
+              {
+                "name": "ETCD_ENDPOINTS",
+                "value": "http://regression-etcd:2379"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "18311"
+              },
+              {
+                "name": "TOKENIZERS_PARALLELISM",
+                "value": "false"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "VLLM_HOST_IP",
+                "value": "192.168.4.14"
+              },
+              {
+                "name": "DYN_FORWARDPASS_METRIC_PORT",
+                "value": "18321"
+              },
+              {
+                "name": "NCCL_DEBUG",
+                "value": "INFO"
+              },
+              {
+                "name": "NCCL_NET",
+                "value": "IB"
+              },
+              {
+                "name": "NCCL_IB_HCA",
+                "value": "=mlx5_10"
+              },
+              {
+                "name": "NCCL_SOCKET_IFNAME",
+                "value": "=bond0"
+              },
+              {
+                "name": "GLOO_SOCKET_IFNAME",
+                "value": "bond0"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "24",
+                "memory": "128Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              },
+              "requests": {
+                "cpu": "8",
+                "memory": "32Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              }
+            },
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "IPC_LOCK"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "0"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/providers.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "1"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/platform.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "2"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirstWithHostNet",
+        "enableServiceLinks": true,
+        "hostNetwork": true,
+        "nodeName": "worker28",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "native-topology-source-1029"
+            },
+            "name": "candidate-source"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:18Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:19Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:33:18Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "containerID": "containerd://dd33877b9eea57179886fe755691c0e03377e51efe9985ccd0456f22ccba9f49",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "24",
+                "memory": "128Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              },
+              "requests": {
+                "cpu": "8",
+                "memory": "32Gi",
+                "nvidia.com/gpu": "2",
+                "nvidia.com/roce_h3cnic0": "1"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T02:33:19Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/providers.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/platform.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.14",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.14"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "192.168.4.14",
+        "podIPs": [
+          {
+            "ip": "192.168.4.14"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:33:18Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "d3b26441bc51e2ad008d7d9f8805743b444485dbfa954f5da56e8f7016fbb260",
+          "cni.projectcalico.org/podIP": "",
+          "cni.projectcalico.org/podIPs": "",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.167\"\n    ],\n    \"mac\": \"a2:f5:0d:18:c0:5e\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:31:50Z",
+        "generateName": "cache-disk-barrier-1029-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "e5175d39-e664-475e-8c6e-16545b51682d",
+          "batch.kubernetes.io/job-name": "cache-disk-barrier-1029",
+          "campaign": "dynamo-regression-1028",
+          "controller-uid": "e5175d39-e664-475e-8c6e-16545b51682d",
+          "job-name": "cache-disk-barrier-1029"
+        },
+        "name": "cache-disk-barrier-1029-qpzdw",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "cache-disk-barrier-1029",
+            "uid": "e5175d39-e664-475e-8c6e-16545b51682d"
+          }
+        ],
+        "resourceVersion": "40271370",
+        "uid": "85a1a71e-5aaf-4d29-ab01-a0fc8a4fb759"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "/harness/adapt/m02/cluster/cache-system.py",
+              "--case",
+              "routing-disk",
+              "--repeat",
+              "3",
+              "--full-logs"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "items": [
+                {
+                  "key": "0",
+                  "path": "adapt/m06/run.py"
+                },
+                {
+                  "key": "1",
+                  "path": "adapt/m06/sources.txt"
+                },
+                {
+                  "key": "2",
+                  "path": "adapt/m05/run.py"
+                },
+                {
+                  "key": "3",
+                  "path": "tests/__init__.py"
+                },
+                {
+                  "key": "4",
+                  "path": "tests/utils/managed_process.py"
+                },
+                {
+                  "key": "5",
+                  "path": "tests/utils/port_utils.py"
+                },
+                {
+                  "key": "6",
+                  "path": "tests/utils/constants.py"
+                },
+                {
+                  "key": "7",
+                  "path": "tests/utils/test_output.py"
+                },
+                {
+                  "key": "8",
+                  "path": "adapt/m02/cluster/cache-system.py"
+                },
+                {
+                  "key": "9",
+                  "path": "adapt/m06/routing.py"
+                },
+                {
+                  "key": "10",
+                  "path": "adapt/m05/patch_vendor.py"
+                },
+                {
+                  "key": "11",
+                  "path": "adapt/m05/patches/manifest.json"
+                },
+                {
+                  "key": "12",
+                  "path": "adapt/m05/patches/ascend-tp-manifest.json"
+                }
+              ],
+              "name": "cache-disk-barrier-1029-scripts"
+            },
+            "name": "harness"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "emptyDir": {
+              "sizeLimit": "16Gi"
+            },
+            "name": "results"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:38:20Z",
+            "observedGeneration": 1,
+            "status": "False",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:50Z",
+            "observedGeneration": 1,
+            "reason": "PodCompleted",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:38:18Z",
+            "observedGeneration": 1,
+            "reason": "PodCompleted",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:38:18Z",
+            "observedGeneration": 1,
+            "reason": "PodCompleted",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:31:50Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "containerID": "containerd://95e8d00536cd588ccbe39142ab5d516b400ad7b9a818757e25a5693d7476b229",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": false,
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://95e8d00536cd588ccbe39142ab5d516b400ad7b9a818757e25a5693d7476b229",
+                "exitCode": 0,
+                "finishedAt": "2026-10-29T02:38:18Z",
+                "reason": "Completed",
+                "startedAt": "2026-10-29T02:31:52Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Succeeded",
+        "podIP": "10.244.229.167",
+        "podIPs": [
+          {
+            "ip": "10.244.229.167"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:31:50Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "0a8a5cd06fe0461a1abd9b652c7a7a3b8ad7cecf4b2a4dd8b2dd4d4d6677b6b6",
+          "cni.projectcalico.org/podIP": "",
+          "cni.projectcalico.org/podIPs": "",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.165\"\n    ],\n    \"mac\": \"8a:a7:24:0e:1c:23\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:23:31Z",
+        "generateName": "cache-disk-debug-1029-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "b39a11e4-c8d4-4fcb-80cc-bd9ad657d1ca",
+          "batch.kubernetes.io/job-name": "cache-disk-debug-1029",
+          "campaign": "dynamo-regression-1028",
+          "controller-uid": "b39a11e4-c8d4-4fcb-80cc-bd9ad657d1ca",
+          "job-name": "cache-disk-debug-1029"
+        },
+        "name": "cache-disk-debug-1029-vf7rx",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "cache-disk-debug-1029",
+            "uid": "b39a11e4-c8d4-4fcb-80cc-bd9ad657d1ca"
+          }
+        ],
+        "resourceVersion": "40266956",
+        "uid": "be7d6b39-8f9b-4c59-969e-5e11471a7c88"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "/harness/adapt/m02/cluster/cache-system.py",
+              "--case",
+              "routing-disk",
+              "--repeat",
+              "3",
+              "--full-logs"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              },
+              {
+                "name": "RUST_LOG",
+                "value": "info,dynamo_llm::block_manager=debug,dynamo_kv_router::indexer=debug"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "items": [
+                {
+                  "key": "0",
+                  "path": "adapt/m06/run.py"
+                },
+                {
+                  "key": "1",
+                  "path": "adapt/m06/sources.txt"
+                },
+                {
+                  "key": "2",
+                  "path": "adapt/m05/run.py"
+                },
+                {
+                  "key": "3",
+                  "path": "tests/__init__.py"
+                },
+                {
+                  "key": "4",
+                  "path": "tests/utils/managed_process.py"
+                },
+                {
+                  "key": "5",
+                  "path": "tests/utils/port_utils.py"
+                },
+                {
+                  "key": "6",
+                  "path": "tests/utils/constants.py"
+                },
+                {
+                  "key": "7",
+                  "path": "tests/utils/test_output.py"
+                },
+                {
+                  "key": "8",
+                  "path": "adapt/m02/cluster/cache-system.py"
+                },
+                {
+                  "key": "9",
+                  "path": "adapt/m06/routing.py"
+                },
+                {
+                  "key": "10",
+                  "path": "adapt/m05/patch_vendor.py"
+                },
+                {
+                  "key": "11",
+                  "path": "adapt/m05/patches/manifest.json"
+                },
+                {
+                  "key": "12",
+                  "path": "adapt/m05/patches/ascend-tp-manifest.json"
+                }
+              ],
+              "name": "cache-disk-debug-1029-scripts"
+            },
+            "name": "harness"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "emptyDir": {
+              "sizeLimit": "16Gi"
+            },
+            "name": "results"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:27Z",
+            "observedGeneration": 1,
+            "status": "False",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:23:31Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:25Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:25Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:23:31Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "containerID": "containerd://2ca8fb862d1333b204ec86a8fbe7c7b23f17af785436dfaa7c3e6b1fa4b927e0",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": false,
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://2ca8fb862d1333b204ec86a8fbe7c7b23f17af785436dfaa7c3e6b1fa4b927e0",
+                "exitCode": 1,
+                "finishedAt": "2026-10-29T02:26:24Z",
+                "reason": "Error",
+                "startedAt": "2026-10-29T02:23:32Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Failed",
+        "podIP": "10.244.229.165",
+        "podIPs": [
+          {
+            "ip": "10.244.229.165"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:23:31Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "db4f7abb81af007e1de9d967f2a8c52e73bf0d6fb5c6e4b767489e5db621ea7b",
+          "cni.projectcalico.org/podIP": "",
+          "cni.projectcalico.org/podIPs": "",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.153\"\n    ],\n    \"mac\": \"32:f7:3c:b7:49:62\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:26:39Z",
+        "generateName": "cache-disk-trace-1029-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "9df203e0-989b-42ab-a279-9a3a237f125d",
+          "batch.kubernetes.io/job-name": "cache-disk-trace-1029",
+          "campaign": "dynamo-regression-1028",
+          "controller-uid": "9df203e0-989b-42ab-a279-9a3a237f125d",
+          "job-name": "cache-disk-trace-1029"
+        },
+        "name": "cache-disk-trace-1029-5rksz",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "cache-disk-trace-1029",
+            "uid": "9df203e0-989b-42ab-a279-9a3a237f125d"
+          }
+        ],
+        "resourceVersion": "40268065",
+        "uid": "2f8013b0-c22f-4709-8592-18dade32506d"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "/harness/adapt/m02/cluster/cache-system.py",
+              "--case",
+              "routing-disk",
+              "--repeat",
+              "3",
+              "--full-logs"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              },
+              {
+                "name": "DYN_LOG",
+                "value": "info,dynamo_llm::block_manager=debug,dynamo_kv_router::indexer=debug"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "items": [
+                {
+                  "key": "0",
+                  "path": "adapt/m06/run.py"
+                },
+                {
+                  "key": "1",
+                  "path": "adapt/m06/sources.txt"
+                },
+                {
+                  "key": "2",
+                  "path": "adapt/m05/run.py"
+                },
+                {
+                  "key": "3",
+                  "path": "tests/__init__.py"
+                },
+                {
+                  "key": "4",
+                  "path": "tests/utils/managed_process.py"
+                },
+                {
+                  "key": "5",
+                  "path": "tests/utils/port_utils.py"
+                },
+                {
+                  "key": "6",
+                  "path": "tests/utils/constants.py"
+                },
+                {
+                  "key": "7",
+                  "path": "tests/utils/test_output.py"
+                },
+                {
+                  "key": "8",
+                  "path": "adapt/m02/cluster/cache-system.py"
+                },
+                {
+                  "key": "9",
+                  "path": "adapt/m06/routing.py"
+                },
+                {
+                  "key": "10",
+                  "path": "adapt/m05/patch_vendor.py"
+                },
+                {
+                  "key": "11",
+                  "path": "adapt/m05/patches/manifest.json"
+                },
+                {
+                  "key": "12",
+                  "path": "adapt/m05/patches/ascend-tp-manifest.json"
+                }
+              ],
+              "name": "cache-disk-trace-1029-scripts"
+            },
+            "name": "harness"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "emptyDir": {
+              "sizeLimit": "16Gi"
+            },
+            "name": "results"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:29:33Z",
+            "observedGeneration": 1,
+            "status": "False",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:39Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:29:31Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:29:31Z",
+            "observedGeneration": 1,
+            "reason": "PodFailed",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:26:39Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "containerID": "containerd://156c57cc6351849a221465782831379679008279daf285a1b7acf3e18e9300e4",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": false,
+            "resources": {
+              "limits": {
+                "cpu": "16",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "2"
+              },
+              "requests": {
+                "cpu": "4",
+                "memory": "8Gi",
+                "nvidia.com/gpu": "2"
+              }
+            },
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://156c57cc6351849a221465782831379679008279daf285a1b7acf3e18e9300e4",
+                "exitCode": 1,
+                "finishedAt": "2026-10-29T02:29:30Z",
+                "reason": "Error",
+                "startedAt": "2026-10-29T02:26:40Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/harness",
+                "name": "harness",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/results",
+                "name": "results"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Failed",
+        "podIP": "10.244.229.153",
+        "podIPs": [
+          {
+            "ip": "10.244.229.153"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:26:39Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "efe52acb2355d2c4b353761078b1e2054aa678b5093a2022f9bf0edfd0b2dc16",
+          "cni.projectcalico.org/podIP": "10.244.229.120/32",
+          "cni.projectcalico.org/podIPs": "10.244.229.120/32",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.120\"\n    ],\n    \"mac\": \"22:b8:89:43:90:85\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:36:49Z",
+        "generateName": "native-tp8-frontend-644d668979-",
+        "generation": 1,
+        "labels": {
+          "app": "native-tp8-frontend",
+          "app.kubernetes.io/part-of": "dynamo-regression",
+          "campaign": "dynamo-regression-1028",
+          "pod-template-hash": "644d668979"
+        },
+        "name": "native-tp8-frontend-644d668979-gvl4l",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "native-tp8-frontend-644d668979",
+            "uid": "77cadbf7-381b-4e64-b87e-59d37c56cbed"
+          }
+        ],
+        "resourceVersion": "40270833",
+        "uid": "f3c96bcc-dfe6-47d9-bc27-0cd80ed7c302"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker06"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "-m",
+              "dynamo.frontend",
+              "--router-mode",
+              "kv"
+            ],
+            "env": [
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "native-tp8"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "etcd"
+              },
+              {
+                "name": "ETCD_ENDPOINTS",
+                "value": "http://regression-etcd:2379"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "8081"
+              },
+              {
+                "name": "TOKENIZERS_PARALLELISM",
+                "value": "false"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cpu"
+              },
+              {
+                "name": "DYN_HTTP_PORT",
+                "value": "8000"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "void"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "tcpSocket": {
+                "port": 8000
+              },
+              "timeoutSeconds": 1
+            },
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "4Gi"
+              },
+              "requests": {
+                "cpu": "500m",
+                "memory": "1Gi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:51Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:49Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:51Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:51Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:49Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "500m",
+              "memory": "1Gi"
+            },
+            "containerID": "containerd://590e919e6f99cd4f46aed74e796557ca271d1a20591e5aba3674591d2f816743",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "4Gi"
+              },
+              "requests": {
+                "cpu": "500m",
+                "memory": "1Gi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T02:36:50Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.229.120",
+        "podIPs": [
+          {
+            "ip": "10.244.229.120"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:36:49Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "6140d440805cd90d5b7f92657eeae57abc7ab46eeec2c14f82eadef8c9673db1",
+          "cni.projectcalico.org/podIP": "10.244.84.56/32",
+          "cni.projectcalico.org/podIPs": "10.244.84.56/32",
+          "heyi.validation/source": "development overlay; vLLM and native libraries unchanged",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.84.56\"\n    ],\n    \"mac\": \"8a:3f:22:2f:a6:46\",\n    \"default\": true,\n    \"dns\": {}\n}]"
+        },
+        "creationTimestamp": "2026-10-29T02:36:49Z",
+        "generateName": "native-tp8-worker-1-874448854-",
+        "generation": 1,
+        "labels": {
+          "app": "native-tp8-worker-1",
+          "app.kubernetes.io/part-of": "dynamo-regression",
+          "campaign": "dynamo-regression-1028",
+          "pod-template-hash": "874448854"
+        },
+        "name": "native-tp8-worker-1-874448854-fxsgz",
+        "namespace": "dynamo-regression-1028",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "native-tp8-worker-1-874448854",
+            "uid": "6a5172cb-7899-4bbf-a2b8-7656b385e177"
+          }
+        ],
+        "resourceVersion": "40270838",
+        "uid": "06f32dd6-1e48-4d0b-ab57-00f31cc2be8a"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchFields": [
+                    {
+                      "key": "metadata.name",
+                      "operator": "In",
+                      "values": [
+                        "worker28"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh",
+              "python",
+              "-m",
+              "dynamo.vllm",
+              "--model",
+              "/models/Qwen3-0.6B",
+              "--served-model-name",
+              "native-tp8-model",
+              "--enforce-eager",
+              "--enable-prefix-caching",
+              "--block-size",
+              "64",
+              "--max-model-len",
+              "4096",
+              "--max-num-seqs",
+              "4",
+              "--kv-cache-memory-bytes",
+              "1073741824",
+              "--kv-events-config",
+              "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\", \"enable_kv_cache_events\": true}",
+              "--tensor-parallel-size",
+              "8"
+            ],
+            "env": [
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "native-tp8"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "etcd"
+              },
+              {
+                "name": "ETCD_ENDPOINTS",
+                "value": "http://regression-etcd:2379"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "8081"
+              },
+              {
+                "name": "TOKENIZERS_PARALLELISM",
+                "value": "false"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              }
+            ],
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "name": "test",
+            "resources": {
+              "limits": {
+                "cpu": "32",
+                "memory": "128Gi",
+                "nvidia.com/gpu": "8"
+              },
+              "requests": {
+                "cpu": "2",
+                "memory": "4Gi",
+                "nvidia.com/gpu": "8"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "0"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/providers.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "1"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/platform.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "subPath": "2"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker28",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "regression-tests"
+            },
+            "name": "tests"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "shm"
+          },
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "model"
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "native-tp8-source-1029"
+            },
+            "name": "candidate-source"
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:51Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:49Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:51Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:51Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T02:36:49Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "8"
+            },
+            "containerID": "containerd://20de6338e8ec76b3ef9eb9f9e10ef6bfeff1c4368ccc4449fe38352df5c70cb4",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "test",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "32",
+                "memory": "128Gi",
+                "nvidia.com/gpu": "8"
+              },
+              "requests": {
+                "cpu": "2",
+                "memory": "4Gi",
+                "nvidia.com/gpu": "8"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T02:36:51Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/regression",
+                "name": "tests",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shm"
+              },
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "model",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/providers.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/platform.py",
+                "name": "candidate-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.14",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.14"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.84.56",
+        "podIPs": [
+          {
+            "ip": "10.244.84.56"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T02:36:49Z"
+      }
+    }
+  ]
+}

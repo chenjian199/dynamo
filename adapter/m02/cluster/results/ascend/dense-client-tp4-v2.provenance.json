@@ -1,0 +1,70 @@
+{
+  "job": "dense-client-tp4-v2",
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:12:02Z",
+        "lastTransitionTime": "2026-10-28T10:12:02Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "FailureTarget"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:12:02Z",
+        "lastTransitionTime": "2026-10-28T10:12:02Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "Failed"
+      }
+    ],
+    "failed": 1,
+    "ready": 0,
+    "startTime": "2026-10-28T10:11:43Z",
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "2bca419424ae7220f843442b7bdf9385eb94ef63a8d1fe443a44cc9e328d0b88",
+  "spec_sha256": "5ba442e3f4c692017d77f381fed5773e8d773f6b9c97859cc7247499dae48118",
+  "pods": [
+    {
+      "name": "dense-client-tp4-v2-z52rq",
+      "uid": "9fd1c84b-c143-4ac8-9ce8-dd2d0ef38e78",
+      "node": "master-02-45d4a763",
+      "containers": [
+        {
+          "containerID": "containerd://df75d70ba10a204a4efb7df02b421fc62ce3dd4dd29c25f148be79957b776ec2",
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imageID": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://df75d70ba10a204a4efb7df02b421fc62ce3dd4dd29c25f148be79957b776ec2",
+              "exitCode": 1,
+              "finishedAt": "2026-10-28T10:12:00Z",
+              "reason": "Error",
+              "startedAt": "2026-10-28T10:11:44Z"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

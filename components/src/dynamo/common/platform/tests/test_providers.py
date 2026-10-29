@@ -66,7 +66,7 @@ def test_selected_provider_only_and_device_identity(monkeypatch, platform_id):
     context["tp"] = "3"
     assert (
         getattr(providers, platform_id)(context)["capabilities"]["engine.text"]["state"]
-        == "unknown"
+        == "available"
     )
     props.uuid = ""
     with pytest.raises(PlatformError, match="missing_device_identity"):
@@ -80,3 +80,18 @@ def test_metax_torch_cannot_be_registered_as_cuda(monkeypatch):
     )
     with pytest.raises(PlatformError, match="stack_mismatch"):
         providers.cuda({})
+
+
+@pytest.mark.parametrize("platform_id", ["cuda", "metax", "ascend"])
+@pytest.mark.parametrize("task", ["text", "multimodal", "embedding"])
+@pytest.mark.parametrize("eager", ["true", "false"])
+def test_engine_capability_does_not_certify_topology(
+    monkeypatch, platform_id, task, eager
+):
+    monkeypatch.setattr(providers, "validate_vllm_versions", lambda platform: {})
+    context = dict(engine="vllm", task=task, tp="8", pp="2", dp="8", eager=eager)
+    caps = providers.build_capabilities(platform_id, context, {})
+    assert caps[f"engine.{task}"]["state"] == "available"
+    assert caps[f"engine.{task}"]["conditions"] == context
+    assert caps["pd.transfer"]["state"] == "unknown"
+    assert caps["kvbm.offload"]["state"] == "unknown"

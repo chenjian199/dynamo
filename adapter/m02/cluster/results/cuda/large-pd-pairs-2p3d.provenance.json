@@ -1,0 +1,99 @@
+{
+  "job": "large-pd-pairs-2p3d",
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T11:08:06Z",
+        "lastTransitionTime": "2026-10-28T11:08:06Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "FailureTarget"
+      },
+      {
+        "lastProbeTime": "2026-10-28T11:08:06Z",
+        "lastTransitionTime": "2026-10-28T11:08:06Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "Failed"
+      }
+    ],
+    "failed": 1,
+    "ready": 0,
+    "startTime": "2026-10-28T11:06:34Z",
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "99955b800c577166b7ac291e439dcdb39647feb4e7b7faa50d08e39448ba1c8e",
+  "spec_sha256": "20fdbc990c20a2705a6706af810915b0bf77f5f598d546508dc570c89ef08206",
+  "pods": [
+    {
+      "name": "large-pd-pairs-2p3d-gx8jx",
+      "uid": "e3ba734d-1dee-4ab3-9e45-bf9413d26c50",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi"
+          },
+          "containerID": "containerd://1eea49bf1c21c914029cc74864b24acaaeefca281c4513d48afbb9f9bbad71a2",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://1eea49bf1c21c914029cc74864b24acaaeefca281c4513d48afbb9f9bbad71a2",
+              "exitCode": 1,
+              "finishedAt": "2026-10-28T11:08:03Z",
+              "reason": "Error",
+              "startedAt": "2026-10-28T11:06:35Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/client",
+              "name": "client",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

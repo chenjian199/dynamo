@@ -1,0 +1,105 @@
+{
+  "job": "media-cuda-check-v2",
+  "status": {
+    "completionTime": "2026-10-28T10:22:20Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:22:20Z",
+        "lastTransitionTime": "2026-10-28T10:22:20Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:22:20Z",
+        "lastTransitionTime": "2026-10-28T10:22:20Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T10:22:03Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "36894ef33a86759a029587d32075651239cc9cd02b3cae3f91e7277a6a947c0e",
+  "spec_sha256": "ce83d02b2aab7e18c0612254888b43a5ea530423c77fe619f6e7676494aa9e0b",
+  "pods": [
+    {
+      "name": "media-cuda-check-v2-m5zgl",
+      "uid": "593c73fe-512b-47b0-a0c6-0ff7fb40dbbd",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1"
+          },
+          "containerID": "containerd://90aa7755b9195885ab1efcf416c4261e641bf4bef3bcb73c03b95a522e884bfb",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://90aa7755b9195885ab1efcf416c4261e641bf4bef3bcb73c03b95a522e884bfb",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T10:22:18Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T10:22:04Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/media-tests",
+              "name": "media-tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

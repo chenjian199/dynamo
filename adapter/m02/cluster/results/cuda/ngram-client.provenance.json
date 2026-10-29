@@ -1,0 +1,100 @@
+{
+  "job": "ngram-client",
+  "status": {
+    "completionTime": "2026-10-28T10:33:34Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:33:34Z",
+        "lastTransitionTime": "2026-10-28T10:33:34Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:33:34Z",
+        "lastTransitionTime": "2026-10-28T10:33:34Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T10:32:21Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "f8ed375954ad4b3e8a2ef118d49aa2bfe0c4c66c4b1b05f48a2db686e3fc1eaa",
+  "spec_sha256": "398a6b2e6ff0c4519cee170ac75af42a48cbbf06ab67e36a4c5b2e28ccdcde20",
+  "pods": [
+    {
+      "name": "ngram-client-hfczg",
+      "uid": "c94bcb3e-3c91-4603-9f73-1112a28a2aee",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi"
+          },
+          "containerID": "containerd://1dc2409b7479b4c81aa9ff969857b096473d73e25a4f8081ec4847f894d73585",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://1dc2409b7479b4c81aa9ff969857b096473d73e25a4f8081ec4847f894d73585",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T10:33:31Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T10:32:23Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/client",
+              "name": "client",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

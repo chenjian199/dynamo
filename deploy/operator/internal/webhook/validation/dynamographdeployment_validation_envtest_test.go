@@ -3303,7 +3303,7 @@ func enableBetaInterPodFailover(
 // m08DGDForAdmission consumes the same manifest users will import into a cluster.
 func m08DGDForAdmission(t *testing.T, platform, mode string) *nvidiacomv1beta1.DynamoGraphDeployment {
 	t.Helper()
-	data, err := exec.Command("python3", "../../../../../adapt/m08/render.py", "--platform", platform, "--mode", mode, "--model-pvc", "models").Output()
+	data, err := exec.Command("python3", "../../../../../adapter/m08/render.py", "--platform", platform, "--mode", mode, "--model-pvc", "models").Output()
 	if err != nil {
 		t.Fatal(err)
 	}

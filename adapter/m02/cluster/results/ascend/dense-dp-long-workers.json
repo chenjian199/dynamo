@@ -1,0 +1,474 @@
+{
+  "host": "huawei-52",
+  "workers": [
+    {
+      "pod": "dense-dp-frontend-58cdd459db-vcjjl",
+      "uid": "2b28a462-c46c-4932-8955-a369968ca604",
+      "node": "master-02-45d4a763",
+      "app": "dense-dp-frontend",
+      "containers": [
+        {
+          "containerID": "containerd://63773d9992d4cf9f7fed5e432d4f5ed466d049e1b265faf47a3be982e55f3123",
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imageID": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:20:22Z"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.frontend",
+            "--router-mode",
+            "kv"
+          ],
+          "env": [
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "dense-dp"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "8081"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cpu"
+            },
+            {
+              "name": "DYN_HTTP_PORT",
+              "value": "8000"
+            },
+            {
+              "name": "NVIDIA_VISIBLE_DEVICES",
+              "value": "void"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "readinessProbe": {
+            "failureThreshold": 3,
+            "periodSeconds": 5,
+            "successThreshold": 1,
+            "tcpSocket": {
+              "port": 8000
+            },
+            "timeoutSeconds": 1
+          },
+          "resources": {
+            "limits": {
+              "cpu": "4",
+              "memory": "4Gi"
+            },
+            "requests": {
+              "cpu": "500m",
+              "memory": "1Gi"
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/usr/local/Ascend/driver",
+            "type": "Directory"
+          },
+          "name": "driver"
+        },
+        {
+          "hostPath": {
+            "path": "/usr/local/dcmi",
+            "type": "Directory"
+          },
+          "name": "dcmi"
+        },
+        {
+          "hostPath": {
+            "path": "/usr/local/bin/npu-smi",
+            "type": "File"
+          },
+          "name": "npu-smi"
+        },
+        {
+          "hostPath": {
+            "path": "/etc/ascend_install.info",
+            "type": "File"
+          },
+          "name": "ascend-install"
+        }
+      ],
+      "log_sha256": "c4bb3be01cc6a3b2040e2afce20f5dbb5064b78ecfdbe38de2c7c19ef54a0dc3",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "dense-dp-worker-0-667d4bb595-4xkm6",
+      "uid": "20d39f14-2d3d-4701-90f6-b51bd8cb34e8",
+      "node": "master",
+      "app": "dense-dp-worker-0",
+      "containers": [
+        {
+          "containerID": "containerd://bef9f380f1845d63e8141101fa637b88f2c25c0914db46ea300cfa0e66523df7",
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imageID": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:20:23Z"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-32B",
+            "--served-model-name",
+            "dense-dp-model",
+            "--enforce-eager",
+            "--enable-prefix-caching",
+            "--block-size",
+            "128",
+            "--max-model-len",
+            "16384",
+            "--max-num-seqs",
+            "16",
+            "--kv-cache-memory-bytes",
+            "4294967296",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\", \"enable_kv_cache_events\": true}",
+            "--tensor-parallel-size",
+            "2",
+            "--data-parallel-size",
+            "2",
+            "--data-parallel-size-local",
+            "2"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "ascend"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "dense-dp"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "8081"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "24",
+              "huawei.com/Ascend910": "4",
+              "memory": "128Gi"
+            },
+            "requests": {
+              "cpu": "8",
+              "huawei.com/Ascend910": "4",
+              "memory": "32Gi"
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/usr/local/Ascend/driver",
+            "type": "Directory"
+          },
+          "name": "driver"
+        },
+        {
+          "hostPath": {
+            "path": "/usr/local/dcmi",
+            "type": "Directory"
+          },
+          "name": "dcmi"
+        },
+        {
+          "hostPath": {
+            "path": "/usr/local/bin/npu-smi",
+            "type": "File"
+          },
+          "name": "npu-smi"
+        },
+        {
+          "hostPath": {
+            "path": "/etc/ascend_install.info",
+            "type": "File"
+          },
+          "name": "ascend-install"
+        },
+        {
+          "hostPath": {
+            "path": "/data/Qwen3-32B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "7d0fad65e59a69656dd14029ac63b7b0aa03d7797317bfae271decaf04af8e97",
+      "listener_exception": false,
+      "address_in_use": false
+    }
+  ]
+}

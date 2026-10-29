@@ -1,0 +1,38 @@
+{
+  "passed": false,
+  "url": "http://large-pd-frontend:8000",
+  "requests": [],
+  "ready": {
+    "model": "large-pd-model",
+    "ready": true,
+    "namespaces": {
+      "large-pd": {
+        "ready": true,
+        "worker_types": {
+          "decode": {
+            "workers": 3,
+            "needs": [
+              [
+                "prefill"
+              ]
+            ]
+          },
+          "prefill": {
+            "workers": 2,
+            "needs": [
+              [
+                "decode"
+              ]
+            ]
+          }
+        },
+        "present": [
+          "decode",
+          "prefill"
+        ],
+        "missing_worker_types": []
+      }
+    }
+  },
+  "error": "<HTTPError 500: 'Internal Server Error'>"
+}

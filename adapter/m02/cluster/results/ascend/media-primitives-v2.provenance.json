@@ -1,0 +1,100 @@
+{
+  "job": "media-primitives-v2",
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:08:57Z",
+        "lastTransitionTime": "2026-10-28T10:08:57Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "FailureTarget"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:08:57Z",
+        "lastTransitionTime": "2026-10-28T10:08:57Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "Failed"
+      }
+    ],
+    "failed": 1,
+    "ready": 0,
+    "startTime": "2026-10-28T10:08:30Z",
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "8151a2dc829a32be9388b34049a4023e1c56b022d554d2fb816b355ebe1cedb4",
+  "spec_sha256": "ab4ebd944f48ac7d204f74b568fb3765dec48428d63db353395f122305aef737",
+  "pods": [
+    {
+      "name": "media-primitives-v2-nprpl",
+      "uid": "e82bfcdb-3fed-4b65-b6ac-734d364860b2",
+      "node": "master-02-45d4a763",
+      "containers": [
+        {
+          "containerID": "containerd://0ca51aba7b757a503201695b883ba168fdcc6e69be86b62912451607809e0cb4",
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imageID": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://0ca51aba7b757a503201695b883ba168fdcc6e69be86b62912451607809e0cb4",
+              "exitCode": 1,
+              "finishedAt": "2026-10-28T10:08:54Z",
+              "reason": "Error",
+              "startedAt": "2026-10-28T10:08:31Z"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/media-tests",
+              "name": "media-tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

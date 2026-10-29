@@ -1,0 +1,2885 @@
+{
+  "host": "h800-6",
+  "workers": [
+    {
+      "pod": "large-pd-decode-0-696c789d7d-hngz7",
+      "uid": "dfee5e27-94e3-40a9-90bc-9b5b3fa3a4c8",
+      "node": "worker28",
+      "app": "large-pd-decode-0",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "8",
+            "memory": "16Gi",
+            "nvidia.com/gpu": "2",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://f9c8efa4ab44daf65a7ba96ac1af438b27fc8dda6585bbefeb992f5d104a406c",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:12:44Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-32B",
+            "--served-model-name",
+            "large-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:23112\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "decode",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "2"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "large-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "21132"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "21232"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.14"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "15532"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "15632"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/root/Qwen3-32B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "201f960122fbc7a390800e8832d494fe6985fdac796c181a60224a018da3075f",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "large-pd-decode-1-5d6d564576-q77k5",
+      "uid": "197cf2c8-8552-4386-910f-053428af3f21",
+      "node": "worker28",
+      "app": "large-pd-decode-1",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "8",
+            "memory": "16Gi",
+            "nvidia.com/gpu": "2",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://76845eee1d15bee270061cda642b2e39118e193d76f4f1d494e798f6ad0e2421",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:12:43Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-32B",
+            "--served-model-name",
+            "large-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:23128\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "decode",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "2"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "large-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "21148"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "21248"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.14"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "15548"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "15648"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/root/Qwen3-32B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "7825fabd390db3eb53f81b1d89b8b639c1abbd23c306c12bae983fcf9ec0bced",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "large-pd-decode-2-6f6d76b495-hb54t",
+      "uid": "286dc9fd-11d1-4609-acc4-5090f22e7e4f",
+      "node": "worker28",
+      "app": "large-pd-decode-2",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "8",
+            "memory": "16Gi",
+            "nvidia.com/gpu": "2",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://98d5d2d69162e0fc40f3df37252d47febb4d512511928b96dd9e29eaccc6d396",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:12:44Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-32B",
+            "--served-model-name",
+            "large-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:23144\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "decode",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "2"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "large-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "21164"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "21264"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.14"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "15564"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "15664"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/root/Qwen3-32B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "cdbd52a86c1e68c4f5e6df9b6bbc8cb36f52b620541552f97dc3127d44914608",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "large-pd-frontend-84986d6555-5xpxs",
+      "uid": "7b7372c7-a022-4cd5-8416-14f41ff24d89",
+      "node": "worker06",
+      "app": "large-pd-frontend",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "500m",
+            "memory": "1Gi"
+          },
+          "containerID": "containerd://2d67949466d327b1e8dcaba3e32449cfc4178e37599cb95f64ff6bf39a0e2f41",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "4",
+              "memory": "4Gi"
+            },
+            "requests": {
+              "cpu": "500m",
+              "memory": "1Gi"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T10:26:13Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.frontend",
+            "--router-mode",
+            "kv"
+          ],
+          "env": [
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "large-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "8081"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cpu"
+            },
+            {
+              "name": "DYN_HTTP_PORT",
+              "value": "8000"
+            },
+            {
+              "name": "NVIDIA_VISIBLE_DEVICES",
+              "value": "void"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "readinessProbe": {
+            "failureThreshold": 3,
+            "periodSeconds": 5,
+            "successThreshold": 1,
+            "tcpSocket": {
+              "port": 8000
+            },
+            "timeoutSeconds": 1
+          },
+          "resources": {
+            "limits": {
+              "cpu": "4",
+              "memory": "4Gi"
+            },
+            "requests": {
+              "cpu": "500m",
+              "memory": "1Gi"
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        }
+      ],
+      "log_sha256": "c5b57112adc1580f21cb8644fb06c3f4d0e6ad39f0e31662fe7fcb2902d641f5",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "large-pd-prefill-0-7b6c5c484f-mxjbm",
+      "uid": "9b6bddc4-51f5-4236-9286-52fb61a1b4c1",
+      "node": "worker06",
+      "app": "large-pd-prefill-0",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "8",
+            "memory": "16Gi",
+            "nvidia.com/gpu": "2",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://96a313dfdf3d8ee0135634d026210a303498dbae867286d0e813e59667c82a46",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:13:08Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-32B",
+            "--served-model-name",
+            "large-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:23080\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "prefill",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "2"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "large-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "21100"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "21200"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.6"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "15500"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "15600"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-32B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "36812ac8b552fe912d0a5ca94b448fb7b6f06b90c6838b97ba299a9e513e21a7",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "large-pd-prefill-1-97ff7b445-572bc",
+      "uid": "3bd9f915-cb7e-4717-afdf-19c186f63c92",
+      "node": "worker06",
+      "app": "large-pd-prefill-1",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "8",
+            "memory": "16Gi",
+            "nvidia.com/gpu": "2",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://a2e77d724cb0a8096c3dac77760eb636760cabec66c9b39f9fe2b624afdbbd05",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:13:08Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-32B",
+            "--served-model-name",
+            "large-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:23096\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "prefill",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "2"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "large-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "21116"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "21216"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.6"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "15516"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "15616"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "16Gi",
+              "nvidia.com/gpu": "2",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-32B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "ca82d6655ccbcc56a13ecf27563d0976cfb6706c662fc2ea8cefaec79a553802",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "reverse-pd-decode-0-5b97f5565b-kfblq",
+      "uid": "9f2b1360-f5a1-4fa9-929a-8c517b47262e",
+      "node": "worker06",
+      "app": "reverse-pd-decode-0",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://4a57e939b9233a876288f6181a9c9e8d951b41046a38b96afc8d6149d37ace06",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:13:09Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-0.6B",
+            "--served-model-name",
+            "reverse-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:26112\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "decode",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "1"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "reverse-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "24132"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "24232"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.6"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "16532"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "16632"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "45ba885e55da7fa7bc021859025874687727c762d33b83b62a61ca48ab6ef71d",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "reverse-pd-decode-1-676ccbcbbb-vjv9h",
+      "uid": "622bf676-713e-44fe-8a77-26fcc7c615a0",
+      "node": "worker06",
+      "app": "reverse-pd-decode-1",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://0ed5f9546c08b33d478efd4af965f4fdde7487a2d1c98e2dbc6a5db8a7dfc57e",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:12:45Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-0.6B",
+            "--served-model-name",
+            "reverse-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:26128\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "decode",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "1"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "reverse-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "24148"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "24248"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.6"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "16548"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "16648"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "8077d3f914453b190a99a232396d66bc6ec9ee512b56b462ac05a6b29f7635a7",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "reverse-pd-decode-2-cd94fcccf-c8xwf",
+      "uid": "824d3e94-5793-4293-905b-e474db72bb9b",
+      "node": "worker06",
+      "app": "reverse-pd-decode-2",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://f6ccd5735b3f3f6562b7a11e208fda3eda0b50115d2e29a54dc568aee4c81f53",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:12:45Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-0.6B",
+            "--served-model-name",
+            "reverse-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:26144\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "decode",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "1"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "reverse-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "24164"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "24264"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.6"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "16564"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "16664"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "e3859dab195dfd9e1c6a2ea9dfd4b2bc33bf6e18fdfbcfe8c7b959eeaed05e16",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "reverse-pd-frontend-69595c758f-khvrt",
+      "uid": "24deed5f-b223-46bf-a2f3-a24c3240f146",
+      "node": "worker06",
+      "app": "reverse-pd-frontend",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "500m",
+            "memory": "1Gi"
+          },
+          "containerID": "containerd://e85991d4364d016a8b73c794b27611f3780be248f33d8148a78137a6e0b9f6c0",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "4",
+              "memory": "4Gi"
+            },
+            "requests": {
+              "cpu": "500m",
+              "memory": "1Gi"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:06:36Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.frontend",
+            "--router-mode",
+            "kv"
+          ],
+          "env": [
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "reverse-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "8081"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cpu"
+            },
+            {
+              "name": "DYN_HTTP_PORT",
+              "value": "8000"
+            },
+            {
+              "name": "NVIDIA_VISIBLE_DEVICES",
+              "value": "void"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "readinessProbe": {
+            "failureThreshold": 3,
+            "periodSeconds": 5,
+            "successThreshold": 1,
+            "tcpSocket": {
+              "port": 8000
+            },
+            "timeoutSeconds": 1
+          },
+          "resources": {
+            "limits": {
+              "cpu": "4",
+              "memory": "4Gi"
+            },
+            "requests": {
+              "cpu": "500m",
+              "memory": "1Gi"
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        }
+      ],
+      "log_sha256": "b8a421d49f391a19d53da6c9a79e6a9dcae4c6611f74e30365e089eef2e224ba",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "reverse-pd-prefill-0-5dcf47c99-kh686",
+      "uid": "bc7ae825-6e3f-4b58-9f5e-74f4e42cf20e",
+      "node": "worker28",
+      "app": "reverse-pd-prefill-0",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://007c42afb7c9177f40fa89df19756859ee98bb3e976d12a9649da00e861b441b",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:13:08Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-0.6B",
+            "--served-model-name",
+            "reverse-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:26080\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "prefill",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "1"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "reverse-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "24100"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "24200"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.14"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "16500"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "16600"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "4a12ba560fd30b06faeca309f05636cb38d4087422cc9794c770a635ac87ac54",
+      "listener_exception": false,
+      "address_in_use": false
+    },
+    {
+      "pod": "reverse-pd-prefill-1-668cd5c99f-z2c95",
+      "uid": "4cf2aa7d-a34c-427b-8c98-15f950250ead",
+      "node": "worker28",
+      "app": "reverse-pd-prefill-1",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://3d6768caa2221a22a7f561188d084e7f055f3b7d06e248dcc3425a185a8a8ca4",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": true,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": true,
+          "state": {
+            "running": {
+              "startedAt": "2026-10-28T11:13:08Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ],
+      "template_containers": [
+        {
+          "command": [
+            "/opt/dynamo/bin/entrypoint.sh",
+            "python",
+            "-m",
+            "dynamo.vllm",
+            "--model",
+            "/models/Qwen3-0.6B",
+            "--served-model-name",
+            "reverse-pd-model",
+            "--enforce-eager",
+            "--no-enable-prefix-caching",
+            "--block-size",
+            "64",
+            "--max-model-len",
+            "4096",
+            "--max-num-seqs",
+            "4",
+            "--kv-cache-memory-bytes",
+            "1073741824",
+            "--kv-events-config",
+            "{\"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:26096\", \"enable_kv_cache_events\": true}",
+            "--disaggregation-mode",
+            "prefill",
+            "--kv-transfer-config",
+            "{\"kv_connector\": \"NixlConnector\", \"kv_role\": \"kv_both\"}",
+            "--tensor-parallel-size",
+            "1"
+          ],
+          "env": [
+            {
+              "name": "DYN_PLATFORM",
+              "value": "cuda"
+            },
+            {
+              "name": "HF_HUB_OFFLINE",
+              "value": "1"
+            },
+            {
+              "name": "PYTHONUNBUFFERED",
+              "value": "1"
+            },
+            {
+              "name": "DYN_NAMESPACE",
+              "value": "reverse-pd"
+            },
+            {
+              "name": "DYN_DISCOVERY_BACKEND",
+              "value": "etcd"
+            },
+            {
+              "name": "ETCD_ENDPOINTS",
+              "value": "http://regression-etcd:2379"
+            },
+            {
+              "name": "DYN_REQUEST_PLANE",
+              "value": "tcp"
+            },
+            {
+              "name": "DYN_EVENT_PLANE",
+              "value": "zmq"
+            },
+            {
+              "name": "DYN_SYSTEM_PORT",
+              "value": "24116"
+            },
+            {
+              "name": "TOKENIZERS_PARALLELISM",
+              "value": "false"
+            },
+            {
+              "name": "OMP_NUM_THREADS",
+              "value": "4"
+            },
+            {
+              "name": "DYN_FORWARDPASS_METRIC_PORT",
+              "value": "24216"
+            },
+            {
+              "name": "VLLM_HOST_IP",
+              "value": "192.168.4.14"
+            },
+            {
+              "name": "VLLM_NIXL_SIDE_CHANNEL_PORT",
+              "value": "16516"
+            },
+            {
+              "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+              "value": "16616"
+            },
+            {
+              "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+              "value": "60"
+            },
+            {
+              "name": "ASCEND_TRANSFER_TIMEOUT",
+              "value": "30000"
+            },
+            {
+              "name": "UCX_TLS",
+              "value": "rc,cuda_copy,cuda_ipc"
+            },
+            {
+              "name": "UCX_NET_DEVICES",
+              "value": "mlx5_10:1"
+            },
+            {
+              "name": "UCX_LOG_LEVEL",
+              "value": "info"
+            }
+          ],
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imagePullPolicy": "Never",
+          "name": "test",
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "securityContext": {
+            "capabilities": {
+              "add": [
+                "IPC_LOCK"
+              ]
+            }
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "configMap": {
+            "defaultMode": 420,
+            "name": "regression-tests"
+          },
+          "name": "tests"
+        },
+        {
+          "emptyDir": {
+            "medium": "Memory",
+            "sizeLimit": "4Gi"
+          },
+          "name": "shm"
+        },
+        {
+          "hostPath": {
+            "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+            "type": "Directory"
+          },
+          "name": "model"
+        }
+      ],
+      "log_sha256": "cdd70ed0b0c1ec75aa364b796dfb7a49d06ec159dd55488c67c4d6cbcee46ccd",
+      "listener_exception": false,
+      "address_in_use": false
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "job": "native-deepseek",
+  "status": {
+    "completionTime": "2026-10-28T10:31:29Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:31:29Z",
+        "lastTransitionTime": "2026-10-28T10:31:29Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:31:29Z",
+        "lastTransitionTime": "2026-10-28T10:31:29Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T10:22:50Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "f4314777e30aad6ed645be1175c097b7eb909930d996066206d36efe0fff533e",
+  "spec_sha256": "470e5066ef0cbbcefff892b6dc538127c246d9748c14d48246eb5af2d226efab",
+  "pods": [
+    {
+      "name": "native-deepseek-hxplg",
+      "uid": "863fa7a2-960b-4c08-87c8-efc05c7e98a9",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "8",
+            "memory": "64Gi",
+            "nvidia.com/gpu": "4"
+          },
+          "containerID": "containerd://312b322c9fdb147b3995752fcf7332218e6b2184df223ff057fc05796503bdc4",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "32",
+              "memory": "256Gi",
+              "nvidia.com/gpu": "4"
+            },
+            "requests": {
+              "cpu": "8",
+              "memory": "64Gi",
+              "nvidia.com/gpu": "4"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://312b322c9fdb147b3995752fcf7332218e6b2184df223ff057fc05796503bdc4",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T10:31:27Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T10:22:59Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/DeepSeek-V4-Flash-0731",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/diagnostic",
+              "name": "diagnostic",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

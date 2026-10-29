@@ -203,12 +203,6 @@ def prepare_vllm_platform(config):
             "910B3/CANN 9.1/HDK 26.1.1 stack rejects read-only access and "
             "POSIX allocation; Ascend GMS provider remains unavailable",
         )
-    if config.headless or config.embedding_worker:
-        raise PlatformError(
-            "unsupported_configuration",
-            platform_id,
-            "explicit platform integration requires generation workers",
-        )
     pd = config.disaggregation_mode in (
         DisaggregationMode.PREFILL,
         DisaggregationMode.DECODE,
@@ -231,31 +225,23 @@ def prepare_vllm_platform(config):
         engine.kv_transfer_config is not None
         and engine.kv_transfer_config.kv_connector in ("DynamoConnector", "PdConnector")
     )
-    if not pd and engine.kv_transfer_config is not None:
+    if not pd and kvbm:
         validate_kvbm_configuration(config, platform_id, engine.kv_transfer_config)
-    if engine.pipeline_parallel_size != 1:
-        raise PlatformError(
-            "unsupported_configuration",
-            platform_id,
-            "pipeline parallelism is not certified",
-        )
-    if (
-        getattr(engine, "data_parallel_external_lb", False)
-        or getattr(engine, "data_parallel_hybrid_lb", False)
-        or getattr(engine, "data_parallel_backend", "mp") != "mp"
-        or engine.data_parallel_size_local not in (None, engine.data_parallel_size)
-    ):
-        raise PlatformError(
-            "unsupported_configuration",
-            platform_id,
-            "explicit platform integration currently requires local multiprocessing DP",
-        )
     configure_platform_scheduler(engine, config.use_kv_events)
+    task = "text"
+    if config.embedding_worker:
+        task = "embedding"
+    elif config.enable_multimodal:
+        task = "multimodal"
     context = dict(
         engine="vllm",
-        task="multimodal" if config.enable_multimodal else "text",
+        task=task,
         tp=str(engine.tensor_parallel_size),
+        pp=str(engine.pipeline_parallel_size),
         dp=str(engine.data_parallel_size),
+        local_dp=str(engine.data_parallel_size_local),
+        nnodes=str(getattr(engine, "nnodes", 1)),
+        headless=str(config.headless).lower(),
         eager=str(engine.enforce_eager).lower(),
         model=config.model,
         kv_events=str(config.use_kv_events).lower(),
@@ -269,7 +255,7 @@ def prepare_vllm_platform(config):
     )
     required = [
         "device.compute",
-        "engine.multimodal" if config.enable_multimodal else "engine.text",
+        f"engine.{task}",
     ]
     if config.use_kv_events:
         required.append("kv.events")
@@ -285,13 +271,7 @@ def prepare_vllm_platform(config):
         if name.strip()
     )
     configure_pd_environment(platform_id, connector)
-    descriptor = registry.prepare(platform_id, context, required)
-    local_dp = engine.data_parallel_size_local or engine.data_parallel_size
-    needed = engine.tensor_parallel_size * local_dp
-    if needed > len(descriptor["devices"]):
-        raise PlatformError(
-            "insufficient_devices",
-            platform_id,
-            f"requires {needed} visible devices, found {len(descriptor['devices'])}",
-        )
-    return descriptor
+    # Providers require visible devices. Placement belongs to vLLM: TP/PP may
+    # span nodes and Ray may allocate remote devices, so global parallel sizes
+    # cannot be compared with this process's local device count.
+    return registry.prepare(platform_id, context, required)

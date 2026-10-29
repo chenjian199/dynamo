@@ -64,8 +64,8 @@ cargo build --release --locked -p kvbm-engine --example native_replicated \
     --no-default-features --features collectives --message-format=json > /out/native-build.jsonl
 python container/platforms/audit.py native /out/native-build.jsonl /out/native
 mkdir -p /out/vendor-patches
-cp adapt/m05/patch_vendor.py adapt/m05/patch_ascend_tp.py /out/vendor-patches/
-cp -a adapt/m05/patches /out/vendor-patches/
+cp adapter/m05/patch_vendor.py adapter/m05/patch_ascend_tp.py /out/vendor-patches/
+cp -a adapter/m05/patches /out/vendor-patches/
 cp SOURCE.json /out/SOURCE.json
 cp container/platforms/"$platform".json /out/profile.json
 python -m pip freeze --all > /out/build-python.txt

@@ -1,0 +1,115 @@
+{
+  "job": "large-kvbm",
+  "status": {
+    "completionTime": "2026-10-28T10:45:21Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:45:21Z",
+        "lastTransitionTime": "2026-10-28T10:45:21Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:45:21Z",
+        "lastTransitionTime": "2026-10-28T10:45:21Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T10:39:44Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "e065e6c3e52df25506a35d2f48f4b9f3bf7357b740231bd51109d5de474305e1",
+  "spec_sha256": "d72b880a676a874a56c08fcda4fa8ca2c6b304b2b95ae89d79989adf66cc3dee",
+  "pods": [
+    {
+      "name": "large-kvbm-4hxvh",
+      "uid": "a2fd5225-4d65-431c-9409-9ba081734115",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "4",
+            "memory": "8Gi",
+            "nvidia.com/gpu": "2"
+          },
+          "containerID": "containerd://131205a12cadae9ffdda760240bf2eefc699d4dda8c4dca7763b01f8d8bdace3",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "16",
+              "memory": "96Gi",
+              "nvidia.com/gpu": "2"
+            },
+            "requests": {
+              "cpu": "4",
+              "memory": "8Gi",
+              "nvidia.com/gpu": "2"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://131205a12cadae9ffdda760240bf2eefc699d4dda8c4dca7763b01f8d8bdace3",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T10:45:18Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T10:39:45Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/harness",
+              "name": "harness",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/models/Qwen3-32B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/results",
+              "name": "results"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

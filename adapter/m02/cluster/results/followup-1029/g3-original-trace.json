@@ -1,0 +1,180 @@
+{
+  "passed": false,
+  "cases": [
+    {
+      "case": "routing-disk-0",
+      "exit_code": 1,
+      "summary": {
+        "platform": "cuda",
+        "aggregate": true,
+        "status": "failed",
+        "configuration": {
+          "platform": "cuda",
+          "devices": "0,1",
+          "model": "/models/Qwen3-0.6B",
+          "output": "/results/routing-disk-0",
+          "aggregate": true,
+          "kv_routing": true,
+          "kv_routing_tier": "disk",
+          "kvbm": true,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_tp": 1,
+          "decode_tp": 1,
+          "allow_shared_devices": false,
+          "cancel": false,
+          "handoff_case": null,
+          "fault": null,
+          "inflight_fault": false,
+          "legacy": false,
+          "connector": "default",
+          "soak_seconds": 0,
+          "soak_requests": 1000
+        },
+        "software": {
+          "vllm": "0.28.0",
+          "torch": "2.13.0+cu130"
+        },
+        "runtime_environment": {
+          "SPT_NOENV": "1",
+          "GOMAXPROCS": "4",
+          "MALLOC_ARENA_MAX": null,
+          "LD_PRELOAD": null
+        },
+        "routing": {
+          "status": "failed",
+          "tier": "disk",
+          "workers": [
+            12865954127135780170,
+            7029355225096744171
+          ],
+          "chat_smoke": {
+            "id": "chatcmpl-068f1ecf-d775-4887-9689-469251cf9a16",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "content": "<think>\nOkay, the user just said",
+                  "refusal": null,
+                  "role": "assistant"
+                },
+                "finish_reason": "length",
+                "logprobs": null
+              }
+            ],
+            "created": 1793240891,
+            "model": "m05-model",
+            "object": "chat.completion",
+            "usage": {
+              "prompt_tokens": 9,
+              "completion_tokens": 8,
+              "total_tokens": 17,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            }
+          },
+          "cold": {
+            "id": "cmpl-0f6e3c5c-9559-482b-9d12-28b49fbf5a54",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793240891,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 0
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 12865954127135780170,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 12865954127135780170,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "resident": {
+            "id": "cmpl-63d89953-c994-44ba-8c2f-132c8a2e3bd7",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793240891,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 12865954127135780170,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 12865954127135780170,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "device_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 7029355225096744171,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              },
+              {
+                "worker_id": 12865954127135780170,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "error": "AssertionError: disk-only overlap: {'block_size': 64, 'num_blocks': 10, 'workers': [{'worker_id': 7029355225096744171, 'dp_rank': 0, 'device_blocks': 0, 'host_pinned_blocks': 0, 'disk_blocks': 0, 'host_pinned_extension_blocks': 0, 'disk_extension_blocks': 0, 'shared_beyond_device_blocks': None, 'router_credit_blocks': 0.0}, {'worker_id': 12865954127135780170, 'dp_rank': 0, 'device_blocks': 0, 'host_pinned_blocks': 0, 'disk_blocks': 8, 'host_pinned_extension_blocks': 0, 'disk_extension_blocks': 8, 'shared_beyond_device_blocks': None, 'router_credit_blocks': 2.0}], 'shared_cache': {'enabled': False, 'total_hit_blocks': 0, 'ranges': [], 'error': None}}"
+        },
+        "error": "RuntimeError: KVBM tier-aware routing failed"
+      }
+    }
+  ],
+  "qualification": "single Pod, two allocated devices; PD network coverage is tested separately"
+}

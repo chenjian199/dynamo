@@ -29,13 +29,6 @@ def validate_platform_engine_config(vllm_config, *, require_metrics=False):
     platform_id = os.environ.get("DYN_PLATFORM")
     if platform_id is None:
         return
-    parallel = vllm_config.parallel_config
-    if parallel.pipeline_parallel_size != 1:
-        raise PlatformError(
-            "unsupported_configuration",
-            platform_id,
-            "pipeline parallelism is not certified",
-        )
     events = vllm_config.kv_events_config
     use_events = events is not None and events.enable_kv_cache_events
     if not use_events and not require_metrics:
@@ -86,6 +79,7 @@ def publish_platform_engine_metadata(runtime_config, vllm_config):
         kv_cache_dtype=vllm_config.cache_config.cache_dtype,
         quantization=model.quantization,
         tensor_parallel_size=parallel.tensor_parallel_size,
+        pipeline_parallel_size=parallel.pipeline_parallel_size,
         data_parallel_size=parallel.data_parallel_size,
         expert_parallel=parallel.enable_expert_parallel,
         lora=vllm_config.lora_config is not None,

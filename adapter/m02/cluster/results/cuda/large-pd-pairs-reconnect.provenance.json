@@ -1,0 +1,100 @@
+{
+  "job": "large-pd-pairs-reconnect",
+  "status": {
+    "completionTime": "2026-10-28T11:17:26Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T11:17:26Z",
+        "lastTransitionTime": "2026-10-28T11:17:26Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T11:17:26Z",
+        "lastTransitionTime": "2026-10-28T11:17:26Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T11:16:07Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "6000db2fd4859315540e50e963f6bb174515ce64000839f9b5622ed4b44d8a38",
+  "spec_sha256": "2f776e89e84c3f589ca0c6a0febbc09f4bf91363259c5384a6f9b23ed105dca9",
+  "pods": [
+    {
+      "name": "large-pd-pairs-reconnect-t5mmp",
+      "uid": "9625ce68-996f-4282-8853-09a075c77b1d",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi"
+          },
+          "containerID": "containerd://2f37ef285738b2e5d963a0713a34b2f20e7b40be1d5d6b3a62a7fdc8023ce070",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://2f37ef285738b2e5d963a0713a34b2f20e7b40be1d5d6b3a62a7fdc8023ce070",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T11:17:24Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T11:16:08Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/client",
+              "name": "client",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

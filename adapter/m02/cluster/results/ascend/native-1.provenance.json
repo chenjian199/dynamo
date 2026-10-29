@@ -1,0 +1,95 @@
+{
+  "job": "native-1",
+  "status": {
+    "completionTime": "2026-10-28T08:53:56Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T08:53:56Z",
+        "lastTransitionTime": "2026-10-28T08:53:56Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T08:53:56Z",
+        "lastTransitionTime": "2026-10-28T08:53:56Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T08:53:08Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "566de84189ae5b25ce7457f66569314202901877d33aa9c2f27405a4a8225fca",
+  "spec_sha256": "5c3c4f613c077e620a94b00fdb0aae1aa06b2fee5fd507940a354ec2406ff1c6",
+  "pods": [
+    {
+      "name": "native-1-dqdll",
+      "uid": "bbcf84d5-9552-4b23-8f7b-6c97bcd10450",
+      "node": "master",
+      "containers": [
+        {
+          "containerID": "containerd://b7f0a8dbebbd20e8d7fbb0c79ceb908b9fe982b288be6d1a0eda2b901858f36f",
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imageID": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://b7f0a8dbebbd20e8d7fbb0c79ceb908b9fe982b288be6d1a0eda2b901858f36f",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T08:53:54Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T08:53:08Z"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

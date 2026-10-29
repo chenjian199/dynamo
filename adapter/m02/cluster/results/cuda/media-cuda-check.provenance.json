@@ -1,0 +1,104 @@
+{
+  "job": "media-cuda-check",
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:17:42Z",
+        "lastTransitionTime": "2026-10-28T10:17:42Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "FailureTarget"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:17:43Z",
+        "lastTransitionTime": "2026-10-28T10:17:43Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "Failed"
+      }
+    ],
+    "failed": 1,
+    "ready": 0,
+    "startTime": "2026-10-28T10:17:39Z",
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "57e8e333693cdb5a179ddfcd71633becf66758d6bee6c5889579510b88668b1a",
+  "spec_sha256": "314ee9b885ce85c09dfa6b985036c86606b274c33696b07f57f9fec331cba919",
+  "pods": [
+    {
+      "name": "media-cuda-check-cfnmq",
+      "uid": "7e201937-3fa8-488f-a061-fb62cd5bac5c",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1"
+          },
+          "containerID": "containerd://478d3284f5847f9f31a0041282e4f6ee5817c65fa471d7df75600f3ff0a76f71",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://478d3284f5847f9f31a0041282e4f6ee5817c65fa471d7df75600f3ff0a76f71",
+              "exitCode": 1,
+              "finishedAt": "2026-10-28T10:17:40Z",
+              "reason": "Error",
+              "startedAt": "2026-10-28T10:17:40Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/media-tests",
+              "name": "media-tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "job": "collective-0",
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T08:46:41Z",
+        "lastTransitionTime": "2026-10-28T08:46:41Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "FailureTarget"
+      },
+      {
+        "lastProbeTime": "2026-10-28T08:46:41Z",
+        "lastTransitionTime": "2026-10-28T08:46:41Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "Failed"
+      }
+    ],
+    "failed": 1,
+    "ready": 0,
+    "startTime": "2026-10-28T08:46:34Z",
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "c6e76c5e20d69fed38b8c6d78c3ea8d94317edebbbfdbc5d7f556690e2fb24d6",
+  "spec_sha256": "d89d05094217f3cfd39a3f40491a05d40767610ea3e814b87bce5b27a619a504",
+  "pods": [
+    {
+      "name": "collective-0-ct4hc",
+      "uid": "b9dcf70a-dcb7-4d00-a450-a2f5d9ac2ed1",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1",
+            "nvidia.com/roce_h3cnic0": "1"
+          },
+          "containerID": "containerd://990753cbce77f34cf9809679ed039d19a02eb29390b5649c1cfd0d65a1f67453",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1",
+              "nvidia.com/roce_h3cnic0": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://990753cbce77f34cf9809679ed039d19a02eb29390b5649c1cfd0d65a1f67453",
+              "exitCode": 1,
+              "finishedAt": "2026-10-28T08:46:39Z",
+              "reason": "Error",
+              "startedAt": "2026-10-28T08:46:35Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "job": "dense-client-tp2",
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T09:18:20Z",
+        "lastTransitionTime": "2026-10-28T09:18:20Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "FailureTarget"
+      },
+      {
+        "lastProbeTime": "2026-10-28T09:18:21Z",
+        "lastTransitionTime": "2026-10-28T09:18:21Z",
+        "message": "Job has reached the specified backoff limit",
+        "reason": "BackoffLimitExceeded",
+        "status": "True",
+        "type": "Failed"
+      }
+    ],
+    "failed": 1,
+    "ready": 0,
+    "startTime": "2026-10-28T09:18:17Z",
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "81bf30a3c4238523769f13c25a8a6960bfafd50f14b8822b93d322f43e5eb00d",
+  "spec_sha256": "10ead6d5e35695703c6f65cc0c84f7231b7bd181ebce71338a64b1f41413fc4f",
+  "pods": [
+    {
+      "name": "dense-client-tp2-xtdwk",
+      "uid": "2bc17601-382e-4f88-85c1-8b3be258f1d0",
+      "node": "master-02-45d4a763",
+      "containers": [
+        {
+          "containerID": "containerd://1028810067ae3410209cfe91eb7d6fdfbe3be2d3c1fa1b463dda1a478b750144",
+          "image": "docker.io/heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+          "imageID": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://1028810067ae3410209cfe91eb7d6fdfbe3be2d3c1fa1b463dda1a478b750144",
+              "exitCode": 2,
+              "finishedAt": "2026-10-28T09:18:18Z",
+              "reason": "Error",
+              "startedAt": "2026-10-28T09:18:17Z"
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/usr/local/Ascend/driver",
+              "name": "driver",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/dcmi",
+              "name": "dcmi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/usr/local/bin/npu-smi",
+              "name": "npu-smi",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/etc/ascend_install.info",
+              "name": "ascend-install",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

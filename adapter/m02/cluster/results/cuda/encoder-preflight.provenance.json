@@ -1,0 +1,106 @@
+{
+  "job": "encoder-preflight",
+  "status": {
+    "completionTime": "2026-10-28T10:54:38Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T10:54:38Z",
+        "lastTransitionTime": "2026-10-28T10:54:38Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T10:54:38Z",
+        "lastTransitionTime": "2026-10-28T10:54:38Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T10:54:23Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "3a73c60ab3e745952378d892092c43b7ce7fecf278abc288d78ed6e2a0383982",
+  "spec_sha256": "b8de97342249925c3fa0040f3b0863f2879fe34f2f6c7b0d2dd26b13837a93d7",
+  "pods": [
+    {
+      "name": "encoder-preflight-jl9rb",
+      "uid": "acb45636-7084-4c7b-afc0-f2b7c1107076",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi"
+          },
+          "containerID": "containerd://a3da15d77ab15074e9898cdd6de2eb9e4ae9f181a36754a4f0d13aa2aec3662e",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://a3da15d77ab15074e9898cdd6de2eb9e4ae9f181a36754a4f0d13aa2aec3662e",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T10:54:35Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T10:54:24Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/probe",
+              "name": "probe",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/models/candidate",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

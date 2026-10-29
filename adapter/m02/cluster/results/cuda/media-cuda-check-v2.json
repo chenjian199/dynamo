@@ -1,0 +1,55 @@
+{
+  "passed": false,
+  "cases": [
+    {
+      "name": "torch.float32/local",
+      "passed": true
+    },
+    {
+      "name": "torch.float16/local",
+      "passed": true
+    },
+    {
+      "name": "torch.bfloat16/local",
+      "passed": true
+    },
+    {
+      "name": "torch.float32/nixl_read",
+      "passed": true
+    },
+    {
+      "name": "torch.float16/nixl_read",
+      "passed": true
+    },
+    {
+      "name": "torch.bfloat16/nixl_read",
+      "passed": true
+    },
+    {
+      "name": "torch.float32/nixl_write",
+      "passed": true
+    },
+    {
+      "name": "torch.float16/nixl_write",
+      "passed": true
+    },
+    {
+      "name": "torch.bfloat16/nixl_write",
+      "passed": true
+    },
+    {
+      "name": "late_write_quarantine",
+      "passed": true
+    },
+    {
+      "name": "vp9_decode",
+      "passed": false,
+      "error": "MissingMediaDecoderError(\"Cannot decode video: this video (codec 'vp9') has no decoder in this image: shipped images decode only H.264/H.265 (in hardware, via NVDEC), and the 'cv2' they ship is built without a video backend. Re-encode the input to H.264/H.265, or replace the shipped build with the binary wheel of the same version: `pip install --no-deps --force-reinstall --only-binary opencv-python-headless 'opencv-python-headless==5.0.0.93'` (or `python -m dynamo.common.utils.install_media_decoders vllm`). (decoder reported: <class 'cv2.VideoCapture'> returned a result with an exception set)\")"
+    },
+    {
+      "name": "h264_decode",
+      "passed": false,
+      "error": "ModuleNotFoundError(\"No module named 'av'\")"
+    }
+  ]
+}

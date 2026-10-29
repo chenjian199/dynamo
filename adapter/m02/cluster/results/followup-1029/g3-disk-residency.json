@@ -1,0 +1,831 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "routing-disk-0",
+      "exit_code": 0,
+      "summary": {
+        "platform": "cuda",
+        "aggregate": true,
+        "status": "passed",
+        "configuration": {
+          "platform": "cuda",
+          "devices": "0,1",
+          "model": "/models/Qwen3-0.6B",
+          "output": "/results/routing-disk-0",
+          "aggregate": true,
+          "kv_routing": true,
+          "kv_routing_tier": "disk",
+          "kvbm": true,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_tp": 1,
+          "decode_tp": 1,
+          "allow_shared_devices": false,
+          "cancel": false,
+          "handoff_case": null,
+          "fault": null,
+          "inflight_fault": false,
+          "legacy": false,
+          "connector": "default",
+          "soak_seconds": 0,
+          "soak_requests": 1000
+        },
+        "software": {
+          "vllm": "0.28.0",
+          "torch": "2.13.0+cu130"
+        },
+        "runtime_environment": {
+          "SPT_NOENV": "1",
+          "GOMAXPROCS": "4",
+          "MALLOC_ARENA_MAX": null,
+          "LD_PRELOAD": null
+        },
+        "routing": {
+          "status": "passed",
+          "tier": "disk",
+          "workers": [
+            2560010785747260445,
+            7203838546786344907
+          ],
+          "chat_smoke": {
+            "id": "chatcmpl-926a8d3c-e6cc-4632-b26f-6238c67fce80",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "content": "<think>\nOkay, the user just said",
+                  "refusal": null,
+                  "role": "assistant"
+                },
+                "finish_reason": "length",
+                "logprobs": null
+              }
+            ],
+            "created": 1793241203,
+            "model": "m05-model",
+            "object": "chat.completion",
+            "usage": {
+              "prompt_tokens": 9,
+              "completion_tokens": 8,
+              "total_tokens": 17,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            }
+          },
+          "cold": {
+            "id": "cmpl-3dc7a836-fcb9-49f3-bd4c-546f9f831ced",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241203,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 0
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 2560010785747260445,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 2560010785747260445,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "resident": {
+            "id": "cmpl-b7406dff-ff76-42df-8a61-645ecb6d1c1f",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241203,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 2560010785747260445,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 2560010785747260445,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "device_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 2560010785747260445,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              },
+              {
+                "worker_id": 7203838546786344907,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "disk_writes_before_eviction": {
+            "completed_blocks": 10
+          },
+          "offloaded_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 2560010785747260445,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 10,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 2.5
+              },
+              {
+                "worker_id": 7203838546786344907,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "reload": {
+            "id": "cmpl-07d7ed31-ed03-476c-a252-c406e234fce1",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241221,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 2560010785747260445,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 2560010785747260445,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "reloaded_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 2560010785747260445,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              },
+              {
+                "worker_id": 7203838546786344907,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          }
+        },
+        "kvbm_reload_byte_checks": 10
+      }
+    },
+    {
+      "case": "routing-disk-1",
+      "exit_code": 0,
+      "summary": {
+        "platform": "cuda",
+        "aggregate": true,
+        "status": "passed",
+        "configuration": {
+          "platform": "cuda",
+          "devices": "0,1",
+          "model": "/models/Qwen3-0.6B",
+          "output": "/results/routing-disk-1",
+          "aggregate": true,
+          "kv_routing": true,
+          "kv_routing_tier": "disk",
+          "kvbm": true,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_tp": 1,
+          "decode_tp": 1,
+          "allow_shared_devices": false,
+          "cancel": false,
+          "handoff_case": null,
+          "fault": null,
+          "inflight_fault": false,
+          "legacy": false,
+          "connector": "default",
+          "soak_seconds": 0,
+          "soak_requests": 1000
+        },
+        "software": {
+          "vllm": "0.28.0",
+          "torch": "2.13.0+cu130"
+        },
+        "runtime_environment": {
+          "SPT_NOENV": "1",
+          "GOMAXPROCS": "4",
+          "MALLOC_ARENA_MAX": null,
+          "LD_PRELOAD": null
+        },
+        "routing": {
+          "status": "passed",
+          "tier": "disk",
+          "workers": [
+            4377939947479175990,
+            13814093224256319078
+          ],
+          "chat_smoke": {
+            "id": "chatcmpl-4559d197-be63-46bb-a2a5-7454b50f4e9e",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "content": "<think>\nOkay, the user just said",
+                  "refusal": null,
+                  "role": "assistant"
+                },
+                "finish_reason": "length",
+                "logprobs": null
+              }
+            ],
+            "created": 1793241324,
+            "model": "m05-model",
+            "object": "chat.completion",
+            "usage": {
+              "prompt_tokens": 9,
+              "completion_tokens": 8,
+              "total_tokens": 17,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            }
+          },
+          "cold": {
+            "id": "cmpl-5508f239-bf0e-45f3-9e48-bf16bc3017a3",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241324,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 0
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 4377939947479175990,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 4377939947479175990,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "resident": {
+            "id": "cmpl-db1ae794-b06a-4592-83bf-4faf7f36bc9e",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241324,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 4377939947479175990,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 4377939947479175990,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "device_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 4377939947479175990,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              },
+              {
+                "worker_id": 13814093224256319078,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "disk_writes_before_eviction": {
+            "completed_blocks": 10
+          },
+          "offloaded_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 4377939947479175990,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 10,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 2.5
+              },
+              {
+                "worker_id": 13814093224256319078,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "reload": {
+            "id": "cmpl-679903a9-c351-47f3-88d4-b64fcd1374bb",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241342,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 4377939947479175990,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 4377939947479175990,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "reloaded_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 4377939947479175990,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              },
+              {
+                "worker_id": 13814093224256319078,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          }
+        },
+        "kvbm_reload_byte_checks": 10
+      }
+    },
+    {
+      "case": "routing-disk-2",
+      "exit_code": 0,
+      "summary": {
+        "platform": "cuda",
+        "aggregate": true,
+        "status": "passed",
+        "configuration": {
+          "platform": "cuda",
+          "devices": "0,1",
+          "model": "/models/Qwen3-0.6B",
+          "output": "/results/routing-disk-2",
+          "aggregate": true,
+          "kv_routing": true,
+          "kv_routing_tier": "disk",
+          "kvbm": true,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_tp": 1,
+          "decode_tp": 1,
+          "allow_shared_devices": false,
+          "cancel": false,
+          "handoff_case": null,
+          "fault": null,
+          "inflight_fault": false,
+          "legacy": false,
+          "connector": "default",
+          "soak_seconds": 0,
+          "soak_requests": 1000
+        },
+        "software": {
+          "vllm": "0.28.0",
+          "torch": "2.13.0+cu130"
+        },
+        "runtime_environment": {
+          "SPT_NOENV": "1",
+          "GOMAXPROCS": "4",
+          "MALLOC_ARENA_MAX": null,
+          "LD_PRELOAD": null
+        },
+        "routing": {
+          "status": "passed",
+          "tier": "disk",
+          "workers": [
+            5246272266176856010,
+            16744107313134025487
+          ],
+          "chat_smoke": {
+            "id": "chatcmpl-35f5cace-d569-482e-9739-145952855eb9",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "content": "<think>\nOkay, the user just said",
+                  "refusal": null,
+                  "role": "assistant"
+                },
+                "finish_reason": "length",
+                "logprobs": null
+              }
+            ],
+            "created": 1793241445,
+            "model": "m05-model",
+            "object": "chat.completion",
+            "usage": {
+              "prompt_tokens": 9,
+              "completion_tokens": 8,
+              "total_tokens": 17,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              }
+            }
+          },
+          "cold": {
+            "id": "cmpl-24673b1f-6cfc-424c-97b5-db9caf9d3e21",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241445,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 0
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 5246272266176856010,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 5246272266176856010,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "resident": {
+            "id": "cmpl-5aa897a2-6e91-4a34-89d0-02393da203e5",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241445,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 5246272266176856010,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 5246272266176856010,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "device_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 5246272266176856010,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              },
+              {
+                "worker_id": 16744107313134025487,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "disk_writes_before_eviction": {
+            "completed_blocks": 10
+          },
+          "offloaded_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 5246272266176856010,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 10,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 2.5
+              },
+              {
+                "worker_id": 16744107313134025487,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          },
+          "reload": {
+            "id": "cmpl-e93938d6-94d1-4786-8a75-0dd8d5f4610a",
+            "choices": [
+              {
+                "text": "\n        \\n\n\\n\\n\\n",
+                "index": 0,
+                "finish_reason": "length"
+              }
+            ],
+            "created": 1793241463,
+            "model": "m05-model",
+            "system_fingerprint": null,
+            "object": "text_completion",
+            "usage": {
+              "prompt_tokens": 641,
+              "completion_tokens": 8,
+              "total_tokens": 649,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 640
+              }
+            },
+            "nvext": {
+              "worker_id": {
+                "prefill_worker_id": 5246272266176856010,
+                "prefill_dp_rank": 0,
+                "decode_worker_id": 5246272266176856010,
+                "decode_dp_rank": 0
+              }
+            }
+          },
+          "reloaded_scores": {
+            "block_size": 64,
+            "num_blocks": 10,
+            "workers": [
+              {
+                "worker_id": 5246272266176856010,
+                "dp_rank": 0,
+                "device_blocks": 10,
+                "host_pinned_blocks": 10,
+                "disk_blocks": 10,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 10.0
+              },
+              {
+                "worker_id": 16744107313134025487,
+                "dp_rank": 0,
+                "device_blocks": 0,
+                "host_pinned_blocks": 0,
+                "disk_blocks": 0,
+                "host_pinned_extension_blocks": 0,
+                "disk_extension_blocks": 0,
+                "shared_beyond_device_blocks": null,
+                "router_credit_blocks": 0.0
+              }
+            ],
+            "shared_cache": {
+              "enabled": false,
+              "total_hit_blocks": 0,
+              "ranges": [],
+              "error": null
+            }
+          }
+        },
+        "kvbm_reload_byte_checks": 10
+      }
+    }
+  ],
+  "qualification": "single Pod, two allocated devices; PD network coverage is tested separately"
+}

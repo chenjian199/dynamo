@@ -1,0 +1,70 @@
+{
+  "qualification": "Candidate Python overlay on frozen M02 image; not M10 final-image certification",
+  "functional": {
+    "base": true,
+    "mtp": true,
+    "natural_language_smoke": true,
+    "natural_language_requests": 24,
+    "mtp_counters": {
+      "spec_decode_num_draft_tokens_total": 1052.0,
+      "spec_decode_num_accepted_tokens_total": 1044.0
+    },
+    "ladder_base_mtp_text_equal": true
+  },
+  "determinism": {
+    "status": "failed_native_reproduced_deferred",
+    "strict_api_passed": false,
+    "native_unique_token_sequences": 5,
+    "base_sse_parity": false,
+    "mtp_sse_parity": false,
+    "native_node_driver": "7.7 / 24.1.rc3",
+    "base_node_driver": "7.5 / 25.2.0",
+    "qualification": "Native reproduction does not prove identical numerical causes or implicate the driver"
+  },
+  "load": {
+    "passed": true,
+    "completed": 864,
+    "seconds": 1803.5702584385872,
+    "concurrency": 4,
+    "deterministic": false
+  },
+  "process_observation": {
+    "qualification": "Partial-window process observations; initial sampling gap, no native-handle leak certification",
+    "valid_samples": 33,
+    "failed_samples": 4,
+    "observed_seconds": 1668.1512565612793,
+    "stable_process_identity": true,
+    "first": {
+      "rss": 34997121024,
+      "fds": 2001,
+      "threads": 1102
+    },
+    "last": {
+      "rss": 35014049792,
+      "fds": 1997,
+      "threads": 1097
+    },
+    "delta": {
+      "rss": 16928768,
+      "fds": -4,
+      "threads": -5
+    },
+    "peak": {
+      "rss": 35016130560,
+      "fds": 2001,
+      "threads": 1102
+    },
+    "final_idle_occupancy": [
+      "vllm:num_requests_running{dynamo_component=\"backend\",dynamo_endpoint=\"generate\",dynamo_namespace=\"ascend-deepseek\",engine=\"0\",model=\"ascend-deepseek-model\",model_name=\"ascend-deepseek-model\",worker_id=\"694da18595880c09\"} 0.0",
+      "vllm:num_requests_waiting{dynamo_component=\"backend\",dynamo_endpoint=\"generate\",dynamo_namespace=\"ascend-deepseek\",engine=\"0\",model=\"ascend-deepseek-model\",model_name=\"ascend-deepseek-model\",worker_id=\"694da18595880c09\"} 0.0",
+      "vllm:kv_cache_usage_perc{dynamo_component=\"backend\",dynamo_endpoint=\"generate\",dynamo_namespace=\"ascend-deepseek\",engine=\"0\",model=\"ascend-deepseek-model\",model_name=\"ascend-deepseek-model\",worker_id=\"694da18595880c09\"} 0.0"
+    ],
+    "final_idle_zero": true
+  },
+  "deferred_or_not_covered": [
+    "Exact output determinism (native reproduced)",
+    "DeepSeek-specific hybrid-attention PD/KVBM connectors",
+    "Cross-node TP16 and million-token context",
+    "M08/M09 and final rebuilt-image M10 certification"
+  ]
+}

@@ -35,7 +35,7 @@ def test_scheduler_preserves_custom_implementation_and_rejects_incompatible_kv(
     configure_platform_scheduler(args, True)
     assert args.scheduler_cls == "vendor.scheduler.Custom"
     config = SimpleNamespace(
-        parallel_config=SimpleNamespace(pipeline_parallel_size=1),
+        parallel_config=SimpleNamespace(pipeline_parallel_size=2),
         kv_events_config=SimpleNamespace(enable_kv_cache_events=True, publisher="zmq"),
         cache_config=SimpleNamespace(enable_prefix_caching=True),
         scheduler_config=SimpleNamespace(scheduler_cls=object),
@@ -67,7 +67,10 @@ def test_registration_records_effective_precision_and_parallelism(monkeypatch):
             is_multimodal_model=False,
         ),
         parallel_config=SimpleNamespace(
-            tensor_parallel_size=2, data_parallel_size=2, enable_expert_parallel=True
+            tensor_parallel_size=2,
+            pipeline_parallel_size=2,
+            data_parallel_size=2,
+            enable_expert_parallel=True,
         ),
         cache_config=SimpleNamespace(cache_dtype="auto"),
         lora_config=None,
@@ -83,6 +86,7 @@ def test_registration_records_effective_precision_and_parallelism(monkeypatch):
     assert name == "platform_engine"
     assert '"quantization": "compressed-tensors"' in encoded
     assert '"tensor_parallel_size": 2' in encoded
+    assert '"pipeline_parallel_size": 2' in encoded
     assert '"expert_parallel": true' in encoded
     assert '"draft_model": "test-draft"' in encoded
     assert '"draft_tensor_parallel_size": 1' in encoded

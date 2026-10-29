@@ -153,20 +153,14 @@ def build_capabilities(platform_id, context, software):
         )
     if context.get("engine") == "vllm":
         software.update(validate_vllm_versions(platform_id))
-        supported = (
-            context.get("task") in ("text", "multimodal")
-            and context.get("tp") in ("1", "2", "4")
-            and context.get("dp") in ("1", "2", "4")
-            and context.get("eager") == "true"
-        )
-        caps[
-            "engine.multimodal"
-            if context.get("task") == "multimodal"
-            else "engine.text"
-        ] = capability(
+        # This describes an installed backend, not a matrix of certified model
+        # topologies. vLLM validates TP/PP/DP, graph execution and model support.
+        task = context.get("task", "text")
+        supported = task in ("text", "multimodal", "embedding")
+        caps[f"engine.{task}"] = capability(
             "available" if supported else "unknown",
             platform_id,
-            "eager stack with requested TP/DP; readiness and model support still require engine initialization"
+            "platform backend installed; requested topology and model support are validated by vLLM at initialization"
             if supported
             else "configuration outside current platform integration scope",
             context,
@@ -175,6 +169,7 @@ def build_capabilities(platform_id, context, software):
             software["kvbm"] = importlib.metadata.version("kvbm")
             eligible = (
                 supported
+                and context.get("eager") == "true"
                 and context.get("task") == "text"
                 and context.get("tp") in ("1", "2")
                 and context.get("dp") == "1"
@@ -188,6 +183,7 @@ def build_capabilities(platform_id, context, software):
         kv = supported and context.get("kv_events") == "true"
         pd = (
             supported
+            and context.get("eager") == "true"
             and context.get("task") == "text"
             and context.get("tp") in ("1", "2")
             and context.get("dp") == "1"

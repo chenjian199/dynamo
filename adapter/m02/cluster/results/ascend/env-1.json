@@ -1,0 +1,97 @@
+{
+  "platform": "ascend",
+  "checks": {
+    "versions": {
+      "passed": true,
+      "result": {
+        "ai-dynamo": "1.5.1",
+        "ai-dynamo-runtime": "1.5.1",
+        "kvbm": "1.5.1",
+        "vllm": "0.23.0+empty",
+        "torch": "2.10.0+cpu",
+        "torch-npu": "2.10.0.post4",
+        "vllm-ascend": "0.23.0"
+      }
+    },
+    "identity": {
+      "passed": true,
+      "result": {
+        "schema_version": 1,
+        "platform_id": "ascend",
+        "device_kind": "accelerator",
+        "provider_version": "1",
+        "software": {
+          "torch": "2.10.0+cpu",
+          "torch-npu": "2.10.0.post4",
+          "vllm-ascend": "0.23.0",
+          "driver": "25.2.0",
+          "cann": "9.1.0"
+        },
+        "devices": [
+          {
+            "ordinal": 0,
+            "uuid": "ascend-die:ea612a648080c5dd2570eb72808080e0104301e3",
+            "pci_bus_id": "0000:01:00.0",
+            "architecture": "Ascend910B3",
+            "memory_bytes": 65452113920
+          }
+        ],
+        "capabilities": {
+          "device.compute": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "device identity, model and memory queried through selected provider",
+            "conditions": {}
+          },
+          "pd.transfer": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "device.rdma": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "gms.vmm": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "tested 910B3/CANN 9.1/HDK 26.1.1 rejects read-only VMM access and POSIX allocation; GMS provider unavailable",
+            "conditions": {}
+          },
+          "power.control": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "kvbm.offload": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          }
+        }
+      }
+    },
+    "memory": {
+      "passed": true,
+      "result": {
+        "visible_devices": 1,
+        "copy_arithmetic_stream_event_matmul": true
+      }
+    },
+    "module_paths": {
+      "passed": true,
+      "result": {
+        "dynamo.common.platform": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/__init__.py",
+        "dynamo._core": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so",
+        "kvbm": "/opt/dynamo/venv/lib/python3.12/site-packages/kvbm/__init__.py",
+        "vllm": "/vllm-workspace/vllm/vllm/__init__.py"
+      }
+    }
+  },
+  "passed": true
+}

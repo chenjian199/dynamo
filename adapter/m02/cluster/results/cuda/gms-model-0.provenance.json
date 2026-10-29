@@ -1,0 +1,105 @@
+{
+  "job": "gms-model-0",
+  "status": {
+    "completionTime": "2026-10-28T09:43:25Z",
+    "conditions": [
+      {
+        "lastProbeTime": "2026-10-28T09:43:25Z",
+        "lastTransitionTime": "2026-10-28T09:43:25Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "SuccessCriteriaMet"
+      },
+      {
+        "lastProbeTime": "2026-10-28T09:43:25Z",
+        "lastTransitionTime": "2026-10-28T09:43:25Z",
+        "message": "Reached expected number of succeeded pods",
+        "reason": "CompletionsReached",
+        "status": "True",
+        "type": "Complete"
+      }
+    ],
+    "ready": 0,
+    "startTime": "2026-10-28T09:42:33Z",
+    "succeeded": 1,
+    "terminating": 0,
+    "uncountedTerminatedPods": {}
+  },
+  "log_sha256": "fec206742da9419a1f8c131044b9b73cab36e8e35a0e5a634f0b7d0896389816",
+  "spec_sha256": "8d28338090e0cde3e7bbbfb72833963e5f6d7cadbf6173ffee39833effe3d77a",
+  "pods": [
+    {
+      "name": "gms-model-0-mvphj",
+      "uid": "42d1a36f-03ce-4b09-bf52-94c20d92faad",
+      "node": "worker06",
+      "containers": [
+        {
+          "allocatedResources": {
+            "cpu": "2",
+            "memory": "4Gi",
+            "nvidia.com/gpu": "1"
+          },
+          "containerID": "containerd://73514693f841a1e3ed4cbfbddb9054d81eee16525d3d0eb39f465501b5f92fd9",
+          "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+          "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+          "lastState": {},
+          "name": "test",
+          "ready": false,
+          "resources": {
+            "limits": {
+              "cpu": "8",
+              "memory": "32Gi",
+              "nvidia.com/gpu": "1"
+            },
+            "requests": {
+              "cpu": "2",
+              "memory": "4Gi",
+              "nvidia.com/gpu": "1"
+            }
+          },
+          "restartCount": 0,
+          "started": false,
+          "state": {
+            "terminated": {
+              "containerID": "containerd://73514693f841a1e3ed4cbfbddb9054d81eee16525d3d0eb39f465501b5f92fd9",
+              "exitCode": 0,
+              "finishedAt": "2026-10-28T09:43:22Z",
+              "reason": "Completed",
+              "startedAt": "2026-10-28T09:42:35Z"
+            }
+          },
+          "user": {
+            "linux": {
+              "gid": 0,
+              "supplementalGroups": [
+                0,
+                44,
+                109
+              ],
+              "uid": 0
+            }
+          },
+          "volumeMounts": [
+            {
+              "mountPath": "/regression",
+              "name": "tests",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            },
+            {
+              "mountPath": "/dev/shm",
+              "name": "shm"
+            },
+            {
+              "mountPath": "/models/Qwen3-0.6B",
+              "name": "model",
+              "readOnly": true,
+              "recursiveReadOnly": "Disabled"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
