@@ -1,0 +1,150 @@
+{
+  "scope": "Two-node persistent device-buffer RDMA and Operator 2P3D, Qwen3-0.6B",
+  "platforms": {
+    "cuda": {
+      "rdma_serving_passed": true,
+      "pd_pairs": 6,
+      "cancellations": 8,
+      "decode_recreation": "passed",
+      "device_byte_cases_per_rank": 20,
+      "cleanup": "passed",
+      "counter_deltas": {
+        "h800-6": {
+          "mlx5_10": {
+            "counters/port_xmit_data": 520573952,
+            "counters/port_rcv_data": 21882642,
+            "hw_counters/rx_read_requests": 2956,
+            "hw_counters/rx_write_requests": 20,
+            "hw_counters/rx_icrc_encapsulated": 0
+          }
+        },
+        "h800-14": {
+          "mlx5_10": {
+            "counters/port_xmit_data": 21877485,
+            "counters/port_rcv_data": 520581768,
+            "hw_counters/rx_read_requests": 0,
+            "hw_counters/rx_write_requests": 0,
+            "hw_counters/rx_icrc_encapsulated": 0
+          }
+        }
+      },
+      "registration_churn": "passed"
+    },
+    "ascend": {
+      "rdma_serving_passed": true,
+      "pd_pairs": 6,
+      "cancellations": 8,
+      "decode_recreation": "passed",
+      "device_byte_cases_per_rank": 20,
+      "cleanup": "passed",
+      "counter_deltas": {
+        "huawei-52": {
+          "0": {
+            "roce_tx_rc_pkt_num": 193551,
+            "roce_rx_rc_pkt_num": 855,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "1": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "2": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "3": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "4": {
+            "roce_tx_rc_pkt_num": 286743,
+            "roce_rx_rc_pkt_num": 1311,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "5": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "6": {
+            "roce_tx_rc_pkt_num": 16448,
+            "roce_rx_rc_pkt_num": 10673,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "7": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          }
+        },
+        "huawei-55": {
+          "0": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "1": {
+            "roce_tx_rc_pkt_num": 10673,
+            "roce_rx_rc_pkt_num": 16448,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "2": {
+            "roce_tx_rc_pkt_num": 855,
+            "roce_rx_rc_pkt_num": 211471,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "3": {
+            "roce_tx_rc_pkt_num": 228,
+            "roce_rx_rc_pkt_num": 78852,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "4": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "5": {
+            "roce_tx_rc_pkt_num": 399,
+            "roce_rx_rc_pkt_num": 53767,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "6": {
+            "roce_tx_rc_pkt_num": 684,
+            "roce_rx_rc_pkt_num": 136204,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          },
+          "7": {
+            "roce_tx_rc_pkt_num": 0,
+            "roce_rx_rc_pkt_num": 0,
+            "roce_tx_err_pkt_num": 0,
+            "roce_rx_err_pkt_num": 0
+          }
+        }
+      },
+      "registration_churn": "failed_native_adxl_hccl_registration_lifecycle"
+    }
+  },
+  "limitations": [
+    "Ascend repeated register/deregister with changing addresses/sizes failed; persistent KV-style buffers passed.",
+    "CUDA uses one selected RoCE rail; no all-rail bandwidth, NCCL collective or production SLA certification.",
+    "Ascend DRA awaits separate >=1.34 cluster; MetaX has no cluster."
+  ]
+}

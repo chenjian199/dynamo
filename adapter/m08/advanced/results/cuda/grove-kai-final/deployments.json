@@ -1,0 +1,280 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "3",
+                    "meta.helm.sh/release-name": "heyi-m08",
+                    "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+                },
+                "creationTimestamp": "2026-10-29T04:16:13Z",
+                "generation": 3,
+                "labels": {
+                    "app.kubernetes.io/component": "manager",
+                    "app.kubernetes.io/created-by": "dynamo-operator",
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/part-of": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.5.1",
+                    "control-plane": "controller-manager",
+                    "helm.sh/chart": "dynamo-operator-1.5.1"
+                },
+                "name": "heyi-m08-dynamo-operator-controller-manager",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40366660",
+                "uid": "d4f1a549-66b5-49f4-94f3-4d90d86010f1"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/instance": "heyi-m08",
+                        "app.kubernetes.io/name": "dynamo-operator",
+                        "control-plane": "controller-manager"
+                    }
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "checksum/config": "543d2cbf921b77886aca58e2094b61bebdda42d758852d532f1775a71c50fddd",
+                            "kubectl.kubernetes.io/default-container": "manager"
+                        },
+                        "labels": {
+                            "app.kubernetes.io/instance": "heyi-m08",
+                            "app.kubernetes.io/name": "dynamo-operator",
+                            "control-plane": "controller-manager"
+                        }
+                    },
+                    "spec": {
+                        "affinity": {
+                            "nodeAffinity": {
+                                "requiredDuringSchedulingIgnoredDuringExecution": {
+                                    "nodeSelectorTerms": [
+                                        {
+                                            "matchExpressions": [
+                                                {
+                                                    "key": "kubernetes.io/hostname",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "worker06"
+                                                    ]
+                                                },
+                                                {
+                                                    "key": "kubernetes.io/arch",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "amd64"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config=/etc/dynamo-operator/config.yaml",
+                                    "--operator-version=1.5.1",
+                                    "--operator-image=heyi/dynamo-operator:1.5.1-m08-amd64",
+                                    "--operator-image-pull-policy=Never"
+                                ],
+                                "command": [
+                                    "/manager"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "KUBERNETES_CLUSTER_DOMAIN",
+                                        "value": "cluster.local"
+                                    },
+                                    {
+                                        "name": "POD_SERVICE_ACCOUNT",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "spec.serviceAccountName"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "image": "heyi/dynamo-operator:1.5.1-m08-amd64",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/healthz",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 15,
+                                    "periodSeconds": 20,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "name": "manager",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "name": "metrics",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 9443,
+                                        "name": "webhook-server",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/readyz",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 5,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "1024m",
+                                        "memory": "2Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "512m",
+                                        "memory": "1Gi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/etc/dynamo-operator",
+                                        "name": "operator-config",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                                        "name": "cert",
+                                        "readOnly": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "initContainers": [
+                            {
+                                "args": [
+                                    "--crds-dir=/opt/dynamo-operator/crds/",
+                                    "--version=1.5.1",
+                                    "--conversion-webhook-service-name=heyi-m08-dynamo-operator-webhook-service",
+                                    "--conversion-webhook-service-namespace=dynamo-m08-1029"
+                                ],
+                                "command": [
+                                    "/crd-apply"
+                                ],
+                                "image": "heyi/dynamo-operator:1.5.1-m08-amd64",
+                                "imagePullPolicy": "Never",
+                                "name": "crd-apply",
+                                "resources": {},
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "runAsNonRoot": true
+                        },
+                        "serviceAccount": "heyi-m08-dynamo-operator-controller-manager",
+                        "serviceAccountName": "heyi-m08-dynamo-operator-controller-manager",
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "heyi-m08-dynamo-operator-config"
+                                },
+                                "name": "operator-config"
+                            },
+                            {
+                                "name": "cert",
+                                "secret": {
+                                    "defaultMode": 420,
+                                    "optional": true,
+                                    "secretName": "webhook-server-cert"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T06:40:16Z",
+                        "lastUpdateTime": "2026-10-29T06:40:16Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T04:16:13Z",
+                        "lastUpdateTime": "2026-10-29T06:40:16Z",
+                        "message": "ReplicaSet \"heyi-m08-dynamo-operator-controller-manager-64cc478d5\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 3,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "terminatingReplicas": 0,
+                "updatedReplicas": 1
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

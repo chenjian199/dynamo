@@ -11,7 +11,7 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 源码基线：`v1.5.1`，提交 `2093662a4d4e5fd318732935213dde08dc7be818`。
 
-当前阶段：M01–M07 已完成各自记录范围内的适配与回归，保留明确暂缓项及原生引擎问题；不能将其视为全部设计能力完成。CUDA / Ascend 的大小模型、跨节点与 DeepSeek 验证见 [集群回归记录](m02/cluster-regression-plan.md)。M08 已准备 Operator 适配及离线交付材料，后续先做 M08/M09 适配与集群验证，再构建新镜像完成 M10 最终回归。
+当前阶段：M01–M07 已完成各自记录范围内的适配与回归，保留明确暂缓项及原生引擎问题；不能将其视为全部设计能力完成。CUDA / Ascend 的大小模型、跨节点与 DeepSeek 验证见 [集群回归记录](m02/cluster-regression-plan.md)。M08 已阶段性收尾，在 CUDA / Ascend 集群安装 Operator，并验证基础 DGD 路径，见 [M08 验收](m08/cluster/README.md)；扩展轮已通过两平台跨节点 Operator 2P3D、Grove/KAI、DGDR 自动部署和 CUDA DRA，见 [扩展验收](m08/advanced/README.md)。MetaX 无集群，Ascend DRA 等待新集群；DGDR 预测精度未认证。指定 RDMA 路径通过，Ascend 动态注册压力问题保留；见 [M08 收尾与边界](m08/README.md#阶段性收尾与-m09-交接)。下一阶段推进 M09，复用已完成的 Profiler 接入，再构建新镜像完成 M10 最终回归。
 
 ## 目录约定
 
@@ -43,4 +43,4 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 ## 后续工作
 
-按 [模块状态](modules.md) 推进 M08/M09，再以新镜像完成 M10；具体厂商限制见 [支持矩阵](support-matrix.md)。未验证的能力不标记为已支持，关闭某项功能不等于完成该项适配。
+按 [模块状态](modules.md) 推进 M09，保留 M08 暂缓项，再以新镜像完成 M10；具体厂商限制见 [支持矩阵](support-matrix.md)。未验证的能力不标记为已支持，关闭某项功能不等于完成该项适配。

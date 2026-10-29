@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for profiler config_modifiers/protocol helpers."""
 
 import copy
 import errno
+import json
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
@@ -268,7 +271,11 @@ def test_build_dgd_config_vllm_disagg_restores_runtime_args() -> None:
     )
     assert decode_args[decode_args.index("--tensor-parallel-size") + 1] == "4"
     assert decode_args[decode_args.index("--disaggregation-mode") + 1] == "decode"
-    assert "--kv-transfer-config" not in decode_args
+    decode_kv_config = json.loads(
+        decode_args[decode_args.index("--kv-transfer-config") + 1]
+    )
+    assert decode_kv_config["kv_connector"] == "NixlConnector"
+    assert decode_kv_config["kv_role"] == "kv_both"
 
 
 def test_build_dgd_config_vllm_disagg_preserves_explicit_kv_config() -> None:
@@ -1301,9 +1308,7 @@ def _make_dgd_with_workers(*worker_names: str) -> dict:
         component_type = (
             "prefill"
             if "prefill" in name.lower()
-            else "decode"
-            if "decode" in name.lower()
-            else "worker"
+            else "decode" if "decode" in name.lower() else "worker"
         )
         components.append(
             _make_component(

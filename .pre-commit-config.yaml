@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,10 +65,12 @@ repos:
   - id: end-of-file-fixer
     types_or: [c, c++, cuda, proto, textproto, java, python]
   - id: mixed-line-ending
+    # Captured M08 evidence retains its original bytes and recorded hashes.
+    exclude: ^adapter/m08/(cluster|advanced|rdma)/results/
   - id: requirements-txt-fixer
   - id: trailing-whitespace
-    # spdx_licenses/ holds verbatim upstream license texts — never reformat them.
-    exclude: (lib/llm/tests/data/deepseek-v3.2/.*\.txt$|^container/compliance/spdx_licenses/.*)
+    # Preserve verbatim upstream licenses and captured M08 evidence.
+    exclude: (lib/llm/tests/data/deepseek-v3.2/.*\.txt$|^container/compliance/spdx_licenses/.*|^adapter/m08/(cluster|advanced|rdma)/results/)
 
 # Fast linting
 - repo: https://github.com/astral-sh/ruff-pre-commit

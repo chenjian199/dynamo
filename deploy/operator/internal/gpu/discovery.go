@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,6 +93,7 @@ const (
 	tokenB200   = "B200"
 	tokenH200   = "H200"
 	tokenH100   = "H100"
+	tokenH800   = "H800"
 	tokenA100   = "A100"
 	tokenA30    = "A30"
 	tokenL40S   = "L40S"
@@ -134,6 +137,7 @@ var gpuRules = []gpuRule{
 
 	// Hopper
 	{token: tokenH200, sxmSKU: nvidiacomv1beta1.GPUSKUTypeH200SXM},
+	{token: tokenH800, sxmSKU: nvidiacomv1beta1.GPUSKUTypeH800SXM, pcieSKU: nvidiacomv1beta1.GPUSKUTypeH800PCIe},
 	{token: tokenH100, sxmSKU: nvidiacomv1beta1.GPUSKUTypeH100SXM, pcieSKU: nvidiacomv1beta1.GPUSKUTypeH100PCIe},
 
 	// Ampere

@@ -1,0 +1,1265 @@
+[
+  {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {
+      "annotations": {
+        "deprecated.daemonset.template.generation": "1",
+        "nvidia.com/last-applied-hash": "192225369",
+        "openshift.io/scc": "hostmount-anyuid"
+      },
+      "creationTimestamp": "2026-07-28T07:57:11Z",
+      "generation": 1,
+      "labels": {
+        "app": "nvidia-dcgm",
+        "app.kubernetes.io/managed-by": "gpu-operator",
+        "helm.sh/chart": "gpu-operator-v26.3.3"
+      },
+      "name": "nvidia-dcgm",
+      "namespace": "gpu-operator",
+      "ownerReferences": [
+        {
+          "apiVersion": "nvidia.com/v1",
+          "blockOwnerDeletion": true,
+          "controller": true,
+          "kind": "ClusterPolicy",
+          "name": "cluster-policy",
+          "uid": "69b2d0bd-0560-4671-a9e5-81fcb7c5fce4"
+        }
+      ],
+      "resourceVersion": "33694450",
+      "uid": "277764a2-411a-4105-a51d-4c61baf3c18f"
+    },
+    "spec": {
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "app": "nvidia-dcgm"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "nvidia-dcgm",
+            "app.kubernetes.io/managed-by": "gpu-operator",
+            "helm.sh/chart": "gpu-operator-v26.3.3"
+          }
+        },
+        "spec": {
+          "containers": [
+            {
+              "image": "nvcr.io/nvidia/cloud-native/dcgm:4.5.2-1-ubuntu22.04",
+              "imagePullPolicy": "IfNotPresent",
+              "livenessProbe": {
+                "failureThreshold": 3,
+                "initialDelaySeconds": 15,
+                "periodSeconds": 10,
+                "successThreshold": 1,
+                "tcpSocket": {
+                  "port": 5555
+                },
+                "timeoutSeconds": 1
+              },
+              "name": "nvidia-dcgm-ctr",
+              "ports": [
+                {
+                  "containerPort": 5555,
+                  "name": "dcgm",
+                  "protocol": "TCP"
+                }
+              ],
+              "readinessProbe": {
+                "failureThreshold": 3,
+                "initialDelaySeconds": 15,
+                "periodSeconds": 10,
+                "successThreshold": 1,
+                "tcpSocket": {
+                  "port": 5555
+                },
+                "timeoutSeconds": 1
+              },
+              "resources": {},
+              "securityContext": {
+                "privileged": true
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File"
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "initContainers": [
+            {
+              "args": [
+                "until [ -f /run/nvidia/validations/toolkit-ready ]; do echo waiting for nvidia container stack to be setup; sleep 5; done"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "toolkit-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia",
+                  "mountPropagation": "HostToContainer",
+                  "name": "run-nvidia"
+                }
+              ]
+            }
+          ],
+          "nodeSelector": {
+            "nvidia.com/gpu.deploy.dcgm": "true"
+          },
+          "priorityClassName": "system-node-critical",
+          "restartPolicy": "Always",
+          "runtimeClassName": "nvidia",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "nvidia-dcgm",
+          "serviceAccountName": "nvidia-dcgm",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoSchedule",
+              "key": "nvidia.com/gpu",
+              "operator": "Exists"
+            }
+          ],
+          "volumes": [
+            {
+              "hostPath": {
+                "path": "/run/nvidia",
+                "type": "Directory"
+              },
+              "name": "run-nvidia"
+            }
+          ]
+        }
+      },
+      "updateStrategy": {
+        "rollingUpdate": {
+          "maxSurge": 0,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      }
+    },
+    "status": {
+      "currentNumberScheduled": 2,
+      "desiredNumberScheduled": 2,
+      "numberAvailable": 2,
+      "numberMisscheduled": 0,
+      "numberReady": 2,
+      "observedGeneration": 1,
+      "updatedNumberScheduled": 2
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {
+      "annotations": {
+        "deprecated.daemonset.template.generation": "1",
+        "nvidia.com/last-applied-hash": "235660047",
+        "openshift.io/scc": "nvidia-dcgm-exporter"
+      },
+      "creationTimestamp": "2026-07-28T07:57:11Z",
+      "generation": 1,
+      "labels": {
+        "app": "nvidia-dcgm-exporter",
+        "app.kubernetes.io/managed-by": "gpu-operator",
+        "helm.sh/chart": "gpu-operator-v26.3.3"
+      },
+      "name": "nvidia-dcgm-exporter",
+      "namespace": "gpu-operator",
+      "ownerReferences": [
+        {
+          "apiVersion": "nvidia.com/v1",
+          "blockOwnerDeletion": true,
+          "controller": true,
+          "kind": "ClusterPolicy",
+          "name": "cluster-policy",
+          "uid": "69b2d0bd-0560-4671-a9e5-81fcb7c5fce4"
+        }
+      ],
+      "resourceVersion": "33694746",
+      "uid": "94494fc4-064e-4419-aa30-cf965fe94fec"
+    },
+    "spec": {
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "app": "nvidia-dcgm-exporter"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "nvidia-dcgm-exporter",
+            "app.kubernetes.io/managed-by": "gpu-operator",
+            "helm.sh/chart": "gpu-operator-v26.3.3"
+          }
+        },
+        "spec": {
+          "automountServiceAccountToken": false,
+          "containers": [
+            {
+              "env": [
+                {
+                  "name": "DCGM_EXPORTER_LISTEN",
+                  "value": ":9400"
+                },
+                {
+                  "name": "DCGM_EXPORTER_KUBERNETES",
+                  "value": "true"
+                },
+                {
+                  "name": "DCGM_EXPORTER_COLLECTORS",
+                  "value": "/etc/dcgm-exporter/dcp-metrics-included.csv"
+                },
+                {
+                  "name": "NODE_NAME",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "spec.nodeName"
+                    }
+                  }
+                },
+                {
+                  "name": "DCGM_REMOTE_HOSTENGINE_INFO",
+                  "value": "nvidia-dcgm:5555"
+                }
+              ],
+              "image": "nvcr.io/nvidia/k8s/dcgm-exporter:4.5.3-4.8.2-distroless",
+              "imagePullPolicy": "IfNotPresent",
+              "livenessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/health",
+                  "port": 9400,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 45,
+                "periodSeconds": 5,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "name": "nvidia-dcgm-exporter",
+              "ports": [
+                {
+                  "containerPort": 9400,
+                  "name": "metrics",
+                  "protocol": "TCP"
+                }
+              ],
+              "readinessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/health",
+                  "port": 9400,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 45,
+                "periodSeconds": 10,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "resources": {},
+              "securityContext": {
+                "privileged": true
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/lib/kubelet/pod-resources",
+                  "name": "pod-gpu-resources",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "initContainers": [
+            {
+              "args": [
+                "until [ -f /run/nvidia/validations/toolkit-ready ]; do echo waiting for nvidia container stack to be setup; sleep 5; done"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "toolkit-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia",
+                  "mountPropagation": "HostToContainer",
+                  "name": "run-nvidia"
+                }
+              ]
+            }
+          ],
+          "nodeSelector": {
+            "nvidia.com/gpu.deploy.dcgm-exporter": "true"
+          },
+          "priorityClassName": "system-node-critical",
+          "restartPolicy": "Always",
+          "runtimeClassName": "nvidia",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "nvidia-dcgm-exporter",
+          "serviceAccountName": "nvidia-dcgm-exporter",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoSchedule",
+              "key": "nvidia.com/gpu",
+              "operator": "Exists"
+            }
+          ],
+          "volumes": [
+            {
+              "hostPath": {
+                "path": "/var/lib/kubelet/pod-resources",
+                "type": ""
+              },
+              "name": "pod-gpu-resources"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia",
+                "type": ""
+              },
+              "name": "run-nvidia"
+            }
+          ]
+        }
+      },
+      "updateStrategy": {
+        "rollingUpdate": {
+          "maxSurge": 0,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      }
+    },
+    "status": {
+      "currentNumberScheduled": 2,
+      "desiredNumberScheduled": 2,
+      "numberAvailable": 2,
+      "numberMisscheduled": 0,
+      "numberReady": 2,
+      "observedGeneration": 1,
+      "updatedNumberScheduled": 2
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {
+      "annotations": {
+        "deprecated.daemonset.template.generation": "1",
+        "nvidia.com/last-applied-hash": "2246524035",
+        "openshift.io/scc": "hostmount-anyuid"
+      },
+      "creationTimestamp": "2026-07-28T07:57:10Z",
+      "generation": 1,
+      "labels": {
+        "app": "nvidia-device-plugin-daemonset",
+        "app.kubernetes.io/managed-by": "gpu-operator",
+        "helm.sh/chart": "gpu-operator-v26.3.3"
+      },
+      "name": "nvidia-device-plugin-daemonset",
+      "namespace": "gpu-operator",
+      "ownerReferences": [
+        {
+          "apiVersion": "nvidia.com/v1",
+          "blockOwnerDeletion": true,
+          "controller": true,
+          "kind": "ClusterPolicy",
+          "name": "cluster-policy",
+          "uid": "69b2d0bd-0560-4671-a9e5-81fcb7c5fce4"
+        }
+      ],
+      "resourceVersion": "33694279",
+      "uid": "fb99f55d-7b7e-4ac8-b6a7-871d906eadf2"
+    },
+    "spec": {
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "app": "nvidia-device-plugin-daemonset"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "nvidia-device-plugin-daemonset",
+            "app.kubernetes.io/managed-by": "gpu-operator",
+            "helm.sh/chart": "gpu-operator-v26.3.3"
+          }
+        },
+        "spec": {
+          "containers": [
+            {
+              "args": [
+                "/bin/entrypoint.sh"
+              ],
+              "command": [
+                "/bin/sh",
+                "-c"
+              ],
+              "env": [
+                {
+                  "name": "PASS_DEVICE_SPECS",
+                  "value": "true"
+                },
+                {
+                  "name": "FAIL_ON_INIT_ERROR",
+                  "value": "true"
+                },
+                {
+                  "name": "DEVICE_LIST_STRATEGY",
+                  "value": "cdi-annotations,cdi-cri"
+                },
+                {
+                  "name": "DEVICE_ID_STRATEGY",
+                  "value": "uuid"
+                },
+                {
+                  "name": "NVIDIA_VISIBLE_DEVICES",
+                  "value": "all"
+                },
+                {
+                  "name": "NVIDIA_DRIVER_CAPABILITIES",
+                  "value": "all"
+                },
+                {
+                  "name": "MPS_ROOT",
+                  "value": "/run/nvidia/mps"
+                },
+                {
+                  "name": "MIG_STRATEGY",
+                  "value": "single"
+                },
+                {
+                  "name": "NVIDIA_MIG_MONITOR_DEVICES",
+                  "value": "all"
+                },
+                {
+                  "name": "CDI_ENABLED",
+                  "value": "true"
+                },
+                {
+                  "name": "CDI_ANNOTATION_PREFIX",
+                  "value": "cdi.k8s.io/"
+                }
+              ],
+              "image": "nvcr.io/nvidia/k8s-device-plugin:v0.19.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "nvidia-device-plugin",
+              "resources": {},
+              "securityContext": {
+                "privileged": true
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/bin/entrypoint.sh",
+                  "name": "nvidia-device-plugin-entrypoint",
+                  "readOnly": true,
+                  "subPath": "entrypoint.sh"
+                },
+                {
+                  "mountPath": "/var/lib/kubelet/device-plugins",
+                  "name": "device-plugin"
+                },
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "name": "run-nvidia-validations"
+                },
+                {
+                  "mountPath": "/driver-root",
+                  "mountPropagation": "HostToContainer",
+                  "name": "driver-install-dir"
+                },
+                {
+                  "mountPath": "/host",
+                  "mountPropagation": "HostToContainer",
+                  "name": "host-root",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/run/cdi",
+                  "name": "cdi-root"
+                },
+                {
+                  "mountPath": "/dev/shm",
+                  "name": "mps-shm"
+                },
+                {
+                  "mountPath": "/mps",
+                  "name": "mps-root"
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "initContainers": [
+            {
+              "args": [
+                "until [ -f /run/nvidia/validations/toolkit-ready ]; do echo waiting for nvidia container stack to be setup; sleep 5; done"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "toolkit-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "mountPropagation": "HostToContainer",
+                  "name": "run-nvidia-validations"
+                }
+              ]
+            }
+          ],
+          "nodeSelector": {
+            "nvidia.com/gpu.deploy.device-plugin": "true"
+          },
+          "priorityClassName": "system-node-critical",
+          "restartPolicy": "Always",
+          "runtimeClassName": "nvidia",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "nvidia-device-plugin",
+          "serviceAccountName": "nvidia-device-plugin",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoSchedule",
+              "key": "nvidia.com/gpu",
+              "operator": "Exists"
+            }
+          ],
+          "volumes": [
+            {
+              "configMap": {
+                "defaultMode": 448,
+                "name": "nvidia-device-plugin-entrypoint"
+              },
+              "name": "nvidia-device-plugin-entrypoint"
+            },
+            {
+              "hostPath": {
+                "path": "/var/lib/kubelet/device-plugins",
+                "type": ""
+              },
+              "name": "device-plugin"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/validations",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "run-nvidia-validations"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/driver",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "driver-install-dir"
+            },
+            {
+              "hostPath": {
+                "path": "/",
+                "type": ""
+              },
+              "name": "host-root"
+            },
+            {
+              "hostPath": {
+                "path": "/var/run/cdi",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "cdi-root"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/mps",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "mps-root"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/mps/shm",
+                "type": ""
+              },
+              "name": "mps-shm"
+            }
+          ]
+        }
+      },
+      "updateStrategy": {
+        "rollingUpdate": {
+          "maxSurge": 0,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      }
+    },
+    "status": {
+      "currentNumberScheduled": 2,
+      "desiredNumberScheduled": 2,
+      "numberAvailable": 2,
+      "numberMisscheduled": 0,
+      "numberReady": 2,
+      "observedGeneration": 1,
+      "updatedNumberScheduled": 2
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {
+      "annotations": {
+        "deprecated.daemonset.template.generation": "1",
+        "nvidia.com/last-applied-hash": "3010480551",
+        "openshift.io/scc": "hostmount-anyuid"
+      },
+      "creationTimestamp": "2026-07-28T07:57:10Z",
+      "generation": 1,
+      "labels": {
+        "app": "nvidia-device-plugin-mps-control-daemon",
+        "app.kubernetes.io/managed-by": "gpu-operator",
+        "helm.sh/chart": "gpu-operator-v26.3.3"
+      },
+      "name": "nvidia-device-plugin-mps-control-daemon",
+      "namespace": "gpu-operator",
+      "ownerReferences": [
+        {
+          "apiVersion": "nvidia.com/v1",
+          "blockOwnerDeletion": true,
+          "controller": true,
+          "kind": "ClusterPolicy",
+          "name": "cluster-policy",
+          "uid": "69b2d0bd-0560-4671-a9e5-81fcb7c5fce4"
+        }
+      ],
+      "resourceVersion": "40233",
+      "uid": "4ff2e8bb-2e12-4095-9bac-715892bbd6b9"
+    },
+    "spec": {
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "app": "nvidia-device-plugin-mps-control-daemon"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "nvidia-device-plugin-mps-control-daemon",
+            "app.kubernetes.io/managed-by": "gpu-operator",
+            "helm.sh/chart": "gpu-operator-v26.3.3"
+          }
+        },
+        "spec": {
+          "containers": [
+            {
+              "command": [
+                "mps-control-daemon"
+              ],
+              "env": [
+                {
+                  "name": "NODE_NAME",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "spec.nodeName"
+                    }
+                  }
+                },
+                {
+                  "name": "NVIDIA_VISIBLE_DEVICES",
+                  "value": "all"
+                },
+                {
+                  "name": "NVIDIA_DRIVER_CAPABILITIES",
+                  "value": "compute,utility"
+                },
+                {
+                  "name": "MIG_STRATEGY",
+                  "value": "single"
+                },
+                {
+                  "name": "NVIDIA_MIG_MONITOR_DEVICES",
+                  "value": "all"
+                }
+              ],
+              "image": "nvcr.io/nvidia/k8s-device-plugin:v0.19.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "mps-control-daemon-ctr",
+              "resources": {},
+              "securityContext": {
+                "privileged": true
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/dev/shm",
+                  "name": "mps-shm"
+                },
+                {
+                  "mountPath": "/mps",
+                  "name": "mps-root"
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "hostPID": true,
+          "initContainers": [
+            {
+              "args": [
+                "until [ -f /run/nvidia/validations/toolkit-ready ]; do echo waiting for nvidia container stack to be setup; sleep 5; done"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "toolkit-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia",
+                  "mountPropagation": "HostToContainer",
+                  "name": "run-nvidia"
+                }
+              ]
+            },
+            {
+              "command": [
+                "mps-control-daemon",
+                "mount-shm"
+              ],
+              "image": "nvcr.io/nvidia/k8s-device-plugin:v0.19.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "mps-control-daemon-mounts",
+              "resources": {},
+              "securityContext": {
+                "privileged": true
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/mps",
+                  "mountPropagation": "Bidirectional",
+                  "name": "mps-root"
+                }
+              ]
+            }
+          ],
+          "nodeSelector": {
+            "nvidia.com/gpu.deploy.device-plugin": "true",
+            "nvidia.com/mps.capable": "true"
+          },
+          "priorityClassName": "system-node-critical",
+          "restartPolicy": "Always",
+          "runtimeClassName": "nvidia",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "nvidia-device-plugin",
+          "serviceAccountName": "nvidia-device-plugin",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoSchedule",
+              "key": "nvidia.com/gpu",
+              "operator": "Exists"
+            }
+          ],
+          "volumes": [
+            {
+              "hostPath": {
+                "path": "/run/nvidia",
+                "type": "Directory"
+              },
+              "name": "run-nvidia"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/mps",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "mps-root"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/mps/shm",
+                "type": ""
+              },
+              "name": "mps-shm"
+            }
+          ]
+        }
+      },
+      "updateStrategy": {
+        "rollingUpdate": {
+          "maxSurge": 0,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      }
+    },
+    "status": {
+      "currentNumberScheduled": 0,
+      "desiredNumberScheduled": 0,
+      "numberMisscheduled": 0,
+      "numberReady": 0,
+      "observedGeneration": 1
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {
+      "annotations": {
+        "deprecated.daemonset.template.generation": "1",
+        "nvidia.com/last-applied-hash": "2483730085"
+      },
+      "creationTimestamp": "2026-07-28T07:57:10Z",
+      "generation": 1,
+      "labels": {
+        "app": "nvidia-operator-validator",
+        "app.kubernetes.io/managed-by": "gpu-operator",
+        "app.kubernetes.io/part-of": "gpu-operator",
+        "helm.sh/chart": "gpu-operator-v26.3.3"
+      },
+      "name": "nvidia-operator-validator",
+      "namespace": "gpu-operator",
+      "ownerReferences": [
+        {
+          "apiVersion": "nvidia.com/v1",
+          "blockOwnerDeletion": true,
+          "controller": true,
+          "kind": "ClusterPolicy",
+          "name": "cluster-policy",
+          "uid": "69b2d0bd-0560-4671-a9e5-81fcb7c5fce4"
+        }
+      ],
+      "resourceVersion": "33694344",
+      "uid": "eb565ede-bb61-4b97-bd56-0928dd8001cb"
+    },
+    "spec": {
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "app": "nvidia-operator-validator",
+          "app.kubernetes.io/part-of": "gpu-operator"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "nvidia-operator-validator",
+            "app.kubernetes.io/managed-by": "gpu-operator",
+            "app.kubernetes.io/part-of": "gpu-operator",
+            "helm.sh/chart": "gpu-operator-v26.3.3"
+          }
+        },
+        "spec": {
+          "containers": [
+            {
+              "args": [
+                "echo all validations are successful; while true; do sleep 86400; done"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "lifecycle": {
+                "preStop": {
+                  "exec": {
+                    "command": [
+                      "sh",
+                      "-c",
+                      "rm -f /run/nvidia/validations/*-ready"
+                    ]
+                  }
+                }
+              },
+              "name": "nvidia-operator-validator",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "mountPropagation": "Bidirectional",
+                  "name": "run-nvidia-validations"
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "initContainers": [
+            {
+              "args": [
+                "nvidia-validator"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "env": [
+                {
+                  "name": "WITH_WAIT",
+                  "value": "true"
+                },
+                {
+                  "name": "COMPONENT",
+                  "value": "driver"
+                },
+                {
+                  "name": "OPERATOR_NAMESPACE",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.namespace"
+                    }
+                  }
+                }
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "driver-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0,
+                "seLinuxOptions": {
+                  "level": "s0"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/host",
+                  "mountPropagation": "HostToContainer",
+                  "name": "host-root",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/run/nvidia/driver",
+                  "mountPropagation": "HostToContainer",
+                  "name": "driver-install-dir"
+                },
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "mountPropagation": "Bidirectional",
+                  "name": "run-nvidia-validations"
+                },
+                {
+                  "mountPath": "/host-dev-char",
+                  "name": "host-dev-char"
+                }
+              ]
+            },
+            {
+              "args": [
+                "nvidia-validator"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "env": [
+                {
+                  "name": "NVIDIA_VISIBLE_DEVICES",
+                  "value": "all"
+                },
+                {
+                  "name": "WITH_WAIT",
+                  "value": "false"
+                },
+                {
+                  "name": "COMPONENT",
+                  "value": "toolkit"
+                }
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "toolkit-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "mountPropagation": "Bidirectional",
+                  "name": "run-nvidia-validations"
+                }
+              ]
+            },
+            {
+              "args": [
+                "nvidia-validator"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "env": [
+                {
+                  "name": "WITH_WAIT",
+                  "value": "false"
+                },
+                {
+                  "name": "COMPONENT",
+                  "value": "cuda"
+                },
+                {
+                  "name": "NODE_NAME",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "spec.nodeName"
+                    }
+                  }
+                },
+                {
+                  "name": "OPERATOR_NAMESPACE",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.namespace"
+                    }
+                  }
+                },
+                {
+                  "name": "VALIDATOR_IMAGE",
+                  "value": "nvcr.io/nvidia/gpu-operator:v26.3.3"
+                },
+                {
+                  "name": "VALIDATOR_IMAGE_PULL_POLICY",
+                  "value": "IfNotPresent"
+                },
+                {
+                  "name": "VALIDATOR_RUNTIME_CLASS",
+                  "value": "nvidia"
+                }
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "cuda-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "mountPropagation": "Bidirectional",
+                  "name": "run-nvidia-validations"
+                }
+              ]
+            },
+            {
+              "args": [
+                "nvidia-validator"
+              ],
+              "command": [
+                "sh",
+                "-c"
+              ],
+              "env": [
+                {
+                  "name": "COMPONENT",
+                  "value": "plugin"
+                },
+                {
+                  "name": "WITH_WAIT",
+                  "value": "false"
+                },
+                {
+                  "name": "WITH_WORKLOAD",
+                  "value": "false"
+                },
+                {
+                  "name": "MIG_STRATEGY",
+                  "value": "single"
+                },
+                {
+                  "name": "NODE_NAME",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "spec.nodeName"
+                    }
+                  }
+                },
+                {
+                  "name": "OPERATOR_NAMESPACE",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.namespace"
+                    }
+                  }
+                },
+                {
+                  "name": "VALIDATOR_IMAGE",
+                  "value": "nvcr.io/nvidia/gpu-operator:v26.3.3"
+                },
+                {
+                  "name": "VALIDATOR_IMAGE_PULL_POLICY",
+                  "value": "IfNotPresent"
+                },
+                {
+                  "name": "VALIDATOR_RUNTIME_CLASS",
+                  "value": "nvidia"
+                }
+              ],
+              "image": "nvcr.io/nvidia/gpu-operator:v26.3.3",
+              "imagePullPolicy": "IfNotPresent",
+              "name": "plugin-validation",
+              "resources": {},
+              "securityContext": {
+                "privileged": true,
+                "runAsUser": 0
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/run/nvidia/validations",
+                  "mountPropagation": "Bidirectional",
+                  "name": "run-nvidia-validations"
+                }
+              ]
+            }
+          ],
+          "nodeSelector": {
+            "nvidia.com/gpu.deploy.operator-validator": "true"
+          },
+          "priorityClassName": "system-node-critical",
+          "restartPolicy": "Always",
+          "runtimeClassName": "nvidia",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "nvidia-operator-validator",
+          "serviceAccountName": "nvidia-operator-validator",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoSchedule",
+              "key": "nvidia.com/gpu",
+              "operator": "Exists"
+            }
+          ],
+          "volumes": [
+            {
+              "hostPath": {
+                "path": "/run/nvidia/validations",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "run-nvidia-validations"
+            },
+            {
+              "hostPath": {
+                "path": "/run/nvidia/driver",
+                "type": ""
+              },
+              "name": "driver-install-dir"
+            },
+            {
+              "hostPath": {
+                "path": "/",
+                "type": ""
+              },
+              "name": "host-root"
+            },
+            {
+              "hostPath": {
+                "path": "/dev/char",
+                "type": ""
+              },
+              "name": "host-dev-char"
+            }
+          ]
+        }
+      },
+      "updateStrategy": {
+        "rollingUpdate": {
+          "maxSurge": 0,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      }
+    },
+    "status": {
+      "currentNumberScheduled": 2,
+      "desiredNumberScheduled": 2,
+      "numberAvailable": 2,
+      "numberMisscheduled": 0,
+      "numberReady": 2,
+      "observedGeneration": 1,
+      "updatedNumberScheduled": 2
+    }
+  }
+]

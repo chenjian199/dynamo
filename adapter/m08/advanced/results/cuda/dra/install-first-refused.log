@@ -1,0 +1,10 @@
+Release "heyi-dra" does not exist. Installing it now.
+Error: execution error at (dra-driver-nvidia-gpu/templates/validation.yaml:42:4): 
+
+The default value of 'resources.gpus.enabled == true'. However, when 'resources.gpus.enabled=true' this DRA driver cannot be deployed alongside the standard GPU device plugin on the same node. To avoid potential collisions between these two components, we will not allow this default to take effect until KEP 5004 has reached GA in upstream Kubernetes.
+
+If you are sure you have disabled the deployment of the standard GPU device plugin and want to remove this error and force 'resources.gpus.enabled=true', you must also:
+
+    --set 'gpuResourcesEnabledOverride=true'
+
+Once KEP 5004 has reached GA, this DRA driver will be able to honour extended resource requests for 'nvidia.com/gpu' alongside requests made using ResourceClaims, essentially obsoleting the need for the standard GPU device plugin altogether. If you want to try this feature now, you can enable it in upstream Kubernetes v1.35+ by setting the 'DRAExtendedResource' feature gate on the 'kube-apiserver', 'kube-scheduler', 'kube-controller-manager', and 'kubelet'.

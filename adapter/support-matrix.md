@@ -40,12 +40,12 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | Dynamo KVBM 主机缓存 | 有限支持：原 CUDA 物理路径及通用 SDK 路径 | 有限支持：ACL pinned staging，ND K/V | 有限支持：MACA pinned staging，dense NHD/HND | eager Qwen3-0.6B、TP1/TP2 DP1；[分项验收](m06/README.md) | M04/M06 |
 | Dynamo KVBM 本地 SSD | 原生 SDK 磁盘路径在 0.28.0 新镜像通过；NIXL/GDS 报 5027，官方原镜像也复现，见 [M02](m02/README.md) | 有限支持：buffered 文件 + pinned staging | 有限支持：buffered 文件 + pinned staging | G2→G3→G1、无 G2 的 G1↔G3；非 GDS；[M06](m06/README.md) | M06 |
 | Dynamo KVBM 远端缓存 | 源码已有相关入口，本轮未验收 | 待实现/验证 | 待实现/验证 | 不能由 M05 引擎 PD 或本地 SSD 推导 G4 支持 | M05/M06 |
-| 设备直连 RDMA | 源码已有可选路径 | 待调查 | 待调查 | 设备内存注册、NIC/驱动、跨节点验证 | M04/M05 |
+| 设备直连 RDMA | 已验证：H800 NIXL/UCX 单 RoCE rail，持久 VRAM 与跨节点 2P3D | 已验证：910B3 Mooncake/ADXL NPU RoCE、持久缓冲区与跨节点 2P3D；动态注册压力失败 | 待调查 | [实测证据与边界](m08/rdma/README.md)；不涵盖全链路性能、KVBM G4 | M04/M05/M08 |
 | KVBM sharded 多 rank | TP2 原 CUDA / 通用 SDK 路径均通过；基线与 KVBM 使用相同 NCCL 配置 | TP2 已验证 | TP2 已验证 | 每 rank 自有分片及 all-rank ACK；不是 replicated 广播 | M06 |
 | KVBM G2/G3 分层路由 | 双 worker 淘汰、选路、回载已验证 | 双 worker 淘汰、选路、回载已验证 | 双 worker 淘汰、选路、回载已验证 | consolidator passthrough 模式；实际 KV 回读和 resident 输出一致；[证据](m06/README.md) | M06 |
 | 独立 KVBM 本地调用链 | native SDK 路径已验证 | ACL native 路径已验证 | MACA native 路径已验证 | PhysicalWorker/TransferManager、G1/G2/G3 与 owned 引擎缓冲区；[证据](m06/independent.md) | M06 |
 | KVBM replicated 集合通信 | 双卡 NCCL 已验证 | 双卡 HCCL 已验证 | 双卡 MCCL 已验证 | 独立 Rust 入口；rank 0 独占 G2/G3，六组布局/宽度配置；不等于 vLLM MLA 模型端到端验收；[证据](m06/independent.md) | M06 |
-| Kubernetes 基础部署 | 原路径及本地回归通过；集群待测 | 整卡资源/计数/准入/Pod 渲染已实现；集群待测 | 整卡资源/计数/准入/Pod 渲染已实现；集群待测 | Device Plugin 基础路径，硬件调度/注入/扩缩容/跨 Pod PD 尚未认证；[M08](m08/README.md) | M08 |
+| Kubernetes 基础部署 | H800 集群基础路径已验证 | 910B3 集群基础路径已验证 | 整卡资源/计数/准入/Pod 渲染已实现；集群待测 | CUDA/Ascend：DGD、Kubernetes 服务发现、KV 路由、2→3→2→0、重建、同节点跨 Pod 2P3D、跨节点聚合；扩展通过两平台跨节点 2P3D、Grove/KAI、DGDR 自动部署，CUDA DRA 整卡、Ascend DRA 等待新集群；[M08 扩展证据](m08/advanced/README.md) | M08 |
 | SLO Planner/Profiler | 源码已有 | 待调查 | 待调查 | 指标、资源计数、平台实测画像 | M09 |
 | 设备健康与功耗控制 | 源码已有 NVIDIA 路径 | 待调查 | 待调查 | 指标语义、错误码、功耗 API 与权限 | M08/M09 |
 | GMS/共享内存恢复 | 有限支持：官方 1.5.1 / vLLM 0.28，V1 真机内存存活、MemPool 与 vLLM sleep/wake；旧 tensor/module 回归通过 | 当前组合不支持：HDK 26.1.1 的 RW/查询可用，但 READ 权限与 POSIX 分配失败；预检查拒绝 | 有限支持：MACA FD/VMM，提交前 RO 重映射；V1 真机及旧 tensor/module 回归通过 | 单卡 eager；未认证完整引擎 checkpoint/CRIU；[M07 证据与阻塞原因](m07/README.md) | M07 |

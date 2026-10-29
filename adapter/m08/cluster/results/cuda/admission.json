@@ -1,0 +1,44 @@
+[
+  {
+    "case": "conflict",
+    "returncode": 1,
+    "expected": "conflicts",
+    "passed": true,
+    "output": "The DynamoGraphDeployment \"reject-conflict\" is invalid: spec.components[1].podTemplate: Forbidden: container \"main\": DYN_PLATFORM \"cuda\" conflicts with ascend device resources\n"
+  },
+  {
+    "case": "mixed",
+    "returncode": 1,
+    "expected": "platform",
+    "passed": true,
+    "output": "The DynamoGraphDeployment \"reject-mixed\" is invalid: spec.components[2].podTemplate: Forbidden: accelerator workers in one DGD must use the same platform\n"
+  },
+  {
+    "case": "vnpu",
+    "returncode": 1,
+    "expected": "unsupported allocation unit",
+    "passed": true,
+    "output": "The DynamoGraphDeployment \"reject-vnpu\" is invalid: spec.components[1].podTemplate: Forbidden: container \"main\": resource \"huawei.com/Ascend910c-4c\" has an unsupported allocation unit; use whole-device metax-tech.com/gpu or huawei.com/Ascend910\n"
+  },
+  {
+    "case": "soft-share",
+    "returncode": 1,
+    "expected": "soft-sharing",
+    "passed": true,
+    "output": "The DynamoGraphDeployment \"reject-soft-share\" is invalid: spec.components[1].podTemplate: Forbidden: Ascend soft-sharing quotas are not whole-device allocations\n"
+  },
+  {
+    "case": "gms",
+    "returncode": 1,
+    "expected": "GMS/failover is not supported",
+    "passed": true,
+    "output": "The DynamoGraphDeployment \"reject-gms\" is invalid: spec.components[1].podTemplate: Forbidden: ascend Kubernetes GMS/failover is not supported; use the basic Device Plugin path\n"
+  },
+  {
+    "case": "dra",
+    "returncode": 1,
+    "expected": "DRA is not supported",
+    "passed": true,
+    "output": "The DynamoGraphDeployment \"reject-dra\" is invalid: spec.components[1].podTemplate: Forbidden: ascend DRA is not supported by this deployment path\n"
+  }
+]

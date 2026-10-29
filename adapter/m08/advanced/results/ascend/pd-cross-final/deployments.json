@@ -1,0 +1,1410 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "heyi-m08",
+                    "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+                },
+                "creationTimestamp": "2026-10-29T04:18:13Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/component": "manager",
+                    "app.kubernetes.io/created-by": "dynamo-operator",
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/part-of": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.5.1",
+                    "control-plane": "controller-manager",
+                    "helm.sh/chart": "dynamo-operator-1.5.1"
+                },
+                "name": "heyi-m08-dynamo-operator-controller-manager",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "290562125",
+                "uid": "13e9c466-0769-43ba-b834-8119aa658f83"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/instance": "heyi-m08",
+                        "app.kubernetes.io/name": "dynamo-operator",
+                        "control-plane": "controller-manager"
+                    }
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "checksum/config": "889aa787b0036ec3b2c8be4a05fb91ef84d924f54f4d2fce4404ce1f02c5abb5",
+                            "kubectl.kubernetes.io/default-container": "manager"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app.kubernetes.io/instance": "heyi-m08",
+                            "app.kubernetes.io/name": "dynamo-operator",
+                            "control-plane": "controller-manager"
+                        }
+                    },
+                    "spec": {
+                        "affinity": {
+                            "nodeAffinity": {
+                                "requiredDuringSchedulingIgnoredDuringExecution": {
+                                    "nodeSelectorTerms": [
+                                        {
+                                            "matchExpressions": [
+                                                {
+                                                    "key": "kubernetes.io/hostname",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "master-02-45d4a763"
+                                                    ]
+                                                },
+                                                {
+                                                    "key": "kubernetes.io/arch",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "arm64"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config=/etc/dynamo-operator/config.yaml",
+                                    "--operator-version=1.5.1",
+                                    "--operator-image=heyi/dynamo-operator:1.5.1-m08-arm64",
+                                    "--operator-image-pull-policy=Never"
+                                ],
+                                "command": [
+                                    "/manager"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "KUBERNETES_CLUSTER_DOMAIN",
+                                        "value": "cluster.local"
+                                    },
+                                    {
+                                        "name": "POD_SERVICE_ACCOUNT",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "spec.serviceAccountName"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "image": "heyi/dynamo-operator:1.5.1-m08-arm64",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/healthz",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 15,
+                                    "periodSeconds": 20,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "name": "manager",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "name": "metrics",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 9443,
+                                        "name": "webhook-server",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/readyz",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 5,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "1024m",
+                                        "memory": "2Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "512m",
+                                        "memory": "1Gi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/etc/dynamo-operator",
+                                        "name": "operator-config",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                                        "name": "cert",
+                                        "readOnly": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "initContainers": [
+                            {
+                                "args": [
+                                    "--crds-dir=/opt/dynamo-operator/crds/",
+                                    "--version=1.5.1",
+                                    "--conversion-webhook-service-name=heyi-m08-dynamo-operator-webhook-service",
+                                    "--conversion-webhook-service-namespace=dynamo-m08-1029"
+                                ],
+                                "command": [
+                                    "/crd-apply"
+                                ],
+                                "image": "heyi/dynamo-operator:1.5.1-m08-arm64",
+                                "imagePullPolicy": "Never",
+                                "name": "crd-apply",
+                                "resources": {},
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "runAsNonRoot": true
+                        },
+                        "serviceAccount": "heyi-m08-dynamo-operator-controller-manager",
+                        "serviceAccountName": "heyi-m08-dynamo-operator-controller-manager",
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "heyi-m08-dynamo-operator-config"
+                                },
+                                "name": "operator-config"
+                            },
+                            {
+                                "name": "cert",
+                                "secret": {
+                                    "defaultMode": 420,
+                                    "optional": true,
+                                    "secretName": "webhook-server-cert"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T04:18:29Z",
+                        "lastUpdateTime": "2026-10-29T04:18:29Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T04:18:13Z",
+                        "lastUpdateTime": "2026-10-29T04:18:29Z",
+                        "message": "ReplicaSet \"heyi-m08-dynamo-operator-controller-manager-6d4f69c5d7\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "ae0b83af5b29f522b2e329810cca8bf4e8dc87f95d44c91c7642c4cddb30bf53"
+                },
+                "creationTimestamp": "2026-10-29T06:00:12Z",
+                "generation": 1,
+                "labels": {
+                    "heyi.io/m08-pd": "m08-pd-cross",
+                    "nvidia.com/dynamo-component": "decode",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                    "nvidia.com/dynamo-sub-component-type": "decode",
+                    "nvidia.com/dynamo-worker-hash": "557086fb"
+                },
+                "name": "m08-pd-cross-decode-557086fb",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "m08-pd-cross-decode-557086fb",
+                        "uid": "0c4ed2c7-1ec1-43e1-a13e-dbfcf8f2fb17"
+                    }
+                ],
+                "resourceVersion": "290607906",
+                "uid": "46fe6abf-54f3-4cfa-b180-283d7e247aed"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 3,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "nvidia.com/selector": "m08-pd-cross-decode-557086fb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "heyi.io/m08-pd": "m08-pd-cross",
+                            "nvidia.com/dynamo-component": "decode",
+                            "nvidia.com/dynamo-component-type": "decode",
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                            "nvidia.com/dynamo-discovery-enabled": "true",
+                            "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                            "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                            "nvidia.com/dynamo-sub-component-type": "decode",
+                            "nvidia.com/dynamo-worker-hash": "557086fb",
+                            "nvidia.com/metrics-enabled": "true",
+                            "nvidia.com/selector": "m08-pd-cross-decode-557086fb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "python",
+                                    "-m",
+                                    "dynamo.vllm",
+                                    "--model",
+                                    "/models/Qwen3-0.6B",
+                                    "--served-model-name",
+                                    "m08-model",
+                                    "--enforce-eager",
+                                    "--tensor-parallel-size",
+                                    "1",
+                                    "--max-model-len",
+                                    "8192",
+                                    "--max-num-seqs",
+                                    "8",
+                                    "--gpu-memory-utilization",
+                                    "0.3",
+                                    "--block-size",
+                                    "128",
+                                    "--disable-custom-all-reduce",
+                                    "--kv-events-config",
+                                    "{\"enable_kv_cache_events\": true, \"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\"}",
+                                    "--disaggregation-mode",
+                                    "decode",
+                                    "--kv-transfer-config",
+                                    "{\"kv_connector\": \"MooncakeConnector\", \"kv_role\": \"kv_consumer\", \"kv_connector_module_path\": \"vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector\", \"kv_port\": 20090, \"kv_connector_extra_config\": {\"prefill\": {\"tp_size\": 1, \"dp_size\": 1}, \"decode\": {\"tp_size\": 1, \"dp_size\": 1}}}",
+                                    "--no-enable-prefix-caching"
+                                ],
+                                "command": [
+                                    "/opt/dynamo/bin/entrypoint.sh"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "ASCEND_TRANSFER_TIMEOUT",
+                                        "value": "30000"
+                                    },
+                                    {
+                                        "name": "DYN_COMPONENT",
+                                        "value": "decode"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "kubernetes"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_FORWARDPASS_METRIC_PORT",
+                                        "value": "20380"
+                                    },
+                                    {
+                                        "name": "DYN_HEALTH_CHECK_ENABLED",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_HEALTH_CHECK_PAYLOAD",
+                                        "value": "{\"token_ids\": [1], \"sampling_options\": {\"temperature\": 0.0}, \"stop_conditions\": {\"max_tokens\": 1}, \"annotations\": [\"x-bypass-remote-prefill\"]}"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "dynamo-m08-1029-m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE_WORKER_SUFFIX",
+                                        "value": "557086fb"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAME",
+                                        "value": "m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                                        "value": "dynamo-m08-1029"
+                                    },
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "ascend"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_ENABLED",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_PORT",
+                                        "value": "9090"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+                                        "value": "[\"generate\"]"
+                                    },
+                                    {
+                                        "name": "GOMAXPROCS",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_ENABLE",
+                                        "value": "n"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_EXPORTER",
+                                        "value": "prometheus"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_PROMETHEUS_PORT",
+                                        "value": "19090"
+                                    },
+                                    {
+                                        "name": "POD_NAME",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_UID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.uid"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "PYTHONUNBUFFERED",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "SPT_NOENV",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "VLLM_HOST_IP",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "status.podIP"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                        "value": "60"
+                                    },
+                                    {
+                                        "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                        "value": "20090"
+                                    }
+                                ],
+                                "image": "heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 5,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 4
+                                },
+                                "name": "main",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "name": "system",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 19090,
+                                        "name": "nixl",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 4
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "8",
+                                        "huawei.com/Ascend910": "1",
+                                        "memory": "32Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "1",
+                                        "huawei.com/Ascend910": "1",
+                                        "memory": "2Gi"
+                                    }
+                                },
+                                "startupProbe": {
+                                    "failureThreshold": 720,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/Ascend/driver",
+                                        "name": "ascend-driver",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/dcmi",
+                                        "name": "ascend-dcmi",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/sbin/npu-smi",
+                                        "name": "ascend-smi",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shared-memory"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "arm64",
+                            "kubernetes.io/hostname": "master"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000
+                        },
+                        "serviceAccount": "m08-pd-cross-k8s-service-discovery",
+                        "serviceAccountName": "m08-pd-cross-k8s-service-discovery",
+                        "terminationGracePeriodSeconds": 60,
+                        "tolerations": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "huawei.com/Ascend910",
+                                "operator": "Exists"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "hostPath": {
+                                    "path": "/data/dynamo-regression-models/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/Ascend/driver",
+                                    "type": "Directory"
+                                },
+                                "name": "ascend-driver"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/dcmi",
+                                    "type": "Directory"
+                                },
+                                "name": "ascend-dcmi"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/bin/npu-smi",
+                                    "type": "File"
+                                },
+                                "name": "ascend-smi"
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "8Gi"
+                                },
+                                "name": "shared-memory"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 3,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T06:00:12Z",
+                        "lastUpdateTime": "2026-10-29T06:02:32Z",
+                        "message": "ReplicaSet \"m08-pd-cross-decode-557086fb-586d8d7c46\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T06:05:54Z",
+                        "lastUpdateTime": "2026-10-29T06:05:54Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 3,
+                "replicas": 3,
+                "updatedReplicas": 3
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "8d58bd2c63757c26945e840bb7d2701fd06b8264efb116d42519553f88482307"
+                },
+                "creationTimestamp": "2026-10-29T06:00:12Z",
+                "generation": 1,
+                "labels": {
+                    "nvidia.com/dynamo-component": "frontend",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross"
+                },
+                "name": "m08-pd-cross-frontend",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "m08-pd-cross-frontend",
+                        "uid": "c5d150c7-50c1-444d-bee3-e13ccbf88823"
+                    }
+                ],
+                "resourceVersion": "290605463",
+                "uid": "f7b685c0-281a-471a-b437-45dc9c7cb379"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "nvidia.com/selector": "m08-pd-cross-frontend"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "nvidia.com/dynamo-component": "frontend",
+                            "nvidia.com/dynamo-component-type": "frontend",
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                            "nvidia.com/dynamo-discovery-enabled": "true",
+                            "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                            "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                            "nvidia.com/metrics-enabled": "true",
+                            "nvidia.com/selector": "m08-pd-cross-frontend"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "python",
+                                    "-m",
+                                    "dynamo.frontend",
+                                    "--router-mode",
+                                    "kv"
+                                ],
+                                "command": [
+                                    "/opt/dynamo/bin/entrypoint.sh"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "DYNAMO_PORT",
+                                        "value": "8000"
+                                    },
+                                    {
+                                        "name": "DYN_COMPONENT",
+                                        "value": "frontend"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "kubernetes"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_HTTP_PORT",
+                                        "value": "8000"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "dynamo-m08-1029-m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE_PREFIX",
+                                        "value": "dynamo-m08-1029-m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAME",
+                                        "value": "m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                                        "value": "dynamo-m08-1029"
+                                    },
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "cpu"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "GOMAXPROCS",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "POD_NAME",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_UID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.uid"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "PYTHONUNBUFFERED",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "SPT_NOENV",
+                                        "value": "1"
+                                    }
+                                ],
+                                "image": "heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 15,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "name": "main",
+                                "ports": [
+                                    {
+                                        "containerPort": 8000,
+                                        "name": "http",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 10,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 3
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "8",
+                                        "memory": "32Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "1",
+                                        "memory": "2Gi"
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shared-memory"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "arm64",
+                            "kubernetes.io/hostname": "master-02-45d4a763"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000
+                        },
+                        "serviceAccount": "m08-pd-cross-k8s-service-discovery",
+                        "serviceAccountName": "m08-pd-cross-k8s-service-discovery",
+                        "terminationGracePeriodSeconds": 60,
+                        "volumes": [
+                            {
+                                "hostPath": {
+                                    "path": "/data/weight/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "8Gi"
+                                },
+                                "name": "shared-memory"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T06:00:24Z",
+                        "lastUpdateTime": "2026-10-29T06:00:24Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T06:00:12Z",
+                        "lastUpdateTime": "2026-10-29T06:00:24Z",
+                        "message": "ReplicaSet \"m08-pd-cross-frontend-59b7845cbb\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "c5cd55fbf00faf9ddc87ff95f58c6bd01112950c458c39831c0d5fb9f5a3b70e"
+                },
+                "creationTimestamp": "2026-10-29T06:00:12Z",
+                "generation": 1,
+                "labels": {
+                    "heyi.io/m08-pd": "m08-pd-cross",
+                    "nvidia.com/dynamo-component": "prefill",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                    "nvidia.com/dynamo-sub-component-type": "prefill",
+                    "nvidia.com/dynamo-worker-hash": "557086fb"
+                },
+                "name": "m08-pd-cross-prefill-557086fb",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "m08-pd-cross-prefill-557086fb",
+                        "uid": "0b62c57a-886a-4c20-9216-27e6e7aa9256"
+                    }
+                ],
+                "resourceVersion": "290606566",
+                "uid": "9df1fd22-fd23-4807-9608-8907a57646e5"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 2,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "nvidia.com/selector": "m08-pd-cross-prefill-557086fb"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "heyi.io/m08-pd": "m08-pd-cross",
+                            "nvidia.com/dynamo-component": "prefill",
+                            "nvidia.com/dynamo-component-type": "prefill",
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                            "nvidia.com/dynamo-discovery-enabled": "true",
+                            "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                            "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                            "nvidia.com/dynamo-sub-component-type": "prefill",
+                            "nvidia.com/dynamo-worker-hash": "557086fb",
+                            "nvidia.com/metrics-enabled": "true",
+                            "nvidia.com/selector": "m08-pd-cross-prefill-557086fb"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "python",
+                                    "-m",
+                                    "dynamo.vllm",
+                                    "--model",
+                                    "/models/Qwen3-0.6B",
+                                    "--served-model-name",
+                                    "m08-model",
+                                    "--enforce-eager",
+                                    "--tensor-parallel-size",
+                                    "1",
+                                    "--max-model-len",
+                                    "8192",
+                                    "--max-num-seqs",
+                                    "8",
+                                    "--gpu-memory-utilization",
+                                    "0.3",
+                                    "--block-size",
+                                    "128",
+                                    "--disable-custom-all-reduce",
+                                    "--kv-events-config",
+                                    "{\"enable_kv_cache_events\": true, \"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\"}",
+                                    "--disaggregation-mode",
+                                    "prefill",
+                                    "--kv-transfer-config",
+                                    "{\"kv_connector\": \"MooncakeConnector\", \"kv_role\": \"kv_producer\", \"kv_connector_module_path\": \"vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector\", \"kv_port\": 20090, \"kv_connector_extra_config\": {\"prefill\": {\"tp_size\": 1, \"dp_size\": 1}, \"decode\": {\"tp_size\": 1, \"dp_size\": 1}}}",
+                                    "--no-enable-prefix-caching"
+                                ],
+                                "command": [
+                                    "/opt/dynamo/bin/entrypoint.sh"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "ASCEND_TRANSFER_TIMEOUT",
+                                        "value": "30000"
+                                    },
+                                    {
+                                        "name": "DYN_COMPONENT",
+                                        "value": "prefill"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "kubernetes"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_FORWARDPASS_METRIC_PORT",
+                                        "value": "20380"
+                                    },
+                                    {
+                                        "name": "DYN_HEALTH_CHECK_ENABLED",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "dynamo-m08-1029-m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE_WORKER_SUFFIX",
+                                        "value": "557086fb"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAME",
+                                        "value": "m08-pd-cross"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                                        "value": "dynamo-m08-1029"
+                                    },
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "ascend"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_ENABLED",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_PORT",
+                                        "value": "9090"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+                                        "value": "[\"generate\"]"
+                                    },
+                                    {
+                                        "name": "GOMAXPROCS",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_ENABLE",
+                                        "value": "n"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_EXPORTER",
+                                        "value": "prometheus"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_PROMETHEUS_PORT",
+                                        "value": "19090"
+                                    },
+                                    {
+                                        "name": "POD_NAME",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_UID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.uid"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "PYTHONUNBUFFERED",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "SPT_NOENV",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "VLLM_HOST_IP",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "status.podIP"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                        "value": "60"
+                                    },
+                                    {
+                                        "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                        "value": "20090"
+                                    }
+                                ],
+                                "image": "heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 5,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 4
+                                },
+                                "name": "main",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "name": "system",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 19090,
+                                        "name": "nixl",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 4
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "8",
+                                        "huawei.com/Ascend910": "1",
+                                        "memory": "32Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "1",
+                                        "huawei.com/Ascend910": "1",
+                                        "memory": "2Gi"
+                                    }
+                                },
+                                "startupProbe": {
+                                    "failureThreshold": 720,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/Ascend/driver",
+                                        "name": "ascend-driver",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/dcmi",
+                                        "name": "ascend-dcmi",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/sbin/npu-smi",
+                                        "name": "ascend-smi",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shared-memory"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "arm64",
+                            "kubernetes.io/hostname": "master-02-45d4a763"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000
+                        },
+                        "serviceAccount": "m08-pd-cross-k8s-service-discovery",
+                        "serviceAccountName": "m08-pd-cross-k8s-service-discovery",
+                        "terminationGracePeriodSeconds": 60,
+                        "tolerations": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "huawei.com/Ascend910",
+                                "operator": "Exists"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "hostPath": {
+                                    "path": "/data/weight/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/Ascend/driver",
+                                    "type": "Directory"
+                                },
+                                "name": "ascend-driver"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/dcmi",
+                                    "type": "Directory"
+                                },
+                                "name": "ascend-dcmi"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/bin/npu-smi",
+                                    "type": "File"
+                                },
+                                "name": "ascend-smi"
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "8Gi"
+                                },
+                                "name": "shared-memory"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 2,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T06:02:42Z",
+                        "lastUpdateTime": "2026-10-29T06:02:42Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T06:00:12Z",
+                        "lastUpdateTime": "2026-10-29T06:02:42Z",
+                        "message": "ReplicaSet \"m08-pd-cross-prefill-557086fb-7787489755\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 2,
+                "replicas": 2,
+                "updatedReplicas": 2
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

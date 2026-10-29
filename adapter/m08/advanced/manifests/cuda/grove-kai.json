@@ -1,0 +1,258 @@
+{
+  "apiVersion": "nvidia.com/v1beta1",
+  "kind": "DynamoGraphDeployment",
+  "metadata": {
+    "name": "m08-grove-kai",
+    "namespace": "dynamo-m08-1029",
+    "annotations": {
+      "nvidia.com/workload-provider": "grove",
+      "nvidia.com/enable-grove": "true",
+      "nvidia.com/dynamo-discovery-backend": "kubernetes",
+      "nvidia.com/kai-scheduler-queue": "default-queue"
+    },
+    "labels": {
+      "heyi.io/campaign": "dynamo-m08-1029"
+    }
+  },
+  "spec": {
+    "backendFramework": "vllm",
+    "components": [
+      {
+        "name": "frontend",
+        "type": "frontend",
+        "replicas": 1,
+        "runtimeVersionOverride": "1.5.1",
+        "sharedMemorySize": "8Gi",
+        "podTemplate": {
+          "spec": {
+            "nodeSelector": {
+              "kubernetes.io/arch": "amd64",
+              "kubernetes.io/hostname": "worker06"
+            },
+            "containers": [
+              {
+                "name": "main",
+                "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+                "imagePullPolicy": "Never",
+                "command": [
+                  "/opt/dynamo/bin/entrypoint.sh"
+                ],
+                "args": [
+                  "python",
+                  "-m",
+                  "dynamo.frontend",
+                  "--router-mode",
+                  "kv"
+                ],
+                "env": [
+                  {
+                    "name": "HF_HUB_OFFLINE",
+                    "value": "1"
+                  },
+                  {
+                    "name": "DYN_REQUEST_PLANE",
+                    "value": "tcp"
+                  },
+                  {
+                    "name": "DYN_EVENT_PLANE",
+                    "value": "zmq"
+                  },
+                  {
+                    "name": "DYN_ROUTER_USE_KV_EVENTS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "DYN_PLATFORM",
+                    "value": "cpu"
+                  },
+                  {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "1"
+                  },
+                  {
+                    "name": "GOMAXPROCS",
+                    "value": "4"
+                  },
+                  {
+                    "name": "SPT_NOENV",
+                    "value": "1"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "1",
+                    "memory": "2Gi"
+                  },
+                  "limits": {
+                    "memory": "32Gi",
+                    "cpu": "8"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "models",
+                    "mountPath": "/models/Qwen3-0.6B",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "models",
+                "hostPath": {
+                  "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                  "type": "Directory"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "worker",
+        "type": "worker",
+        "replicas": 2,
+        "runtimeVersionOverride": "1.5.1",
+        "sharedMemorySize": "8Gi",
+        "podTemplate": {
+          "spec": {
+            "nodeSelector": {
+              "kubernetes.io/arch": "amd64",
+              "kubernetes.io/hostname": "worker06"
+            },
+            "containers": [
+              {
+                "name": "main",
+                "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+                "imagePullPolicy": "Never",
+                "command": [
+                  "/opt/dynamo/bin/entrypoint.sh"
+                ],
+                "args": [
+                  "python",
+                  "-m",
+                  "dynamo.vllm",
+                  "--model",
+                  "/models/Qwen3-0.6B",
+                  "--served-model-name",
+                  "m08-model",
+                  "--enforce-eager",
+                  "--tensor-parallel-size",
+                  "1",
+                  "--max-model-len",
+                  "8192",
+                  "--max-num-seqs",
+                  "8",
+                  "--gpu-memory-utilization",
+                  "0.3",
+                  "--block-size",
+                  "128",
+                  "--disable-custom-all-reduce",
+                  "--kv-events-config",
+                  "{\"enable_kv_cache_events\": true, \"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\"}",
+                  "--enable-prefix-caching"
+                ],
+                "env": [
+                  {
+                    "name": "HF_HUB_OFFLINE",
+                    "value": "1"
+                  },
+                  {
+                    "name": "DYN_REQUEST_PLANE",
+                    "value": "tcp"
+                  },
+                  {
+                    "name": "DYN_EVENT_PLANE",
+                    "value": "zmq"
+                  },
+                  {
+                    "name": "DYN_ROUTER_USE_KV_EVENTS",
+                    "value": "true"
+                  },
+                  {
+                    "name": "DYN_PLATFORM",
+                    "value": "cuda"
+                  },
+                  {
+                    "name": "VLLM_HOST_IP",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "status.podIP"
+                      }
+                    }
+                  },
+                  {
+                    "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                    "value": "20090"
+                  },
+                  {
+                    "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                    "value": "60"
+                  },
+                  {
+                    "name": "ASCEND_TRANSFER_TIMEOUT",
+                    "value": "30000"
+                  },
+                  {
+                    "name": "PYTHONUNBUFFERED",
+                    "value": "1"
+                  },
+                  {
+                    "name": "GOMAXPROCS",
+                    "value": "4"
+                  },
+                  {
+                    "name": "SPT_NOENV",
+                    "value": "1"
+                  },
+                  {
+                    "name": "UCX_TLS",
+                    "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "1",
+                    "memory": "2Gi",
+                    "nvidia.com/gpu": 1
+                  },
+                  "limits": {
+                    "memory": "32Gi",
+                    "nvidia.com/gpu": 1,
+                    "cpu": "8"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "models",
+                    "mountPath": "/models/Qwen3-0.6B",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "models",
+                "hostPath": {
+                  "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                  "type": "Directory"
+                }
+              }
+            ],
+            "tolerations": [
+              {
+                "key": "nvidia.com/gpu",
+                "operator": "Exists",
+                "effect": "NoSchedule"
+              }
+            ],
+            "runtimeClassName": "nvidia"
+          }
+        },
+        "minAvailable": 2
+      }
+    ]
+  }
+}

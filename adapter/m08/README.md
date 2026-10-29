@@ -3,9 +3,22 @@ SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# M08 Device Plugin 基础部署交付
+# M08 Kubernetes 部署与集群验收
 
-状态：代码与本地测试交付，三平台 Kubernetes 硬件回归待目标集群验证。本轮不安装集群、不修改设备插件、不升级宿主机驱动。
+状态：2026-10-29 阶段性收尾。已在 CUDA H800 / Ascend 910B3 集群安装 Operator 并验证基础 Device Plugin 路径，详见 [集群验收与证据](cluster/README.md)。MetaX 保留本地逻辑测试通过、硬件集群待验证状态。未升级宿主机驱动。扩展验收已通过两平台跨节点 Operator 2P3D、Grove/KAI、DGDR 自动部署和 CUDA DRA，见 [扩展证据](advanced/README.md)。华为 DRA 等待用户提供 ≥1.34 测试集群；DGDR 预测精度未认证。
+
+## 阶段性收尾与 M09 交接
+
+本阶段已验收 CUDA/Ascend 的 Operator 基础部署、KV 路由、扩缩容与重建、跨节点 2P3D、Grove/KAI、DGDR 实测到自动部署，以及 CUDA DRA 整卡生命周期。指定 RDMA 路径的持久设备缓冲区与 2P3D 见 [专项结果](rdma/README.md)。本状态仅覆盖已记录版本、硬件与用例，不表示完整目标设计全部完成。
+
+保留以下边界：
+
+- MetaX：无可用 Kubernetes 集群，硬件集群回归暂缓。
+- Ascend DRA：等待用户另行提供 Kubernetes ≥1.34 测试集群，采用已接受的 HAMi 实验驱动；现有集群不升级。
+- Ascend 动态内存注册/注销压力：原生 ADXL/HCCL 失败未修复；持久 KV 缓冲区与 PD 路径通过，不能相互替代。
+- 厂商自动硬件发现、共享设备、拓扑/GMS/failover 等未认证组合仍按原能力边界保留；本轮 RDMA 不覆盖全 rail 性能或集体通信性能。
+
+Profiler 主体归属 M09。本轮为打通 DGDR，提前实现了 SKU 传递、平台资源/connector 配置生成、工具镜像与测量回传；这些成果进入 M09 基线。画像精度、配置选择效果、SLA 达标和 Planner 动态扩缩容尚未验收，详见 [M09 交接与顺序](../modules/m09-telemetry-planner/README.md)。最终镜像统一重建与完整回归仍归 M10。
 
 ## 资源契约与来源
 
@@ -26,8 +39,8 @@ SPDX-License-Identifier: Apache-2.0
 - 同一 DGD 的加速 Worker 不得混用厂商；CPU Frontend 不申请加速卡。准入和 Pod 渲染均检查冲突，显式资源不会被悄悄替换成 NVIDIA 资源。
 - MetaX/Ascend 的 Kubernetes GMS、failover、checkpoint 与 DRA 明确拒绝。Docker 下已验证的 GMS 不等于 Operator 共享卡部署已可用。
 - 沿用既有 `component` 工作负载路径、健康探针、服务发现、手动扩缩容和 Pod 重建逻辑，不复制三套控制器。
-- 本轮没有新增 Go API 字段，因此不需要改 CRD、deepcopy 或 Pydantic 生成输入。alpha 自定义资源和环境变量经过现有转换链；API 包回归验证往返行为。设计草案中的 `spec.platform` 暂不落地，避免与 PodTemplate 同时维护两份资源声明。
-- Helm 已支持替换 Operator 镜像，DGD 已支持 PodTemplate，无需新增厂商 Helm 模板。DGDR 自动硬件发现仍是原 NVIDIA 路径；非 CUDA 的自动画像、Planner、DCGM 替代与拓扑发现留给后续工作，不通过本轮基础部署暗中开启。
+- 基础路径没有新增 Go API 字段。后续 DGDR 扩展新增 H800/Ascend 910B3 SKU 枚举，并重新生成 CRD/Pydantic；未新增字段，deepcopy 无需变化。alpha 自定义资源和环境变量经过现有转换链；API 包回归验证往返行为。设计草案中的 `spec.platform` 暂不落地，避免与 PodTemplate 同时维护两份资源声明。
+- Helm 已支持替换 Operator 镜像，DGD 已支持 PodTemplate，无需新增厂商 Helm 模板。DGDR 自动硬件发现仍是原 NVIDIA 路径；非 CUDA 的自动硬件发现、SLA 预测数据库、Planner、DCGM 替代与拓扑发现留给后续工作，不通过本轮基础部署暗中开启。
 
 ## 准备需要导入的镜像
 
@@ -50,7 +63,7 @@ docker save -o /var/tmp/dynamo-metax-m02-runtime.tar \
   heyi/dynamo-vllm-metax-runtime:1.5.1-m02
 ```
 
-Operator 离线交付与验证记录另见 [镜像构建、导入和使用说明](operator-image.md)，附带原生构建脚本和独立 Operator Helm Chart 的 values。目标节点使用 containerd 时，镜像需要导入 Kubernetes 使用的 namespace，例如 `ctr -n k8s.io images import ...`；只做 Docker load 不保证 kubelet 可见。集群若有内部仓库，可改用推送/拉取路径。本轮没有推送仓库或导入目标集群。
+Operator 离线交付与验证记录另见 [镜像构建、导入和使用说明](operator-image.md)，附带原生构建脚本和独立 Operator Helm Chart 的 values。目标节点使用 containerd 时，镜像需要导入 Kubernetes 使用的 namespace，例如 `ctr -n k8s.io images import ...`；只做 Docker load 不保证 kubelet 可见。集群若有内部仓库，可改用推送/拉取路径。10 月 29 日已在两集群导入对应架构镜像，没有推送公共仓库。
 
 安装或升级平台 chart 时沿用现有部署步骤，覆盖以下 values（`amd64`/`arm64` 与 Operator 所在节点一致）：
 
@@ -91,11 +104,15 @@ kubectl --context YOUR_CONTEXT apply --dry-run=server -f /var/tmp/m08-metax.json
 
 清单默认模型为 `/models/Qwen_Series/Qwen3-0.6B`。Frontend 使用同架构的平台 runtime 镜像，但设置 `DYN_PLATFORM=cpu` 且不申请卡。保留 M02 entrypoint，确保 CANN 等环境初始化；GPU 卡号由插件注入，不设置 `CUDA_VISIBLE_DEVICES`、`MACA_VISIBLE_DEVICES` 或 `ASCEND_RT_VISIBLE_DEVICES` 为宿主机编号。Ascend 保留只读宿主机 driver/dcmi/npu-smi 挂载，设备节点由插件管理，不添加全量 `/dev` 挂载。
 
-PD 清单通过 Pod affinity 将 Worker 放在同一节点，延续已验证的单机范围；同节点必须容纳 `(P+D)*TP` 个分配单位。不同 Pod 使用独立网络命名空间，bootstrap 端口可以相同，不使用 hostNetwork。是否需要 RDMA 设备注入以及插件/网络能否满足 Mooncake/ADXL，仍需目标集群实测，不把跨 Pod 或跨节点传输标为已通过。
+PD 清单通过 Pod affinity 将 Worker 放在同一节点；同节点必须容纳 `(P+D)*TP` 个分配单位。不同 Pod 使用独立网络命名空间，bootstrap 端口可以相同，不使用 hostNetwork。CUDA NIXL 与 Ascend Mooncake 的同节点跨 Pod 2P3D 已实测；基础轮跨节点测试是聚合推理/KV 路由；后续 [扩展轮](advanced/README.md) 已通过两平台跨节点 2P3D。该扩展轮 CUDA 使用 TCP + CUDA copy；后续 [RDMA 专项](rdma/README.md) 已通过两平台指定链路的持久设备缓冲区与跨节点 2P3D，另记录 Ascend 动态注册压力失败。MetaX 的 Kubernetes 传输仍待实测。
+
+KV 事件明确启用 `enable_kv_cache_events=true`，ZMQ publisher 使用 `tcp://*:20080` 监听；容器网络的回环地址形式在当前引擎中表示 connect，不能作为发布端绑定地址。Decode 健康请求携带 `x-bypass-remote-prefill`，通过引擎本地前向检查就绪；普通 PD 请求继续检查真实远端 handoff，具体修复见 [集群记录](cluster/README.md#本轮定位的问题)。
 
 预检查只读：检查 v1beta1 CRD、Bound PVC、runtimeClass 存在及 Ready 节点资源/架构。不代表空闲卡、共享模式、驱动、镜像可拉取或真实调度已经验证。`allocatable` 是容量，不是当前空闲量。
 
-## 目标集群验收清单（尚未执行）
+## 目标集群验收清单
+
+CUDA / Ascend 的本轮结果见 [验收表](cluster/README.md#验收结果)。以下清单仍用于 MetaX 后续集群验收。
 
 1. 服务端 dry-run 通过后部署聚合清单，记录 Operator/runtime imageID、插件版本、节点资源、驱动、DGD/Pod 和事件。
 2. 等待 Frontend 与两个 Worker Ready，通过端口转发调用 `/v1/completions`，验证输出和重复前缀 KV 命中/选路。
@@ -118,3 +135,5 @@ CGO_ENABLED=0 go build -o /var/tmp/dynamo-operator-manager ./cmd/main.go
 ```
 
 测试包含三平台真实清单生成、生产 Pod 渲染、CRD/schema/CEL + webhook 准入链、旧 CUDA 路径及 API 转换。envtest 使用本地 apiserver/etcd，不是有设备插件的硬件集群。结果及源码哈希见 [本地验证记录](results/local.json)。
+
+Helm 的实际安装/查看命令、Profiler/DGDR、DRA 和 SLA 的关系见 [使用说明](helm-profiler-dra.md)。

@@ -1,0 +1,33 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "m08-grove-kai-capacity-hold",
+    "namespace": "dynamo-m08-1029"
+  },
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "restartPolicy": "Never",
+    "activeDeadlineSeconds": 900,
+    "containers": [
+      {
+        "name": "hold",
+        "image": "heyi/dynamo-vllm-ascend-runtime:1.5.1-m02",
+        "imagePullPolicy": "Never",
+        "command": [
+          "/bin/sh",
+          "-c",
+          "sleep 900"
+        ],
+        "resources": {
+          "limits": {
+            "huawei.com/Ascend910": 7
+          }
+        }
+      }
+    ]
+  }
+}

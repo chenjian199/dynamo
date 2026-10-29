@@ -1,0 +1,248 @@
+[
+  {
+    "apiVersion": "apps/v1",
+    "kind": "DaemonSet",
+    "metadata": {
+      "annotations": {
+        "deprecated.daemonset.template.generation": "1",
+        "objectset.rio.cattle.io/applied": "H4sIAAAAAAAA/5xW30/jOBD+V9A850fL7gKNxAMCVre6BSq4uxeEVq49TX117OAfWSqU//00TmkbaEt1L1Ucez7PNzPfl74Cq+U/aJ00Ggpgde3yZggJzKUWUMAVw8roB/SQQIWeCeYZFK/AtDaeeWm0o6WZ/IvcO/SZlSbjzHuFmTS5JAxIdu6b3xptWjZzKGD+xW3sNMPk6E+pxfmFEEZ/CqFZhVCArsNBR13NOJ2fhwmmbuE8VtAmoNgE1V5CM+ZmUMDXwVc2GrHTk+MvQkzE8OTr8WQ6ZKNvI346wbOT0dm3Y/7leEigy9SY46hFKrCRHNNahVLqVMTyuljePXm5Gjll5VAh98bSc8U8n/1cJbz3Fgdtm4DHqlbMY4ze3UvHZyiCQpsxVc9YRrlYjR4dFYBb6SVnKq3NsrcOOTdVnTnkwUq/2BrWnbZBe1lhLnDKgvL9kh/A4K0O3GjPpEbroHh8BWZLeoBezNFRGhxeRLQrw+doz70NeJQqU36XCs/zhtlcmTKvpBYvqVB5Fz+O4b1FpkwZA39ig+p8AE8JcFNVjDTyCPlE6nxCk5FAyuknpROom5jektjt3dX1r9uLm2tIoGEq4HdrKmIzlajEPU5Xz2PmaciIbaaNwFsCaNs2WWH9cffw168f44ORPPPBZTPj/I8xIT0lICtWbtR7fuY6xl31iuY0G2T3l2QF8eQ4KDU2SvIFUcEGLaxGu9+rAcVYdCZYjrGzSlbSxydeByjg22BQRT+pjF106xtJw2DxOaA74Ggbxy6O26XRHl88hdRWNlJhiQIK6jUBMnGn1eLeGE9NX0oq7rYJNEaFCm9M0L6bpIoel0Xr5kNOcppkhT7v0XQ76AN1aS9MbUS6Ls8KZfP1R5DgaFY5U3k30bmwsteDmWQyXb184/3GdFtKuyZ/jalMmdYU8gHAV/X6GC12XqGkLp/DBmZck5Y+xtig85W0xTqm9+4Tauh5Vygymk0q61efIASHNucqOI82lXpqcjJKbxnHlBs9leVG65lnabc1lQpTIS20TyQv0u3Dhl0zzlGhZXEJs8B+o0y7Xo6GAxr+2koTB1ox5247/G5eUwJL35w3Wq6lfl1wTonf7jFOx1KCT8CbeHtn8o+vMEeS0+USM35kXSxKAqZe5Xn9IkmOVCOcTpF7Er95WH4h6G9ChOnoZNxU+ZrS/wHqS6mP8Bwi92h4UEBzDFTnTsIdJ/K3rouvUB8m4naPig+B64u53a3mbWC7RN1uVfXelPaI2S9qgrqSNg7jYgO+J/DtGR6ghfcX3NlLi/Q/o92vkx13dnby3lz2MV95zAGZvPOfbbDvbKjd5kO7Yvv2027xn/aJvl6hFszjg7fMY7kghGXu90ZRin/HffpU/xcAAP//Yib936ILAAA",
+        "objectset.rio.cattle.io/id": "",
+        "objectset.rio.cattle.io/owner-gvk": "k3s.cattle.io/v1, Kind=Addon",
+        "objectset.rio.cattle.io/owner-name": "npu",
+        "objectset.rio.cattle.io/owner-namespace": "kube-system"
+      },
+      "creationTimestamp": "2026-02-05T14:56:13Z",
+      "generation": 1,
+      "labels": {
+        "objectset.rio.cattle.io/hash": "404a99a7623ddbd1642bf1a959c7be869852c321"
+      },
+      "name": "ascend-device-plugin-daemonset",
+      "namespace": "kube-system",
+      "resourceVersion": "247910927",
+      "uid": "617b4ae7-56a4-42e7-a6cc-b1e6c008beb2"
+    },
+    "spec": {
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "name": "ascend-device-plugin-ds"
+        }
+      },
+      "template": {
+        "metadata": {
+          "annotations": {
+            "scheduler.alpha.kubernetes.io/critical-pod": "",
+            "seccomp.security.alpha.kubernetes.io/pod": "runtime/default"
+          },
+          "creationTimestamp": null,
+          "labels": {
+            "name": "ascend-device-plugin-ds"
+          }
+        },
+        "spec": {
+          "containers": [
+            {
+              "args": [
+                "device-plugin  -useAscendDocker=true -logFile=/var/log/mindx-dl/devicePlugin/devicePlugin.log -logLevel=0"
+              ],
+              "command": [
+                "/bin/bash",
+                "-c",
+                "--"
+              ],
+              "env": [
+                {
+                  "name": "NODE_NAME",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "spec.nodeName"
+                    }
+                  }
+                },
+                {
+                  "name": "HOST_IP",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "status.hostIP"
+                    }
+                  }
+                }
+              ],
+              "image": "ascend-k8sdeviceplugin:v7.0.RC1",
+              "imagePullPolicy": "Never",
+              "name": "device-plugin-01",
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "500Mi"
+                },
+                "requests": {
+                  "cpu": "500m",
+                  "memory": "500Mi"
+                }
+              },
+              "securityContext": {
+                "privileged": true,
+                "readOnlyRootFilesystem": true
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/lib/kubelet/device-plugins",
+                  "name": "device-plugin"
+                },
+                {
+                  "mountPath": "/var/lib/kubelet/pod-resources",
+                  "name": "pod-resource"
+                },
+                {
+                  "mountPath": "/usr/local/Ascend/driver",
+                  "name": "hiai-driver",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/var/log/mindx-dl/devicePlugin",
+                  "name": "log-path"
+                },
+                {
+                  "mountPath": "/tmp",
+                  "name": "tmp"
+                },
+                {
+                  "mountPath": "/var/log/lingqu",
+                  "name": "lingqu-log"
+                },
+                {
+                  "mountPath": "/run/containerd",
+                  "name": "containerd",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/etc/localtime",
+                  "name": "localtime",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/user/cluster-info/datatrace-config",
+                  "name": "data-trace-file-dir"
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "nodeSelector": {
+            "accelerator": "huawei-Ascend910"
+          },
+          "priorityClassName": "system-node-critical",
+          "restartPolicy": "Always",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "ascend-device-plugin-sa-910",
+          "serviceAccountName": "ascend-device-plugin-sa-910",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "key": "CriticalAddonsOnly",
+              "operator": "Exists"
+            },
+            {
+              "effect": "NoSchedule",
+              "key": "huawei.com/Ascend910",
+              "operator": "Exists"
+            },
+            {
+              "effect": "NoSchedule",
+              "key": "device-plugin",
+              "operator": "Equal",
+              "value": "v2"
+            }
+          ],
+          "volumes": [
+            {
+              "hostPath": {
+                "path": "/var/lib/kubelet/device-plugins",
+                "type": ""
+              },
+              "name": "device-plugin"
+            },
+            {
+              "hostPath": {
+                "path": "/var/lib/kubelet/pod-resources",
+                "type": ""
+              },
+              "name": "pod-resource"
+            },
+            {
+              "hostPath": {
+                "path": "/usr/local/Ascend/driver",
+                "type": ""
+              },
+              "name": "hiai-driver"
+            },
+            {
+              "hostPath": {
+                "path": "/var/log/mindx-dl/devicePlugin",
+                "type": "Directory"
+              },
+              "name": "log-path"
+            },
+            {
+              "hostPath": {
+                "path": "/user/cluster-info/datatrace-config",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "data-trace-file-dir"
+            },
+            {
+              "hostPath": {
+                "path": "/tmp",
+                "type": ""
+              },
+              "name": "tmp"
+            },
+            {
+              "hostPath": {
+                "path": "/var/log/lingqu",
+                "type": "DirectoryOrCreate"
+              },
+              "name": "lingqu-log"
+            },
+            {
+              "hostPath": {
+                "path": "/run/containerd",
+                "type": ""
+              },
+              "name": "containerd"
+            },
+            {
+              "hostPath": {
+                "path": "/etc/localtime",
+                "type": ""
+              },
+              "name": "localtime"
+            }
+          ]
+        }
+      },
+      "updateStrategy": {
+        "rollingUpdate": {
+          "maxSurge": 0,
+          "maxUnavailable": 1
+        },
+        "type": "RollingUpdate"
+      }
+    },
+    "status": {
+      "currentNumberScheduled": 8,
+      "desiredNumberScheduled": 8,
+      "numberAvailable": 8,
+      "numberMisscheduled": 1,
+      "numberReady": 8,
+      "observedGeneration": 1,
+      "updatedNumberScheduled": 8
+    }
+  }
+]

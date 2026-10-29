@@ -1,0 +1,80 @@
+Traceback (most recent call last):
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch/__init__.py", line 2935, in _import_device_backends
+    entrypoint = backend_extension.load()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/importlib/metadata/__init__.py", line 205, in load
+    module = import_module(match.group('module'))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch_npu/__init__.py", line 40, in <module>
+    import torch_npu.utils.patch_getenv
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch_npu/utils/__init__.py", line 12, in <module>
+    from torch_npu.npu.utils import get_cann_version
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch_npu/npu/__init__.py", line 158, in <module>
+    from .utils import (obfuscation_initialize, obfuscation_calculate, obfuscation_finalize,
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch_npu/npu/utils.py", line 11, in <module>
+    import torch_npu._C
+ImportError: libascend_hal.so: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2207, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2441, in _get_module
+    raise e
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2439, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/models/auto/configuration_auto.py", line 23, in <module>
+    from ...configuration_utils import PreTrainedConfig
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/configuration_utils.py", line 32, in <module>
+    from .generation.configuration_utils import GenerationConfig
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/generation/configuration_utils.py", line 62, in <module>
+    from .logits_process import SynthIDTextWatermarkLogitsProcessor, WatermarkLogitsProcessor
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/generation/logits_process.py", line 21, in <module>
+    import torch
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch/__init__.py", line 2980, in <module>
+    _import_device_backends()
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/torch/__init__.py", line 2939, in _import_device_backends
+    raise RuntimeError(
+RuntimeError: Failed to load the backend extension: torch_npu. You can disable extension auto-loading with TORCH_DEVICE_BACKEND_AUTOLOAD=0.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/profiler/__main__.py", line 39, in <module>
+    from .profile_sla import run_profile
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/profiler/profile_sla.py", line 27, in <module>
+    from dynamo.profiler.interpolation import run_interpolation
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/profiler/interpolation.py", line 32, in <module>
+    from dynamo.profiler.utils.config_modifiers import CONFIG_MODIFIERS
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/profiler/utils/config_modifiers/__init__.py", line 25, in <module>
+    from dynamo.profiler.utils.config_modifiers.vllm import VllmV1ConfigModifier
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/profiler/utils/config_modifiers/vllm.py", line 31, in <module>
+    from dynamo.profiler.utils.model_info import (
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/profiler/utils/model_info.py", line 12, in <module>
+    from transformers import AutoConfig
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2295, in __getattr__
+    raise ModuleNotFoundError(
+ModuleNotFoundError: Could not import module 'AutoConfig'. Are this object's requirements defined correctly?

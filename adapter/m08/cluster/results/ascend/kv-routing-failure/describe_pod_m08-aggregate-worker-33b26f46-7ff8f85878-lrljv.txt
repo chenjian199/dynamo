@@ -1,0 +1,168 @@
+$ kubectl describe pod m08-aggregate-worker-33b26f46-7ff8f85878-lrljv -n dynamo-m08-1029
+
+RETURN_CODE=0
+
+STDOUT
+Name:             m08-aggregate-worker-33b26f46-7ff8f85878-lrljv
+Namespace:        dynamo-m08-1029
+Priority:         0
+Service Account:  m08-aggregate-k8s-service-discovery
+Node:             master-02-45d4a763/192.168.7.7
+Start Time:       Thu, 29 Oct 2026 12:18:32 +0800
+Labels:           nvidia.com/dynamo-component=worker
+                  nvidia.com/dynamo-component-type=worker
+                  nvidia.com/dynamo-discovery-backend=kubernetes
+                  nvidia.com/dynamo-discovery-enabled=true
+                  nvidia.com/dynamo-graph-deployment-name=m08-aggregate
+                  nvidia.com/dynamo-namespace=dynamo-m08-1029-m08-aggregate
+                  nvidia.com/dynamo-worker-hash=33b26f46
+                  nvidia.com/metrics-enabled=true
+                  nvidia.com/selector=m08-aggregate-worker-33b26f46
+                  pod-template-hash=7ff8f85878
+Annotations:      ascend.kubectl.kubernetes.io/ascend-910-configuration:
+                    {"pod_name":"m08-aggregate-worker-33b26f46-7ff8f85878-lrljv","server_id":"192.168.7.7","super_pod_id":-1,"devices":[{"device_id":"6","devi...
+                  huawei.com/AscendReal: Ascend910-6
+                  huawei.com/kltDev: Ascend910-6
+                  nvidia.com/dynamo-discovery-backend: kubernetes
+Status:           Running
+IP:               10.42.5.168
+IPs:
+  IP:           10.42.5.168
+Controlled By:  ReplicaSet/m08-aggregate-worker-33b26f46-7ff8f85878
+Containers:
+  main:
+    Container ID:  containerd://c184fff2000e962b4ff7a4bb4c5201f971e5c0e48daed9f28ae0939cd91c308b
+    Image:         heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+    Image ID:      sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82
+    Ports:         9090/TCP, 19090/TCP
+    Host Ports:    0/TCP, 0/TCP
+    Command:
+      /opt/dynamo/bin/entrypoint.sh
+    Args:
+      python
+      -m
+      dynamo.vllm
+      --model
+      /models/Qwen3-0.6B
+      --served-model-name
+      m08-model
+      --enforce-eager
+      --tensor-parallel-size
+      1
+      --max-model-len
+      8192
+      --max-num-seqs
+      8
+      --gpu-memory-utilization
+      0.3
+      --block-size
+      128
+      --disable-custom-all-reduce
+      --kv-events-config
+      {"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events", "endpoint": "tcp://127.0.0.1:20080"}
+      --enable-prefix-caching
+    State:          Running
+      Started:      Thu, 29 Oct 2026 12:18:32 +0800
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:                   8
+      huawei.com/Ascend910:  1
+      memory:                32Gi
+    Requests:
+      cpu:                   1
+      huawei.com/Ascend910:  1
+      memory:                2Gi
+    Liveness:                http-get http://:system/live delay=0s timeout=4s period=5s #success=1 #failure=3
+    Readiness:               http-get http://:system/health delay=0s timeout=4s period=10s #success=1 #failure=3
+    Startup:                 http-get http://:system/live delay=0s timeout=5s period=10s #success=1 #failure=720
+    Environment:
+      ASCEND_TRANSFER_TIMEOUT:                30000
+      DYN_COMPONENT:                          worker
+      DYN_DISCOVERY_BACKEND:                  kubernetes
+      DYN_EVENT_PLANE:                        zmq
+      DYN_FORWARDPASS_METRIC_PORT:            20380
+      DYN_HEALTH_CHECK_ENABLED:               true
+      DYN_NAMESPACE:                          dynamo-m08-1029-m08-aggregate
+      DYN_NAMESPACE_WORKER_SUFFIX:            33b26f46
+      DYN_PARENT_DGD_K8S_NAME:                m08-aggregate
+      DYN_PARENT_DGD_K8S_NAMESPACE:           dynamo-m08-1029
+      DYN_PLATFORM:                           ascend
+      DYN_REQUEST_PLANE:                      tcp
+      DYN_ROUTER_USE_KV_EVENTS:               true
+      DYN_SYSTEM_ENABLED:                     true
+      DYN_SYSTEM_PORT:                        9090
+      DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS:  ["generate"]
+      GOMAXPROCS:                             4
+      HF_HUB_OFFLINE:                         1
+      NIXL_TELEMETRY_ENABLE:                  n
+      NIXL_TELEMETRY_EXPORTER:                prometheus
+      NIXL_TELEMETRY_PROMETHEUS_PORT:         19090
+      POD_NAME:                               m08-aggregate-worker-33b26f46-7ff8f85878-lrljv (v1:metadata.name)
+      POD_NAMESPACE:                          dynamo-m08-1029 (v1:metadata.namespace)
+      POD_UID:                                 (v1:metadata.uid)
+      PYTHONUNBUFFERED:                       1
+      SPT_NOENV:                              1
+      VLLM_HOST_IP:                            (v1:status.podIP)
+      VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT:    60
+      VLLM_MOONCAKE_BOOTSTRAP_PORT:           20090
+    Mounts:
+      /dev/shm from shared-memory (rw)
+      /models/Qwen3-0.6B from models (ro)
+      /usr/local/Ascend/driver from ascend-driver (ro)
+      /usr/local/dcmi from ascend-dcmi (ro)
+      /usr/local/sbin/npu-smi from ascend-smi (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pvrwx (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  models:
+    Type:          HostPath (bare host directory volume)
+    Path:          /data/weight/Qwen3-0.6B
+    HostPathType:  Directory
+  ascend-driver:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/Ascend/driver
+    HostPathType:  Directory
+  ascend-dcmi:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/dcmi
+    HostPathType:  Directory
+  ascend-smi:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/bin/npu-smi
+    HostPathType:  File
+  shared-memory:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  8Gi
+  kube-api-access-pvrwx:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  <redacted>
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/arch=arm64
+                             kubernetes.io/hostname=master-02-45d4a763
+Tolerations:                 huawei.com/Ascend910:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  4m1s                   default-scheduler  Successfully assigned dynamo-m08-1029/m08-aggregate-worker-33b26f46-7ff8f85878-lrljv to master-02-45d4a763
+  Normal   Pulled     4m2s                   kubelet            Container image "heyi/dynamo-vllm-ascend-runtime:1.5.1-m02" already present on machine
+  Normal   Created    4m2s                   kubelet            Created container: main
+  Normal   Started    4m2s                   kubelet            Started container main
+  Warning  Unhealthy  3m32s (x3 over 3m52s)  kubelet            Startup probe failed: Get "http://10.42.5.168:9090/live": dial tcp 10.42.5.168:9090: connect: connection refused
+  Warning  Unhealthy  112s (x10 over 3m22s)  kubelet            Startup probe failed: HTTP probe failed with statuscode: 503
+
+
+STDERR
+

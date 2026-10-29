@@ -1,0 +1,82 @@
+NAME       STATUS   ROLES                  AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+worker06   Ready    control-plane,worker   93d   v1.35.6   192.168.4.6    <none>        Ubuntu 22.04.5 LTS   5.15.0-119-generic   containerd://2.2.1
+worker28   Ready    <none>                 93d   v1.35.6   192.168.4.14   <none>        Ubuntu 22.04.5 LTS   5.15.0-119-generic   containerd://2.2.1
+[('worker06', {'cpu': '224', 'ephemeral-storage': '860807454524', 'hugepages-1Gi': '0', 'hugepages-2Mi': '0', 'memory': '2111143808Ki', 'nvidia.com/gpu': '8', 'nvidia.com/roce_h3cnic0': '63', 'nvidia.com/roce_h3cnic1': '63', 'nvidia.com/roce_h3cnic2': '63', 'nvidia.com/roce_h3cnic3': '63', 'nvidia.com/roce_h3cnic4': '63', 'nvidia.com/roce_h3cnic5': '63', 'nvidia.com/roce_h3cnic6': '63', 'nvidia.com/roce_h3cnic7': '63', 'pods': '110'}), ('worker28', {'cpu': '224', 'ephemeral-storage': '860807454524', 'hugepages-1Gi': '0', 'hugepages-2Mi': '0', 'memory': '2111143852Ki', 'nvidia.com/gpu': '8', 'nvidia.com/roce_h3cnic0': '63', 'nvidia.com/roce_h3cnic1': '63', 'nvidia.com/roce_h3cnic2': '63', 'nvidia.com/roce_h3cnic3': '63', 'nvidia.com/roce_h3cnic4': '63', 'nvidia.com/roce_h3cnic5': '63', 'nvidia.com/roce_h3cnic6': '63', 'nvidia.com/roce_h3cnic7': '63', 'pods': '110'})]
+NAME                                                              READY   STATUS    RESTARTS   AGE    IP               NODE       NOMINATED NODE   READINESS GATES
+pod/heyi-m08-dynamo-operator-controller-manager-c6f7cbbd5-nd4xm   1/1     Running   0          125m   10.244.229.213   worker06   <none>           <none>
+NAME            	NAMESPACE              	REVISION	UPDATED                                	STATUS  	CHART                       	APP VERSION    
+csi-driver-nfs  	kube-system            	1       	2026-07-28 20:01:34.728907152 +0800 CST	deployed	csi-driver-nfs-4.13.4       	4.13.4         
+gpu-operator    	gpu-operator           	1       	2026-07-28 15:56:51.580207479 +0800 CST	deployed	gpu-operator-v26.3.3        	v26.3.3        
+heyi-grove      	grove-system           	2       	2026-10-29 14:39:42.074569555 +0800 CST	deployed	grove-charts-v0.1.0-alpha.13	v0.1.0-alpha.13
+heyi-kai        	kai-scheduler          	2       	2026-10-29 14:36:53.716801759 +0800 CST	deployed	kai-scheduler-v0.17.0       	v0.17.0        
+heyi-m08        	dynamo-m08-1029        	4       	2026-10-29 14:52:32.880455742 +0800 CST	deployed	dynamo-operator-1.5.1       	1.5.1          
+network-operator	nvidia-network-operator	1       	2026-07-28 15:13:49.933053743 +0800 CST	deployed	network-operator-26.4.0     	v26.4.0        
+/home/bedicloud/CJ_workspace/m08-1029/cuda-operator-overlay.json
+/home/bedicloud/CJ_workspace/m08-1029/dra-values.json
+/home/bedicloud/CJ_workspace/m08-1029/grove-kai-values.json
+/home/bedicloud/CJ_workspace/m08-1029/grove-values.json
+/home/bedicloud/CJ_workspace/m08-1029/kai-values.json
+Usage:
+  ib_write_bw            start a server and wait for connection
+  ib_write_bw <host>     connect to server at <host>
+
+Options:
+  -a, --all  Run sizes from 2 till 2^23
+  -b, --bidirectional  Measure bidirectional bandwidth (default unidirectional)
+  -c, --connection=<RC/XRC/UC/DC>  Connection type RC/XRC/UC/DC (default RC)
+      --log_dci_streams=<log_num_dci_stream_channels> (default 0)  Run DC initiator as DCS instead of DCI with <log_num dci_stream_channels>
+      --log_active_dci_streams=<log_num_active_dci_stream_channels> (default log_num_dci_stream_channels)
+	  --aes_xts Runs traffic with AES_XTS feature (encryption)
+	  --encrypt_on_tx Runs traffic with encryption on tx (default decryption on tx)
+	  --sig_before Puts signature on data before encrypting it (default after)
+      --aes_block_size=<512,520,4048,4096,4160> (default 512)
+	  --data_enc_keys_number=<number of data encryption keys> (default 1)
+	  --kek_path path to the key encryption key file
+	  --credentials_path path to the credentials file
+	  --data_enc_key_app_path path to the data encryption key app
+  -d, --ib-dev=<dev>  Use IB device <dev> (default first device found)
+  -D, --duration  Run test for a customized period of seconds.
+  -f, --margin  measure results within margins. (default=2sec)
+  -F, --CPU-freq  Do not show a warning even if cpufreq_ondemand module is loaded, and cpu-freq is not on max.
+  -h, --help  Show this help screen.
+  -i, --ib-port=<port>  Use port <port> of IB device (default 1)
+  -I, --inline_size=<size>  Max size of message to be sent in inline
+  -l, --post_list=<list size>
+ Post list of send WQEs of <list size> size (instead of single post)
+      --recv_post_list=<list size> Post list of receive WQEs of <list size> size (instead of single post)
+  -L, --hop_limit=<hop_limit>  Set hop limit value (ttl for IPv4 RawEth QP). Values 0-255 (default 64)
+  -m, --mtu=<mtu>  MTU size : 256 - 4096 (default port mtu)
+  -n, --iters=<iters>  Number of exchanges (at least 5, default 5000)
+  -N, --noPeak Cancel peak-bw calculation (default with peak up to iters=20000)
+  -O, --dualport  Run test in dual-port mode.
+  -p, --port=<port>  Listen on/connect to port <port> (default 18515)
+  -q, --qp=<num of qp's>  Num of qp's(default 1)
+  -Q, --cq-mod  Generate Cqe only after <--cq-mod> completion
+  -R, --rdma_cm  Connect QPs with rdma_cm and run test on those QPs
+  -s, --size=<size>  Size of message to exchange (default 65536)
+  -S, --sl=<sl>  SL (default 0)
+  -t, --tx-depth=<dep>  Size of tx queue (default 128)
+  -T, --tos=<tos value>  Set <tos_value> to RDMA-CM QPs. available only with -R flag. values 0-256 (default off)
+  -u, --qp-timeout=<timeout>  QP timeout, timeout value is 4 usec * 2 ^(timeout), default 14
+  -V, --version  Display version number
+  -w, --limit_bw=<value>  Set verifier limit for bandwidth
+  -W, --report-counters=<list of counter names>  Report performance counter change (example: "counters/port_xmit_data,hw_counters/out_of_buffer")
+  -x, --gid-index=<index>  Test uses GID with GID index
+  -y, --limit_msgrate=<value>  Set verifier limit for Msg Rate
+  -z, --comm_rdma_cm  Communicate with rdma_cm module to exchange data - use regular QPs
+
+      --out_json  Save the report in a json file
+      --out_json_file=<file>  Name of the report json file. (Default: perftest_out.json in the working directory) 
+      --cpu_util  Show CPU Utilization in report, valid only in Duration mode 
+      --dlid  Set a Destination LID instead of getting it from the other side.
+      --dont_xchg_versions  Do not exchange versions and MTU with other side 
+      --force-link=<value>  Force the link(s) to a specific type: IB or Ethernet.
+index, uuid, memory.used [MiB]
+0, GPU-f5f4df5a-6fd0-015e-95e5-97ff0d6e6981, 0 MiB
+1, GPU-757aa1ec-c062-a75b-eaf1-c35de81926ce, 0 MiB
+2, GPU-984f71ff-3c31-07da-3675-0d125231f121, 0 MiB
+3, GPU-d656da06-9bb0-ab75-074e-02e2327e4414, 0 MiB
+4, GPU-d56d559a-224a-0526-32e0-6f91e789cfc5, 0 MiB
+5, GPU-6d09c789-c621-905e-cd91-17350a173163, 0 MiB
+6, GPU-4cbda8bd-cfde-f25b-d454-0f46b3234b97, 0 MiB
+7, GPU-46d558e4-88c7-c3e7-95e3-76a0c302dcce, 0 MiB

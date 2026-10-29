@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -504,6 +506,16 @@ func TestInferHardwareSystem(t *testing.T) {
 		},
 
 		// --- Hopper ---
+		{
+			name:     "H800 SXM preserves hardware identity",
+			input:    "NVIDIA H800 SXM",
+			expected: nvidiacomv1beta1.GPUSKUTypeH800SXM,
+		},
+		{
+			name:     "H800 PCIe preserves hardware identity",
+			input:    "NVIDIA H800 PCIe",
+			expected: nvidiacomv1beta1.GPUSKUTypeH800PCIe,
+		},
 		{
 			name:     "H100 SXM",
 			input:    "H100 SXM",

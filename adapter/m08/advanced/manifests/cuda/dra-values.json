@@ -1,0 +1,31 @@
+{
+  "image": {
+    "tag": "v0.5.1",
+    "pullPolicy": "Never"
+  },
+  "resources": {
+    "computeDomains": {
+      "enabled": false
+    }
+  },
+  "controller": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "worker06"
+    }
+  },
+  "kubeletPlugin": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "worker28"
+    },
+    "affinity": {},
+    "tolerations": [
+      {
+        "key": "heyi.io/m08-dra",
+        "operator": "Exists",
+        "effect": "NoSchedule"
+      }
+    ]
+  },
+  "nvidiaDriverRoot": "/",
+  "gpuResourcesEnabledOverride": true
+}

@@ -1,0 +1,870 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "nvidia.com/v1beta1",
+            "kind": "DynamoGraphDeploymentRequest",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"nvidia.com/v1beta1\",\"kind\":\"DynamoGraphDeploymentRequest\",\"metadata\":{\"annotations\":{},\"labels\":{\"heyi.io/campaign\":\"dynamo-m08-1029\"},\"name\":\"m08-dgdr\",\"namespace\":\"dynamo-m08-1029\"},\"spec\":{\"autoApply\":true,\"backend\":\"vllm\",\"hardware\":{\"gpuSku\":\"h800_sxm\",\"numGpusPerNode\":8,\"totalGpus\":2,\"vramMb\":81920},\"image\":\"heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3\",\"model\":\"/models/Qwen3-0.6B\",\"overrides\":{\"dgd\":{\"apiVersion\":\"nvidia.com/v1beta1\",\"kind\":\"DynamoGraphDeployment\",\"metadata\":{\"annotations\":{\"nvidia.com/dynamo-discovery-backend\":\"kubernetes\",\"nvidia.com/enable-grove\":\"false\",\"nvidia.com/workload-provider\":\"component\"},\"labels\":{\"heyi.io/campaign\":\"dynamo-m08-1029\"}},\"spec\":{\"backendFramework\":\"vllm\",\"components\":[{\"name\":\"Frontend\",\"podTemplate\":{\"spec\":{\"containers\":[{\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo-vllm-cuda-runtime:1.5.1-m02\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"}]}},\"runtimeVersionOverride\":\"1.5.1\",\"sharedMemorySize\":\"8Gi\",\"type\":\"frontend\"},{\"name\":\"VllmDecodeWorker\",\"podTemplate\":{\"spec\":{\"containers\":[{\"$patch\":{\"args\":\"append\"},\"args\":[\"--enforce-eager\",\"--gpu-memory-utilization\",\"0.3\",\"--disable-custom-all-reduce\",\"--max-model-len\",\"1024\"],\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\",\"-m\",\"dynamo.vllm\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cuda\"},{\"name\":\"VLLM_HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.podIP\"}}},{\"name\":\"VLLM_MOONCAKE_BOOTSTRAP_PORT\",\"value\":\"20090\"},{\"name\":\"VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT\",\"value\":\"60\"},{\"name\":\"ASCEND_TRANSFER_TIMEOUT\",\"value\":\"30000\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"},{\"name\":\"UCX_TLS\",\"value\":\"tcp,sm,self,cuda_copy,cuda_ipc\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo-vllm-cuda-runtime:1.5.1-m02\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py\",\"name\":\"preflight-source\",\"readOnly\":true,\"subPath\":\"preflight.py\"}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"runtimeClassName\":\"nvidia\",\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"nvidia.com/gpu\",\"operator\":\"Exists\"}],\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"configMap\":{\"name\":\"m08-preflight-source\"},\"name\":\"preflight-source\"}]}},\"runtimeVersionOverride\":\"1.5.1\",\"sharedMemorySize\":\"8Gi\",\"type\":\"worker\"},{\"name\":\"VllmPrefillWorker\",\"podTemplate\":{\"spec\":{\"containers\":[{\"$patch\":{\"args\":\"append\"},\"args\":[\"--enforce-eager\",\"--gpu-memory-utilization\",\"0.3\",\"--disable-custom-all-reduce\",\"--max-model-len\",\"1024\"],\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\",\"-m\",\"dynamo.vllm\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cuda\"},{\"name\":\"VLLM_HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.podIP\"}}},{\"name\":\"VLLM_MOONCAKE_BOOTSTRAP_PORT\",\"value\":\"20090\"},{\"name\":\"VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT\",\"value\":\"60\"},{\"name\":\"ASCEND_TRANSFER_TIMEOUT\",\"value\":\"30000\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"},{\"name\":\"UCX_TLS\",\"value\":\"tcp,sm,self,cuda_copy,cuda_ipc\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo-vllm-cuda-runtime:1.5.1-m02\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py\",\"name\":\"preflight-source\",\"readOnly\":true,\"subPath\":\"preflight.py\"}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"runtimeClassName\":\"nvidia\",\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"nvidia.com/gpu\",\"operator\":\"Exists\"}],\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"configMap\":{\"name\":\"m08-preflight-source\"},\"name\":\"preflight-source\"}]}},\"runtimeVersionOverride\":\"1.5.1\",\"sharedMemorySize\":\"8Gi\",\"type\":\"worker\"}]}},\"profilingJob\":{\"activeDeadlineSeconds\":3600,\"backoffLimit\":0,\"template\":{\"spec\":{\"containers\":[{\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"HUGGING_FACE_HUB_TOKEN\",\"valueFrom\":{\"secretKeyRef\":{\"key\":\"HF_TOKEN\",\"name\":\"hf-token-secret\",\"optional\":true}}}],\"imagePullPolicy\":\"Never\",\"name\":\"profiler\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true}],\"workingDir\":\"/tmp\"},{\"image\":\"heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3\",\"imagePullPolicy\":\"Never\",\"name\":\"output-copier\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"}]}}}},\"runtimeVersionOverride\":\"1.5.1\",\"searchStrategy\":\"thorough\",\"sla\":{\"itl\":1000,\"ttft\":10000},\"workload\":{\"concurrency\":1,\"isl\":128,\"osl\":16}}}\n"
+                },
+                "creationTimestamp": "2026-10-29T07:15:18Z",
+                "finalizers": [
+                    "nvidia.com/finalizer"
+                ],
+                "generation": 1,
+                "labels": {
+                    "heyi.io/campaign": "dynamo-m08-1029"
+                },
+                "name": "m08-dgdr",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40385871",
+                "uid": "03612488-9fa7-4c40-8d53-16e8687980df"
+            },
+            "spec": {
+                "autoApply": true,
+                "backend": "vllm",
+                "hardware": {
+                    "gpuSku": "h800_sxm",
+                    "numGpusPerNode": 8,
+                    "totalGpus": 2,
+                    "vramMb": 81920
+                },
+                "image": "heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+                "model": "/models/Qwen3-0.6B",
+                "overrides": {
+                    "dgd": {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "kind": "DynamoGraphDeployment",
+                        "metadata": {
+                            "annotations": {
+                                "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                                "nvidia.com/enable-grove": "false",
+                                "nvidia.com/workload-provider": "component"
+                            },
+                            "labels": {
+                                "heyi.io/campaign": "dynamo-m08-1029"
+                            }
+                        },
+                        "spec": {
+                            "backendFramework": "vllm",
+                            "components": [
+                                {
+                                    "name": "Frontend",
+                                    "podTemplate": {
+                                        "spec": {
+                                            "containers": [
+                                                {
+                                                    "command": [
+                                                        "/opt/dynamo/bin/entrypoint.sh",
+                                                        "python3"
+                                                    ],
+                                                    "env": [
+                                                        {
+                                                            "name": "HF_HUB_OFFLINE",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "DYN_REQUEST_PLANE",
+                                                            "value": "tcp"
+                                                        },
+                                                        {
+                                                            "name": "DYN_EVENT_PLANE",
+                                                            "value": "zmq"
+                                                        },
+                                                        {
+                                                            "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                                            "value": "true"
+                                                        },
+                                                        {
+                                                            "name": "DYN_PLATFORM",
+                                                            "value": "cpu"
+                                                        },
+                                                        {
+                                                            "name": "PYTHONUNBUFFERED",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "GOMAXPROCS",
+                                                            "value": "4"
+                                                        },
+                                                        {
+                                                            "name": "SPT_NOENV",
+                                                            "value": "1"
+                                                        }
+                                                    ],
+                                                    "envFrom": [
+                                                        {
+                                                            "secretRef": {
+                                                                "name": "hf-token-secret",
+                                                                "optional": true
+                                                            }
+                                                        }
+                                                    ],
+                                                    "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+                                                    "imagePullPolicy": "Never",
+                                                    "name": "main",
+                                                    "volumeMounts": [
+                                                        {
+                                                            "mountPath": "/models/Qwen3-0.6B",
+                                                            "name": "models",
+                                                            "readOnly": true
+                                                        }
+                                                    ],
+                                                    "workingDir": "/tmp"
+                                                }
+                                            ],
+                                            "nodeSelector": {
+                                                "kubernetes.io/arch": "amd64",
+                                                "kubernetes.io/hostname": "worker06"
+                                            },
+                                            "volumes": [
+                                                {
+                                                    "hostPath": {
+                                                        "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                                                        "type": "Directory"
+                                                    },
+                                                    "name": "models"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "runtimeVersionOverride": "1.5.1",
+                                    "sharedMemorySize": "8Gi",
+                                    "type": "frontend"
+                                },
+                                {
+                                    "name": "VllmDecodeWorker",
+                                    "podTemplate": {
+                                        "spec": {
+                                            "containers": [
+                                                {
+                                                    "$patch": {
+                                                        "args": "append"
+                                                    },
+                                                    "args": [
+                                                        "--enforce-eager",
+                                                        "--gpu-memory-utilization",
+                                                        "0.3",
+                                                        "--disable-custom-all-reduce",
+                                                        "--max-model-len",
+                                                        "1024"
+                                                    ],
+                                                    "command": [
+                                                        "/opt/dynamo/bin/entrypoint.sh",
+                                                        "python3",
+                                                        "-m",
+                                                        "dynamo.vllm"
+                                                    ],
+                                                    "env": [
+                                                        {
+                                                            "name": "HF_HUB_OFFLINE",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "DYN_REQUEST_PLANE",
+                                                            "value": "tcp"
+                                                        },
+                                                        {
+                                                            "name": "DYN_EVENT_PLANE",
+                                                            "value": "zmq"
+                                                        },
+                                                        {
+                                                            "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                                            "value": "true"
+                                                        },
+                                                        {
+                                                            "name": "DYN_PLATFORM",
+                                                            "value": "cuda"
+                                                        },
+                                                        {
+                                                            "name": "VLLM_HOST_IP",
+                                                            "valueFrom": {
+                                                                "fieldRef": {
+                                                                    "fieldPath": "status.podIP"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                                            "value": "20090"
+                                                        },
+                                                        {
+                                                            "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                                            "value": "60"
+                                                        },
+                                                        {
+                                                            "name": "ASCEND_TRANSFER_TIMEOUT",
+                                                            "value": "30000"
+                                                        },
+                                                        {
+                                                            "name": "PYTHONUNBUFFERED",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "GOMAXPROCS",
+                                                            "value": "4"
+                                                        },
+                                                        {
+                                                            "name": "SPT_NOENV",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "UCX_TLS",
+                                                            "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+                                                        }
+                                                    ],
+                                                    "envFrom": [
+                                                        {
+                                                            "secretRef": {
+                                                                "name": "hf-token-secret",
+                                                                "optional": true
+                                                            }
+                                                        }
+                                                    ],
+                                                    "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+                                                    "imagePullPolicy": "Never",
+                                                    "name": "main",
+                                                    "volumeMounts": [
+                                                        {
+                                                            "mountPath": "/models/Qwen3-0.6B",
+                                                            "name": "models",
+                                                            "readOnly": true
+                                                        },
+                                                        {
+                                                            "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                                                            "name": "preflight-source",
+                                                            "readOnly": true,
+                                                            "subPath": "preflight.py"
+                                                        }
+                                                    ],
+                                                    "workingDir": "/tmp"
+                                                }
+                                            ],
+                                            "nodeSelector": {
+                                                "kubernetes.io/arch": "amd64",
+                                                "kubernetes.io/hostname": "worker06"
+                                            },
+                                            "runtimeClassName": "nvidia",
+                                            "tolerations": [
+                                                {
+                                                    "effect": "NoSchedule",
+                                                    "key": "nvidia.com/gpu",
+                                                    "operator": "Exists"
+                                                }
+                                            ],
+                                            "volumes": [
+                                                {
+                                                    "hostPath": {
+                                                        "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                                                        "type": "Directory"
+                                                    },
+                                                    "name": "models"
+                                                },
+                                                {
+                                                    "configMap": {
+                                                        "name": "m08-preflight-source"
+                                                    },
+                                                    "name": "preflight-source"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "runtimeVersionOverride": "1.5.1",
+                                    "sharedMemorySize": "8Gi",
+                                    "type": "worker"
+                                },
+                                {
+                                    "name": "VllmPrefillWorker",
+                                    "podTemplate": {
+                                        "spec": {
+                                            "containers": [
+                                                {
+                                                    "$patch": {
+                                                        "args": "append"
+                                                    },
+                                                    "args": [
+                                                        "--enforce-eager",
+                                                        "--gpu-memory-utilization",
+                                                        "0.3",
+                                                        "--disable-custom-all-reduce",
+                                                        "--max-model-len",
+                                                        "1024"
+                                                    ],
+                                                    "command": [
+                                                        "/opt/dynamo/bin/entrypoint.sh",
+                                                        "python3",
+                                                        "-m",
+                                                        "dynamo.vllm"
+                                                    ],
+                                                    "env": [
+                                                        {
+                                                            "name": "HF_HUB_OFFLINE",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "DYN_REQUEST_PLANE",
+                                                            "value": "tcp"
+                                                        },
+                                                        {
+                                                            "name": "DYN_EVENT_PLANE",
+                                                            "value": "zmq"
+                                                        },
+                                                        {
+                                                            "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                                            "value": "true"
+                                                        },
+                                                        {
+                                                            "name": "DYN_PLATFORM",
+                                                            "value": "cuda"
+                                                        },
+                                                        {
+                                                            "name": "VLLM_HOST_IP",
+                                                            "valueFrom": {
+                                                                "fieldRef": {
+                                                                    "fieldPath": "status.podIP"
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                                            "value": "20090"
+                                                        },
+                                                        {
+                                                            "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                                            "value": "60"
+                                                        },
+                                                        {
+                                                            "name": "ASCEND_TRANSFER_TIMEOUT",
+                                                            "value": "30000"
+                                                        },
+                                                        {
+                                                            "name": "PYTHONUNBUFFERED",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "GOMAXPROCS",
+                                                            "value": "4"
+                                                        },
+                                                        {
+                                                            "name": "SPT_NOENV",
+                                                            "value": "1"
+                                                        },
+                                                        {
+                                                            "name": "UCX_TLS",
+                                                            "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+                                                        }
+                                                    ],
+                                                    "envFrom": [
+                                                        {
+                                                            "secretRef": {
+                                                                "name": "hf-token-secret",
+                                                                "optional": true
+                                                            }
+                                                        }
+                                                    ],
+                                                    "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+                                                    "imagePullPolicy": "Never",
+                                                    "name": "main",
+                                                    "volumeMounts": [
+                                                        {
+                                                            "mountPath": "/models/Qwen3-0.6B",
+                                                            "name": "models",
+                                                            "readOnly": true
+                                                        },
+                                                        {
+                                                            "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py",
+                                                            "name": "preflight-source",
+                                                            "readOnly": true,
+                                                            "subPath": "preflight.py"
+                                                        }
+                                                    ],
+                                                    "workingDir": "/tmp"
+                                                }
+                                            ],
+                                            "nodeSelector": {
+                                                "kubernetes.io/arch": "amd64",
+                                                "kubernetes.io/hostname": "worker06"
+                                            },
+                                            "runtimeClassName": "nvidia",
+                                            "tolerations": [
+                                                {
+                                                    "effect": "NoSchedule",
+                                                    "key": "nvidia.com/gpu",
+                                                    "operator": "Exists"
+                                                }
+                                            ],
+                                            "volumes": [
+                                                {
+                                                    "hostPath": {
+                                                        "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                                                        "type": "Directory"
+                                                    },
+                                                    "name": "models"
+                                                },
+                                                {
+                                                    "configMap": {
+                                                        "name": "m08-preflight-source"
+                                                    },
+                                                    "name": "preflight-source"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "runtimeVersionOverride": "1.5.1",
+                                    "sharedMemorySize": "8Gi",
+                                    "type": "worker"
+                                }
+                            ]
+                        }
+                    },
+                    "profilingJob": {
+                        "activeDeadlineSeconds": 3600,
+                        "backoffLimit": 0,
+                        "template": {
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "env": [
+                                            {
+                                                "name": "HF_HUB_OFFLINE",
+                                                "value": "1"
+                                            },
+                                            {
+                                                "name": "HUGGING_FACE_HUB_TOKEN",
+                                                "valueFrom": {
+                                                    "secretKeyRef": {
+                                                        "key": "HF_TOKEN",
+                                                        "name": "hf-token-secret",
+                                                        "optional": true
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "imagePullPolicy": "Never",
+                                        "name": "profiler",
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/models/Qwen3-0.6B",
+                                                "name": "models",
+                                                "readOnly": true
+                                            }
+                                        ],
+                                        "workingDir": "/tmp"
+                                    },
+                                    {
+                                        "image": "heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+                                        "imagePullPolicy": "Never",
+                                        "name": "output-copier"
+                                    }
+                                ],
+                                "nodeSelector": {
+                                    "kubernetes.io/arch": "amd64",
+                                    "kubernetes.io/hostname": "worker06"
+                                },
+                                "volumes": [
+                                    {
+                                        "hostPath": {
+                                            "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                                            "type": "Directory"
+                                        },
+                                        "name": "models"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "runtimeVersionOverride": "1.5.1",
+                "searchStrategy": "thorough",
+                "sla": {
+                    "itl": 1000,
+                    "ttft": 10000
+                },
+                "workload": {
+                    "concurrency": 1,
+                    "isl": 128,
+                    "osl": 16
+                }
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T07:15:18Z",
+                        "message": "DGDR spec validation passed",
+                        "observedGeneration": 1,
+                        "reason": "ValidationPassed",
+                        "status": "True",
+                        "type": "Validation"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T07:15:18Z",
+                        "message": "Benchmarking decode candidate 1/2: tp1 (1 GPUs)",
+                        "observedGeneration": 1,
+                        "reason": "SweepingDecode",
+                        "status": "False",
+                        "type": "Profiling"
+                    },
+                    {
+                        "lastTransitionTime": "2026-10-29T07:15:18Z",
+                        "message": "Profiling is in progress",
+                        "observedGeneration": 1,
+                        "reason": "Profiling",
+                        "status": "False",
+                        "type": "Succeeded"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Profiling",
+                "profilingJobName": "profile-m08-dgdr",
+                "profilingPhase": "SweepingDecode"
+            }
+        },
+        {
+            "apiVersion": "batch/v1",
+            "kind": "Job",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "0f403b205e74523a6d804a68993b338b61356c2a06c96cdae33983f3c93f020d"
+                },
+                "creationTimestamp": "2026-10-29T07:15:18Z",
+                "generation": 1,
+                "labels": {
+                    "app": "dynamo-profiler",
+                    "dgdr": "m08-dgdr",
+                    "nvidia.com/managed-by": "dynamo-operator"
+                },
+                "name": "profile-m08-dgdr",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoGraphDeploymentRequest",
+                        "name": "m08-dgdr",
+                        "uid": "03612488-9fa7-4c40-8d53-16e8687980df"
+                    }
+                ],
+                "resourceVersion": "40382506",
+                "uid": "828da51d-fe75-4950-b04e-5179646a2ff0"
+            },
+            "spec": {
+                "activeDeadlineSeconds": 3600,
+                "backoffLimit": 0,
+                "completionMode": "NonIndexed",
+                "completions": 1,
+                "manualSelector": false,
+                "parallelism": 1,
+                "podReplacementPolicy": "TerminatingOrFailed",
+                "selector": {
+                    "matchLabels": {
+                        "batch.kubernetes.io/controller-uid": "828da51d-fe75-4950-b04e-5179646a2ff0"
+                    }
+                },
+                "suspend": false,
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "batch.kubernetes.io/controller-uid": "828da51d-fe75-4950-b04e-5179646a2ff0",
+                            "batch.kubernetes.io/job-name": "profile-m08-dgdr",
+                            "controller-uid": "828da51d-fe75-4950-b04e-5179646a2ff0",
+                            "job-name": "profile-m08-dgdr"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config",
+                                    "{\"model\":\"/models/Qwen3-0.6B\",\"backend\":\"vllm\",\"image\":\"heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3\",\"runtimeVersionOverride\":\"1.5.1\",\"hardware\":{\"gpuSku\":\"h800_sxm\",\"vramMb\":81920,\"totalGpus\":2,\"numGpusPerNode\":8},\"workload\":{\"isl\":128,\"osl\":16,\"concurrency\":1},\"sla\":{\"ttft\":10000,\"itl\":1000},\"overrides\":{\"profilingJob\":{\"activeDeadlineSeconds\":3600,\"backoffLimit\":0,\"template\":{\"metadata\":{},\"spec\":{\"volumes\":[{\"name\":\"models\",\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"}}],\"containers\":[{\"name\":\"profiler\",\"workingDir\":\"/tmp\",\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"HUGGING_FACE_HUB_TOKEN\",\"valueFrom\":{\"secretKeyRef\":{\"name\":\"hf-token-secret\",\"key\":\"HF_TOKEN\",\"optional\":true}}}],\"resources\":{},\"volumeMounts\":[{\"name\":\"models\",\"readOnly\":true,\"mountPath\":\"/models/Qwen3-0.6B\"}],\"imagePullPolicy\":\"Never\"},{\"name\":\"output-copier\",\"image\":\"heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3\",\"resources\":{},\"imagePullPolicy\":\"Never\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"}}}},\"dgd\":{\"apiVersion\":\"nvidia.com/v1beta1\",\"kind\":\"DynamoGraphDeployment\",\"metadata\":{\"annotations\":{\"nvidia.com/dynamo-discovery-backend\":\"kubernetes\",\"nvidia.com/enable-grove\":\"false\",\"nvidia.com/workload-provider\":\"component\"},\"labels\":{\"heyi.io/campaign\":\"dynamo-m08-1029\"}},\"spec\":{\"backendFramework\":\"vllm\",\"components\":[{\"name\":\"Frontend\",\"podTemplate\":{\"spec\":{\"containers\":[{\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo-vllm-cuda-runtime:1.5.1-m02\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"}]}},\"runtimeVersionOverride\":\"1.5.1\",\"sharedMemorySize\":\"8Gi\",\"type\":\"frontend\"},{\"name\":\"VllmDecodeWorker\",\"podTemplate\":{\"spec\":{\"containers\":[{\"$patch\":{\"args\":\"append\"},\"args\":[\"--enforce-eager\",\"--gpu-memory-utilization\",\"0.3\",\"--disable-custom-all-reduce\",\"--max-model-len\",\"1024\"],\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\",\"-m\",\"dynamo.vllm\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cuda\"},{\"name\":\"VLLM_HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.podIP\"}}},{\"name\":\"VLLM_MOONCAKE_BOOTSTRAP_PORT\",\"value\":\"20090\"},{\"name\":\"VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT\",\"value\":\"60\"},{\"name\":\"ASCEND_TRANSFER_TIMEOUT\",\"value\":\"30000\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"},{\"name\":\"UCX_TLS\",\"value\":\"tcp,sm,self,cuda_copy,cuda_ipc\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo-vllm-cuda-runtime:1.5.1-m02\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py\",\"name\":\"preflight-source\",\"readOnly\":true,\"subPath\":\"preflight.py\"}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"runtimeClassName\":\"nvidia\",\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"nvidia.com/gpu\",\"operator\":\"Exists\"}],\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"configMap\":{\"name\":\"m08-preflight-source\"},\"name\":\"preflight-source\"}]}},\"runtimeVersionOverride\":\"1.5.1\",\"sharedMemorySize\":\"8Gi\",\"type\":\"worker\"},{\"name\":\"VllmPrefillWorker\",\"podTemplate\":{\"spec\":{\"containers\":[{\"$patch\":{\"args\":\"append\"},\"args\":[\"--enforce-eager\",\"--gpu-memory-utilization\",\"0.3\",\"--disable-custom-all-reduce\",\"--max-model-len\",\"1024\"],\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\",\"-m\",\"dynamo.vllm\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cuda\"},{\"name\":\"VLLM_HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.podIP\"}}},{\"name\":\"VLLM_MOONCAKE_BOOTSTRAP_PORT\",\"value\":\"20090\"},{\"name\":\"VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT\",\"value\":\"60\"},{\"name\":\"ASCEND_TRANSFER_TIMEOUT\",\"value\":\"30000\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"},{\"name\":\"UCX_TLS\",\"value\":\"tcp,sm,self,cuda_copy,cuda_ipc\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo-vllm-cuda-runtime:1.5.1-m02\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py\",\"name\":\"preflight-source\",\"readOnly\":true,\"subPath\":\"preflight.py\"}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"runtimeClassName\":\"nvidia\",\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"nvidia.com/gpu\",\"operator\":\"Exists\"}],\"volumes\":[{\"hostPath\":{\"path\":\"/ssd/models/dynamo-regression/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"configMap\":{\"name\":\"m08-preflight-source\"},\"name\":\"preflight-source\"}]}},\"runtimeVersionOverride\":\"1.5.1\",\"sharedMemorySize\":\"8Gi\",\"type\":\"worker\"}]}}},\"searchStrategy\":\"thorough\",\"autoApply\":true}",
+                                    "--output-dir",
+                                    "/data"
+                                ],
+                                "command": [
+                                    "python",
+                                    "-m",
+                                    "dynamo.profiler"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "DGDR_NAME",
+                                        "value": "m08-dgdr"
+                                    },
+                                    {
+                                        "name": "DGDR_NAMESPACE",
+                                        "value": "dynamo-m08-1029"
+                                    },
+                                    {
+                                        "name": "DGDR_UID",
+                                        "value": "03612488-9fa7-4c40-8d53-16e8687980df"
+                                    },
+                                    {
+                                        "name": "HUGGING_FACE_HUB_TOKEN",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "key": "HF_TOKEN",
+                                                "name": "hf-token-secret",
+                                                "optional": true
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "DYNAMO_DGD_APPLY_OVERRIDES_BIN",
+                                        "value": "/opt/dynamo/bin/dgd-apply-overrides"
+                                    }
+                                ],
+                                "image": "heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "profiler",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/data",
+                                        "name": "profiling-output"
+                                    },
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/opt/dynamo/bin",
+                                        "name": "dgd-override-tool",
+                                        "readOnly": true
+                                    }
+                                ],
+                                "workingDir": "/workspace"
+                            },
+                            {
+                                "args": [
+                                    "\nset -e\nset -o pipefail\n\n# Without kubectl the sidecar would poll forever and strand the DGDR in\n# Profiling; fail the Job instead so the controller can move it to Failed.\nif ! command -v kubectl \u003e/dev/null 2\u003e\u00261; then\n  echo \"ERROR: kubectl not found in the output-copier image. The image set for the output-copier container through spec.overrides.profilingJob must contain kubectl.\" \u003e\u00262\n  exit 1\nfi\n\nSTATUS_FILE=\"/data/profiler_status.yaml\"\nLAST_PHASE=\"\"\nSTART_TIME=$(date +%s)\nLAST_PROGRESS_LOG=$START_TIME\nPROGRESS_INTERVAL=300\n\n# relay_phase: read phase+message from profiler_status.yaml and write to ConfigMap.\n# Only writes when the phase changes (debounce).\nrelay_phase() {\n  if [ ! -f \"$STATUS_FILE\" ]; then\n    return\n  fi\n  PHASE=$(grep \"^phase:\" \"$STATUS_FILE\" 2\u003e/dev/null | awk '{print $2}' | tr -d '\"' | tr -d \"'\" || true)\n  MESSAGE=$(grep \"^message:\" \"$STATUS_FILE\" 2\u003e/dev/null | sed 's/^message: *//' | tr -d '\"' | tr -d \"'\" || true)\n  if [ -z \"$PHASE\" ] || [ \"$PHASE\" = \"$LAST_PHASE\" ]; then\n    return\n  fi\n  echo \"Phase update: $PHASE - $MESSAGE\"\n  cat \u003e/tmp/progress.yaml \u003c\u003cPEOF\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: dgdr-output-m08-dgdr\n  namespace: dynamo-m08-1029\n  labels:\n    dgdr.nvidia.com/name: m08-dgdr\n    dgdr.nvidia.com/namespace: dynamo-m08-1029\n    nvidia.com/managed-by: dynamo-operator\n  ownerReferences:\n  - apiVersion: nvidia.com/v1beta1\n    kind: DynamoGraphDeploymentRequest\n    name: m08-dgdr\n    uid: 03612488-9fa7-4c40-8d53-16e8687980df\n    blockOwnerDeletion: true\n    controller: true\ndata:\n  phase: \"$PHASE\"\n  message: \"$MESSAGE\"\nPEOF\n  kubectl apply -f /tmp/progress.yaml 2\u003e/dev/null \u0026\u0026 LAST_PHASE=\"$PHASE\" || echo \"Warning: failed to update progress ConfigMap\"\n}\n\n# Main loop: poll profiler_status.yaml and wait for profiler to terminate\necho \"Waiting for profiler to complete...\"\nwhile true; do\n  CURRENT_TIME=$(date +%s)\n  ELAPSED=$((CURRENT_TIME - START_TIME))\n\n  # Relay phase updates to ConfigMap\n  relay_phase\n\n  # Log progress every 5 minutes\n  if [ $((CURRENT_TIME - LAST_PROGRESS_LOG)) -ge $PROGRESS_INTERVAL ]; then\n    echo \"Still waiting... ($(($ELAPSED / 60)) minutes elapsed)\"\n    LAST_PROGRESS_LOG=$CURRENT_TIME\n  fi\n\n  # Check if profiler container terminated\n  CONTAINER_STATUS=$(kubectl get pod $HOSTNAME -n dynamo-m08-1029 -o jsonpath='{.status.containerStatuses[?(@.name==\"profiler\")].state}' 2\u003e/dev/null || echo \"\")\n  if echo \"$CONTAINER_STATUS\" | grep -q \"terminated\"; then\n    echo \"Profiler terminated (ran for $(($ELAPSED / 60)) minutes)\"\n    break\n  fi\n  sleep 10\ndone\n\n# Final relay: pick up any last phase change written just before termination\nrelay_phase\n\n# Check profiler status file (2 minute timeout)\necho \"Checking profiler status...\"\nTIMEOUT=120\nCHECK_START=$(date +%s)\n\n# Wait for status file to exist\nwhile [ ! -f \"$STATUS_FILE\" ]; do\n  ELAPSED=$(($(date +%s) - CHECK_START))\n  if [ $ELAPSED -ge $TIMEOUT ]; then\n    echo \"ERROR: Status file not found after ${TIMEOUT}s\"\n    exit 1\n  fi\n  sleep 2\ndone\n\n# Read and parse status from YAML file\nSTATUS=$(grep \"^status:\" \"$STATUS_FILE\" | awk '{print $2}' | tr -d '\"' | tr -d \"'\")\n\nif [ -z \"$STATUS\" ]; then\n  echo \"ERROR: Invalid status file format\"\n  exit 1\nfi\n\n# Check status value\ncase \"$STATUS\" in\n  success)\n    MESSAGE=$(grep \"^message:\" \"$STATUS_FILE\" 2\u003e/dev/null | sed 's/^message: *//' | tr -d '\"' | tr -d \"'\" || true)\n    echo \"Profiler succeeded: $MESSAGE\"\n    ;;\n  failed)\n    ERROR=$(grep \"^error:\" \"$STATUS_FILE\" 2\u003e/dev/null | sed 's/^error: *//' | tr -d '\"' | tr -d \"'\" || true)\n    MESSAGE=$(grep \"^message:\" \"$STATUS_FILE\" 2\u003e/dev/null | sed 's/^message: *//' | tr -d '\"' | tr -d \"'\" || true)\n    PHASE=$(grep \"^phase:\" \"$STATUS_FILE\" 2\u003e/dev/null | awk '{print $2}' | tr -d '\"' | tr -d \"'\" || true)\n    echo \"Profiler failed: ${ERROR:-$MESSAGE}\"\n    echo \"Writing failure info to ConfigMap so the controller can read it...\"\n    cat \u003e/tmp/cm.yaml \u003c\u003cFEOF\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: dgdr-output-m08-dgdr\n  namespace: dynamo-m08-1029\n  labels:\n    dgdr.nvidia.com/name: m08-dgdr\n    dgdr.nvidia.com/namespace: dynamo-m08-1029\n    nvidia.com/managed-by: dynamo-operator\n  ownerReferences:\n  - apiVersion: nvidia.com/v1beta1\n    kind: DynamoGraphDeploymentRequest\n    name: m08-dgdr\n    uid: 03612488-9fa7-4c40-8d53-16e8687980df\n    blockOwnerDeletion: true\n    controller: true\ndata:\n  phase: \"$PHASE\"\n  message: \"$MESSAGE\"\n  profiler_status: \"failed\"\n  profiler_error: \"${ERROR:-$MESSAGE}\"\nFEOF\n    if [ -f /data/profiler_status.yaml ]; then\n      echo \"  profiler_status.yaml: |\" \u003e\u003e /tmp/cm.yaml\n      sed 's/^/    /' /data/profiler_status.yaml \u003e\u003e /tmp/cm.yaml\n    fi\n    kubectl apply -f /tmp/cm.yaml\n    echo \"Saved failure info to ConfigMap dgdr-output-m08-dgdr\"\n    exit 0\n    ;;\n  running)\n    echo \"ERROR: Profiler still running (unexpected)\"\n    exit 1\n    ;;\n  *)\n    echo \"ERROR: Unknown status: $STATUS\"\n    exit 1\n    ;;\nesac\n\necho \"Writing profiling output to ConfigMap...\"\n\n# Read final phase+message to preserve them alongside the profiling output\nFINAL_PHASE=$(grep \"^phase:\" \"$STATUS_FILE\" 2\u003e/dev/null | awk '{print $2}' | tr -d '\"' | tr -d \"'\" || true)\nFINAL_MESSAGE=$(grep \"^message:\" \"$STATUS_FILE\" 2\u003e/dev/null | sed 's/^message: *//' | tr -d '\"' | tr -d \"'\" || true)\n\n# Start building ConfigMap YAML with DGD spec + preserved phase/message\ncat \u003e/tmp/cm.yaml \u003c\u003cEOF\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: dgdr-output-m08-dgdr\n  namespace: dynamo-m08-1029\n  labels:\n    dgdr.nvidia.com/name: m08-dgdr\n    dgdr.nvidia.com/namespace: dynamo-m08-1029\n    nvidia.com/managed-by: dynamo-operator\n  ownerReferences:\n  - apiVersion: nvidia.com/v1beta1\n    kind: DynamoGraphDeploymentRequest\n    name: m08-dgdr\n    uid: 03612488-9fa7-4c40-8d53-16e8687980df\n    blockOwnerDeletion: true\n    controller: true\ndata:\n  phase: \"$FINAL_PHASE\"\n  message: \"$FINAL_MESSAGE\"\n  profiler_status: \"success\"\n  final_config.yaml: |\nEOF\nsed 's/^/    /' /data/final_config.yaml \u003e\u003e /tmp/cm.yaml\n\n# Add profiler status file for debugging\nif [ -f /data/profiler_status.yaml ]; then\n  echo \"  profiler_status.yaml: |\" \u003e\u003e /tmp/cm.yaml\n  sed 's/^/    /' /data/profiler_status.yaml \u003e\u003e /tmp/cm.yaml\nfi\n\n# Note: Profiling data (raw_data.npz converted to JSON) is included in the\n# generated DGD YAML as a separate ConfigMap by the profiler, no need to add it here\n\nkubectl apply -f /tmp/cm.yaml\necho \"Saved profiling output to ConfigMap dgdr-output-m08-dgdr\"\n"
+                                ],
+                                "command": [
+                                    "/bin/sh",
+                                    "-c"
+                                ],
+                                "image": "heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "output-copier",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/data",
+                                        "name": "profiling-output",
+                                        "readOnly": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "imagePullSecrets": [
+                            {
+                                "name": "nvcr-imagepullsecret"
+                            }
+                        ],
+                        "initContainers": [
+                            {
+                                "args": [
+                                    "--install-to",
+                                    "/opt/dynamo/bin/dgd-apply-overrides"
+                                ],
+                                "command": [
+                                    "/dgd-apply-overrides"
+                                ],
+                                "image": "heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                                "imagePullPolicy": "Never",
+                                "name": "dgd-override-installer",
+                                "resources": {},
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    },
+                                    "readOnlyRootFilesystem": true,
+                                    "runAsGroup": 1000,
+                                    "runAsNonRoot": true,
+                                    "runAsUser": 1000,
+                                    "seccompProfile": {
+                                        "type": "RuntimeDefault"
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/opt/dynamo/bin",
+                                        "name": "dgd-override-tool"
+                                    }
+                                ]
+                            }
+                        ],
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "amd64",
+                            "kubernetes.io/hostname": "worker06"
+                        },
+                        "restartPolicy": "Never",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000,
+                            "runAsGroup": 1000,
+                            "runAsNonRoot": true,
+                            "runAsUser": 1000
+                        },
+                        "serviceAccount": "dgdr-profiling-job",
+                        "serviceAccountName": "dgdr-profiling-job",
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "emptyDir": {},
+                                "name": "profiling-output"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/ssd/models/dynamo-regression/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "dgd-override-tool"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "active": 1,
+                "ready": 1,
+                "startTime": "2026-10-29T07:15:18Z",
+                "terminating": 0,
+                "uncountedTerminatedPods": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "data": {
+                "message": "Benchmarking decode candidate 1/2: tp1 (1 GPUs)",
+                "phase": "SweepingDecode"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"message\":\"Benchmarking decode candidate 1/2: tp1 (1 GPUs)\",\"phase\":\"SweepingDecode\"},\"kind\":\"ConfigMap\",\"metadata\":{\"annotations\":{},\"labels\":{\"dgdr.nvidia.com/name\":\"m08-dgdr\",\"dgdr.nvidia.com/namespace\":\"dynamo-m08-1029\",\"nvidia.com/managed-by\":\"dynamo-operator\"},\"name\":\"dgdr-output-m08-dgdr\",\"namespace\":\"dynamo-m08-1029\",\"ownerReferences\":[{\"apiVersion\":\"nvidia.com/v1beta1\",\"blockOwnerDeletion\":true,\"controller\":true,\"kind\":\"DynamoGraphDeploymentRequest\",\"name\":\"m08-dgdr\",\"uid\":\"03612488-9fa7-4c40-8d53-16e8687980df\"}]}}\n"
+                },
+                "creationTimestamp": "2026-10-29T07:15:33Z",
+                "labels": {
+                    "dgdr.nvidia.com/name": "m08-dgdr",
+                    "dgdr.nvidia.com/namespace": "dynamo-m08-1029",
+                    "nvidia.com/managed-by": "dynamo-operator"
+                },
+                "name": "dgdr-output-m08-dgdr",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoGraphDeploymentRequest",
+                        "name": "m08-dgdr",
+                        "uid": "03612488-9fa7-4c40-8d53-16e8687980df"
+                    }
+                ],
+                "resourceVersion": "40385870",
+                "uid": "ab83e7ac-2259-4d25-bdbf-2f830d28f754"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "data": {
+                "config.yaml": "apiVersion: operator.config.dynamo.nvidia.com/v1alpha1\nkind: OperatorConfiguration\nserver:\n  metrics:\n    bindAddress: \"0.0.0.0\"\n    secure: true\n  webhook:\n    certProvisionMode: \"auto\"\n    secretName: \"webhook-server-cert\"\n    serviceName: heyi-m08-dynamo-operator-webhook-service\nleaderElection:\n  enabled: true\n  id: \"dynamo.nvidia.com\"\n  namespace: \"kube-system\"\norchestrators:\n  kaiScheduler:\n    enabled: true\n  volcanoScheduler:\n    enabled: false\n  grove:\n    enabled: true\nrbac:\n  plannerClusterRoleName: heyi-m08-dynamo-operator-planner\n  dgdrProfilingClusterRoleName: heyi-m08-dynamo-operator-dgdr-profiling\n  eppClusterRoleName: heyi-m08-dynamo-operator-epp\nmpi:\n  sshSecretName: \"mpi-run-ssh-secret\"\n  sshSecretNamespace: \"dynamo-m08-1029\"\n"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "heyi-m08",
+                    "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+                },
+                "creationTimestamp": "2026-10-29T04:16:12Z",
+                "labels": {
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.5.1",
+                    "helm.sh/chart": "dynamo-operator-1.5.1"
+                },
+                "name": "heyi-m08-dynamo-operator-config",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40366491",
+                "uid": "3929a5f2-271a-4034-8e04-95ae4ebe13e5"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "data": {
+                "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIDBTCCAe2gAwIBAgIIf3lnUn0I0IcwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE\nAxMKa3ViZXJuZXRlczAeFw0yNjA3MjgwMjMzMThaFw0zNjA3MjUwMjM4MThaMBUx\nEzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK\nAoIBAQC6fZoEhBf4AYtm3VAiXGK0cWH1j0tkFOEqcmuNC/NoEo3ySvMQu59/CALu\n+6W01g+g37rH+oQxPicmzuTXQVFa3r4uhlB/Eiw9OpSZNOrQBLVZtSRn57FI+WtW\nUmYG6UdI5RLng5ubUjaVfbtOZ7IQW97e9LfbhRp85SIudJ72hsJEb7nyyZa1umZp\nJ03sKYYGyXLqfkuC8g+e7hShGym3X6HKKbrfBuvaco5eFRk69xsLpcOTrwsE+Slj\nOn/6T6VWKZmrAAo6DBHKgSh29yBxa6sE37nl7USzaA4xwXyaJBLwMqJLygOqs1uX\nj+AuUjEsKFPqOax3ppyRwaGylExxAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP\nBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQfaIH280iDN8u6WqRQtKEI5ukHcjAV\nBgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQCOfXzu6YFM\n5CdhFI1KPwYSZzLQTEGSd9ATlCko6onfIaw3RU76L0Na04f7AIrsYPVJ71qLCeMT\nqQhKXcObD+kCRd0cXuoFDcHy8Kw2429pCk0I/BHlrdL6/cVkbr/zK05o32E5kWsE\nCEbg+syAyJdjjSSkl0QpvPGnuVqr7gMCezwclkcq3oskWiAlTFJDL4cCglAiEtGr\nhFr3ou4BsTycj90YBUD8zjyfkBz0msce/h85OyNqhNMmqgi1kz0l8YdcZta33jdK\nucylWxuQq9kT1/eq1M3UvSP+RkUX5XA4MPgBGqPGCCE77+dRLsZ0AJ0KpyC07iKs\n6aR1HDAPmHWx\n-----END CERTIFICATE-----\n"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+                "annotations": {
+                    "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+                },
+                "creationTimestamp": "2026-10-29T04:16:12Z",
+                "name": "kube-root-ca.crt",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40305494",
+                "uid": "2814356e-e588-4628-9d5d-1147a87b0d2b"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "data": {
+                "preflight.py": "# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.\n# SPDX-License-Identifier: Apache-2.0\n\nimport json\nimport os\nfrom types import SimpleNamespace\n\nfrom dynamo.common.constants import DisaggregationMode\nfrom dynamo.common.platform import PlatformError, registry\nfrom dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE\nfrom dynamo.vllm.platform import configure_platform_scheduler\n\nKVBM_MODULES = (\n    \"kvbm.vllm_integration.connector\",\n    \"kvbm.vllm_integration.connector.dynamo_connector\",\n)\n\n\ndef validate_kvbm_configuration(config, platform_id, kv):\n    engine = config.engine_args\n    valid = (\n        kv.kv_connector == \"DynamoConnector\"\n        and getattr(kv, \"kv_connector_module_path\", None) in KVBM_MODULES\n        and kv.kv_role == \"kv_both\"\n        and engine.tensor_parallel_size in (1, 2)\n        and engine.data_parallel_size == 1\n        and engine.enforce_eager\n        and not config.enable_multimodal\n        and not engine.enable_lora\n        and engine.quantization is None\n        and engine.speculative_config is None\n        and not engine.enable_expert_parallel\n    )\n    if not valid:\n        raise PlatformError(\n            \"unsupported_configuration\",\n            platform_id,\n            \"KVBM requires DynamoConnector and eager dense text TP1/TP2, DP1\",\n        )\n\n\ndef pd_transport(config, platform_id, kv):\n    if kv.kv_connector != \"PdConnector\":\n        return kv\n    extra = kv.kv_connector_extra_config or {}\n    children = extra.get(\"connectors\", []) if isinstance(extra, dict) else []\n    if (\n        config.disaggregation_mode != DisaggregationMode.PREFILL\n        or getattr(kv, \"kv_connector_module_path\", None) != KVBM_MODULES[0]\n        or kv.kv_role != \"kv_both\"\n        or not isinstance(children, list)\n        or len(children) != 2\n        or not all(isinstance(c, dict) for c in children)\n    ):\n        raise PlatformError(\n            \"unsupported_configuration\",\n            platform_id,\n            \"KVBM PD requires one offload child then one transport on prefill\",\n        )\n    offload = SimpleNamespace(\n        **{\n            name: children[0].get(name)\n            for name in (\"kv_connector\", \"kv_role\", \"kv_connector_module_path\")\n        }\n    )\n    validate_kvbm_configuration(config, platform_id, offload)\n    transport = dict(children[1])\n    transport.setdefault(\"kv_connector\", None)\n    transport.setdefault(\"kv_connector_module_path\", None)\n    transport.setdefault(\"kv_role\", None)\n    transport[\"kv_connector_extra_config\"] = children[1].setdefault(\n        \"kv_connector_extra_config\", {}\n    )\n    if not isinstance(transport[\"kv_connector_extra_config\"], dict):\n        raise PlatformError(\n            \"unsupported_configuration\",\n            platform_id,\n            \"PD transport config must be a dict\",\n        )\n    return SimpleNamespace(**transport)\n\n\ndef validate_pd_configuration(config, platform_id):\n    \"\"\"Bound the initial vendor PD integration to eager text TP1/TP2, DP1.\"\"\"\n    engine = config.engine_args\n    kv = engine.kv_transfer_config\n    expected_role = (\n        \"kv_producer\"\n        if config.disaggregation_mode == DisaggregationMode.PREFILL\n        else \"kv_consumer\"\n    )\n    if (\n        config.disaggregation_mode\n        not in (DisaggregationMode.PREFILL, DisaggregationMode.DECODE)\n        or kv is None\n        or engine.tensor_parallel_size not in (1, 2)\n        or engine.data_parallel_size != 1\n        or not engine.enforce_eager\n        or config.enable_multimodal\n        or engine.enable_lora\n        or engine.quantization is not None\n        or engine.speculative_config is not None\n        or engine.enable_expert_parallel\n    ):\n        raise PlatformError(\n            \"unsupported_configuration\",\n            platform_id,\n            \"PD requires a connector and eager text TP1/TP2, DP1 without advanced engine features\",\n        )\n    kv = pd_transport(config, platform_id, kv)\n    module = getattr(kv, \"kv_connector_module_path\", None)\n    if platform_id == \"ascend\":\n        valid = (\n            kv.kv_connector == \"MooncakeConnector\"\n            and module == ASCEND_MOONCAKE_MODULE\n            and kv.kv_role == expected_role\n        )\n        extra = kv.kv_connector_extra_config\n        for role in (\"prefill\", \"decode\"):\n            parallel = extra.get(role, {})\n            valid = valid and (\n                parallel.get(\"tp_size\") in (1, 2)\n                and parallel.get(\"dp_size\") == 1\n                and parallel.get(\"pp_size\", 1) == 1\n            )\n        split = extra.get(\"heyi_tp_split\", False)\n        pair = (\n            extra.get(\"prefill\", {}).get(\"tp_size\"),\n            extra.get(\"decode\", {}).get(\"tp_size\"),\n        )\n        valid = valid and (split is True if pair == (1, 2) else split is False)\n        local_role = \"prefill\" if expected_role == \"kv_producer\" else \"decode\"\n        valid = (\n            valid\n            and extra.get(local_role, {}).get(\"tp_size\") == engine.tensor_parallel_size\n        )\n    elif platform_id == \"metax\":\n        valid = (\n            kv.kv_connector == \"MooncakeConnector\"\n            and module is None\n            and kv.kv_role == expected_role\n            and kv.kv_connector_extra_config.get(\"mooncake_protocol\") == \"maca\"\n        ) or (\n            kv.kv_connector == \"NixlConnector\"\n            and module is None\n            and kv.kv_role == \"kv_both\"\n        )\n    else:\n        valid = (\n            platform_id == \"cuda\"\n            and kv.kv_connector == \"NixlConnector\"\n            and module is None\n            and kv.kv_role == \"kv_both\"\n        )\n    if not valid:\n        raise PlatformError(\n            \"unsupported_configuration\",\n            platform_id,\n            \"PD connector, module, role or peer parallel configuration is unsupported\",\n        )\n    if platform_id == \"metax\" and kv.kv_connector == \"MooncakeConnector\":\n        timeout = kv.kv_connector_extra_config.setdefault(\n            \"heyi_transfer_failure_timeout\", 30\n        )\n        if type(timeout) not in (int, float) or not 5 \u003c= timeout \u003c= 300:\n            raise PlatformError(\n                \"unsupported_configuration\",\n                platform_id,\n                \"Mooncake transfer failure timeout must be between 5 and 300 seconds\",\n            )\n    return kv.kv_connector\n\n\ndef configure_pd_environment(platform_id, connector):\n    \"\"\"Select MACA-aware UCX protocols before NIXL loads its native libraries.\"\"\"\n    if platform_id != \"metax\" or connector != \"NixlConnector\":\n        return\n    # The UCX 1.14 library bundled with NIXL 1.0.0+maca defaults to the old\n    # protocol path. Its emulated GET packs a device pointer with host memcpy.\n    # Protocol v2 handles MACA memory correctly; keep peer error handling enabled.\n    if os.environ.get(\"UCX_PROTO_ENABLE\", \"y\").lower() not in (\"y\", \"yes\", \"1\"):\n        raise PlatformError(\n            \"unsupported_configuration\",\n            platform_id,\n            \"MetaX NIXL requires UCX_PROTO_ENABLE=y to avoid unsafe GPU GET\",\n        )\n    os.environ.setdefault(\"UCX_PROTO_ENABLE\", \"y\")\n    os.environ.setdefault(\"UCX_TLS\", \"maca_ipc,maca_copy,tcp\")\n\n\ndef prepare_vllm_platform(config):\n    platform_id = os.environ.get(\"DYN_PLATFORM\")\n    if platform_id is None:\n        return None  # Legacy invocation; no vendor probing or behavior change.\n    engine = config.engine_args\n    gms = os.environ.get(\"DYN_GMS_USE_V1\") == \"true\"\n    gms = gms or getattr(engine, \"load_format\", None) == \"gms\"\n    if gms and platform_id == \"ascend\":\n        raise PlatformError(\n            \"missing_capability\",\n            platform_id,\n            \"GMS requires enforced read-only VMM and POSIX handles; the tested \"\n            \"910B3/CANN 9.1/HDK 26.1.1 stack rejects read-only access and \"\n            \"POSIX allocation; Ascend GMS provider remains unavailable\",\n        )\n    pd = config.disaggregation_mode in (\n        DisaggregationMode.PREFILL,\n        DisaggregationMode.DECODE,\n    )\n    if config.disaggregation_mode == DisaggregationMode.ENCODE:\n        if (\n            not config.enable_multimodal\n            or engine.tensor_parallel_size != 1\n            or engine.data_parallel_size != 1\n            or not engine.enforce_eager\n            or engine.kv_transfer_config is not None\n        ):\n            raise PlatformError(\n                \"unsupported_configuration\",\n                platform_id,\n                \"standalone encode requires eager multimodal TP1 DP1 without a KV connector\",\n            )\n    connector = validate_pd_configuration(config, platform_id) if pd else None\n    kvbm = (\n        engine.kv_transfer_config is not None\n        and engine.kv_transfer_config.kv_connector in (\"DynamoConnector\", \"PdConnector\")\n    )\n    if not pd and kvbm:\n        validate_kvbm_configuration(config, platform_id, engine.kv_transfer_config)\n    configure_platform_scheduler(engine, config.use_kv_events)\n    task = \"text\"\n    if config.embedding_worker:\n        task = \"embedding\"\n    elif config.enable_multimodal:\n        task = \"multimodal\"\n    context = dict(\n        engine=\"vllm\",\n        task=task,\n        tp=str(engine.tensor_parallel_size),\n        pp=str(engine.pipeline_parallel_size),\n        dp=str(engine.data_parallel_size),\n        local_dp=str(engine.data_parallel_size_local),\n        nnodes=str(getattr(engine, \"nnodes\", 1)),\n        headless=str(config.headless).lower(),\n        eager=str(engine.enforce_eager).lower(),\n        model=config.model,\n        kv_events=str(config.use_kv_events).lower(),\n        lora=str(engine.enable_lora).lower(),\n        quantization=engine.quantization or \"none\",\n        speculative=json.dumps(engine.speculative_config, sort_keys=True),\n        expert_parallel=str(engine.enable_expert_parallel).lower(),\n        pd_connector=connector or \"none\",\n        kvbm=str(kvbm).lower(),\n        gms=str(gms).lower(),\n    )\n    required = [\n        \"device.compute\",\n        f\"engine.{task}\",\n    ]\n    if config.use_kv_events:\n        required.append(\"kv.events\")\n    if pd:\n        required.append(\"pd.transfer\")\n    if kvbm:\n        required.append(\"kvbm.offload\")\n    if gms:\n        required.append(\"gms.vmm\")\n    required.extend(\n        name.strip()\n        for name in os.environ.get(\"DYN_REQUIRED_CAPABILITIES\", \"\").split(\",\")\n        if name.strip()\n    )\n    configure_pd_environment(platform_id, connector)\n    # Providers require visible devices. Placement belongs to vLLM: TP/PP may\n    # span nodes and Ray may allocate remote devices, so global parallel sizes\n    # cannot be compared with this process's local device count.\n    return registry.prepare(platform_id, context, required)\n"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"preflight.py\":\"# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.\\n# SPDX-License-Identifier: Apache-2.0\\n\\nimport json\\nimport os\\nfrom types import SimpleNamespace\\n\\nfrom dynamo.common.constants import DisaggregationMode\\nfrom dynamo.common.platform import PlatformError, registry\\nfrom dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE\\nfrom dynamo.vllm.platform import configure_platform_scheduler\\n\\nKVBM_MODULES = (\\n    \\\"kvbm.vllm_integration.connector\\\",\\n    \\\"kvbm.vllm_integration.connector.dynamo_connector\\\",\\n)\\n\\n\\ndef validate_kvbm_configuration(config, platform_id, kv):\\n    engine = config.engine_args\\n    valid = (\\n        kv.kv_connector == \\\"DynamoConnector\\\"\\n        and getattr(kv, \\\"kv_connector_module_path\\\", None) in KVBM_MODULES\\n        and kv.kv_role == \\\"kv_both\\\"\\n        and engine.tensor_parallel_size in (1, 2)\\n        and engine.data_parallel_size == 1\\n        and engine.enforce_eager\\n        and not config.enable_multimodal\\n        and not engine.enable_lora\\n        and engine.quantization is None\\n        and engine.speculative_config is None\\n        and not engine.enable_expert_parallel\\n    )\\n    if not valid:\\n        raise PlatformError(\\n            \\\"unsupported_configuration\\\",\\n            platform_id,\\n            \\\"KVBM requires DynamoConnector and eager dense text TP1/TP2, DP1\\\",\\n        )\\n\\n\\ndef pd_transport(config, platform_id, kv):\\n    if kv.kv_connector != \\\"PdConnector\\\":\\n        return kv\\n    extra = kv.kv_connector_extra_config or {}\\n    children = extra.get(\\\"connectors\\\", []) if isinstance(extra, dict) else []\\n    if (\\n        config.disaggregation_mode != DisaggregationMode.PREFILL\\n        or getattr(kv, \\\"kv_connector_module_path\\\", None) != KVBM_MODULES[0]\\n        or kv.kv_role != \\\"kv_both\\\"\\n        or not isinstance(children, list)\\n        or len(children) != 2\\n        or not all(isinstance(c, dict) for c in children)\\n    ):\\n        raise PlatformError(\\n            \\\"unsupported_configuration\\\",\\n            platform_id,\\n            \\\"KVBM PD requires one offload child then one transport on prefill\\\",\\n        )\\n    offload = SimpleNamespace(\\n        **{\\n            name: children[0].get(name)\\n            for name in (\\\"kv_connector\\\", \\\"kv_role\\\", \\\"kv_connector_module_path\\\")\\n        }\\n    )\\n    validate_kvbm_configuration(config, platform_id, offload)\\n    transport = dict(children[1])\\n    transport.setdefault(\\\"kv_connector\\\", None)\\n    transport.setdefault(\\\"kv_connector_module_path\\\", None)\\n    transport.setdefault(\\\"kv_role\\\", None)\\n    transport[\\\"kv_connector_extra_config\\\"] = children[1].setdefault(\\n        \\\"kv_connector_extra_config\\\", {}\\n    )\\n    if not isinstance(transport[\\\"kv_connector_extra_config\\\"], dict):\\n        raise PlatformError(\\n            \\\"unsupported_configuration\\\",\\n            platform_id,\\n            \\\"PD transport config must be a dict\\\",\\n        )\\n    return SimpleNamespace(**transport)\\n\\n\\ndef validate_pd_configuration(config, platform_id):\\n    \\\"\\\"\\\"Bound the initial vendor PD integration to eager text TP1/TP2, DP1.\\\"\\\"\\\"\\n    engine = config.engine_args\\n    kv = engine.kv_transfer_config\\n    expected_role = (\\n        \\\"kv_producer\\\"\\n        if config.disaggregation_mode == DisaggregationMode.PREFILL\\n        else \\\"kv_consumer\\\"\\n    )\\n    if (\\n        config.disaggregation_mode\\n        not in (DisaggregationMode.PREFILL, DisaggregationMode.DECODE)\\n        or kv is None\\n        or engine.tensor_parallel_size not in (1, 2)\\n        or engine.data_parallel_size != 1\\n        or not engine.enforce_eager\\n        or config.enable_multimodal\\n        or engine.enable_lora\\n        or engine.quantization is not None\\n        or engine.speculative_config is not None\\n        or engine.enable_expert_parallel\\n    ):\\n        raise PlatformError(\\n            \\\"unsupported_configuration\\\",\\n            platform_id,\\n            \\\"PD requires a connector and eager text TP1/TP2, DP1 without advanced engine features\\\",\\n        )\\n    kv = pd_transport(config, platform_id, kv)\\n    module = getattr(kv, \\\"kv_connector_module_path\\\", None)\\n    if platform_id == \\\"ascend\\\":\\n        valid = (\\n            kv.kv_connector == \\\"MooncakeConnector\\\"\\n            and module == ASCEND_MOONCAKE_MODULE\\n            and kv.kv_role == expected_role\\n        )\\n        extra = kv.kv_connector_extra_config\\n        for role in (\\\"prefill\\\", \\\"decode\\\"):\\n            parallel = extra.get(role, {})\\n            valid = valid and (\\n                parallel.get(\\\"tp_size\\\") in (1, 2)\\n                and parallel.get(\\\"dp_size\\\") == 1\\n                and parallel.get(\\\"pp_size\\\", 1) == 1\\n            )\\n        split = extra.get(\\\"heyi_tp_split\\\", False)\\n        pair = (\\n            extra.get(\\\"prefill\\\", {}).get(\\\"tp_size\\\"),\\n            extra.get(\\\"decode\\\", {}).get(\\\"tp_size\\\"),\\n        )\\n        valid = valid and (split is True if pair == (1, 2) else split is False)\\n        local_role = \\\"prefill\\\" if expected_role == \\\"kv_producer\\\" else \\\"decode\\\"\\n        valid = (\\n            valid\\n            and extra.get(local_role, {}).get(\\\"tp_size\\\") == engine.tensor_parallel_size\\n        )\\n    elif platform_id == \\\"metax\\\":\\n        valid = (\\n            kv.kv_connector == \\\"MooncakeConnector\\\"\\n            and module is None\\n            and kv.kv_role == expected_role\\n            and kv.kv_connector_extra_config.get(\\\"mooncake_protocol\\\") == \\\"maca\\\"\\n        ) or (\\n            kv.kv_connector == \\\"NixlConnector\\\"\\n            and module is None\\n            and kv.kv_role == \\\"kv_both\\\"\\n        )\\n    else:\\n        valid = (\\n            platform_id == \\\"cuda\\\"\\n            and kv.kv_connector == \\\"NixlConnector\\\"\\n            and module is None\\n            and kv.kv_role == \\\"kv_both\\\"\\n        )\\n    if not valid:\\n        raise PlatformError(\\n            \\\"unsupported_configuration\\\",\\n            platform_id,\\n            \\\"PD connector, module, role or peer parallel configuration is unsupported\\\",\\n        )\\n    if platform_id == \\\"metax\\\" and kv.kv_connector == \\\"MooncakeConnector\\\":\\n        timeout = kv.kv_connector_extra_config.setdefault(\\n            \\\"heyi_transfer_failure_timeout\\\", 30\\n        )\\n        if type(timeout) not in (int, float) or not 5 \\u003c= timeout \\u003c= 300:\\n            raise PlatformError(\\n                \\\"unsupported_configuration\\\",\\n                platform_id,\\n                \\\"Mooncake transfer failure timeout must be between 5 and 300 seconds\\\",\\n            )\\n    return kv.kv_connector\\n\\n\\ndef configure_pd_environment(platform_id, connector):\\n    \\\"\\\"\\\"Select MACA-aware UCX protocols before NIXL loads its native libraries.\\\"\\\"\\\"\\n    if platform_id != \\\"metax\\\" or connector != \\\"NixlConnector\\\":\\n        return\\n    # The UCX 1.14 library bundled with NIXL 1.0.0+maca defaults to the old\\n    # protocol path. Its emulated GET packs a device pointer with host memcpy.\\n    # Protocol v2 handles MACA memory correctly; keep peer error handling enabled.\\n    if os.environ.get(\\\"UCX_PROTO_ENABLE\\\", \\\"y\\\").lower() not in (\\\"y\\\", \\\"yes\\\", \\\"1\\\"):\\n        raise PlatformError(\\n            \\\"unsupported_configuration\\\",\\n            platform_id,\\n            \\\"MetaX NIXL requires UCX_PROTO_ENABLE=y to avoid unsafe GPU GET\\\",\\n        )\\n    os.environ.setdefault(\\\"UCX_PROTO_ENABLE\\\", \\\"y\\\")\\n    os.environ.setdefault(\\\"UCX_TLS\\\", \\\"maca_ipc,maca_copy,tcp\\\")\\n\\n\\ndef prepare_vllm_platform(config):\\n    platform_id = os.environ.get(\\\"DYN_PLATFORM\\\")\\n    if platform_id is None:\\n        return None  # Legacy invocation; no vendor probing or behavior change.\\n    engine = config.engine_args\\n    gms = os.environ.get(\\\"DYN_GMS_USE_V1\\\") == \\\"true\\\"\\n    gms = gms or getattr(engine, \\\"load_format\\\", None) == \\\"gms\\\"\\n    if gms and platform_id == \\\"ascend\\\":\\n        raise PlatformError(\\n            \\\"missing_capability\\\",\\n            platform_id,\\n            \\\"GMS requires enforced read-only VMM and POSIX handles; the tested \\\"\\n            \\\"910B3/CANN 9.1/HDK 26.1.1 stack rejects read-only access and \\\"\\n            \\\"POSIX allocation; Ascend GMS provider remains unavailable\\\",\\n        )\\n    pd = config.disaggregation_mode in (\\n        DisaggregationMode.PREFILL,\\n        DisaggregationMode.DECODE,\\n    )\\n    if config.disaggregation_mode == DisaggregationMode.ENCODE:\\n        if (\\n            not config.enable_multimodal\\n            or engine.tensor_parallel_size != 1\\n            or engine.data_parallel_size != 1\\n            or not engine.enforce_eager\\n            or engine.kv_transfer_config is not None\\n        ):\\n            raise PlatformError(\\n                \\\"unsupported_configuration\\\",\\n                platform_id,\\n                \\\"standalone encode requires eager multimodal TP1 DP1 without a KV connector\\\",\\n            )\\n    connector = validate_pd_configuration(config, platform_id) if pd else None\\n    kvbm = (\\n        engine.kv_transfer_config is not None\\n        and engine.kv_transfer_config.kv_connector in (\\\"DynamoConnector\\\", \\\"PdConnector\\\")\\n    )\\n    if not pd and kvbm:\\n        validate_kvbm_configuration(config, platform_id, engine.kv_transfer_config)\\n    configure_platform_scheduler(engine, config.use_kv_events)\\n    task = \\\"text\\\"\\n    if config.embedding_worker:\\n        task = \\\"embedding\\\"\\n    elif config.enable_multimodal:\\n        task = \\\"multimodal\\\"\\n    context = dict(\\n        engine=\\\"vllm\\\",\\n        task=task,\\n        tp=str(engine.tensor_parallel_size),\\n        pp=str(engine.pipeline_parallel_size),\\n        dp=str(engine.data_parallel_size),\\n        local_dp=str(engine.data_parallel_size_local),\\n        nnodes=str(getattr(engine, \\\"nnodes\\\", 1)),\\n        headless=str(config.headless).lower(),\\n        eager=str(engine.enforce_eager).lower(),\\n        model=config.model,\\n        kv_events=str(config.use_kv_events).lower(),\\n        lora=str(engine.enable_lora).lower(),\\n        quantization=engine.quantization or \\\"none\\\",\\n        speculative=json.dumps(engine.speculative_config, sort_keys=True),\\n        expert_parallel=str(engine.enable_expert_parallel).lower(),\\n        pd_connector=connector or \\\"none\\\",\\n        kvbm=str(kvbm).lower(),\\n        gms=str(gms).lower(),\\n    )\\n    required = [\\n        \\\"device.compute\\\",\\n        f\\\"engine.{task}\\\",\\n    ]\\n    if config.use_kv_events:\\n        required.append(\\\"kv.events\\\")\\n    if pd:\\n        required.append(\\\"pd.transfer\\\")\\n    if kvbm:\\n        required.append(\\\"kvbm.offload\\\")\\n    if gms:\\n        required.append(\\\"gms.vmm\\\")\\n    required.extend(\\n        name.strip()\\n        for name in os.environ.get(\\\"DYN_REQUIRED_CAPABILITIES\\\", \\\"\\\").split(\\\",\\\")\\n        if name.strip()\\n    )\\n    configure_pd_environment(platform_id, connector)\\n    # Providers require visible devices. Placement belongs to vLLM: TP/PP may\\n    # span nodes and Ray may allocate remote devices, so global parallel sizes\\n    # cannot be compared with this process's local device count.\\n    return registry.prepare(platform_id, context, required)\\n\"},\"kind\":\"ConfigMap\",\"metadata\":{\"annotations\":{},\"name\":\"m08-preflight-source\",\"namespace\":\"dynamo-m08-1029\"}}\n"
+                },
+                "creationTimestamp": "2026-10-29T07:07:10Z",
+                "name": "m08-preflight-source",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40379038",
+                "uid": "372ef33e-5551-4780-8716-6ce38b9129db"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "data": {
+                "profiler-capacity.py": "#!/usr/bin/env python3\n# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.\n# SPDX-License-Identifier: Apache-2.0\n\"\"\"Run DGDR with explicit device capacity, without inventing performance data.\n\nAISimulate 0.12 lacks H800/910B3 system files. Its naive enumerator otherwise\nfalls back to H200 memory capacity. Supply only the DGDR's declared capacity\nthrough the public systems-path API; measured throughput remains measured,\nand rapid fallback still reports SLA as unverified.\n\"\"\"\n\nimport json\nimport runpy\nimport sys\nimport tempfile\nfrom pathlib import Path\n\nfrom aiconfigurator.sdk import perf_database\n\nconfig = json.loads(sys.argv[sys.argv.index(\"--config\") + 1])\nhardware = config[\"hardware\"]\nsku = hardware[\"gpuSku\"]\nif sku not in {\"h800_sxm\", \"h800_pcie\", \"ascend_910b3\"}:\n    raise ValueError(f\"This regression launcher does not define capacity for {sku}\")\nmemory = int(hardware[\"vramMb\"])\ndevices = int(hardware[\"numGpusPerNode\"])\nif memory \u003c= 0 or devices \u003c= 0:\n    raise ValueError(\"Explicit positive capacity is required\")\nwith tempfile.TemporaryDirectory(prefix=\"m08-hardware-\") as directory:\n    # JSON is valid YAML. No bandwidth/latency/kernel measurements are supplied.\n    Path(directory, sku + \".yaml\").write_text(\n        json.dumps(\n            {\"node\": {\"num_gpus_per_node\": devices}, \"gpu\": {\"mem_capacity\": memory * 1024**2}}\n        )\n    )\n    perf_database.set_systems_paths([directory, *perf_database.get_systems_paths()])\n    print(f\"M08 capacity only: {sku}, {devices} devices/node, {memory} MiB/device\", flush=True)\n    runpy.run_module(\"dynamo.profiler\", run_name=\"__main__\")\n"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"profiler-capacity.py\":\"#!/usr/bin/env python3\\n# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.\\n# SPDX-License-Identifier: Apache-2.0\\n\\\"\\\"\\\"Run DGDR with explicit device capacity, without inventing performance data.\\n\\nAISimulate 0.12 lacks H800/910B3 system files. Its naive enumerator otherwise\\nfalls back to H200 memory capacity. Supply only the DGDR's declared capacity\\nthrough the public systems-path API; measured throughput remains measured,\\nand rapid fallback still reports SLA as unverified.\\n\\\"\\\"\\\"\\n\\nimport json\\nimport runpy\\nimport sys\\nimport tempfile\\nfrom pathlib import Path\\n\\nfrom aiconfigurator.sdk import perf_database\\n\\nconfig = json.loads(sys.argv[sys.argv.index(\\\"--config\\\") + 1])\\nhardware = config[\\\"hardware\\\"]\\nsku = hardware[\\\"gpuSku\\\"]\\nif sku not in {\\\"h800_sxm\\\", \\\"h800_pcie\\\", \\\"ascend_910b3\\\"}:\\n    raise ValueError(f\\\"This regression launcher does not define capacity for {sku}\\\")\\nmemory = int(hardware[\\\"vramMb\\\"])\\ndevices = int(hardware[\\\"numGpusPerNode\\\"])\\nif memory \\u003c= 0 or devices \\u003c= 0:\\n    raise ValueError(\\\"Explicit positive capacity is required\\\")\\nwith tempfile.TemporaryDirectory(prefix=\\\"m08-hardware-\\\") as directory:\\n    # JSON is valid YAML. No bandwidth/latency/kernel measurements are supplied.\\n    Path(directory, sku + \\\".yaml\\\").write_text(\\n        json.dumps(\\n            {\\\"node\\\": {\\\"num_gpus_per_node\\\": devices}, \\\"gpu\\\": {\\\"mem_capacity\\\": memory * 1024**2}}\\n        )\\n    )\\n    perf_database.set_systems_paths([directory, *perf_database.get_systems_paths()])\\n    print(f\\\"M08 capacity only: {sku}, {devices} devices/node, {memory} MiB/device\\\", flush=True)\\n    runpy.run_module(\\\"dynamo.profiler\\\", run_name=\\\"__main__\\\")\\n\"},\"kind\":\"ConfigMap\",\"metadata\":{\"annotations\":{},\"name\":\"m08-profiler-capacity\",\"namespace\":\"dynamo-m08-1029\"}}\n"
+                },
+                "creationTimestamp": "2026-10-29T07:05:19Z",
+                "name": "m08-profiler-capacity",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40378063",
+                "uid": "58cf6f50-906d-4d3d-af13-1aee7cb920b2"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

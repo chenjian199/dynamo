@@ -1,0 +1,230 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "heyi-m08",
+                    "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+                },
+                "creationTimestamp": "2026-10-29T04:16:13Z",
+                "labels": {
+                    "app.kubernetes.io/component": "webhook",
+                    "app.kubernetes.io/created-by": "dynamo-operator",
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/part-of": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.5.1",
+                    "helm.sh/chart": "dynamo-operator-1.5.1"
+                },
+                "name": "heyi-m08-dynamo-operator-webhook-service",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40305524",
+                "uid": "f79e3b62-d309-41b1-a532-6e337b3abe08"
+            },
+            "spec": {
+                "clusterIP": "10.104.22.247",
+                "clusterIPs": [
+                    "10.104.22.247"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "webhook",
+                        "port": 443,
+                        "protocol": "TCP",
+                        "targetPort": 9443
+                    }
+                ],
+                "selector": {
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "control-plane": "controller-manager"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "creationTimestamp": "2026-10-29T06:21:12Z",
+                "labels": {
+                    "app.kubernetes.io/component": "pcs-headless-service",
+                    "app.kubernetes.io/managed-by": "grove-operator",
+                    "app.kubernetes.io/name": "m08-grove-0",
+                    "app.kubernetes.io/part-of": "m08-grove",
+                    "grove.io/podcliqueset-replica-index": "0"
+                },
+                "name": "m08-grove-0",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "grove.io/v1alpha1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PodCliqueSet",
+                        "name": "m08-grove",
+                        "uid": "92f7975f-a74c-4353-9dcd-7e6ae7239fa0"
+                    }
+                ],
+                "resourceVersion": "40356880",
+                "uid": "a0b4815e-66fe-41d7-b58a-b2ca5682faac"
+            },
+            "spec": {
+                "clusterIP": "None",
+                "clusterIPs": [
+                    "None"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "publishNotReadyAddresses": true,
+                "selector": {
+                    "app.kubernetes.io/managed-by": "grove-operator",
+                    "app.kubernetes.io/part-of": "m08-grove",
+                    "grove.io/podcliqueset-replica-index": "0"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "e8572f01c7ea3821b310ef4d16a7e3723f0661d7cbaeed9acb0625ef8bc2a91c"
+                },
+                "creationTimestamp": "2026-10-29T06:21:12Z",
+                "labels": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true"
+                },
+                "name": "m08-grove-frontend",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoGraphDeployment",
+                        "name": "m08-grove",
+                        "uid": "a4d51fa2-61f8-41b1-8418-0815566d570c"
+                    }
+                ],
+                "resourceVersion": "40356853",
+                "uid": "d6b25763-b7e7-41d9-9b5d-e8e01182a8be"
+            },
+            "spec": {
+                "clusterIP": "10.105.75.171",
+                "clusterIPs": [
+                    "10.105.75.171"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "http",
+                        "port": 8000,
+                        "protocol": "TCP",
+                        "targetPort": "http"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "frontend",
+                    "nvidia.com/dynamo-component-type": "frontend",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-grove"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "afad0d3bd2aa5681f10d6f76069518734e8b592e189a7f3fd539d047d530b837"
+                },
+                "creationTimestamp": "2026-10-29T06:21:12Z",
+                "labels": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true",
+                    "nvidia.com/dynamo-worker-hash": "6f2f9f86"
+                },
+                "name": "m08-grove-worker",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoGraphDeployment",
+                        "name": "m08-grove",
+                        "uid": "a4d51fa2-61f8-41b1-8418-0815566d570c"
+                    }
+                ],
+                "resourceVersion": "40356859",
+                "uid": "d9ba5e2b-f32b-45c9-bf3f-5bf4434d513b"
+            },
+            "spec": {
+                "clusterIP": "10.103.196.14",
+                "clusterIPs": [
+                    "10.103.196.14"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "system",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": "system"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "worker",
+                    "nvidia.com/dynamo-component-type": "worker",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-grove"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

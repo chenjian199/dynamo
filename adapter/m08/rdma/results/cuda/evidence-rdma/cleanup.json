@@ -1,0 +1,749 @@
+{
+  "passed": true,
+  "resources": {
+    "dgd": {
+      "apiVersion": "v1",
+      "items": [],
+      "kind": "List",
+      "metadata": {
+        "resourceVersion": ""
+      }
+    },
+    "pods": {
+      "apiVersion": "v1",
+      "items": [
+        {
+          "apiVersion": "v1",
+          "kind": "Pod",
+          "metadata": {
+            "annotations": {
+              "checksum/config": "543d2cbf921b77886aca58e2094b61bebdda42d758852d532f1775a71c50fddd",
+              "cni.projectcalico.org/containerID": "09fafe23e8a7179b91946d4892d6285284ce2976521bdf7af454782e2730c489",
+              "cni.projectcalico.org/podIP": "10.244.229.213/32",
+              "cni.projectcalico.org/podIPs": "10.244.229.213/32",
+              "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.213\"\n    ],\n    \"mac\": \"82:1a:fc:b7:d9:e4\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+              "kubectl.kubernetes.io/default-container": "manager"
+            },
+            "creationTimestamp": "2026-10-29T06:52:35Z",
+            "generateName": "heyi-m08-dynamo-operator-controller-manager-c6f7cbbd5-",
+            "generation": 1,
+            "labels": {
+              "app.kubernetes.io/instance": "heyi-m08",
+              "app.kubernetes.io/name": "dynamo-operator",
+              "control-plane": "controller-manager",
+              "pod-template-hash": "c6f7cbbd5"
+            },
+            "name": "heyi-m08-dynamo-operator-controller-manager-c6f7cbbd5-nd4xm",
+            "namespace": "dynamo-m08-1029",
+            "ownerReferences": [
+              {
+                "apiVersion": "apps/v1",
+                "blockOwnerDeletion": true,
+                "controller": true,
+                "kind": "ReplicaSet",
+                "name": "heyi-m08-dynamo-operator-controller-manager-c6f7cbbd5",
+                "uid": "4c297e39-a38f-4df1-ab1c-afb126a5be1a"
+              }
+            ],
+            "resourceVersion": "40372722",
+            "uid": "25e47ab1-8775-4e7c-865a-a7adda9a9ca1"
+          },
+          "spec": {
+            "affinity": {
+              "nodeAffinity": {
+                "requiredDuringSchedulingIgnoredDuringExecution": {
+                  "nodeSelectorTerms": [
+                    {
+                      "matchExpressions": [
+                        {
+                          "key": "kubernetes.io/hostname",
+                          "operator": "In",
+                          "values": [
+                            "worker06"
+                          ]
+                        },
+                        {
+                          "key": "kubernetes.io/arch",
+                          "operator": "In",
+                          "values": [
+                            "amd64"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "containers": [
+              {
+                "args": [
+                  "--config=/etc/dynamo-operator/config.yaml",
+                  "--operator-version=1.5.1",
+                  "--operator-image=heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                  "--operator-image-pull-policy=Never"
+                ],
+                "command": [
+                  "/manager"
+                ],
+                "env": [
+                  {
+                    "name": "KUBERNETES_CLUSTER_DOMAIN",
+                    "value": "cluster.local"
+                  },
+                  {
+                    "name": "POD_SERVICE_ACCOUNT",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "spec.serviceAccountName"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POD_NAMESPACE",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  }
+                ],
+                "image": "heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                "imagePullPolicy": "Never",
+                "livenessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/healthz",
+                    "port": 8081,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 15,
+                  "periodSeconds": 20,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "name": "manager",
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "metrics",
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 9443,
+                    "name": "webhook-server",
+                    "protocol": "TCP"
+                  }
+                ],
+                "readinessProbe": {
+                  "failureThreshold": 3,
+                  "httpGet": {
+                    "path": "/readyz",
+                    "port": 8081,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 5
+                },
+                "resources": {
+                  "limits": {
+                    "cpu": "1024m",
+                    "memory": "2Gi"
+                  },
+                  "requests": {
+                    "cpu": "512m",
+                    "memory": "1Gi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/dynamo-operator",
+                    "name": "operator-config",
+                    "readOnly": true
+                  },
+                  {
+                    "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                    "name": "cert",
+                    "readOnly": true
+                  },
+                  {
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "name": "kube-api-access-nmsn9",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "enableServiceLinks": true,
+            "initContainers": [
+              {
+                "args": [
+                  "--crds-dir=/opt/dynamo-operator/crds/",
+                  "--version=1.5.1",
+                  "--conversion-webhook-service-name=heyi-m08-dynamo-operator-webhook-service",
+                  "--conversion-webhook-service-namespace=dynamo-m08-1029"
+                ],
+                "command": [
+                  "/crd-apply"
+                ],
+                "image": "heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                "imagePullPolicy": "Never",
+                "name": "crd-apply",
+                "resources": {},
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "name": "kube-api-access-nmsn9",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "nodeName": "worker06",
+            "preemptionPolicy": "PreemptLowerPriority",
+            "priority": 0,
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {
+              "runAsNonRoot": true
+            },
+            "serviceAccount": "heyi-m08-dynamo-operator-controller-manager",
+            "serviceAccountName": "heyi-m08-dynamo-operator-controller-manager",
+            "terminationGracePeriodSeconds": 30,
+            "tolerations": [
+              {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+              },
+              {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+              }
+            ],
+            "volumes": [
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "heyi-m08-dynamo-operator-config"
+                },
+                "name": "operator-config"
+              },
+              {
+                "name": "cert",
+                "secret": {
+                  "defaultMode": 420,
+                  "optional": true,
+                  "secretName": "webhook-server-cert"
+                }
+              },
+              {
+                "name": "kube-api-access-nmsn9",
+                "projected": {
+                  "defaultMode": 420,
+                  "sources": [
+                    {
+                      "serviceAccountToken": {
+                        "expirationSeconds": 3607,
+                        "path": "token"
+                      }
+                    },
+                    {
+                      "configMap": {
+                        "items": [
+                          {
+                            "key": "ca.crt",
+                            "path": "ca.crt"
+                          }
+                        ],
+                        "name": "kube-root-ca.crt"
+                      }
+                    },
+                    {
+                      "downwardAPI": {
+                        "items": [
+                          {
+                            "fieldRef": {
+                              "apiVersion": "v1",
+                              "fieldPath": "metadata.namespace"
+                            },
+                            "path": "namespace"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "status": {
+            "conditions": [
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-29T06:52:36Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+              },
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-29T06:52:38Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+              },
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-29T06:52:50Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Ready"
+              },
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-29T06:52:50Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "ContainersReady"
+              },
+              {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-29T06:52:35Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+              }
+            ],
+            "containerStatuses": [
+              {
+                "allocatedResources": {
+                  "cpu": "512m",
+                  "memory": "1Gi"
+                },
+                "containerID": "containerd://1a054a281611d5eb9a297f5c409b297ce1a9769ea07621e2f5efbe674a0924c7",
+                "image": "docker.io/heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                "imageID": "sha256:0a5df102f8b9a5627fe8558cdb5243a0d3b77de64fe8246a3d0809e9e2830f08",
+                "lastState": {},
+                "name": "manager",
+                "ready": true,
+                "resources": {
+                  "limits": {
+                    "cpu": "1024m",
+                    "memory": "2Gi"
+                  },
+                  "requests": {
+                    "cpu": "512m",
+                    "memory": "1Gi"
+                  }
+                },
+                "restartCount": 0,
+                "started": true,
+                "state": {
+                  "running": {
+                    "startedAt": "2026-10-29T06:52:39Z"
+                  }
+                },
+                "user": {
+                  "linux": {
+                    "gid": 0,
+                    "supplementalGroups": [
+                      0
+                    ],
+                    "uid": 65532
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/dynamo-operator",
+                    "name": "operator-config",
+                    "readOnly": true,
+                    "recursiveReadOnly": "Disabled"
+                  },
+                  {
+                    "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                    "name": "cert",
+                    "readOnly": true,
+                    "recursiveReadOnly": "Disabled"
+                  },
+                  {
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "name": "kube-api-access-nmsn9",
+                    "readOnly": true,
+                    "recursiveReadOnly": "Disabled"
+                  }
+                ]
+              }
+            ],
+            "hostIP": "192.168.4.6",
+            "hostIPs": [
+              {
+                "ip": "192.168.4.6"
+              }
+            ],
+            "initContainerStatuses": [
+              {
+                "containerID": "containerd://91f0e2911b003bf25bb9821392730a4df71086240cfc120cae50366c1d134b53",
+                "image": "docker.io/heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                "imageID": "sha256:0a5df102f8b9a5627fe8558cdb5243a0d3b77de64fe8246a3d0809e9e2830f08",
+                "lastState": {},
+                "name": "crd-apply",
+                "ready": true,
+                "resources": {},
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                  "terminated": {
+                    "containerID": "containerd://91f0e2911b003bf25bb9821392730a4df71086240cfc120cae50366c1d134b53",
+                    "exitCode": 0,
+                    "finishedAt": "2026-10-29T06:52:38Z",
+                    "reason": "Completed",
+                    "startedAt": "2026-10-29T06:52:36Z"
+                  }
+                },
+                "user": {
+                  "linux": {
+                    "gid": 0,
+                    "supplementalGroups": [
+                      0
+                    ],
+                    "uid": 65532
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "name": "kube-api-access-nmsn9",
+                    "readOnly": true,
+                    "recursiveReadOnly": "Disabled"
+                  }
+                ]
+              }
+            ],
+            "observedGeneration": 1,
+            "phase": "Running",
+            "podIP": "10.244.229.213",
+            "podIPs": [
+              {
+                "ip": "10.244.229.213"
+              }
+            ],
+            "qosClass": "Burstable",
+            "startTime": "2026-10-29T06:52:35Z"
+          }
+        }
+      ],
+      "kind": "List",
+      "metadata": {
+        "resourceVersion": ""
+      }
+    },
+    "dynamoworkermetadatas": {
+      "apiVersion": "v1",
+      "items": [],
+      "kind": "List",
+      "metadata": {
+        "resourceVersion": ""
+      }
+    }
+  },
+  "operator": {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "annotations": {
+        "deployment.kubernetes.io/revision": "4",
+        "meta.helm.sh/release-name": "heyi-m08",
+        "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+      },
+      "creationTimestamp": "2026-10-29T04:16:13Z",
+      "generation": 4,
+      "labels": {
+        "app.kubernetes.io/component": "manager",
+        "app.kubernetes.io/created-by": "dynamo-operator",
+        "app.kubernetes.io/instance": "heyi-m08",
+        "app.kubernetes.io/managed-by": "Helm",
+        "app.kubernetes.io/name": "dynamo-operator",
+        "app.kubernetes.io/part-of": "dynamo-operator",
+        "app.kubernetes.io/version": "1.5.1",
+        "control-plane": "controller-manager",
+        "helm.sh/chart": "dynamo-operator-1.5.1"
+      },
+      "name": "heyi-m08-dynamo-operator-controller-manager",
+      "namespace": "dynamo-m08-1029",
+      "resourceVersion": "40372726",
+      "uid": "d4f1a549-66b5-49f4-94f3-4d90d86010f1"
+    },
+    "spec": {
+      "progressDeadlineSeconds": 600,
+      "replicas": 1,
+      "revisionHistoryLimit": 10,
+      "selector": {
+        "matchLabels": {
+          "app.kubernetes.io/instance": "heyi-m08",
+          "app.kubernetes.io/name": "dynamo-operator",
+          "control-plane": "controller-manager"
+        }
+      },
+      "strategy": {
+        "type": "Recreate"
+      },
+      "template": {
+        "metadata": {
+          "annotations": {
+            "checksum/config": "543d2cbf921b77886aca58e2094b61bebdda42d758852d532f1775a71c50fddd",
+            "kubectl.kubernetes.io/default-container": "manager"
+          },
+          "labels": {
+            "app.kubernetes.io/instance": "heyi-m08",
+            "app.kubernetes.io/name": "dynamo-operator",
+            "control-plane": "controller-manager"
+          }
+        },
+        "spec": {
+          "affinity": {
+            "nodeAffinity": {
+              "requiredDuringSchedulingIgnoredDuringExecution": {
+                "nodeSelectorTerms": [
+                  {
+                    "matchExpressions": [
+                      {
+                        "key": "kubernetes.io/hostname",
+                        "operator": "In",
+                        "values": [
+                          "worker06"
+                        ]
+                      },
+                      {
+                        "key": "kubernetes.io/arch",
+                        "operator": "In",
+                        "values": [
+                          "amd64"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "containers": [
+            {
+              "args": [
+                "--config=/etc/dynamo-operator/config.yaml",
+                "--operator-version=1.5.1",
+                "--operator-image=heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+                "--operator-image-pull-policy=Never"
+              ],
+              "command": [
+                "/manager"
+              ],
+              "env": [
+                {
+                  "name": "KUBERNETES_CLUSTER_DOMAIN",
+                  "value": "cluster.local"
+                },
+                {
+                  "name": "POD_SERVICE_ACCOUNT",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "spec.serviceAccountName"
+                    }
+                  }
+                },
+                {
+                  "name": "POD_NAMESPACE",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.namespace"
+                    }
+                  }
+                }
+              ],
+              "image": "heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+              "imagePullPolicy": "Never",
+              "livenessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/healthz",
+                  "port": 8081,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 15,
+                "periodSeconds": 20,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "name": "manager",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "metrics",
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 9443,
+                  "name": "webhook-server",
+                  "protocol": "TCP"
+                }
+              ],
+              "readinessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/readyz",
+                  "port": 8081,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 5,
+                "periodSeconds": 10,
+                "successThreshold": 1,
+                "timeoutSeconds": 5
+              },
+              "resources": {
+                "limits": {
+                  "cpu": "1024m",
+                  "memory": "2Gi"
+                },
+                "requests": {
+                  "cpu": "512m",
+                  "memory": "1Gi"
+                }
+              },
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/etc/dynamo-operator",
+                  "name": "operator-config",
+                  "readOnly": true
+                },
+                {
+                  "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                  "name": "cert",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "initContainers": [
+            {
+              "args": [
+                "--crds-dir=/opt/dynamo-operator/crds/",
+                "--version=1.5.1",
+                "--conversion-webhook-service-name=heyi-m08-dynamo-operator-webhook-service",
+                "--conversion-webhook-service-namespace=dynamo-m08-1029"
+              ],
+              "command": [
+                "/crd-apply"
+              ],
+              "image": "heyi/dynamo-operator:1.5.1-m08-dgdr-amd64",
+              "imagePullPolicy": "Never",
+              "name": "crd-apply",
+              "resources": {},
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File"
+            }
+          ],
+          "restartPolicy": "Always",
+          "schedulerName": "default-scheduler",
+          "securityContext": {
+            "runAsNonRoot": true
+          },
+          "serviceAccount": "heyi-m08-dynamo-operator-controller-manager",
+          "serviceAccountName": "heyi-m08-dynamo-operator-controller-manager",
+          "terminationGracePeriodSeconds": 30,
+          "volumes": [
+            {
+              "configMap": {
+                "defaultMode": 420,
+                "name": "heyi-m08-dynamo-operator-config"
+              },
+              "name": "operator-config"
+            },
+            {
+              "name": "cert",
+              "secret": {
+                "defaultMode": 420,
+                "optional": true,
+                "secretName": "webhook-server-cert"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "status": {
+      "availableReplicas": 1,
+      "conditions": [
+        {
+          "lastTransitionTime": "2026-10-29T06:52:50Z",
+          "lastUpdateTime": "2026-10-29T06:52:50Z",
+          "message": "Deployment has minimum availability.",
+          "reason": "MinimumReplicasAvailable",
+          "status": "True",
+          "type": "Available"
+        },
+        {
+          "lastTransitionTime": "2026-10-29T04:16:13Z",
+          "lastUpdateTime": "2026-10-29T06:52:50Z",
+          "message": "ReplicaSet \"heyi-m08-dynamo-operator-controller-manager-c6f7cbbd5\" has successfully progressed.",
+          "reason": "NewReplicaSetAvailable",
+          "status": "True",
+          "type": "Progressing"
+        }
+      ],
+      "observedGeneration": 4,
+      "readyReplicas": 1,
+      "replicas": 1,
+      "terminatingReplicas": 0,
+      "updatedReplicas": 1
+    }
+  }
+}

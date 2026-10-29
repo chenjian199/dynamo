@@ -1,5 +1,7 @@
 /*
  * SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+ * Derived from NVIDIA Dynamo. Modified by HEYI.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -176,7 +178,7 @@ const (
 )
 
 // GPUSKUType is the AIC hardware system identifier for a supported GPU.
-// +kubebuilder:validation:Enum=gb200_sxm;gb10;b200_sxm;h200_sxm;h100_sxm;h100_pcie;a100_sxm;a100_pcie;a30;l40s;l40;l4;v100_sxm;v100_pcie;t4;mi200;mi300
+// +kubebuilder:validation:Enum=gb200_sxm;gb10;b200_sxm;h200_sxm;h100_sxm;h100_pcie;h800_sxm;h800_pcie;ascend_910b3;a100_sxm;a100_pcie;a30;l40s;l40;l4;v100_sxm;v100_pcie;t4;mi200;mi300
 type GPUSKUType string
 
 const (
@@ -188,6 +190,10 @@ const (
 	GPUSKUTypeH200SXM  GPUSKUType = "h200_sxm"
 	GPUSKUTypeH100SXM  GPUSKUType = "h100_sxm"
 	GPUSKUTypeH100PCIe GPUSKUType = "h100_pcie"
+	GPUSKUTypeH800SXM  GPUSKUType = "h800_sxm"
+	GPUSKUTypeH800PCIe GPUSKUType = "h800_pcie"
+	// Ascend hardware identity does not imply availability of an AIC performance database.
+	GPUSKUTypeAscend910B3 GPUSKUType = "ascend_910b3"
 	// --- Ampere ---
 	GPUSKUTypeA100SXM  GPUSKUType = "a100_sxm"
 	GPUSKUTypeA100PCIe GPUSKUType = "a100_pcie"
@@ -382,7 +388,7 @@ type HardwareSpec struct {
 	// choose which GPU type to use. Discovery and totalGpus are then
 	// restricted to nodes matching this SKU.
 	// +optional
-	// +kubebuilder:validation:Enum=gb200_sxm;gb10;b200_sxm;h200_sxm;h100_sxm;h100_pcie;a100_sxm;a100_pcie;a30;l40s;l40;l4;v100_sxm;v100_pcie;t4;mi200;mi300
+	// +kubebuilder:validation:Enum=gb200_sxm;gb10;b200_sxm;h200_sxm;h100_sxm;h100_pcie;h800_sxm;h800_pcie;ascend_910b3;a100_sxm;a100_pcie;a30;l40s;l40;l4;v100_sxm;v100_pcie;t4;mi200;mi300
 	GPUSKU GPUSKUType `json:"gpuSku,omitempty"`
 
 	// VRAMMB is the VRAM per GPU in MiB.

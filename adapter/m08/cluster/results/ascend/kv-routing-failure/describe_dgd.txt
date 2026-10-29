@@ -1,0 +1,227 @@
+$ kubectl describe dynamographdeployment m08-aggregate -n dynamo-m08-1029
+
+RETURN_CODE=0
+
+STDOUT
+Name:         m08-aggregate
+Namespace:    dynamo-m08-1029
+Labels:       heyi.io/campaign=dynamo-m08-1029
+Annotations:  nvidia.com/current-worker-hash-v2: 33b26f46
+              nvidia.com/dynamo-discovery-backend: kubernetes
+              nvidia.com/dynamo-operator-origin-version: 1.5.1
+              nvidia.com/enable-grove: false
+              nvidia.com/workload-provider: component
+API Version:  nvidia.com/v1beta1
+Kind:         DynamoGraphDeployment
+Metadata:
+  Creation Timestamp:  2026-10-29T04:18:31Z
+  Finalizers:
+    nvidia.com/finalizer
+  Generation:        1
+  Resource Version:  290563287
+  UID:               d9010017-242d-4139-b03d-b28573d052e0
+Spec:
+  Backend Framework:  vllm
+  Components:
+    Name:  frontend
+    Pod Template:
+      Spec:
+        Containers:
+          Args:
+            python
+            -m
+            dynamo.frontend
+            --router-mode
+            kv
+          Command:
+            /opt/dynamo/bin/entrypoint.sh
+          Env:
+            Name:             HF_HUB_OFFLINE
+            Value:            1
+            Name:             DYN_REQUEST_PLANE
+            Value:            tcp
+            Name:             DYN_EVENT_PLANE
+            Value:            zmq
+            Name:             DYN_ROUTER_USE_KV_EVENTS
+            Value:            true
+            Name:             DYN_PLATFORM
+            Value:            cpu
+            Name:             PYTHONUNBUFFERED
+            Value:            1
+            Name:             GOMAXPROCS
+            Value:            4
+            Name:             SPT_NOENV
+            Value:            1
+          Image:              heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          Image Pull Policy:  Never
+          Name:               main
+          Resources:
+            Limits:
+              Cpu:     8
+              Memory:  32Gi
+            Requests:
+              Cpu:     1
+              Memory:  2Gi
+          Volume Mounts:
+            Mount Path:  /models/Qwen3-0.6B
+            Name:        models
+            Read Only:   true
+        Node Selector:
+          kubernetes.io/arch:      arm64
+          kubernetes.io/hostname:  master-02-45d4a763
+        Volumes:
+          Host Path:
+            Path:              /data/weight/Qwen3-0.6B
+            Type:              Directory
+          Name:                models
+    Replicas:                  1
+    Runtime Version Override:  1.5.1
+    Shared Memory Size:        8Gi
+    Type:                      frontend
+    Name:                      worker
+    Pod Template:
+      Spec:
+        Containers:
+          Args:
+            python
+            -m
+            dynamo.vllm
+            --model
+            /models/Qwen3-0.6B
+            --served-model-name
+            m08-model
+            --enforce-eager
+            --tensor-parallel-size
+            1
+            --max-model-len
+            8192
+            --max-num-seqs
+            8
+            --gpu-memory-utilization
+            0.3
+            --block-size
+            128
+            --disable-custom-all-reduce
+            --kv-events-config
+            {"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events", "endpoint": "tcp://127.0.0.1:20080"}
+            --enable-prefix-caching
+          Command:
+            /opt/dynamo/bin/entrypoint.sh
+          Env:
+            Name:   HF_HUB_OFFLINE
+            Value:  1
+            Name:   DYN_REQUEST_PLANE
+            Value:  tcp
+            Name:   DYN_EVENT_PLANE
+            Value:  zmq
+            Name:   DYN_ROUTER_USE_KV_EVENTS
+            Value:  true
+            Name:   DYN_PLATFORM
+            Value:  ascend
+            Name:   VLLM_HOST_IP
+            Value From:
+              Field Ref:
+                Field Path:   status.podIP
+            Name:             VLLM_MOONCAKE_BOOTSTRAP_PORT
+            Value:            20090
+            Name:             VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            Value:            60
+            Name:             ASCEND_TRANSFER_TIMEOUT
+            Value:            30000
+            Name:             PYTHONUNBUFFERED
+            Value:            1
+            Name:             GOMAXPROCS
+            Value:            4
+            Name:             SPT_NOENV
+            Value:            1
+          Image:              heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          Image Pull Policy:  Never
+          Name:               main
+          Resources:
+            Limits:
+              Cpu:                   8
+              huawei.com/Ascend910:  1
+              Memory:                32Gi
+            Requests:
+              Cpu:                   1
+              huawei.com/Ascend910:  1
+              Memory:                2Gi
+          Volume Mounts:
+            Mount Path:  /models/Qwen3-0.6B
+            Name:        models
+            Read Only:   true
+            Mount Path:  /usr/local/Ascend/driver
+            Name:        ascend-driver
+            Read Only:   true
+            Mount Path:  /usr/local/dcmi
+            Name:        ascend-dcmi
+            Read Only:   true
+            Mount Path:  /usr/local/sbin/npu-smi
+            Name:        ascend-smi
+            Read Only:   true
+        Node Selector:
+          kubernetes.io/arch:      arm64
+          kubernetes.io/hostname:  master-02-45d4a763
+        Tolerations:
+          Effect:    NoSchedule
+          Key:       huawei.com/Ascend910
+          Operator:  Exists
+        Volumes:
+          Host Path:
+            Path:  /data/weight/Qwen3-0.6B
+            Type:  Directory
+          Name:    models
+          Host Path:
+            Path:  /usr/local/Ascend/driver
+            Type:  Directory
+          Name:    ascend-driver
+          Host Path:
+            Path:  /usr/local/dcmi
+            Type:  Directory
+          Name:    ascend-dcmi
+          Host Path:
+            Path:              /usr/local/bin/npu-smi
+            Type:              File
+          Name:                ascend-smi
+    Replicas:                  2
+    Runtime Version Override:  1.5.1
+    Shared Memory Size:        8Gi
+    Type:                      worker
+Status:
+  Components:
+    Frontend:
+      Available Replicas:  1
+      Component Kind:      Deployment
+      Component Names:
+        m08-aggregate-frontend
+      Gpus Per Engine:    0
+      Gpus Per Replica:   0
+      Ready Replicas:     1
+      Replicas:           1
+      Runtime Namespace:  dynamo-m08-1029-m08-aggregate
+      Updated Replicas:   1
+    Worker:
+      Available Replicas:  2
+      Component Kind:      Deployment
+      Component Names:
+        m08-aggregate-worker-33b26f46
+      Gpus Per Engine:    1
+      Gpus Per Replica:   1
+      Ready Replicas:     2
+      Replicas:           2
+      Runtime Namespace:  dynamo-m08-1029-m08-aggregate-33b26f46
+      Updated Replicas:   2
+  Conditions:
+    Last Transition Time:  2026-10-29T04:20:52Z
+    Message:               All resources are ready
+    Observed Generation:   1
+    Reason:                all_resources_are_ready
+    Status:                True
+    Type:                  Ready
+  Observed Generation:     1
+  State:                   successful
+Events:                    <none>
+
+
+STDERR
+

@@ -56,9 +56,10 @@ def render(args):
                 "--kv-events-config",
                 json.dumps(
                     {
+                        "enable_kv_cache_events": True,
                         "publisher": "zmq",
                         "topic": "kv-events",
-                        "endpoint": "tcp://127.0.0.1:20080",
+                        "endpoint": "tcp://*:20080",
                     }
                 ),
             ]
@@ -107,6 +108,23 @@ def render(args):
                 {"name": "models", "mountPath": "/models", "readOnly": True}
             ],
         }
+        if role == "decode":
+            # A local canary has no remote KV handoff. Exercise a real forward
+            # pass through the existing conditional-disaggregation path;
+            # ordinary PD requests still require a compatible handoff.
+            container["env"].append(
+                {
+                    "name": "DYN_HEALTH_CHECK_PAYLOAD",
+                    "value": json.dumps(
+                        {
+                            "token_ids": [1],
+                            "sampling_options": {"temperature": 0.0},
+                            "stop_conditions": {"max_tokens": 1},
+                            "annotations": ["x-bypass-remote-prefill"],
+                        }
+                    ),
+                }
+            )
         pod = {
             "nodeSelector": {"kubernetes.io/arch": profile["architecture"]},
             "containers": [container],

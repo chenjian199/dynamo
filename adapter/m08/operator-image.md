@@ -15,7 +15,7 @@ Operator 镜像运行 Kubernetes 控制器，负责 DGD 校验、生成工作负
 
 另提供单文件 `/var/tmp/dynamo-m08-operator-bundle.tar` 及同名 `.sha256` 校验文件，方便整包搬运。在目标环境执行 `tar -xf dynamo-m08-operator-bundle.tar` 后进入解压目录，再执行下面的导入和安装步骤。整包约 169 MiB；不包含 M02 runtime 镜像、模型、kubectl 或 Helm CLI。
 
-Operator 与 CRD 均来自当前源码；Chart 保持版本 1.5.1，HEYI 镜像使用 `1.5.1-m08-<arch>` 标签。本轮不推送镜像仓库、不安装目标集群。镜像启动参数检查、Chart 渲染、本地 envtest 通过，不等于 GPU 集群部署及推理回归通过。
+Operator 与 CRD 均来自当前源码；Chart 保持版本 1.5.1，HEYI 镜像使用 `1.5.1-m08-<arch>` 标签。10 月 28 日完成构建及本地验证；10 月 29 日已在 CUDA / Ascend 集群导入并安装，现场修订清单与验收结果见 [集群记录](cluster/README.md)。镜像没有推送公共仓库；原离线包保留原校验和，现场使用修订后的 KV/PD 清单。
 
 两种架构均已实际构建，并在各自原生主机完成 `docker save` → `docker load` 回读。镜像内容检查覆盖三个 ELF 程序、六份 CRD、非 root 用户、许可证和无运行时代理环境；两次许可证校验均为 98 个包、零违规。Docker 不同存储后端可能分别以 OCI index digest 或 config digest 显示 image ID，记录中同时保留这些身份；离线文件校验以包的 SHA256 为准。
 
@@ -208,7 +208,7 @@ curl -fsS http://127.0.0.1:8000/v1/completions \
   -d '{"model":"m08-model","prompt":"Explain why the sky is blue.","max_tokens":32,"temperature":0}'
 ```
 
-继续完成 [目标集群验收清单](README.md#目标集群验收清单尚未执行)：KV 路由、扩缩容、Worker 重建，再清理聚合 DGD、测试同节点 2P3D。2P3D TP1 需要同节点至少五个整卡分配单位，不能与聚合示例同时占用相同卡数。PD 的跨 Pod 设备传输仍需集群实测；本轮没有宣称跨节点能力通过。
+继续完成 [目标集群验收清单](README.md#目标集群验收清单)：KV 路由、扩缩容、Worker 重建，再清理聚合 DGD、测试同节点 2P3D。2P3D TP1 需要同节点至少五个整卡分配单位，不能与聚合示例同时占用相同卡数。CUDA / Ascend 的同节点跨 Pod PD 和跨节点聚合已于 10 月 29 日实测；跨节点 PD 不能由聚合测试结果推导，详见 [认证范围](cluster/README.md)。
 
 ## 7. 排障与清理
 
@@ -225,3 +225,5 @@ kubectl --context "$CTX" delete -f "$MANIFEST"
 ```
 
 若要卸载这次新建的 Operator，应先删除本轮 DGD 并等待其工作负载回收，再执行 `helm --kube-context "$CTX" uninstall dynamo -n "$NS"`。CRD、PVC 和模型数据不作为日常清理对象；不要在仍有其他 Dynamo 工作负载的集群卸载共用 Operator。
+
+Helm 的实际安装/查看命令、Profiler/DGDR、DRA 和 SLA 的关系见 [使用说明](helm-profiler-dra.md)。

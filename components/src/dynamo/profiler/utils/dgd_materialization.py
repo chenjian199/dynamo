@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Materialize immutable DGD blueprints for profiler consumers."""
 
@@ -13,6 +15,7 @@ from typing import Any
 from dynamo.profiler.utils.config import break_arguments, get_main_container_dict
 from dynamo.profiler.utils.config_modifiers import CONFIG_MODIFIERS
 from dynamo.profiler.utils.dgd_override import apply_dgd_overrides
+from dynamo.profiler.utils.dgd_platform import adapt_vllm_blueprint_platform
 from dynamo.profiler.utils.model_info import (
     model_has_auto_map,
     model_ref_allows_implicit_trust_remote_code,
@@ -42,7 +45,7 @@ def materialize_dgd(
     """Return an independent DGD with all consumer-facing transforms applied.
 
     Transform order is fixed because DGD overrides are not necessarily
-    idempotent: override, model runtime constraints, then tolerations. For a
+    idempotent: platform defaults, override, model constraints, tolerations. For a
     multi-document final configuration, only the last DGD document is
     materialized; preceding resources are copied unchanged. Callers must pass
     the clean blueprint rather than a previously materialized result.
@@ -88,6 +91,9 @@ def _materialize_dgd_document(
 
     materialized = blueprint
     applied_transforms: list[str] = []
+
+    if runtime_backend == "vllm":
+        materialized = adapt_vllm_blueprint_platform(materialized, override)
 
     if override:
         materialized = apply_dgd_overrides(materialized, override)

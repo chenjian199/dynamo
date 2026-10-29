@@ -1,0 +1,115 @@
+$ kubectl describe pod m08-aggregate-frontend-74984ff5c4-88mjs -n dynamo-m08-1029
+
+RETURN_CODE=0
+
+STDOUT
+Name:             m08-aggregate-frontend-74984ff5c4-88mjs
+Namespace:        dynamo-m08-1029
+Priority:         0
+Service Account:  m08-aggregate-k8s-service-discovery
+Node:             master-02-45d4a763/192.168.7.7
+Start Time:       Thu, 29 Oct 2026 12:18:31 +0800
+Labels:           nvidia.com/dynamo-component=frontend
+                  nvidia.com/dynamo-component-type=frontend
+                  nvidia.com/dynamo-discovery-backend=kubernetes
+                  nvidia.com/dynamo-discovery-enabled=true
+                  nvidia.com/dynamo-graph-deployment-name=m08-aggregate
+                  nvidia.com/dynamo-namespace=dynamo-m08-1029-m08-aggregate
+                  nvidia.com/metrics-enabled=true
+                  nvidia.com/selector=m08-aggregate-frontend
+                  pod-template-hash=74984ff5c4
+Annotations:      nvidia.com/dynamo-discovery-backend: kubernetes
+Status:           Running
+IP:               10.42.5.167
+IPs:
+  IP:           10.42.5.167
+Controlled By:  ReplicaSet/m08-aggregate-frontend-74984ff5c4
+Containers:
+  main:
+    Container ID:  containerd://695f1da156fffcba7487df3040256c8659c7f53b89867e15bb6e14bcedae5b37
+    Image:         heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+    Image ID:      sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82
+    Port:          8000/TCP
+    Host Port:     0/TCP
+    Command:
+      /opt/dynamo/bin/entrypoint.sh
+    Args:
+      python
+      -m
+      dynamo.frontend
+      --router-mode
+      kv
+    State:          Running
+      Started:      Thu, 29 Oct 2026 12:18:32 +0800
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     8
+      memory:  32Gi
+    Requests:
+      cpu:      1
+      memory:   2Gi
+    Liveness:   http-get http://:http/live delay=15s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:http/health delay=10s timeout=3s period=10s #success=1 #failure=3
+    Environment:
+      DYNAMO_PORT:                   8000
+      DYN_COMPONENT:                 frontend
+      DYN_DISCOVERY_BACKEND:         kubernetes
+      DYN_EVENT_PLANE:               zmq
+      DYN_HTTP_PORT:                 8000
+      DYN_NAMESPACE:                 dynamo-m08-1029-m08-aggregate
+      DYN_NAMESPACE_PREFIX:          dynamo-m08-1029-m08-aggregate
+      DYN_PARENT_DGD_K8S_NAME:       m08-aggregate
+      DYN_PARENT_DGD_K8S_NAMESPACE:  dynamo-m08-1029
+      DYN_PLATFORM:                  cpu
+      DYN_REQUEST_PLANE:             tcp
+      DYN_ROUTER_USE_KV_EVENTS:      true
+      GOMAXPROCS:                    4
+      HF_HUB_OFFLINE:                1
+      POD_NAME:                      m08-aggregate-frontend-74984ff5c4-88mjs (v1:metadata.name)
+      POD_NAMESPACE:                 dynamo-m08-1029 (v1:metadata.namespace)
+      POD_UID:                        (v1:metadata.uid)
+      PYTHONUNBUFFERED:              1
+      SPT_NOENV:                     1
+    Mounts:
+      /dev/shm from shared-memory (rw)
+      /models/Qwen3-0.6B from models (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-nwznn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  models:
+    Type:          HostPath (bare host directory volume)
+    Path:          /data/weight/Qwen3-0.6B
+    HostPathType:  Directory
+  shared-memory:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  8Gi
+  kube-api-access-nwznn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  <redacted>
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              kubernetes.io/arch=arm64
+                             kubernetes.io/hostname=master-02-45d4a763
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  4m    default-scheduler  Successfully assigned dynamo-m08-1029/m08-aggregate-frontend-74984ff5c4-88mjs to master-02-45d4a763
+  Normal  Pulled     4m    kubelet            Container image "heyi/dynamo-vllm-ascend-runtime:1.5.1-m02" already present on machine
+  Normal  Created    4m    kubelet            Created container: main
+  Normal  Started    4m    kubelet            Started container main
+
+
+STDERR
+

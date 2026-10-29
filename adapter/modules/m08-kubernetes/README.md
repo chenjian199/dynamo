@@ -7,15 +7,21 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M08 Kubernetes 与平台部署
 
-状态：基础 Device Plugin 代码与本地测试完成，目标集群回归待用户导入镜像后执行。依赖 M01 平台契约和 M02 runtime 镜像；基础部署不依赖 GMS。
+状态：2026-10-29 阶段性收尾。基础 Device Plugin 路径已完成 CUDA / Ascend 实际集群回归；MetaX 代码及本地测试完成，硬件集群待验证。依赖 M01 平台契约和 M02 runtime 镜像；基础部署不依赖 GMS。
 
-## 实施进度（2026-10-28）
+补充：[Helm/Profiler/DRA/SLA 使用说明](../../m08/helm-profiler-dra.md)；[跨节点 RDMA 实测](../../m08/rdma/README.md)。两平台持久设备缓冲区与 2P3D 通过，Ascend 动态注册压力失败单独保留。
+
+阶段结论、遗留项和 M09 边界见 [收尾记录](../../m08/README.md#阶段性收尾与-m09-交接)。Profiler 主体属于 M09，本轮仅提前完成 DGDR 所需接入与功能验证。
+
+## 实施进度（2026-10-29）
 
 当前交付复用既有 v1beta1 PodTemplate、component 工作负载路径和 Helm 镜像配置，增加 CUDA/MetaX/Ascend 整卡资源识别、华为计数、平台一致性与不支持能力拒绝；提供聚合/KV 路由和同节点 2P3D 清单生成及只读集群预检查。部署与官方来源见 [M08 交付记录](../../m08/README.md)。Operator 的双架构镜像构建、离线包及导入安装步骤见 [镜像交付说明](../../m08/operator-image.md)。
 
-本轮没有新增 `spec.platform` 或修改 CRD schema。原设计中的 PlatformSpec 仍是后续候选方案，当前使用现有资源声明与 `DYN_PLATFORM`，避免两处配置冲突；已有 alpha/beta 转换通过回归。DGDR 厂商硬件自动发现、拓扑、共享设备/DRA、GMS/failover 和自动规划不包含在本轮基础路径中。
+未新增 `spec.platform`；扩展轮为 H800/Ascend 910B3 增加 DGDR SKU 枚举并再生成 CRD/Pydantic。原设计中的 PlatformSpec 仍是后续候选方案，当前使用现有资源声明与 `DYN_PLATFORM`，避免两处配置冲突；已有 alpha/beta 转换通过回归。DGDR 厂商硬件自动发现、拓扑、共享设备/DRA、GMS/failover 和自动规划不包含在本轮基础路径中。
 
-下方为完整目标设计，未在实施进度中列为已完成的内容仍是后续工作。三平台的 Pod 调度、设备注入、扩缩容、重建和跨 Pod PD 只有本地逻辑验证，不能标成硬件集群验收通过。
+CUDA H800 / Ascend 910B3 的 Operator 安装、整卡调度及计数、Kubernetes 服务发现、KV 路由、手动扩缩容、Worker 重建、同节点跨 Pod 2P3D 与两节点聚合推理已形成现场证据，见 [集群验收](../../m08/cluster/README.md)。固定 vLLM 0.28.0 / 0.23.0，沿用 M02 runtime 镜像；基础验收轮修复清单和回归工具；扩展轮另外更新 SKU 源类型、硬件识别及 Profiler 平台配置生成。
+
+下方为完整目标设计，未在实施进度中列为已完成的内容仍是后续工作。扩展轮已通过 CUDA/Ascend 跨节点 Operator 2P3D、Grove/KAI 实际 gang 等待及生命周期回归、CUDA NVIDIA DRA 整卡分配与回收，见 [扩展验收](../../m08/advanced/README.md)。MetaX 无集群，Ascend HAMi 实验 DRA 等待用户另行提供 ≥1.34 集群。DGDR 另已通过明确硬件配置下的真实画像→自动部署→API/SSE/取消恢复；不代表厂商自动发现、预测精度或共享设备获得认证。
 
 ## 当前功能与调用关系
 

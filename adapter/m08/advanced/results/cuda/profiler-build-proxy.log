@@ -1,0 +1,360 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 500B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/2] FROM docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02@sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d
+#4 resolve docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02@sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d 0.0s done
+#4 CACHED
+
+#5 [2/2] RUN /opt/dynamo/venv/bin/python -m pip install --no-cache-dir pandas==2.3.3 aiofiles==24.1.0 kubernetes==32.0.1 kubernetes-asyncio==32.0.0 'plotext<6' 'plotly>=6.0.1' 'scipy>=1.14,<2' aiperf && /opt/dynamo/venv/bin/python -c "import importlib.metadata as m; assert m.version('vllm') == '0.28.0'"
+#5 18.79 Collecting pandas==2.3.3
+#5 20.87   Downloading pandas-2.3.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)
+#5 22.00      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 91.2/91.2 kB 599.4 kB/s eta 0:00:00
+#5 22.20 Collecting aiofiles==24.1.0
+#5 23.06   Downloading aiofiles-24.1.0-py3-none-any.whl.metadata (10 kB)
+#5 23.11 Requirement already satisfied: kubernetes==32.0.1 in ./venv/lib/python3.12/site-packages (32.0.1)
+#5 23.81 Collecting kubernetes-asyncio==32.0.0
+#5 23.93   Downloading kubernetes_asyncio-32.0.0-py3-none-any.whl.metadata (1.3 kB)
+#5 24.16 Collecting plotext<6
+#5 24.42   Downloading plotext-5.3.2-py3-none-any.whl.metadata (5.5 kB)
+#5 25.79 Collecting plotly>=6.0.1
+#5 25.89   Downloading plotly-7.1.0-py3-none-any.whl.metadata (8.8 kB)
+#5 25.89 Requirement already satisfied: scipy<2,>=1.14 in /usr/local/lib/python3.12/dist-packages (1.18.1)
+#5 26.50 Collecting aiperf
+#5 26.64   Downloading aiperf-0.13.0-py3-none-any.whl.metadata (24 kB)
+#5 27.49 Requirement already satisfied: numpy>=1.26.0 in /usr/local/lib/python3.12/dist-packages (from pandas==2.3.3) (2.2.6)
+#5 27.49 Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.12/dist-packages (from pandas==2.3.3) (2.9.0.post0)
+#5 28.27 Collecting pytz>=2020.1 (from pandas==2.3.3)
+#5 28.94   Downloading pytz-2026.5-py2.py3-none-any.whl.metadata (22 kB)
+#5 29.16 Collecting tzdata>=2022.7 (from pandas==2.3.3)
+#5 29.33   Downloading tzdata-2026.6-py2.py3-none-any.whl.metadata (1.4 kB)
+#5 29.33 Requirement already satisfied: certifi>=14.05.14 in /usr/local/lib/python3.12/dist-packages (from kubernetes==32.0.1) (2026.7.22)
+#5 29.34 Requirement already satisfied: six>=1.9.0 in /usr/local/lib/python3.12/dist-packages (from kubernetes==32.0.1) (1.17.0)
+#5 29.34 Requirement already satisfied: pyyaml>=5.4.1 in /usr/local/lib/python3.12/dist-packages (from kubernetes==32.0.1) (6.0.3)
+#5 29.34 Requirement already satisfied: google-auth>=1.0.1 in /usr/local/lib/python3.12/dist-packages (from kubernetes==32.0.1) (2.57.0)
+#5 29.34 Requirement already satisfied: websocket-client!=0.40.0,!=0.41.*,!=0.42.*,>=0.32.0 in ./venv/lib/python3.12/site-packages (from kubernetes==32.0.1) (1.9.2)
+#5 29.34 Requirement already satisfied: requests in /usr/local/lib/python3.12/dist-packages (from kubernetes==32.0.1) (2.34.2)
+#5 29.34 Requirement already satisfied: requests-oauthlib in ./venv/lib/python3.12/site-packages (from kubernetes==32.0.1) (2.0.0)
+#5 29.34 Requirement already satisfied: oauthlib>=3.2.2 in /usr/lib/python3/dist-packages (from kubernetes==32.0.1) (3.2.2)
+#5 29.34 Requirement already satisfied: urllib3>=1.24.2 in /usr/local/lib/python3.12/dist-packages (from kubernetes==32.0.1) (2.7.0)
+#5 29.34 Requirement already satisfied: durationpy>=0.7 in ./venv/lib/python3.12/site-packages (from kubernetes==32.0.1) (0.11)
+#5 29.35 Requirement already satisfied: aiohttp<4.0.0,>=3.9.0 in /usr/local/lib/python3.12/dist-packages (from kubernetes-asyncio==32.0.0) (3.14.3)
+#5 30.96 Collecting narwhals>=1.15.1 (from plotly>=6.0.1)
+#5 31.56   Downloading narwhals-2.28.0-py3-none-any.whl.metadata (15 kB)
+#5 31.67 Requirement already satisfied: packaging in /usr/local/lib/python3.12/dist-packages (from plotly>=6.0.1) (26.3)
+#5 38.59 Collecting aiosqlite>=0.19.0 (from aiperf)
+#5 39.38   Downloading aiosqlite-0.22.1-py3-none-any.whl.metadata (4.3 kB)
+#5 41.69 Collecting crick~=0.0.8 (from aiperf)
+#5 42.64   Downloading crick-0.0.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.1 kB)
+#5 46.39 Collecting cyclopts<5,>=4 (from aiperf)
+#5 46.53   Downloading cyclopts-4.25.3-py3-none-any.whl.metadata (12 kB)
+#5 47.78 Collecting dash-bootstrap-components~=2.0.0 (from aiperf)
+#5 48.07   Downloading dash_bootstrap_components-2.0.4-py3-none-any.whl.metadata (18 kB)
+#5 49.83 Collecting dash~=3.1.0 (from aiperf)
+#5 49.93   Downloading dash-3.1.1-py3-none-any.whl.metadata (10 kB)
+#5 51.00 Collecting datasets>=3.0 (from aiperf)
+#5 51.09   Downloading datasets-5.1.0-py3-none-any.whl.metadata (24 kB)
+#5 51.66 Requirement already satisfied: fastapi<1,>=0.115 in /usr/local/lib/python3.12/dist-packages (from aiperf) (0.136.3)
+#5 51.83 Collecting ffmpeg-python~=0.2.0 (from aiperf)
+#5 51.96   Downloading ffmpeg_python-0.2.0-py3-none-any.whl.metadata (1.7 kB)
+#5 51.96 Requirement already satisfied: filelock>=3.13 in /usr/local/lib/python3.12/dist-packages (from aiperf) (3.32.4)
+#5 51.96 Requirement already satisfied: huggingface-hub<2.0,>=0.34.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (1.28.0)
+#5 51.96 Requirement already satisfied: jinja2~=3.1.5 in /usr/local/lib/python3.12/dist-packages (from aiperf) (3.1.6)
+#5 53.10 Collecting jmespath~=1.0.1 (from aiperf)
+#5 53.18   Downloading jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+#5 53.71 Collecting kaleido~=1.2.0 (from aiperf)
+#5 53.82   Downloading kaleido-1.2.0-py3-none-any.whl.metadata (5.6 kB)
+#5 54.99 Collecting kopf>=1.42.0 (from aiperf)
+#5 56.34   Downloading kopf-1.45.2-py3-none-any.whl.metadata (10 kB)
+#5 60.14 Collecting matplotlib>=3.10.0 (from aiperf)
+#5 60.99   Downloading matplotlib-3.11.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (80 kB)
+#5 61.16      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 80.3/80.3 kB 529.5 kB/s eta 0:00:00
+#5 61.17 Requirement already satisfied: msgspec<1.0.0,>=0.19.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (0.21.1)
+#5 61.17 Requirement already satisfied: nvidia-ml-py in /usr/local/lib/python3.12/dist-packages (from aiperf) (13.610.43)
+#5 61.37 Collecting optuna>=3.6 (from aiperf)
+#5 61.79   Downloading optuna-5.0.0-py3-none-any.whl.metadata (14 kB)
+#5 65.51 Collecting orjson~=3.11.7 (from aiperf)
+#5 67.15   Downloading orjson-3.11.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (41 kB)
+#5 67.39      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.0/42.0 kB 132.5 kB/s eta 0:00:00
+#5 67.40 Requirement already satisfied: pillow~=12.3.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (12.3.0)
+#5 67.41 Collecting plotly>=6.0.1
+#5 67.50   Downloading plotly-6.4.0-py3-none-any.whl.metadata (8.5 kB)
+#5 67.65 Collecting prometheus-client~=0.23.1 (from aiperf)
+#5 68.12   Downloading prometheus_client-0.23.1-py3-none-any.whl.metadata (1.9 kB)
+#5 68.18 Requirement already satisfied: protobuf>=4 in /usr/local/lib/python3.12/dist-packages (from aiperf) (6.33.6)
+#5 70.48 Collecting psutil~=7.0.0 (from aiperf)
+#5 70.67   Downloading psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (22 kB)
+#5 71.48 Collecting pyarrow>=18.0.0 (from aiperf)
+#5 71.57   Downloading pyarrow-26.0.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (3.0 kB)
+#5 71.58 Requirement already satisfied: pydantic-settings<3.0.0,>=2.10.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (2.15.0)
+#5 71.58 Requirement already satisfied: pydantic<3.0.0,>=2.10.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (2.13.4)
+#5 71.58 Requirement already satisfied: python-multipart>=0.0.22 in /usr/local/lib/python3.12/dist-packages (from aiperf) (0.0.32)
+#5 77.10 Collecting pyzmq~=26.4.0 (from aiperf)
+#5 77.22   Downloading pyzmq-26.4.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.0 kB)
+#5 77.57 Collecting rich~=14.1.0 (from aiperf)
+#5 77.64   Downloading rich-14.1.0-py3-none-any.whl.metadata (18 kB)
+#5 78.26 Collecting ruamel-yaml~=0.18.12 (from aiperf)
+#5 78.37   Downloading ruamel_yaml-0.18.17-py3-none-any.whl.metadata (27 kB)
+#5 78.57 Collecting seaborn~=0.13.2 (from aiperf)
+#5 78.68   Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+#5 78.68 Requirement already satisfied: sentencepiece>=0.2.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (0.2.2)
+#5 78.68 Requirement already satisfied: setproctitle~=1.3.6 in /usr/local/lib/python3.12/dist-packages (from aiperf) (1.3.7)
+#5 79.47 Collecting soundfile~=0.13.1 (from aiperf)
+#5 79.58   Downloading soundfile-0.13.1-py2.py3-none-manylinux_2_28_x86_64.whl.metadata (16 kB)
+#5 79.76 Collecting starlette-compress>=1.0.1 (from aiperf)
+#5 79.99   Downloading starlette_compress-2.0.0-py3-none-any.whl.metadata (8.9 kB)
+#5 80.68 Collecting textual~=5.3.0 (from aiperf)
+#5 82.44   Downloading textual-5.3.0-py3-none-any.whl.metadata (9.1 kB)
+#5 82.53 Requirement already satisfied: tiktoken<1,>=0.7.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (0.14.0)
+#5 82.54 Requirement already satisfied: tqdm>=4.67.1 in /usr/local/lib/python3.12/dist-packages (from aiperf) (4.70.0)
+#5 82.54 Requirement already satisfied: transformers>=4.56.0 in /usr/local/lib/python3.12/dist-packages (from aiperf) (5.14.1)
+#5 82.54 Requirement already satisfied: uvicorn<1,>=0.34 in /usr/local/lib/python3.12/dist-packages (from uvicorn[standard]<1,>=0.34->aiperf) (0.52.4)
+#5 82.54 Requirement already satisfied: uvloop>=0.22.1 in ./venv/lib/python3.12/site-packages (from aiperf) (0.23.0)
+#5 83.33 Collecting zstandard>=0.25.0 (from aiperf)
+#5 84.39   Downloading zstandard-0.25.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB)
+#5 84.47 Requirement already satisfied: aiohappyeyeballs>=2.5.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (2.7.1)
+#5 84.47 Requirement already satisfied: aiosignal>=1.4.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (1.4.0)
+#5 84.47 Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (26.1.0)
+#5 84.47 Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (1.8.0)
+#5 84.47 Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (6.7.1)
+#5 84.47 Requirement already satisfied: propcache>=0.2.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (0.5.2)
+#5 84.47 Requirement already satisfied: typing_extensions>=4.4 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (4.16.0)
+#5 84.48 Requirement already satisfied: yarl<2.0,>=1.17.0 in /usr/local/lib/python3.12/dist-packages (from aiohttp<4.0.0,>=3.9.0->kubernetes-asyncio==32.0.0) (1.24.5)
+#5 84.51 Requirement already satisfied: docstring-parser<4.0,>=0.15 in /usr/local/lib/python3.12/dist-packages (from cyclopts<5,>=4->aiperf) (0.18.0)
+#5 89.35 Collecting rich-rst<3.0.0,>=1.3.1 (from cyclopts<5,>=4->aiperf)
+#5 90.65   Downloading rich_rst-2.2.0-py3-none-any.whl.metadata (5.0 kB)
+#5 93.22 Collecting Flask<3.2,>=1.0.4 (from dash~=3.1.0->aiperf)
+#5 94.75   Downloading flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+#5 97.32 Collecting Werkzeug<3.2 (from dash~=3.1.0->aiperf)
+#5 97.96   Downloading werkzeug-3.1.9-py3-none-any.whl.metadata (4.1 kB)
+#5 97.97 Requirement already satisfied: importlib-metadata in /usr/local/lib/python3.12/dist-packages (from dash~=3.1.0->aiperf) (8.7.1)
+#5 98.46 Collecting retrying (from dash~=3.1.0->aiperf)
+#5 99.04   Downloading retrying-1.4.2-py3-none-any.whl.metadata (5.5 kB)
+#5 99.46 Collecting nest-asyncio (from dash~=3.1.0->aiperf)
+#5 100.1   Downloading nest_asyncio-1.6.0-py3-none-any.whl.metadata (2.8 kB)
+#5 100.1 Requirement already satisfied: setuptools in /usr/local/lib/python3.12/dist-packages (from dash~=3.1.0->aiperf) (80.10.2)
+#5 100.2 Requirement already satisfied: dill<0.4.2,>=0.3.0 in /usr/local/lib/python3.12/dist-packages (from datasets>=3.0->aiperf) (0.4.1)
+#5 105.4 Collecting xxhash (from datasets>=3.0->aiperf)
+#5 105.7   Downloading xxhash-4.0.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (17 kB)
+#5 106.6 Collecting multiprocess<0.70.20 (from datasets>=3.0->aiperf)
+#5 106.8   Downloading multiprocess-0.70.19-py312-none-any.whl.metadata (7.5 kB)
+#5 106.8 Requirement already satisfied: fsspec<=2026.7.0,>=2023.1.0 in /usr/local/lib/python3.12/dist-packages (from fsspec[http]<=2026.7.0,>=2023.1.0->datasets>=3.0->aiperf) (2026.7.0)
+#5 107.3 Collecting huggingface-hub<2.0,>=0.34.0 (from aiperf)
+#5 107.5   Downloading huggingface_hub-1.33.0-py3-none-any.whl.metadata (16 kB)
+#5 107.5 Requirement already satisfied: starlette>=0.46.0 in /usr/local/lib/python3.12/dist-packages (from fastapi<1,>=0.115->aiperf) (1.6.0)
+#5 107.5 Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.12/dist-packages (from fastapi<1,>=0.115->aiperf) (0.4.4)
+#5 107.5 Requirement already satisfied: annotated-doc>=0.0.2 in /usr/local/lib/python3.12/dist-packages (from fastapi<1,>=0.115->aiperf) (0.0.5)
+#5 107.7 Collecting future (from ffmpeg-python~=0.2.0->aiperf)
+#5 107.9   Downloading future-1.0.0-py3-none-any.whl.metadata (4.0 kB)
+#5 107.9 Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.12/dist-packages (from google-auth>=1.0.1->kubernetes==32.0.1) (0.4.2)
+#5 107.9 Requirement already satisfied: cryptography>=38.0.3 in /usr/local/lib/python3.12/dist-packages (from google-auth>=1.0.1->kubernetes==32.0.1) (50.0.0)
+#5 107.9 Requirement already satisfied: click<9.0.0,>=8.4.2 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub<2.0,>=0.34.0->aiperf) (8.4.2)
+#5 107.9 Requirement already satisfied: hf-xet<2.0.0,>=1.6.0 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub<2.0,>=0.34.0->aiperf) (1.6.0)
+#5 107.9 Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.12/dist-packages (from huggingface-hub<2.0,>=0.34.0->aiperf) (0.28.1)
+#5 108.0 Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2~=3.1.5->aiperf) (3.0.3)
+#5 108.2 Collecting choreographer>=1.1.1 (from kaleido~=1.2.0->aiperf)
+#5 108.3   Downloading choreographer-1.4.0-py3-none-any.whl.metadata (5.5 kB)
+#5 108.5 Collecting logistro>=1.0.8 (from kaleido~=1.2.0->aiperf)
+#5 108.7   Downloading logistro-2.0.1-py3-none-any.whl.metadata (3.9 kB)
+#5 108.9 Collecting pytest-timeout>=2.4.0 (from kaleido~=1.2.0->aiperf)
+#5 109.1   Downloading pytest_timeout-2.4.0-py3-none-any.whl.metadata (20 kB)
+#5 109.1 Requirement already satisfied: python-json-logger in /usr/local/lib/python3.12/dist-packages (from kopf>=1.42.0->aiperf) (4.2.0)
+#5 109.5 Collecting jsonpatch (from kopf>=1.42.0->aiperf)
+#5 109.7   Downloading jsonpatch-1.38-py3-none-any.whl.metadata (3.7 kB)
+#5 110.1 Collecting iso8601 (from kopf>=1.42.0->aiperf)
+#5 110.6   Downloading iso8601-2.1.0-py3-none-any.whl.metadata (3.7 kB)
+#5 111.8 Collecting contourpy>=1.0.1 (from matplotlib>=3.10.0->aiperf)
+#5 112.1   Downloading contourpy-1.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+#5 112.5 Collecting cycler>=0.10 (from matplotlib>=3.10.0->aiperf)
+#5 112.8   Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+#5 117.6 Collecting fonttools>=4.28.2 (from matplotlib>=3.10.0->aiperf)
+#5 117.9   Downloading fonttools-4.68.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (139 kB)
+#5 118.1      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 139.9/139.9 kB 511.5 kB/s eta 0:00:00
+#5 118.7 Collecting kiwisolver>=1.3.1 (from matplotlib>=3.10.0->aiperf)
+#5 118.9   Downloading kiwisolver-1.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+#5 118.9 Requirement already satisfied: pyparsing>=3 in /usr/lib/python3/dist-packages (from matplotlib>=3.10.0->aiperf) (3.1.1)
+#5 119.1 Collecting alembic>=1.5.0 (from optuna>=3.6->aiperf)
+#5 119.2   Downloading alembic-1.20.1-py3-none-any.whl.metadata (7.3 kB)
+#5 119.5 Collecting colorlog (from optuna>=3.6->aiperf)
+#5 119.6   Downloading colorlog-6.12.0-py3-none-any.whl.metadata (11 kB)
+#5 121.3 Collecting sqlalchemy>=1.4.2 (from optuna>=3.6->aiperf)
+#5 121.4   Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.7 kB)
+#5 121.5 Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.10.0->aiperf) (0.8.0)
+#5 121.5 Requirement already satisfied: pydantic-core==2.46.4 in /usr/local/lib/python3.12/dist-packages (from pydantic<3.0.0,>=2.10.0->aiperf) (2.46.4)
+#5 121.5 Requirement already satisfied: python-dotenv>=0.21.0 in /usr/local/lib/python3.12/dist-packages (from pydantic-settings<3.0.0,>=2.10.0->aiperf) (1.2.3)
+#5 121.5 Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.12/dist-packages (from rich~=14.1.0->aiperf) (4.2.0)
+#5 121.5 Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3.12/dist-packages (from rich~=14.1.0->aiperf) (2.21.0)
+#5 121.8 Collecting ruamel.yaml.clib>=0.2.15 (from ruamel-yaml~=0.18.12->aiperf)
+#5 122.0   Downloading ruamel_yaml_clib-0.2.15-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (3.5 kB)
+#5 122.1 Requirement already satisfied: cffi>=1.0 in /usr/local/lib/python3.12/dist-packages (from soundfile~=0.13.1->aiperf) (2.1.1)
+#5 122.4 Collecting brotli>=1 (from starlette-compress>=1.0.1->aiperf)
+#5 122.6   Downloading brotli-1.2.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.1 kB)
+#5 122.9 Collecting platformdirs<5,>=3.6.0 (from textual~=5.3.0->aiperf)
+#5 123.0   Downloading platformdirs-4.14.0-py3-none-any.whl.metadata (5.4 kB)
+#5 123.1 Requirement already satisfied: regex in /usr/local/lib/python3.12/dist-packages (from tiktoken<1,>=0.7.0->aiperf) (2026.7.19)
+#5 123.2 Requirement already satisfied: tokenizers<=0.23.0,>=0.22.0 in /usr/local/lib/python3.12/dist-packages (from transformers>=4.56.0->aiperf) (0.22.2)
+#5 123.2 Requirement already satisfied: typer in /usr/local/lib/python3.12/dist-packages (from transformers>=4.56.0->aiperf) (0.27.1)
+#5 123.2 Requirement already satisfied: safetensors>=0.8.0 in /usr/local/lib/python3.12/dist-packages (from transformers>=4.56.0->aiperf) (0.8.0)
+#5 123.3 Requirement already satisfied: h11>=0.8 in /usr/local/lib/python3.12/dist-packages (from uvicorn<1,>=0.34->uvicorn[standard]<1,>=0.34->aiperf) (0.16.0)
+#5 123.3 Requirement already satisfied: httptools>=0.8.0 in /usr/local/lib/python3.12/dist-packages (from uvicorn[standard]<1,>=0.34->aiperf) (0.8.0)
+#5 123.3 Requirement already satisfied: watchfiles>=0.20 in /usr/local/lib/python3.12/dist-packages (from uvicorn[standard]<1,>=0.34->aiperf) (1.2.0)
+#5 123.3 Requirement already satisfied: websockets>=13.0 in /usr/local/lib/python3.12/dist-packages (from uvicorn[standard]<1,>=0.34->aiperf) (17.0.1)
+#5 123.3 Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.12/dist-packages (from requests->kubernetes==32.0.1) (3.5.1)
+#5 123.3 Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.12/dist-packages (from requests->kubernetes==32.0.1) (3.19)
+#5 123.6 Collecting Mako (from alembic>=1.5.0->optuna>=3.6->aiperf)
+#5 123.8   Downloading mako-1.4.3-py3-none-any.whl.metadata (2.9 kB)
+#5 123.8 Requirement already satisfied: pycparser in /usr/local/lib/python3.12/dist-packages (from cffi>=1.0->soundfile~=0.13.1->aiperf) (3.0)
+#5 124.3 Collecting simplejson>=3.19.3 (from choreographer>=1.1.1->kaleido~=1.2.0->aiperf)
+#5 124.5   Downloading simplejson-4.2.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.8 kB)
+#5 124.7 Collecting blinker>=1.9.0 (from Flask<3.2,>=1.0.4->dash~=3.1.0->aiperf)
+#5 124.9   Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+#5 125.0 Collecting itsdangerous>=2.2.0 (from Flask<3.2,>=1.0.4->dash~=3.1.0->aiperf)
+#5 125.2   Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+#5 125.4 Requirement already satisfied: anyio in /usr/local/lib/python3.12/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=0.34.0->aiperf) (4.14.2)
+#5 125.4 Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.12/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=0.34.0->aiperf) (1.0.9)
+#5 125.5 Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.12/dist-packages (from markdown-it-py>=2.2.0->rich~=14.1.0->aiperf) (0.1.2)
+#5 125.7 Collecting linkify-it-py<3,>=1 (from markdown-it-py[linkify,plugins]>=2.1.0->textual~=5.3.0->aiperf)
+#5 125.9   Downloading linkify_it_py-2.2.0-py3-none-any.whl.metadata (8.6 kB)
+#5 126.1 Collecting mdit-py-plugins>=0.5.0 (from markdown-it-py[linkify,plugins]>=2.1.0->textual~=5.3.0->aiperf)
+#5 126.2   Downloading mdit_py_plugins-0.6.1-py3-none-any.whl.metadata (2.9 kB)
+#5 126.3 Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.12/dist-packages (from pyasn1-modules>=0.2.1->google-auth>=1.0.1->kubernetes==32.0.1) (0.6.4)
+#5 126.3 Requirement already satisfied: pytest>=7.0.0 in /usr/local/lib/python3.12/dist-packages (from pytest-timeout>=2.4.0->kaleido~=1.2.0->aiperf) (9.1.1)
+#5 126.6 Requirement already satisfied: zipp>=3.20 in /usr/local/lib/python3.12/dist-packages (from importlib-metadata->dash~=3.1.0->aiperf) (4.1.0)
+#5 126.8 Collecting jsonpointer>=3.2 (from jsonpatch->kopf>=1.42.0->aiperf)
+#5 127.0   Downloading jsonpointer-3.6-py3-none-any.whl.metadata (2.6 kB)
+#5 127.1 Requirement already satisfied: shellingham>=1.3.0 in /usr/local/lib/python3.12/dist-packages (from typer->transformers>=4.56.0->aiperf) (1.5.4)
+#5 127.2 Requirement already satisfied: iniconfig>=1.0.1 in /usr/local/lib/python3.12/dist-packages (from pytest>=7.0.0->pytest-timeout>=2.4.0->kaleido~=1.2.0->aiperf) (2.3.0)
+#5 127.2 Requirement already satisfied: pluggy<2,>=1.5 in /usr/local/lib/python3.12/dist-packages (from pytest>=7.0.0->pytest-timeout>=2.4.0->kaleido~=1.2.0->aiperf) (1.6.0)
+#5 127.5 Downloading pandas-2.3.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.4 MB)
+#5 135.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.4/12.4 MB 1.7 MB/s eta 0:00:00
+#5 135.2 Downloading aiofiles-24.1.0-py3-none-any.whl (15 kB)
+#5 135.4 Downloading kubernetes_asyncio-32.0.0-py3-none-any.whl (2.0 MB)
+#5 136.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 3.5 MB/s eta 0:00:00
+#5 136.7 Downloading plotext-5.3.2-py3-none-any.whl (64 kB)
+#5 136.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.0/64.0 kB 913.3 kB/s eta 0:00:00
+#5 137.1 Downloading aiperf-0.13.0-py3-none-any.whl (6.8 MB)
+#5 141.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 1.7 MB/s eta 0:00:00
+#5 141.4 Downloading plotly-6.4.0-py3-none-any.whl (9.9 MB)
+#5 163.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.9/9.9 MB 452.6 kB/s eta 0:00:00
+#5 163.7 Downloading aiosqlite-0.22.1-py3-none-any.whl (17 kB)
+#5 163.9 Downloading crick-0.0.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.8 MB)
+#5 168.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 433.0 kB/s eta 0:00:00
+#5 168.5 Downloading cyclopts-4.25.3-py3-none-any.whl (242 kB)
+#5 168.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 242.7/242.7 kB 907.9 kB/s eta 0:00:00
+#5 170.6 Downloading dash-3.1.1-py3-none-any.whl (7.9 MB)
+#5 182.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.9/7.9 MB 660.0 kB/s eta 0:00:00
+#5 182.8 Downloading dash_bootstrap_components-2.0.4-py3-none-any.whl (204 kB)
+#5 183.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 204.0/204.0 kB 812.0 kB/s eta 0:00:00
+#5 183.4 Downloading datasets-5.1.0-py3-none-any.whl (604 kB)
+#5 184.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 604.4/604.4 kB 456.5 kB/s eta 0:00:00
+#5 185.1 Downloading ffmpeg_python-0.2.0-py3-none-any.whl (25 kB)
+#5 185.4 Downloading huggingface_hub-1.33.0-py3-none-any.whl (846 kB)
+#5 185.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 846.4/846.4 kB 4.1 MB/s eta 0:00:00
+#5 186.3 Downloading jmespath-1.0.1-py3-none-any.whl (20 kB)
+#5 186.7 Downloading kaleido-1.2.0-py3-none-any.whl (68 kB)
+#5 186.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.0/69.0 kB 3.6 MB/s eta 0:00:00
+#5 187.0 Downloading kopf-1.45.2-py3-none-any.whl (228 kB)
+#5 187.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.0/229.0 kB 1.6 MB/s eta 0:00:00
+#5 187.4 Downloading matplotlib-3.11.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (9.9 MB)
+#5 207.3    ━━━━━━━━━━━━                             3.1/9.9 MB 154.0 kB/s eta 0:00:45
+#5 208.4 Downloading narwhals-2.28.0-py3-none-any.whl (490 kB)
+#5 208.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 490.6/490.6 kB 1.0 MB/s eta 0:00:00
+#5 209.0 Downloading optuna-5.0.0-py3-none-any.whl (442 kB)
+#5 209.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 442.4/442.4 kB 503.0 kB/s eta 0:00:00
+#5 210.1 Downloading orjson-3.11.9-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (134 kB)
+#5 210.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.0/134.0 kB 702.3 kB/s eta 0:00:00
+#5 210.5 Downloading prometheus_client-0.23.1-py3-none-any.whl (61 kB)
+#5 210.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.1/61.1 kB 933.0 kB/s eta 0:00:00
+#5 210.7 Downloading psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (277 kB)
+#5 210.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 278.0/278.0 kB 2.2 MB/s eta 0:00:00
+#5 211.0 Downloading pyarrow-26.0.0-cp312-cp312-manylinux_2_28_x86_64.whl (53.9 MB)
+#5 229.4    ━                                        1.5/53.9 MB 437.6 kB/s eta 0:02:00
+#5 229.4 ERROR: Exception:
+#5 229.4 Traceback (most recent call last):
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 438, in _error_catcher
+#5 229.4     yield
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 561, in read
+#5 229.4     data = self._fp_read(amt) if not fp_closed else b""
+#5 229.4            ^^^^^^^^^^^^^^^^^^
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 527, in _fp_read
+#5 229.4     return self._fp.read(amt) if amt is not None else self._fp.read()
+#5 229.4            ^^^^^^^^^^^^^^^^^^
+#5 229.4   File "/usr/lib/python3.12/http/client.py", line 484, in read
+#5 229.4     s = self.fp.read(amt)
+#5 229.4         ^^^^^^^^^^^^^^^^^
+#5 229.4   File "/usr/lib/python3.12/socket.py", line 707, in readinto
+#5 229.4     return self._sock.recv_into(b)
+#5 229.4            ^^^^^^^^^^^^^^^^^^^^^^^
+#5 229.4   File "/usr/lib/python3.12/ssl.py", line 1252, in recv_into
+#5 229.4     return self.read(nbytes, buffer)
+#5 229.4            ^^^^^^^^^^^^^^^^^^^^^^^^^
+#5 229.4   File "/usr/lib/python3.12/ssl.py", line 1104, in read
+#5 229.4     return self._sslobj.read(len, buffer)
+#5 229.4            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#5 229.4 TimeoutError: The read operation timed out
+#5 229.4 
+#5 229.4 During handling of the above exception, another exception occurred:
+#5 229.4 
+#5 229.4 Traceback (most recent call last):
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 180, in exc_logging_wrapper
+#5 229.4     status = run_func(*args)
+#5 229.4              ^^^^^^^^^^^^^^^
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/cli/req_command.py", line 245, in wrapper
+#5 229.4     return func(self, options, args)
+#5 229.4            ^^^^^^^^^^^^^^^^^^^^^^^^^
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/commands/install.py", line 377, in run
+#5 229.4     requirement_set = resolver.resolve(
+#5 229.4                       ^^^^^^^^^^^^^^^^^
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/resolver.py", line 179, in resolve
+#5 229.4     self.factory.preparer.prepare_linked_requirements_more(reqs)
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 552, in prepare_linked_requirements_more
+#5 229.4     self._complete_partial_requirements(
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 467, in _complete_partial_requirements
+#5 229.4     for link, (filepath, _) in batch_download:
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/network/download.py", line 183, in __call__
+#5 229.4     for chunk in chunks:
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/cli/progress_bars.py", line 53, in _rich_progress_bar
+#5 229.4     for chunk in iterable:
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_internal/network/utils.py", line 63, in response_chunks
+#5 229.4     for chunk in response.raw.stream(
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 622, in stream
+#5 229.4     data = self.read(amt=amt, decode_content=decode_content)
+#5 229.4            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 560, in read
+#5 229.4     with self._error_catcher():
+#5 229.4   File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+#5 229.4     self.gen.throw(value)
+#5 229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 443, in _error_catcher
+#5 229.4     raise ReadTimeoutError(self._pool, None, "Read timed out.")
+#5 229.4 pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='files.pythonhosted.org', port=443): Read timed out.
+#5 ERROR: process "/bin/sh -c /opt/dynamo/venv/bin/python -m pip install --no-cache-dir pandas==2.3.3 aiofiles==24.1.0 kubernetes==32.0.1 kubernetes-asyncio==32.0.0 'plotext<6' 'plotly>=6.0.1' 'scipy>=1.14,<2' aiperf && /opt/dynamo/venv/bin/python -c \"import importlib.metadata as m; assert m.version('vllm') == '0.28.0'\"" did not complete successfully: exit code: 2
+------
+ > [2/2] RUN /opt/dynamo/venv/bin/python -m pip install --no-cache-dir pandas==2.3.3 aiofiles==24.1.0 kubernetes==32.0.1 kubernetes-asyncio==32.0.0 'plotext<6' 'plotly>=6.0.1' 'scipy>=1.14,<2' aiperf && /opt/dynamo/venv/bin/python -c "import importlib.metadata as m; assert m.version('vllm') == '0.28.0'":
+229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 622, in stream
+229.4     data = self.read(amt=amt, decode_content=decode_content)
+229.4            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 560, in read
+229.4     with self._error_catcher():
+229.4   File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+229.4     self.gen.throw(value)
+229.4   File "/opt/dynamo/venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 443, in _error_catcher
+229.4     raise ReadTimeoutError(self._pool, None, "Read timed out.")
+229.4 pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='files.pythonhosted.org', port=443): Read timed out.
+------
+Dockerfile:5
+--------------------
+   3 |     FROM heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+   4 |     USER root
+   5 | >>> RUN /opt/dynamo/venv/bin/python -m pip install --no-cache-dir pandas==2.3.3 aiofiles==24.1.0 kubernetes==32.0.1 kubernetes-asyncio==32.0.0 'plotext<6' 'plotly>=6.0.1' 'scipy>=1.14,<2' aiperf && /opt/dynamo/venv/bin/python -c "import importlib.metadata as m; assert m.version('vllm') == '0.28.0'"
+   6 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c /opt/dynamo/venv/bin/python -m pip install --no-cache-dir pandas==2.3.3 aiofiles==24.1.0 kubernetes==32.0.1 kubernetes-asyncio==32.0.0 'plotext<6' 'plotly>=6.0.1' 'scipy>=1.14,<2' aiperf && /opt/dynamo/venv/bin/python -c \"import importlib.metadata as m; assert m.version('vllm') == '0.28.0'\"" did not complete successfully: exit code: 2

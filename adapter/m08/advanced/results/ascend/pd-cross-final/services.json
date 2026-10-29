@@ -1,0 +1,255 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "heyi-m08",
+                    "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+                },
+                "creationTimestamp": "2026-10-29T04:18:13Z",
+                "labels": {
+                    "app.kubernetes.io/component": "webhook",
+                    "app.kubernetes.io/created-by": "dynamo-operator",
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/part-of": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.5.1",
+                    "helm.sh/chart": "dynamo-operator-1.5.1"
+                },
+                "name": "heyi-m08-dynamo-operator-webhook-service",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "290561921",
+                "uid": "c9c0bc84-1f9a-4bca-870f-1f2f152293e6"
+            },
+            "spec": {
+                "clusterIP": "10.43.133.240",
+                "clusterIPs": [
+                    "10.43.133.240"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "webhook",
+                        "port": 443,
+                        "protocol": "TCP",
+                        "targetPort": 9443
+                    }
+                ],
+                "selector": {
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "control-plane": "controller-manager"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "9309e87049768e0a9fc76640ea08917123ecc5104456edfc81717851926983e5"
+                },
+                "creationTimestamp": "2026-10-29T06:00:12Z",
+                "labels": {
+                    "heyi.io/m08-pd": "m08-pd-cross",
+                    "nvidia.com/dynamo-component": "decode",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                    "nvidia.com/dynamo-sub-component-type": "decode",
+                    "nvidia.com/dynamo-worker-hash": "557086fb"
+                },
+                "name": "m08-pd-cross-decode-557086fb",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "m08-pd-cross-decode-557086fb",
+                        "uid": "0c4ed2c7-1ec1-43e1-a13e-dbfcf8f2fb17"
+                    }
+                ],
+                "resourceVersion": "290605279",
+                "uid": "5c91a9fb-0d8a-4646-9e86-8d302f820e45"
+            },
+            "spec": {
+                "clusterIP": "10.43.73.37",
+                "clusterIPs": [
+                    "10.43.73.37"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "system",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": "system"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "decode",
+                    "nvidia.com/dynamo-component-type": "decode",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "8a5630594ee4c24dfd24433891d0be3644becc0e69c976454554547293b8d93c"
+                },
+                "creationTimestamp": "2026-10-29T06:00:12Z",
+                "labels": {
+                    "nvidia.com/dynamo-component": "frontend",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross"
+                },
+                "name": "m08-pd-cross-frontend",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "m08-pd-cross-frontend",
+                        "uid": "c5d150c7-50c1-444d-bee3-e13ccbf88823"
+                    }
+                ],
+                "resourceVersion": "290605207",
+                "uid": "fe4a1846-7832-47f4-9648-4b0a687663c3"
+            },
+            "spec": {
+                "clusterIP": "10.43.25.85",
+                "clusterIPs": [
+                    "10.43.25.85"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "http",
+                        "port": 8000,
+                        "protocol": "TCP",
+                        "targetPort": "http"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "frontend",
+                    "nvidia.com/dynamo-component-type": "frontend",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "c94314946ff6f97ab87ce42cf22850e251c4595efe68869343fd6aa2328ff341"
+                },
+                "creationTimestamp": "2026-10-29T06:00:12Z",
+                "labels": {
+                    "heyi.io/m08-pd": "m08-pd-cross",
+                    "nvidia.com/dynamo-component": "prefill",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-pd-cross",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross",
+                    "nvidia.com/dynamo-sub-component-type": "prefill",
+                    "nvidia.com/dynamo-worker-hash": "557086fb"
+                },
+                "name": "m08-pd-cross-prefill-557086fb",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "m08-pd-cross-prefill-557086fb",
+                        "uid": "0b62c57a-886a-4c20-9216-27e6e7aa9256"
+                    }
+                ],
+                "resourceVersion": "290605242",
+                "uid": "b0952b87-f586-4f75-8be4-38571e2ba877"
+            },
+            "spec": {
+                "clusterIP": "10.43.113.74",
+                "clusterIPs": [
+                    "10.43.113.74"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "system",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": "system"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "prefill",
+                    "nvidia.com/dynamo-component-type": "prefill",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m08-pd-cross"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

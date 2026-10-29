@@ -7,6 +7,7 @@ import argparse
 import json
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 
@@ -26,6 +27,8 @@ def main():
     parser.add_argument("--namespace", default="regression")
     parser.add_argument("--prefill-workers", type=int, default=0)
     parser.add_argument("--model", default="regression-model")
+    parser.add_argument("--prefix-repetitions", type=int, default=128)
+    parser.add_argument("--cancel-max-tokens", type=int, default=1024)
     parser.add_argument(
         "--skip-router-kv-check",
         action="store_true",
@@ -34,10 +37,14 @@ def main():
     args = parser.parse_args()
     global REPORT
     report = REPORT = {"passed": False, "url": args.url, "requests": []}
+    # Dynamo 1.5.1's model catch-all strips one leading slash. Preserve
+    # absolute-path model IDs while leaving the completion payload unchanged.
+    readiness_id = "/" + args.model if args.model.startswith("/") else args.model
+    model_segment = urllib.parse.quote(readiness_id, safe="")
     deadline = time.monotonic() + 900
     while True:
         try:
-            with request(args.url + f"/v1/models/{args.model}/ready") as response:
+            with request(args.url + f"/v1/models/{model_segment}/ready") as response:
                 ready = json.load(response)
             roles = (
                 ready.get("namespaces", {})
@@ -82,7 +89,8 @@ def main():
     assert len(set(texts)) == 1, "repeat greedy output mismatch"
     long_payload = {
         **payload,
-        "prompt": "This is a stable prefix for cache routing. " * 128
+        "prompt": "This is a stable prefix for cache routing. "
+        * args.prefix_repetitions
         + "The capital of France is",
     }
     cached = []
@@ -114,7 +122,7 @@ def main():
     for _ in range(4):
         with request(
             args.url + "/v1/completions",
-            {**payload, "max_tokens": 1024, "stream": True},
+            {**payload, "max_tokens": args.cancel_max_tokens, "stream": True},
         ) as response:
             for line in response:
                 if line.startswith(b"data:") and b"[DONE]" not in line:

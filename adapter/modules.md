@@ -107,9 +107,7 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M08 Kubernetes 与平台部署
 
-当前状态：整卡 Device Plugin 计数、平台冲突校验和三平台部署清单已实现，本地测试完成；硬件集群回归待执行。见 [M08 交付记录](m08/README.md)。
-
-当前状态：待实现。
+当前状态：2026-10-29 阶段性收尾。整卡 Device Plugin 计数、平台冲突校验和三平台部署清单已实现；CUDA / Ascend 已安装 Operator 并完成基础 DGD、KV 路由、扩缩容、重建、同节点 2P3D 和跨节点聚合推理回归。扩展通过 CUDA/Ascend 跨节点 Operator 2P3D、Grove/KAI、DGDR 实测到自动部署，以及 CUDA DRA 整卡生命周期；MetaX 无集群，Ascend DRA 等待用户提供 ≥1.34 环境，DGDR 预测精度未认证。见 [M08 扩展验收](m08/advanced/README.md)。另通过两平台指定 RDMA 链路的持久设备缓冲区及跨节点 2P3D；Ascend 原生动态注册压力问题见 [RDMA 专项](m08/rdma/README.md)。
 
 详细设计：[资源语义、API 兼容与生成文件计划](modules/m08-kubernetes/README.md)。
 
@@ -120,7 +118,7 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M09 遥测与 Planner/Profiler
 
-当前状态：基础引擎指标可用；平台遥测/Planner 待实现。
+当前状态：准备适配。基础引擎指标可用；M08 已提前完成 CUDA/Ascend 的 DGDR Profiler 接入与真实测量到自动部署。平台遥测、画像有效性/精度、配置选择效果、SLA 达标及 Planner 动态扩缩容仍待实现或验收。
 
 详细设计：[指标、功耗、性能画像与文件计划](modules/m09-telemetry-planner/README.md)。
 

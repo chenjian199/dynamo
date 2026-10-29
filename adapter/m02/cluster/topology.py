@@ -14,7 +14,7 @@ from dynamo.runtime import DistributedRuntime
 
 async def run(args):
     runtime = DistributedRuntime(
-        asyncio.get_running_loop(), "etcd", "tcp", event_plane="zmq"
+        asyncio.get_running_loop(), args.discovery_backend, "tcp", event_plane="zmq"
     )
     result = {"status": "failed", "pairs": []}
     try:
@@ -85,6 +85,9 @@ async def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--discovery-backend", choices=["etcd", "kubernetes"], default="etcd"
+    )
     parser.add_argument("--model", default="regression-model")
     parser.add_argument("--namespace", required=True)
     parser.add_argument("--prefill-workers", type=int, required=True)

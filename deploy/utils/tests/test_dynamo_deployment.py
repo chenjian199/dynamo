@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit test for the fail-fast behavior added for #9213.
 
@@ -137,3 +139,10 @@ async def test_create_deployment_owner_reference_targets_v1beta1_dgdr(monkeypatc
     assert owner_references[0]["apiVersion"] == "nvidia.com/v1beta1"
     assert owner_references[0]["kind"] == "DynamoGraphDeploymentRequest"
     assert owner_references[0]["name"] == "dgdr-test"
+
+
+def test_service_url_uses_pod_search_domain():
+    client = DynamoDeploymentClient(namespace="profiling", deployment_name="candidate")
+    client.service_name = "candidate-frontend"
+    client.frontend_port = 8000
+    assert client.get_service_url() == "http://candidate-frontend.profiling.svc:8000"

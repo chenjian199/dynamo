@@ -1,0 +1,36 @@
+{
+  "image": {
+    "repository": "ghcr.io/ai-dynamo/grove/grove-operator",
+    "tag": "v0.1.0-alpha.13",
+    "pullPolicy": "Never"
+  },
+  "nodeSelector": {
+    "kubernetes.io/hostname": "master-02-45d4a763"
+  },
+  "config": {
+    "scheduler": {
+      "profiles": [
+        {
+          "name": "default-scheduler"
+        },
+        {
+          "name": "kai-scheduler"
+        }
+      ]
+    },
+    "topologyAwareScheduling": {
+      "enabled": false
+    }
+  },
+  "deployment": {
+    "env": [
+      {
+        "name": "GROVE_INIT_CONTAINER_IMAGE",
+        "value": "ghcr.io/ai-dynamo/grove/grove-initc:v0.1.0-alpha.13"
+      }
+    ]
+  },
+  "crdInstaller": {
+    "enabled": false
+  }
+}

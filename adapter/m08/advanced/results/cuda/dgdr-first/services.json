@@ -1,0 +1,188 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "heyi-m08",
+                    "meta.helm.sh/release-namespace": "dynamo-m08-1029"
+                },
+                "creationTimestamp": "2026-10-29T04:16:13Z",
+                "labels": {
+                    "app.kubernetes.io/component": "webhook",
+                    "app.kubernetes.io/created-by": "dynamo-operator",
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/part-of": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.5.1",
+                    "helm.sh/chart": "dynamo-operator-1.5.1"
+                },
+                "name": "heyi-m08-dynamo-operator-webhook-service",
+                "namespace": "dynamo-m08-1029",
+                "resourceVersion": "40305524",
+                "uid": "f79e3b62-d309-41b1-a532-6e337b3abe08"
+            },
+            "spec": {
+                "clusterIP": "10.104.22.247",
+                "clusterIPs": [
+                    "10.104.22.247"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "webhook",
+                        "port": 443,
+                        "protocol": "TCP",
+                        "targetPort": 9443
+                    }
+                ],
+                "selector": {
+                    "app.kubernetes.io/instance": "heyi-m08",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "control-plane": "controller-manager"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "958dd9d4e9c43896fdf377fca54d9eb54354921323c083bddee8536a88b9c917"
+                },
+                "creationTimestamp": "2026-10-29T07:04:39Z",
+                "labels": {
+                    "nvidia.com/dynamo-component": "Frontend",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true",
+                    "nvidia.com/dynamo-graph-deployment-name": "vllm-agg-b12450b3-4436",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-vllm-agg-b12450b3-4436"
+                },
+                "name": "vllm-agg-b12450b3-4436-frontend",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "vllm-agg-b12450b3-4436-frontend",
+                        "uid": "6fc88858-8459-4319-beb1-73ce4fd54c2e"
+                    }
+                ],
+                "resourceVersion": "40377676",
+                "uid": "739e52f4-0573-455d-9098-2da093ada05d"
+            },
+            "spec": {
+                "clusterIP": "10.111.60.51",
+                "clusterIPs": [
+                    "10.111.60.51"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "http",
+                        "port": 8000,
+                        "protocol": "TCP",
+                        "targetPort": "http"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "Frontend",
+                    "nvidia.com/dynamo-component-type": "frontend",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-vllm-agg-b12450b3-4436"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "fdd44f7abbea7efbbcb64671ea1830622f0cd74a12bc426cb593ad6ea9dc8c7a"
+                },
+                "creationTimestamp": "2026-10-29T07:04:39Z",
+                "labels": {
+                    "nvidia.com/dynamo-component": "VllmDecodeWorker",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/dynamo-discovery-enabled": "true",
+                    "nvidia.com/dynamo-graph-deployment-name": "vllm-agg-b12450b3-4436",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-vllm-agg-b12450b3-4436",
+                    "nvidia.com/dynamo-worker-hash": "24a72c46"
+                },
+                "name": "vllm-agg-b12450b3-4436-vllmdecodeworker-24a72c46",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "vllm-agg-b12450b3-4436-vllmdecodeworker-24a72c46",
+                        "uid": "7f781c63-837d-4d0b-b8e2-e47dc6ba52e9"
+                    }
+                ],
+                "resourceVersion": "40377706",
+                "uid": "69aa371d-8c93-4617-9003-1a6eb279874b"
+            },
+            "spec": {
+                "clusterIP": "10.102.48.226",
+                "clusterIPs": [
+                    "10.102.48.226"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "system",
+                        "port": 9090,
+                        "protocol": "TCP",
+                        "targetPort": "system"
+                    }
+                ],
+                "selector": {
+                    "nvidia.com/dynamo-component": "VllmDecodeWorker",
+                    "nvidia.com/dynamo-component-type": "worker",
+                    "nvidia.com/dynamo-namespace": "dynamo-m08-1029-vllm-agg-b12450b3-4436"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

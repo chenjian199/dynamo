@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import logging
 import re
@@ -99,10 +101,9 @@ def _finalize_disagg_cli_args(args: list[str], role: SubComponentType) -> list[s
     finalized = set_unique_argument_value(
         cleaned_args, "--disaggregation-mode", role.value
     )
-    if (
-        role == SubComponentType.PREFILL
-        and _get_valued_arg(finalized, "--kv-transfer-config") is None
-    ):
+    # Both sides of a final PD deployment need a transport connector.
+    # Standalone decode benchmarking uses a separate aggregate configuration.
+    if _get_valued_arg(finalized, "--kv-transfer-config") is None:
         finalized = set_unique_argument_value(
             finalized,
             "--kv-transfer-config",

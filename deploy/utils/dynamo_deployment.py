@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -145,9 +147,9 @@ class DynamoDeploymentClient:
         # Version segment of the DynamoGraphDeployment apiVersion, reset from the
         # manifest in create_deployment: the request path must match the body.
         self.api_version: str = "v1beta1"
-        self.deployment_spec: Optional[
-            Dict[str, Any]
-        ] = None  # Will store the full deployment spec
+        self.deployment_spec: Optional[Dict[str, Any]] = (
+            None  # Will store the full deployment spec
+        )
         self.base_log_dir = Path(base_log_dir) if base_log_dir else Path("logs")
         self.frontend_port = frontend_port
         self.port_forward_process: Optional[subprocess.Popen[bytes]] = None
@@ -239,7 +241,10 @@ class DynamoDeploymentClient:
         """
         Get the service URL using Kubernetes service DNS.
         """
-        service_url = f"http://{self.service_name}.{self.namespace}.svc.cluster.local:{self.frontend_port}"
+        # Use the Pod DNS search domain, including clusters with a custom suffix.
+        service_url = (
+            f"http://{self.service_name}.{self.namespace}.svc:{self.frontend_port}"
+        )
         print(f"Using service URL: {service_url}")
         return service_url
 

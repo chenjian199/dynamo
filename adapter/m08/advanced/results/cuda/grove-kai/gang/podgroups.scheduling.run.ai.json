@@ -1,0 +1,88 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "scheduling.run.ai/v2alpha2",
+            "kind": "PodGroup",
+            "metadata": {
+                "annotations": {
+                    "kai.scheduler/skip-podgrouper": "true",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "17c81e11ea1717ebe6fa2a81d7fbe3ee76b0aa23b52f76efbebbca11410ac21c"
+                },
+                "creationTimestamp": "2026-10-29T06:44:16Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/component": "podgang",
+                    "app.kubernetes.io/managed-by": "grove-operator",
+                    "app.kubernetes.io/part-of": "m08-grove-kai",
+                    "grove.io/epoch": "1793256250821080097",
+                    "grove.io/podcliqueset-generation-hash": "84d456dfb68bcfd8cfd",
+                    "grove.io/podcliqueset-replica-index": "0",
+                    "grove.io/podgang-role": "Anchor",
+                    "grove.io/scheduler-name": "kai-scheduler",
+                    "nvidia.com/dynamo-graph-deployment-name": "m08-grove-kai"
+                },
+                "name": "m08-grove-kai-0-1793256250821080097",
+                "namespace": "dynamo-m08-1029",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "scheduler.grove.io/v1alpha1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PodGang",
+                        "name": "m08-grove-kai-0-1793256250821080097",
+                        "uid": "689bbd24-fa89-47d5-9c34-98942d615190"
+                    }
+                ],
+                "resourceVersion": "40368551",
+                "uid": "9fdb9825-c707-46fd-b685-1b12d18f967c"
+            },
+            "spec": {
+                "minMember": 3,
+                "queue": "default-queue",
+                "subGroups": [
+                    {
+                        "minMember": 1,
+                        "name": "m08-grove-kai-0-frontend"
+                    },
+                    {
+                        "minMember": 2,
+                        "name": "m08-grove-kai-0-worker"
+                    }
+                ],
+                "topologyConstraint": {}
+            },
+            "status": {
+                "resourcesStatus": {
+                    "requested": {
+                        "cpu": "3",
+                        "memory": "6Gi",
+                        "nvidia.com/gpu": "2"
+                    }
+                },
+                "schedulingConditions": [
+                    {
+                        "lastTransitionTime": "2026-10-29T06:44:26Z",
+                        "message": "PodSchedulingErrors: Resources were found for 1 pods from all sub-groups while sub-group m08-grove-kai-0-worker requires 2 pods for gang scheduling. Additional pods cannot be scheduled in this sub-group due to: no nodes with enough resources were found: 1 node(s) didn't have enough resources: GPUs. \n1 node(s) didn't match Pod's node affinity/selector..",
+                        "nodePool": "default",
+                        "reason": "Unschedulable",
+                        "reasons": [
+                            {
+                                "message": "Resources were found for 1 pods from all sub-groups while sub-group m08-grove-kai-0-worker requires 2 pods for gang scheduling. Additional pods cannot be scheduled in this sub-group due to: no nodes with enough resources were found: 1 node(s) didn't have enough resources: GPUs. \n1 node(s) didn't match Pod's node affinity/selector.",
+                                "reason": "PodSchedulingErrors"
+                            }
+                        ],
+                        "status": "True",
+                        "transitionID": "1",
+                        "type": "UnschedulableOnNodePool"
+                    }
+                ]
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

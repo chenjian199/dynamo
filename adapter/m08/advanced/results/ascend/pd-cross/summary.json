@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "name": "m08-pd-cross",
+  "mode": "pd",
+  "steps": [
+    {
+      "name": "initial",
+      "ready_pods": 6
+    },
+    {
+      "name": "resource-counts",
+      "components": {
+        "decode": {
+          "availableReplicas": 3,
+          "componentKind": "Deployment",
+          "componentNames": [
+            "m08-pd-cross-decode-557086fb"
+          ],
+          "gpusPerEngine": 1,
+          "gpusPerReplica": 1,
+          "readyReplicas": 3,
+          "replicas": 3,
+          "runtimeNamespace": "dynamo-m08-1029-m08-pd-cross-557086fb",
+          "updatedReplicas": 3
+        },
+        "frontend": {
+          "availableReplicas": 1,
+          "componentKind": "Deployment",
+          "componentNames": [
+            "m08-pd-cross-frontend"
+          ],
+          "gpusPerEngine": 0,
+          "gpusPerReplica": 0,
+          "readyReplicas": 1,
+          "replicas": 1,
+          "runtimeNamespace": "dynamo-m08-1029-m08-pd-cross",
+          "updatedReplicas": 1
+        },
+        "prefill": {
+          "availableReplicas": 2,
+          "componentKind": "Deployment",
+          "componentNames": [
+            "m08-pd-cross-prefill-557086fb"
+          ],
+          "gpusPerEngine": 1,
+          "gpusPerReplica": 1,
+          "readyReplicas": 2,
+          "replicas": 2,
+          "runtimeNamespace": "dynamo-m08-1029-m08-pd-cross-557086fb",
+          "updatedReplicas": 2
+        }
+      }
+    },
+    {
+      "name": "initial-api",
+      "passed": true
+    },
+    {
+      "name": "after-recreate",
+      "ready_pods": 6
+    },
+    {
+      "name": "worker-recreated",
+      "deleted_uid": "74c94582-ac16-4e94-87ae-701e9c18dea3"
+    },
+    {
+      "name": "recovery-api",
+      "passed": true
+    }
+  ]
+}
