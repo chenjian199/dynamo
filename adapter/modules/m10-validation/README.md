@@ -7,6 +7,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M10 契约测试与平台认证
 
+2026-10-30 交接：MetaX 无集群条件下的 PD/Grove/DGDR/Planner 配置适配见 [集群交付入口](../../platforms/metax/cluster/README.md)。本轮没有构建新镜像或执行设备/集群测试；M10 必须从同一提交构建 runtime、dev、工具与 Operator 镜像后重新验收，不能沿用源码覆盖结果声明最终镜像通过。
+
 状态：部分完成（MetaX、Ascend 与 CUDA 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
 
 ## 实施进度（2026-10-16）

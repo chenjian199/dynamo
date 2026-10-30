@@ -67,6 +67,7 @@ class GPUSKUType(str, Enum):
     H800SXM = "h800_sxm"
     H800PCIe = "h800_pcie"
     Ascend910B3 = "ascend_910b3"
+    MetaXC500 = "metax_c500"
     A100SXM = "a100_sxm"
     A100PCIe = "a100_pcie"
     A30 = "a30"

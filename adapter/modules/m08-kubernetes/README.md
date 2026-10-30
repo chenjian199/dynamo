@@ -7,6 +7,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M08 Kubernetes 与平台部署
 
+MetaX 2026-10-30 补充：跨节点 PD/Grove/DGDR 参数化入口与 C500 CRD 已补齐，本地检查不等于集群认证；见 [交付入口](../../platforms/metax/cluster/README.md)。
+
 状态：2026-10-29 阶段性收尾。基础 Device Plugin 路径已完成 CUDA / Ascend 实际集群回归；MetaX 代码及本地测试完成，硬件集群待验证。依赖 M01 平台契约和 M02 runtime 镜像；基础部署不依赖 GMS。
 
 补充：[Helm/Profiler/DRA/SLA 使用说明](../../m08/helm-profiler-dra.md)；[跨节点 RDMA 实测](../../m08/rdma/README.md)。两平台持久设备缓冲区与 2P3D 通过，Ascend 动态注册压力失败单独保留。

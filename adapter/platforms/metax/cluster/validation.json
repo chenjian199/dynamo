@@ -1,0 +1,74 @@
+{
+  "timestamp_utc": "2026-10-30T10:15:02.160367+00:00",
+  "base_commit": "515b46b5bf6bf3b19252593d48ce33da5a4e4504",
+  "scope": "MetaX cluster implementation and CPU contract checks only",
+  "status": "local_checks_passed_cluster_pending",
+  "checks": [
+    {
+      "name": "python_cpu_contracts",
+      "passed": 238,
+      "failed": 0,
+      "selection": [
+        "adapter/platforms/metax/cluster/test_render.py",
+        "components/src/dynamo/profiler/tests/unit/test_dgd_platform.py",
+        "components/src/dynamo/profiler/tests/unit/test_platform_profile.py",
+        "components/src/dynamo/common/platform/tests",
+        "components/src/dynamo/planner/tests/unit/test_platform_resources.py",
+        "components/src/dynamo/vllm/tests/test_pd_contract.py"
+      ],
+      "runner": "dynamo-m09-unit /opt/dynamo/venv/bin/python -m pytest -c adapter/m09/pytest.ini -p no:cacheprovider -q",
+      "duration_seconds": 11.65
+    },
+    {
+      "name": "go_hardware_conversion",
+      "status": "passed",
+      "command": "go test ./api/v1alpha1 -run \"TestMetaXHardwareRoundTrip|TestDGDRHubOnlyFieldsRoundTripThroughSparseAnnotations\" -count=1"
+    },
+    {
+      "name": "go_override_cli_build",
+      "status": "passed"
+    },
+    {
+      "name": "make_manifests_and_generate_pydantic",
+      "status": "passed"
+    },
+    {
+      "name": "pydantic_validation_script",
+      "status": "passed",
+      "environment": {
+        "PROMETHEUS_EXTRA_QUERY_PARAMS": "validation=1"
+      },
+      "note": "Host Python 3.10 validator needs a nonempty query-string fixture. Runtime CPU tests use Python 3.12; this does not certify Python 3.10 runtime support."
+    },
+    {
+      "name": "ruff_python_syntax_git_diff_check",
+      "status": "passed"
+    }
+  ],
+  "not_run": [
+    "tool image build",
+    "cluster deployment or server admission",
+    "GPU inference",
+    "cross-node Mooncake or RDMA transfer",
+    "Grove gang scheduling",
+    "Profiler sampling/interpolation",
+    "Planner scaling/restart reuse"
+  ],
+  "deferred": [
+    "MetaX DRA",
+    "Kubernetes GMS/failover/checkpoint",
+    "power writes",
+    "production SLA"
+  ],
+  "source_sha256": {
+    "adapter/platforms/metax/cluster/render.py": "2af0409f3cc8d32aabec7244445516f66ae9e6bc2b4707fbcaf9ab61cf4b039d",
+    "adapter/platforms/metax/cluster/test_render.py": "80a71efbcdcd41c712676e33513142bdd57e933f8867a1cf86ad453d1e6dfc34",
+    "adapter/m09/provenance.py": "1fb043f385c1beee96ce96a29446ba54a68dd60f5a6d1ef30db4a625deaef9b9",
+    "adapter/m09/profile_identity.py": "4a8def6a78b407a0111d621a7f4ce50c1106ef406f99871aa4226d0b7abff393",
+    "adapter/m08/advanced/gang.py": "17fa757e0c716fe6c490d809777b564709cfc967594e1990d0ab11d9a21f0eae",
+    "deploy/operator/api/v1beta1/dynamographdeploymentrequest_types.go": "99ecdc1b1c1e74a236991574e0379393794dc2ba29a0e39fb9ee6f77aee7ee5c",
+    "deploy/operator/api/v1alpha1/metax_hardware_conversion_test.go": "750914435a3e4a09c576b3f5b5b1156281f04207da84949a4cc052140e397cde",
+    "deploy/operator/config/crd/bases/nvidia.com_dynamographdeploymentrequests.yaml": "59b8e9920b7d1d43b052b3664c0729336a51bae6b6fe958e77ded21bbb4bff15",
+    "components/src/dynamo/profiler/utils/dgdr_v1beta1_types.py": "8fcda9992a4fc0d947270005905150019fac689d4115c7c951826a375dbad847"
+  }
+}

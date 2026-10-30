@@ -7,6 +7,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M09 遥测与 Planner Profiler
 
+MetaX 2026-10-30 补充：Planner/Profiler 集群入口、MACA 身份采集、现场容量 ConfigMap 及工具镜像配方已补齐；硬件采样、画像拟合、伸缩与重启复用留给 M10。见 [交付入口](../../platforms/metax/cluster/README.md)。
+
 状态：实时指标路径已完成本轮有界功能回归；2026-10-30 已实现并测试[离线画像到在线 Planner](../../m09/offline-bootstrap.md)：四组通过、CUDA Qwen32 有限通过，Ascend DeepSeek prefill 拟合未通过；完整离线验收不标为收口。实际通过项及剩余边界以 [M09 验收记录](../../m09/README.md) 为准。依赖 M01/M03/M08；功耗写入与生产性能建模仍是独立能力，不能由功能测试推导为已认证。
 
 ## 本轮交付（2026-10-29 至 2026-10-30）

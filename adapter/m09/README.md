@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # M09 遥测、Profiler 与 Planner 回归
 
+2026-10-30 MetaX 补充：增加不依赖历史 CUDA/Ascend 清单的 Planner/thorough DGDR 入口、真实身份采集与显式容量配置。无集群实测，离线拟合和在线规划仍未认证；见 [MetaX 集群适配](../platforms/metax/cluster/README.md)。
+
 状态：基线 b24f6dbe07。实时指标路径的有界功能回归及离线画像接入已实现。2026-10-30 六组离线补充测试结束：四组通过、一组有限通过、一组未通过，因此完整 M09 离线闭环仍不能标为全部收口。生产 SLA、伸缩稳定性及下列未认证能力仍保留。
 
 补充链路与复现见 [离线画像到在线 Planner](offline-bootstrap.md)。

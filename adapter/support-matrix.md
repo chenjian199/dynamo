@@ -7,6 +7,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 平台支持情况与验收矩阵
 
+2026-10-30 MetaX 集群补充：已补齐跨节点 PD/Grove/DGDR 及 Profiler/Planner 的配置、C500 类型、身份与容量入口，见 [交付说明](platforms/metax/cluster/README.md)。本次仅为代码与本地契约交付，表中 MetaX 集群相关条目继续为待验证；不新增硬件认证结论。
+
 本矩阵基于 Dynamo v1.5.1 源码，记录的是功能适配的证据层次。当前已完成总体设计和 [十个模块的详细设计草案](modules/README.md)，并完成 [MetaX C500 单卡文本推理首轮适配与验收](platforms/metax/metax-bringup.md)。M01 平台身份与能力契约第一版已实现并在 MetaX 上验收，见 [平台验收](m01/metax-platform.md)。设备内存基础原语已完成 [M04 三平台验收](m04/README.md)，引擎原生 PD 已完成 [M05 部分验收](m05/README.md)，补充不同 TP、传输途中故障及有界长稳见 [M05 补充验收](m05/completion.md)；跨节点及 MetaX 可选 NIXL 中断错误路径仍未完成。本地 KVBM 的实现与分项结果见 [M06](m06/README.md)，不能扩展为全部 KVBM 能力已完成。设计文档完成不会将能力状态自动提升为已支持。每个平台分别部署和测试，不记录跨厂商组合。
 
 ## 状态定义

@@ -7,6 +7,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 模块细化与实施工作清单
 
+2026-10-30 MetaX 集群入口补充：跨节点 PD、Grove、DGDR C500 和 Profiler/Planner 清单已补齐，适配代码及 CPU 契约与硬件实测分开记录；集群仍待 M10，见 [交付入口](platforms/metax/cluster/README.md)。
+
 本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02 已完成三平台 vLLM 增量 runtime / dev 镜像；M03/M05/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
 
 ## 依赖顺序

@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # M08 Kubernetes 部署与集群验收
 
+2026-10-30 MetaX 补充：已提供跨节点 PD、Grove、DGDR/C500 容量及工具镜像构建入口；仅做本地契约检查，集群仍待 M10 验证。见 [MetaX 集群适配](../platforms/metax/cluster/README.md)。
+
 状态：2026-10-29 阶段性收尾。已在 CUDA H800 / Ascend 910B3 集群安装 Operator 并验证基础 Device Plugin 路径，详见 [集群验收与证据](cluster/README.md)。MetaX 保留本地逻辑测试通过、硬件集群待验证状态。未升级宿主机驱动。扩展验收已通过两平台跨节点 Operator 2P3D、Grove/KAI、DGDR 自动部署和 CUDA DRA，见 [扩展证据](advanced/README.md)。华为 DRA 等待用户提供 ≥1.34 测试集群；DGDR 预测精度未认证。
 
 ## 阶段性收尾与 M09 交接

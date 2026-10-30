@@ -17,13 +17,17 @@ dgd = json.loads(a.manifest.read_text())
 namespace = dgd["metadata"]["namespace"]
 name = dgd["metadata"]["name"]
 a.output.mkdir(parents=True, exist_ok=True)
-worker = next(c for c in dgd["spec"]["components"] if c["name"] == "worker")
+worker = next(c for c in dgd["spec"]["components"] if c.get("type") == "worker")
 spec = worker["podTemplate"]["spec"]
-node = spec["nodeSelector"]["kubernetes.io/hostname"]
+node = spec["nodeSelector"].get("kubernetes.io/hostname")
+if not node:
+    p.error(
+        "Gang barrier needs a manifest pinned to one dedicated node; it cannot prove a barrier across an unrestricted cluster"
+    )
 resource = next(
     r
     for r in spec["containers"][0]["resources"]["limits"]
-    if r in ["nvidia.com/gpu", "huawei.com/Ascend910"]
+    if r in ["nvidia.com/gpu", "huawei.com/Ascend910", "metax-tech.com/gpu"]
 )
 
 
@@ -80,7 +84,9 @@ try:
         workers = [
             p
             for p in pods["items"]
-            if p["metadata"]["name"].startswith(name + "-0-worker-")
+            if p["metadata"]["name"].startswith(
+                name + "-0-" + worker["name"].lower() + "-"
+            )
         ]
         if len(workers) == 2:
             break
@@ -91,7 +97,9 @@ try:
         workers = [
             p
             for p in pods["items"]
-            if p["metadata"]["name"].startswith(name + "-0-worker-")
+            if p["metadata"]["name"].startswith(
+                name + "-0-" + worker["name"].lower() + "-"
+            )
         ]
         assert len(workers) == 2
         assert all(p["spec"]["schedulerName"] == "kai-scheduler" for p in workers)
