@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +19,13 @@
 
 import logging
 import os
+from pathlib import Path
 from typing import Any
 
 import yaml
 from aiconfigurator.generator.enumerate import check_model_hardware_support
 from aiconfigurator_core.sdk.utils import get_model_config_from_model_path
-
-from deploy.utils.dynamo_deployment import cleanup_remaining_deployments
+from dynamo.common.platform.profile import ProfileIdentity, write_profile_manifest
 from dynamo.profiler.interpolation import run_interpolation
 from dynamo.profiler.rapid import run_rapid
 from dynamo.profiler.thorough import run_thorough
@@ -50,6 +52,7 @@ from dynamo.profiler.utils.dgdr_validate import (
     valid_dgdr_spec,
     validate_dgdr_dynamo_features,
 )
+from dynamo.profiler.utils.platform_profile import dgdr_platform
 from dynamo.profiler.utils.profile_common import (
     ProfilerOperationalConfig,
     determine_picking_mode,
@@ -61,6 +64,8 @@ from dynamo.profiler.utils.profile_common import (
     warn_gpu_shortage,
 )
 from dynamo.profiler.utils.profiler_status import ProfilerStatus, write_profiler_status
+
+from deploy.utils.dynamo_deployment import cleanup_remaining_deployments
 
 logger = logging.getLogger(__name__)
 
@@ -368,6 +373,41 @@ async def run_profile(
     try:
         # Validate DGDR spec — after this, required fields are guaranteed non-None
         valid_dgdr_spec(dgdr)
+        planner = dgdr.features.planner if dgdr.features else None
+        profile_identity = planner.profile_identity if planner else None
+        identity_path = os.environ.get("DYN_PROFILE_IDENTITY")
+        if identity_path:
+            supplied_identity = ProfileIdentity.model_validate_json(
+                Path(identity_path).read_text()
+            )
+            if (
+                profile_identity is not None
+                and profile_identity.fingerprint() != supplied_identity.fingerprint()
+            ):
+                raise ValueError("DGDR and DYN_PROFILE_IDENTITY identities conflict")
+            profile_identity = supplied_identity
+        file_bootstrap = (
+            planner is not None and planner.pre_deployment_metrics_source == "files"
+        )
+        if file_bootstrap and profile_identity is None:
+            raise ValueError(
+                "File-only profiling requires an explicit profile identity"
+            )
+        target_platform = dgdr_platform(dgdr)
+        if (
+            target_platform != "cuda"
+            and SearchStrategy(dgdr.searchStrategy) == SearchStrategy.RAPID
+        ):
+            raise ValueError(
+                "Non-CUDA rapid performance databases are not certified; use thorough measurements"
+            )
+        if profile_identity is not None and profile_identity.model != dgdr.model:
+            raise ValueError("Profile identity model does not match DGDR")
+        if (
+            profile_identity is not None
+            and profile_identity.platform != target_platform
+        ):
+            raise ValueError("Profile identity platform does not match DGDR")
         (
             model,
             backend,
@@ -431,6 +471,19 @@ async def run_profile(
         # ---------------------------------------------------------------
         chosen_exp = pick_result.get("chosen_exp", "")
         is_disagg_config = chosen_exp not in ("agg",) and bool(chosen_exp)
+        if file_bootstrap and not is_disagg_config and not ops.dry_run:
+            raise ValueError(
+                "File-only profiling currently requires a disaggregated pick; "
+                "aggregated profiling does not produce offline bootstrap data"
+            )
+        if file_bootstrap and any(
+            pick is not None and pick.dp != 1
+            for pick in (best_prefill_config, best_decode_config)
+        ):
+            raise ValueError(
+                "File-only profiling requires attention DP=1; "
+                "flat profile samples do not preserve rank groups"
+            )
 
         # Compute max context length unconditionally — both the NPZ sweep
         # (thorough, mocker) and the planner's rapid-mode AIC spec need it.
@@ -528,6 +581,35 @@ async def run_profile(
             if not ops.dry_run
             else None
         )
+        if profile_identity is not None and dgdr.features and dgdr.features.planner:
+            parallelism = {}
+            for role, pick in (
+                ("prefill", best_prefill_config),
+                ("decode", best_decode_config),
+            ):
+                if pick is None:
+                    continue
+                for key in ("tp", "pp", "dp", "moe_tp", "moe_ep"):
+                    parallelism[f"{role}_{key}"] = getattr(pick, key)
+            profile_identity = profile_identity.model_copy(
+                update={"parallelism": parallelism}
+            )
+            dgdr.features.planner.profile_identity = profile_identity
+        if (
+            profile_identity is not None
+            and not ops.dry_run
+            and any(
+                (Path(ops.output_dir) / name).is_file()
+                for name in (
+                    "prefill_raw_data.json",
+                    "decode_raw_data.json",
+                    "selected_prefill_interpolation/raw_data.npz",
+                    "selected_decode_interpolation/raw_data.npz",
+                )
+            )
+        ):
+            write_profile_manifest(ops.output_dir, profile_identity)
+
         final_config = assemble_final_config(
             dgdr,
             ops,

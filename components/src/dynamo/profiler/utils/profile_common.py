@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -254,8 +256,16 @@ def needs_profile_data(dgdr: DynamoGraphDeploymentRequestSpec) -> bool:
     * **Planner** when thorough-mode bootstrap data is requested. In rapid
       mode the planner receives ``aic_perf_model`` and can also run AIC
       interpolation in-process at bootstrap; in none mode it starts from
-      native AIC or live FPM regression warmup.
+      native AIC or live FPM regression warmup. Explicit file-only bootstrap
+      requires persisted samples regardless of the sweep-mode default.
     """
+    planner = dgdr.features.planner if dgdr.features else None
+    if (
+        planner is not None
+        and planner.enable_throughput_scaling
+        and planner.pre_deployment_metrics_source == "files"
+    ):
+        return True
     if is_mocker_enabled(dgdr):
         return not needs_mocker_aic_perf_model(dgdr)
     sweep_mode = (

@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """Unit tests for profile_sla.py private helper functions.
@@ -856,8 +858,8 @@ class TestAssembleFinalConfig:
             component["name"]: component
             for component in dgd_config["spec"]["components"]
         }
-        assert components["decode"]["scalingAdapter"] == {"enabled": True}
-        assert components["prefill"]["scalingAdapter"] == {"enabled": True}
+        assert components["decode"]["scalingAdapter"] == {}
+        assert components["prefill"]["scalingAdapter"] == {}
         assert "scalingAdapter" not in components["Frontend"]
 
     @pytest.mark.pre_merge
@@ -882,9 +884,7 @@ class TestAssembleFinalConfig:
             component["name"]: component
             for component in dgd_config["spec"]["components"]
         }
-        assert components["decode"]["scalingAdapter"] == {
-            "enabled": True,
-        }
+        assert components["decode"]["scalingAdapter"] == {}
         assert "scalingAdapter" not in components["Planner"]
 
     @pytest.mark.pre_merge
@@ -918,7 +918,7 @@ class TestAssembleFinalConfig:
             for component in dgd_config["spec"]["components"]
         }
         for service_name in enabled_services:
-            assert services[service_name]["scalingAdapter"] == {"enabled": True}
+            assert services[service_name]["scalingAdapter"] == {}
         for service_name in disabled_services:
             assert "scalingAdapter" not in services[service_name]
         assert "scalingAdapter" not in services["Frontend"]
@@ -943,7 +943,7 @@ class TestAssembleFinalConfig:
             component["name"]: component
             for component in dgd_config["spec"]["components"]
         }
-        assert components["VllmPrefillWorker"]["scalingAdapter"] == {"enabled": True}
+        assert components["VllmPrefillWorker"]["scalingAdapter"] == {}
         assert components["VllmPrefillWorker"]["type"] == "prefill"
         assert "scalingAdapter" not in components["VllmDecodeWorker"]
         assert components["VllmDecodeWorker"]["type"] == "worker"
@@ -966,9 +966,7 @@ class TestAssembleFinalConfig:
             component["name"]: component
             for component in dgd_config["spec"]["components"]
         }
-        assert components["TRTLLMWorker"]["scalingAdapter"] == {
-            "enabled": True,
-        }
+        assert components["TRTLLMWorker"]["scalingAdapter"] == {}
         assert components["TRTLLMWorker"]["type"] == "decode"
         assert "scalingAdapter" not in components["Frontend"]
 

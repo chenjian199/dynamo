@@ -1,0 +1,1395 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "59f5385ca6699abdcd4e7cc917a0d2b6a1c6d23b27aabc86d0e26e3fe3a3983a",
+          "cni.projectcalico.org/podIP": "10.244.229.52/32",
+          "cni.projectcalico.org/podIPs": "10.244.229.52/32",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.52\"\n    ],\n    \"mac\": \"7a:22:11:69:e9:cd\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes"
+        },
+        "creationTimestamp": "2026-10-29T10:35:22Z",
+        "generateName": "m09-qwen32-frontend-7ddd9c5b94-",
+        "generation": 1,
+        "labels": {
+          "nvidia.com/dynamo-component": "frontend",
+          "nvidia.com/dynamo-component-type": "frontend",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-discovery-enabled": "true",
+          "nvidia.com/dynamo-graph-deployment-name": "m09-qwen32",
+          "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m09-qwen32",
+          "nvidia.com/metrics-enabled": "true",
+          "nvidia.com/selector": "m09-qwen32-frontend",
+          "pod-template-hash": "7ddd9c5b94"
+        },
+        "name": "m09-qwen32-frontend-7ddd9c5b94-bbc9t",
+        "namespace": "dynamo-m08-1029",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "m09-qwen32-frontend-7ddd9c5b94",
+            "uid": "ef22f32c-8468-4aee-a187-64452aa380bd"
+          }
+        ],
+        "resourceVersion": "40472615",
+        "uid": "c8a2a281-a6af-4be0-864e-c271eb8ad31b"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "python",
+              "-m",
+              "dynamo.frontend",
+              "--router-mode",
+              "round-robin"
+            ],
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh"
+            ],
+            "env": [
+              {
+                "name": "DYNAMO_PORT",
+                "value": "8000"
+              },
+              {
+                "name": "DYN_COMPONENT",
+                "value": "frontend"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "kubernetes"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_HTTP_PORT",
+                "value": "8000"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "dynamo-m08-1029-m09-qwen32"
+              },
+              {
+                "name": "DYN_NAMESPACE_PREFIX",
+                "value": "dynamo-m08-1029-m09-qwen32"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAME",
+                "value": "m09-qwen32"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                "value": "dynamo-m08-1029"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cpu"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_ROUTER_USE_KV_EVENTS",
+                "value": "true"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/m09-source/components/src"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              }
+            ],
+            "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "livenessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/live",
+                "port": "http",
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 15,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 1
+            },
+            "name": "main",
+            "ports": [
+              {
+                "containerPort": 8000,
+                "name": "http",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/health",
+                "port": "http",
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 3
+            },
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/models/current",
+                "name": "models",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/m09-source",
+                "name": "m09-source",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-5slh9",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "nodeSelector": {
+          "kubernetes.io/arch": "amd64",
+          "kubernetes.io/hostname": "worker06"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "fsGroup": 1000
+        },
+        "serviceAccount": "m09-qwen32-k8s-service-discovery",
+        "serviceAccountName": "m09-qwen32-k8s-service-discovery",
+        "terminationGracePeriodSeconds": 60,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "hostPath": {
+              "path": "/ssd/models/dynamo-regression/Qwen3-32B",
+              "type": "Directory"
+            },
+            "name": "models"
+          },
+          {
+            "hostPath": {
+              "path": "/home/bedicloud/CJ_workspace/m09-1029/source",
+              "type": "Directory"
+            },
+            "name": "m09-source"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "8Gi"
+            },
+            "name": "shared-memory"
+          },
+          {
+            "name": "kube-api-access-5slh9",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:26Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:22Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:37Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:37Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:22Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "1",
+              "memory": "2Gi"
+            },
+            "containerID": "containerd://05fabeec842d31a78fbee17f5ec957e63d84df9322fc0eeac6d9b0cfb3b002b8",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "main",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T10:35:25Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  1000
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/models/current",
+                "name": "models",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/m09-source",
+                "name": "m09-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-5slh9",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.229.52",
+        "podIPs": [
+          {
+            "ip": "10.244.229.52"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T10:35:22Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "84d1ef2e3fe26385d3b7ac28a1ea670459662f44a28b461e1f83503ab1bb1979",
+          "cni.projectcalico.org/podIP": "10.244.229.61/32",
+          "cni.projectcalico.org/podIPs": "10.244.229.61/32",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.61\"\n    ],\n    \"mac\": \"42:7a:29:cf:c2:f8\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes"
+        },
+        "creationTimestamp": "2026-10-29T10:35:22Z",
+        "generateName": "m09-qwen32-planner-6d65fbc6c4-",
+        "generation": 1,
+        "labels": {
+          "nvidia.com/dynamo-component": "planner",
+          "nvidia.com/dynamo-component-type": "planner",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-discovery-enabled": "true",
+          "nvidia.com/dynamo-graph-deployment-name": "m09-qwen32",
+          "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m09-qwen32",
+          "nvidia.com/metrics-enabled": "true",
+          "nvidia.com/selector": "m09-qwen32-planner",
+          "pod-template-hash": "6d65fbc6c4"
+        },
+        "name": "m09-qwen32-planner-6d65fbc6c4-dc8w8",
+        "namespace": "dynamo-m08-1029",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "m09-qwen32-planner-6d65fbc6c4",
+            "uid": "ba3e2ccb-edaa-4a65-9d61-065f57eb7fa8"
+          }
+        ],
+        "resourceVersion": "40473434",
+        "uid": "f6bd6cca-edc1-41b6-be8a-d0cbda78e2a3"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "-m",
+              "dynamo.planner",
+              "--config",
+              "{\"environment\": \"kubernetes\", \"backend\": \"vllm\", \"mode\": \"agg\", \"target_platform\": \"cuda\", \"model_name\": \"m09-model\", \"optimization_target\": \"load\", \"decode_scale_up_kv_rate\": 12, \"decode_scale_down_kv_rate\": 2, \"max_gpu_budget\": 8, \"min_endpoint\": 1, \"load_adjustment_interval_seconds\": 5, \"load_min_observations\": 3, \"load_predictor\": \"constant\", \"pre_deployment_sweeping_mode\": \"none\", \"log_dir\": \"/tmp/m09-planner\", \"metric_reporting_prometheus_port\": 9085}"
+            ],
+            "command": [
+              "/opt/dynamo/venv/bin/python"
+            ],
+            "env": [
+              {
+                "name": "DYN_COMPONENT",
+                "value": "planner"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "kubernetes"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "dynamo-m08-1029-m09-qwen32"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAME",
+                "value": "m09-qwen32"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                "value": "dynamo-m08-1029"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cpu"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "9090"
+              },
+              {
+                "name": "PLANNER_PROMETHEUS_PORT",
+                "value": "9085"
+              },
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/m09-deps:/m09-source/components/src:/opt/dynamo/profiler-support"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+                "value": "0"
+              }
+            ],
+            "image": "heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+            "imagePullPolicy": "Never",
+            "livenessProbe": {
+              "failureThreshold": 1,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "name": "main",
+            "ports": [
+              {
+                "containerPort": 9085,
+                "name": "metrics",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 9090,
+                "name": "system",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/health",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "8Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 720,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/m09-source",
+                "name": "m09-source",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/m09-deps",
+                "name": "m09-deps",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-fv7l2",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "nodeSelector": {
+          "kubernetes.io/arch": "amd64",
+          "kubernetes.io/hostname": "worker06"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "fsGroup": 1000
+        },
+        "serviceAccount": "planner-serviceaccount",
+        "serviceAccountName": "planner-serviceaccount",
+        "terminationGracePeriodSeconds": 60,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "hostPath": {
+              "path": "/home/bedicloud/CJ_workspace/m09-1029/source",
+              "type": "Directory"
+            },
+            "name": "m09-source"
+          },
+          {
+            "hostPath": {
+              "path": "/home/bedicloud/CJ_workspace/m09-1029/deps",
+              "type": "Directory"
+            },
+            "name": "m09-deps"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "8Gi"
+            },
+            "name": "shared-memory"
+          },
+          {
+            "name": "kube-api-access-fv7l2",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:26Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:22Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:36:53Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:36:53Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:22Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "1",
+              "memory": "2Gi"
+            },
+            "containerID": "containerd://e659c336f3fc97394bf70fc576c639488509a8c9898f96f4c4f2309a8a23f2eb",
+            "image": "docker.io/heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+            "imageID": "sha256:09fe88bc2df1c8d8c23b39216113c39e6028f3e241b0bd67298203f3b0eb26ef",
+            "lastState": {},
+            "name": "main",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "8Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T10:35:25Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  1000
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/m09-source",
+                "name": "m09-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/m09-deps",
+                "name": "m09-deps",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-fv7l2",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.6"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.229.61",
+        "podIPs": [
+          {
+            "ip": "10.244.229.61"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T10:35:22Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "cni.projectcalico.org/containerID": "83abcca4b5aadffa5d03624577aeb898adb95d3a748d7ca6074c0bf113b445a6",
+          "cni.projectcalico.org/podIP": "10.244.84.60/32",
+          "cni.projectcalico.org/podIPs": "10.244.84.60/32",
+          "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.84.60\"\n    ],\n    \"mac\": \"12:c0:d9:81:bb:e4\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes"
+        },
+        "creationTimestamp": "2026-10-29T10:35:22Z",
+        "generateName": "m09-qwen32-vllmdecodeworker-881fe500-5dc79dd49-",
+        "generation": 1,
+        "labels": {
+          "nvidia.com/dynamo-component": "VllmDecodeWorker",
+          "nvidia.com/dynamo-component-type": "worker",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-discovery-enabled": "true",
+          "nvidia.com/dynamo-graph-deployment-name": "m09-qwen32",
+          "nvidia.com/dynamo-namespace": "dynamo-m08-1029-m09-qwen32",
+          "nvidia.com/dynamo-worker-hash": "881fe500",
+          "nvidia.com/metrics-enabled": "true",
+          "nvidia.com/selector": "m09-qwen32-vllmdecodeworker-881fe500",
+          "pod-template-hash": "5dc79dd49"
+        },
+        "name": "m09-qwen32-vllmdecodeworker-881fe500-5dc79dd49-tld4r",
+        "namespace": "dynamo-m08-1029",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "m09-qwen32-vllmdecodeworker-881fe500-5dc79dd49",
+            "uid": "2d844a37-1000-4d09-a7f1-e0cbc8ea0560"
+          }
+        ],
+        "resourceVersion": "40473345",
+        "uid": "f63e8d7b-9b1f-476b-bd42-fc27eeed45c0"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "python",
+              "-m",
+              "dynamo.vllm",
+              "--model",
+              "/models/current",
+              "--served-model-name",
+              "m09-model",
+              "--enforce-eager",
+              "--tensor-parallel-size",
+              "4",
+              "--max-model-len",
+              "4096",
+              "--max-num-seqs",
+              "16",
+              "--gpu-memory-utilization",
+              "0.9",
+              "--block-size",
+              "128",
+              "--disable-custom-all-reduce",
+              "--kv-cache-memory-bytes",
+              "4294967296",
+              "--no-enable-prefix-caching"
+            ],
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh"
+            ],
+            "env": [
+              {
+                "name": "ASCEND_TRANSFER_TIMEOUT",
+                "value": "30000"
+              },
+              {
+                "name": "DYN_COMPONENT",
+                "value": "worker"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "kubernetes"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_FORWARDPASS_METRIC_PORT",
+                "value": "20380"
+              },
+              {
+                "name": "DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS",
+                "value": "180"
+              },
+              {
+                "name": "DYN_HEALTH_CHECK_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "dynamo-m08-1029-m09-qwen32"
+              },
+              {
+                "name": "DYN_NAMESPACE_WORKER_SUFFIX",
+                "value": "881fe500"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAME",
+                "value": "m09-qwen32"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                "value": "dynamo-m08-1029"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cuda"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_ROUTER_USE_KV_EVENTS",
+                "value": "true"
+              },
+              {
+                "name": "DYN_SYSTEM_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "9090"
+              },
+              {
+                "name": "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+                "value": "[\"generate\"]"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "NIXL_TELEMETRY_ENABLE",
+                "value": "n"
+              },
+              {
+                "name": "NIXL_TELEMETRY_EXPORTER",
+                "value": "prometheus"
+              },
+              {
+                "name": "NIXL_TELEMETRY_PROMETHEUS_PORT",
+                "value": "19090"
+              },
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/m09-source/components/src"
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "UCX_TLS",
+                "value": "tcp,sm,self,cuda_copy,cuda_ipc"
+              },
+              {
+                "name": "VLLM_HOST_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                "value": "60"
+              },
+              {
+                "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                "value": "20090"
+              }
+            ],
+            "image": "heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imagePullPolicy": "Never",
+            "livenessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "name": "main",
+            "ports": [
+              {
+                "containerPort": 9090,
+                "name": "system",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 19090,
+                "name": "nixl",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/health",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "resources": {
+              "limits": {
+                "cpu": "32",
+                "memory": "256Gi",
+                "nvidia.com/gpu": "4"
+              },
+              "requests": {
+                "cpu": "8",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "4"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 720,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/models/current",
+                "name": "models",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/m09-source",
+                "name": "m09-source",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-rd7gs",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker28",
+        "nodeSelector": {
+          "kubernetes.io/arch": "amd64",
+          "kubernetes.io/hostname": "worker28"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "runtimeClassName": "nvidia",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "fsGroup": 1000
+        },
+        "serviceAccount": "m09-qwen32-k8s-service-discovery",
+        "serviceAccountName": "m09-qwen32-k8s-service-discovery",
+        "terminationGracePeriodSeconds": 240,
+        "tolerations": [
+          {
+            "effect": "NoSchedule",
+            "key": "nvidia.com/gpu",
+            "operator": "Exists"
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "hostPath": {
+              "path": "/root/Qwen3-32B",
+              "type": "Directory"
+            },
+            "name": "models"
+          },
+          {
+            "hostPath": {
+              "path": "/home/bedicloud/CJ_workspace/m09-1029/source",
+              "type": "Directory"
+            },
+            "name": "m09-source"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "16Gi"
+            },
+            "name": "shared-memory"
+          },
+          {
+            "name": "kube-api-access-rd7gs",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:24Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:22Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:36:43Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:36:43Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-10-29T10:35:22Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "8",
+              "memory": "64Gi",
+              "nvidia.com/gpu": "4"
+            },
+            "containerID": "containerd://bd596fbf3cb52933c54d6ec6f06972180090d9aeea942caa3db2b69a5a807a85",
+            "image": "docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02",
+            "imageID": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9",
+            "lastState": {},
+            "name": "main",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "32",
+                "memory": "256Gi",
+                "nvidia.com/gpu": "4"
+              },
+              "requests": {
+                "cpu": "8",
+                "memory": "64Gi",
+                "nvidia.com/gpu": "4"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-10-29T10:35:23Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  1000,
+                  44,
+                  109
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/models/current",
+                "name": "models",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/m09-source",
+                "name": "m09-source",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-rd7gs",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.4.14",
+        "hostIPs": [
+          {
+            "ip": "192.168.4.14"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.84.60",
+        "podIPs": [
+          {
+            "ip": "10.244.84.60"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-29T10:35:22Z"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

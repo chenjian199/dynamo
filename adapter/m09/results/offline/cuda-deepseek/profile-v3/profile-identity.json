@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "kind": "planner-bootstrap",
+  "identity": {
+    "schema_version": 1,
+    "platform": "cuda",
+    "device_model": "NVIDIA H800",
+    "driver": "580.178.04",
+    "sdk": "cu130",
+    "engine": "vllm",
+    "engine_version": "0.28.0",
+    "plugin_version": "builtin",
+    "model": "/models/current",
+    "model_revision": "config-sha256:6c8f3d2d3b48707541b88f32f22ef3f0f8a6b57d8523281e2b8d3cdb0ae9a023",
+    "precision": "fp8",
+    "parallelism": {
+      "prefill_tp": 4,
+      "decode_tp": 4,
+      "prefill_moe_tp": 4,
+      "decode_moe_tp": 4,
+      "prefill_moe_ep": 1,
+      "decode_moe_ep": 1
+    },
+    "kv_config": {
+      "worker_arguments": [
+        "python",
+        "-m",
+        "dynamo.vllm",
+        "--model",
+        "/models/current",
+        "--served-model-name",
+        "m09-model",
+        "--enforce-eager",
+        "--tensor-parallel-size",
+        "4",
+        "--max-model-len",
+        "4096",
+        "--max-num-seqs",
+        "16",
+        "--gpu-memory-utilization",
+        "0.9",
+        "--block-size",
+        "256",
+        "--disable-custom-all-reduce",
+        "--kv-cache-memory-bytes",
+        "17179869184",
+        "--no-enable-prefix-caching",
+        "--tokenizer-mode",
+        "deepseek_v4",
+        "--reasoning-parser",
+        "deepseek_v4",
+        "--kv-cache-dtype",
+        "fp8",
+        "--no-enable-flashinfer-autotune"
+      ]
+    },
+    "topology": {
+      "nodes": 1,
+      "measured_node": "worker06"
+    },
+    "runtime_image": "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9"
+  },
+  "fingerprint": "481b901f9328f48b09515d1ec1e036f17b5c23e8ea341cf0e532ca02ab41131f",
+  "created_at": 1793336730.7668586,
+  "files": {
+    "selected_prefill_interpolation/raw_data.npz": "d2176b3831429240929215b19ba3cd6105c010863362132eec4129357ec22c86",
+    "selected_decode_interpolation/raw_data.npz": "3af9d83ba2a1864231e377a77f12d957b2221857896ef9a809967d8a4852ec56"
+  }
+}

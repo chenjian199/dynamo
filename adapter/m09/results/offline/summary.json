@@ -1,0 +1,570 @@
+{
+  "scope": "bounded offline bootstrap functionality; not production SLA certification",
+  "cases": [
+    {
+      "case": "cuda-small",
+      "status": "passed",
+      "offline_samples": {
+        "prefill": 6,
+        "decode": 6
+      },
+      "fingerprint": "3e9c8d6a3d0d2725783c5d220672501907a55170041be4570f17e1c930b5f3c9",
+      "online": {
+        "api_exit_code": 0,
+        "initial": {
+          "time": 1793329145.7156549,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 1,
+          "observed_generation": 1,
+          "gpus_per_replica": 1,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "peak_desired": 2,
+        "peak_ready": 2,
+        "final": {
+          "time": 1793329622.80035,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 3,
+          "observed_generation": 3,
+          "gpus_per_replica": 1,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "scaling_source": "Planner; campaign never patches replicas",
+        "passed": true
+      },
+      "online_planning": {
+        "scope": "positive P/D capacity decisions under actual load; not SLA certification",
+        "fingerprint": "3e9c8d6a3d0d2725783c5d220672501907a55170041be4570f17e1c930b5f3c9",
+        "loaded_roles": [
+          "decode",
+          "prefill"
+        ],
+        "stage_windows": {
+          "load": [
+            1793329177.7323058,
+            1793329529.9970968
+          ],
+          "recovery": [
+            1793329529.9979758,
+            1793329621.322428
+          ]
+        },
+        "stages": {
+          "load": {
+            "valid_decisions": 22,
+            "model_not_ready": 0
+          },
+          "recovery": {
+            "valid_decisions": 6,
+            "model_not_ready": 0
+          }
+        },
+        "evidence": {
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/cuda-small/online-burst/planner.selected.log": "7ef9682628631b28a19ce7613e195c0525e637d7d121a194e4d450f732ab8e0e",
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/cuda-small/online-burst/load.log": "3f3f78a3dcb4224ece6990e53801ad92d829319d2299324d6060b010d8330df7"
+        },
+        "passed": true
+      },
+      "planner_restart": true,
+      "post_restart_api": {
+        "legacy_log": "restart-smoke.log",
+        "passed": true
+      },
+      "latency": [
+        {
+          "stage": "load",
+          "concurrency": 128,
+          "requests": 856,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 104052.9533450026,
+          "tpot_p95_ms": 13.225222101772395,
+          "within_target": false
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 52,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 247.42610193789005,
+          "tpot_p95_ms": 12.294758881229585,
+          "within_target": true
+        }
+      ],
+      "api_errors": 0
+    },
+    {
+      "case": "ascend-small",
+      "status": "passed",
+      "offline_samples": {
+        "prefill": 6,
+        "decode": 6
+      },
+      "fingerprint": "8edbea8d8173b72b7b00176c3f4c1eadd6b9c756c1d5fb598ddcc101c75e849e",
+      "online": {
+        "api_exit_code": 0,
+        "initial": {
+          "time": 1793331131.5882528,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 1,
+          "observed_generation": 1,
+          "gpus_per_replica": 1,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "peak_desired": 2,
+        "peak_ready": 2,
+        "final": {
+          "time": 1793331857.9532688,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 5,
+          "observed_generation": 5,
+          "gpus_per_replica": 1,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "scaling_source": "Planner; campaign never patches replicas",
+        "passed": true
+      },
+      "online_planning": {
+        "scope": "positive P/D capacity decisions under actual load; not SLA certification",
+        "fingerprint": "8edbea8d8173b72b7b00176c3f4c1eadd6b9c756c1d5fb598ddcc101c75e849e",
+        "loaded_roles": [
+          "decode",
+          "prefill"
+        ],
+        "stage_windows": {
+          "load": [
+            1793331292.1253219,
+            1793331614.6376305
+          ],
+          "recovery": [
+            1793331614.6382122,
+            1793331711.732635
+          ]
+        },
+        "stages": {
+          "load": {
+            "valid_decisions": 20,
+            "model_not_ready": 0
+          },
+          "recovery": {
+            "valid_decisions": 6,
+            "model_not_ready": 0
+          }
+        },
+        "evidence": {
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/ascend-small/online-bounded/planner.selected.log": "f604e90c3998f6a5c387bc2a0f4b87d85b26cbbfd6fb477157db8829fe8ae572",
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/ascend-small/online-bounded/load.log": "bf07c019e2450f463a1bbfd55e4263378dae409be7171b55a5f77f654fe70596"
+        },
+        "passed": true
+      },
+      "planner_restart": true,
+      "post_restart_api": {
+        "status": 200,
+        "elapsed_seconds": 7.620315074920654,
+        "usage": {
+          "prompt_tokens": 12,
+          "completion_tokens": 16,
+          "total_tokens": 28,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "choices": 1,
+        "planner_uid": "0c3f6616-97ed-442d-a80c-b965bbd888a1",
+        "passed": true
+      },
+      "latency": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 228,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 19798.829175531864,
+          "tpot_p95_ms": 133.05725274592874,
+          "within_target": false
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 11,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 3164.6763905882835,
+          "tpot_p95_ms": 68.42046360096593,
+          "within_target": false
+        }
+      ],
+      "api_errors": 0
+    },
+    {
+      "case": "cuda-qwen32",
+      "status": "passed_with_limitations",
+      "offline_samples": {
+        "prefill": 6,
+        "decode": 8
+      },
+      "fingerprint": "c2be29c71b3431c2dc04092c788da9fe4926e8758b799b547161500a6f8cab18",
+      "online": {
+        "api_exit_code": 0,
+        "initial": {
+          "time": 1793338019.8268702,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 1,
+          "observed_generation": 1,
+          "gpus_per_replica": 4,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "peak_desired": 1,
+        "peak_ready": 1,
+        "final": {
+          "time": 1793338507.281069,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 1,
+          "observed_generation": 1,
+          "gpus_per_replica": 4,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "scaling_source": "Planner; campaign never patches replicas",
+        "passed": true
+      },
+      "online_planning": {
+        "scope": "positive P/D capacity decisions under actual load; not SLA certification",
+        "fingerprint": "c2be29c71b3431c2dc04092c788da9fe4926e8758b799b547161500a6f8cab18",
+        "loaded_roles": [
+          "decode",
+          "prefill"
+        ],
+        "stage_windows": {
+          "load": [
+            1793338108.9426532,
+            1793338410.4537542
+          ],
+          "recovery": [
+            1793338410.4540024,
+            1793338503.0134676
+          ]
+        },
+        "stages": {
+          "load": {
+            "valid_decisions": 3,
+            "model_not_ready": 17
+          },
+          "recovery": {
+            "valid_decisions": 6,
+            "model_not_ready": 0
+          }
+        },
+        "evidence": {
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/cuda-qwen32/online-bounded/planner.selected.log": "c4807b1211ab9d6da54e8e73335b98f8a62c4156a67edfc4460b93251cb5bbf2",
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/cuda-qwen32/online-bounded/load.log": "51bdb691e14d74d77c1aff516da04a50c5b0fa57ffda1aaf8c47645b13b0c2ef"
+        },
+        "passed": true
+      },
+      "planner_restart": true,
+      "post_restart_api": {
+        "status": 200,
+        "elapsed_seconds": 0.6981775760650635,
+        "usage": {
+          "prompt_tokens": 12,
+          "completion_tokens": 16,
+          "total_tokens": 28,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "choices": 1,
+        "planner_uid": "2ee51327-2c47-42af-bbdf-b5abdd42e8bf",
+        "passed": true
+      },
+      "latency": [
+        {
+          "stage": "load",
+          "concurrency": 2,
+          "requests": 120,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 355.3828648291528,
+          "tpot_p95_ms": 37.145822756285746,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 19,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 227.40883706137538,
+          "tpot_p95_ms": 36.90866840174642,
+          "within_target": true
+        }
+      ],
+      "api_errors": 0
+    },
+    {
+      "case": "ascend-qwen32",
+      "status": "passed",
+      "offline_samples": {
+        "prefill": 6,
+        "decode": 8
+      },
+      "fingerprint": "fd0881033cf61d146d913815992b9649501cd40eb7877f610f06f3dc252a40e1",
+      "online": {
+        "api_exit_code": 0,
+        "initial": {
+          "time": 1793334322.6399157,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 2,
+          "observed_generation": 2,
+          "gpus_per_replica": 4,
+          "worker_pods": 1,
+          "terminating_pods": 1,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "peak_desired": 1,
+        "peak_ready": 1,
+        "final": {
+          "time": 1793335156.9304302,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 2,
+          "observed_generation": 2,
+          "gpus_per_replica": 4,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "scaling_source": "Planner; campaign never patches replicas",
+        "passed": true
+      },
+      "online_planning": {
+        "scope": "positive P/D capacity decisions under actual load; not SLA certification",
+        "fingerprint": "fd0881033cf61d146d913815992b9649501cd40eb7877f610f06f3dc252a40e1",
+        "loaded_roles": [
+          "decode",
+          "prefill"
+        ],
+        "stage_windows": {
+          "load": [
+            1793334721.1434119,
+            1793335044.185245
+          ],
+          "recovery": [
+            1793335044.1855488,
+            1793335155.8227713
+          ]
+        },
+        "stages": {
+          "load": {
+            "valid_decisions": 11,
+            "model_not_ready": 0
+          },
+          "recovery": {
+            "valid_decisions": 3,
+            "model_not_ready": 0
+          }
+        },
+        "evidence": {
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/ascend-qwen32/online-final/planner.selected.log": "54c245cff8c909639b47d094b072c08ba9a91fee64b1f6390f7187b566375458",
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/ascend-qwen32/online-final/load.log": "dd411f93d8d7e2c2c4c7d8f010dd9ce932b7811515d263c13592034b308b73aa"
+        },
+        "passed": true
+      },
+      "planner_restart": true,
+      "post_restart_api": {
+        "status": 200,
+        "elapsed_seconds": 9.525471448898315,
+        "usage": {
+          "prompt_tokens": 12,
+          "completion_tokens": 16,
+          "total_tokens": 28,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "choices": 1,
+        "planner_uid": "91188e42-88df-497a-b4a3-a7d8026f2fd3",
+        "passed": true
+      },
+      "latency": [
+        {
+          "stage": "load",
+          "concurrency": 2,
+          "requests": 26,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 1087.7223908901215,
+          "tpot_p95_ms": 187.43387732918808,
+          "within_target": false
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 5,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 388.89528810977936,
+          "tpot_p95_ms": 176.35919024625161,
+          "within_target": true
+        }
+      ],
+      "api_errors": 0
+    },
+    {
+      "case": "cuda-deepseek",
+      "status": "passed",
+      "offline_samples": {
+        "prefill": 6,
+        "decode": 9
+      },
+      "fingerprint": "481b901f9328f48b09515d1ec1e036f17b5c23e8ea341cf0e532ca02ab41131f",
+      "online": {
+        "api_exit_code": 0,
+        "initial": {
+          "time": 1793337483.3583055,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 1,
+          "observed_generation": 1,
+          "gpus_per_replica": 4,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "peak_desired": 1,
+        "peak_ready": 1,
+        "final": {
+          "time": 1793338219.5875185,
+          "desired": 1,
+          "desired_source": "DGDSA",
+          "ready": 1,
+          "generation": 1,
+          "observed_generation": 1,
+          "gpus_per_replica": 4,
+          "worker_pods": 1,
+          "terminating_pods": 0,
+          "prefill_desired": 1,
+          "prefill_ready": 1
+        },
+        "scaling_source": "Planner; campaign never patches replicas",
+        "passed": true
+      },
+      "online_planning": {
+        "scope": "positive P/D capacity decisions under actual load; not SLA certification",
+        "fingerprint": "481b901f9328f48b09515d1ec1e036f17b5c23e8ea341cf0e532ca02ab41131f",
+        "loaded_roles": [
+          "decode",
+          "prefill"
+        ],
+        "stage_windows": {
+          "load": [
+            1793337801.5563428,
+            1793338113.69203
+          ],
+          "recovery": [
+            1793338113.6922066,
+            1793338215.2034476
+          ]
+        },
+        "stages": {
+          "load": {
+            "valid_decisions": 16,
+            "model_not_ready": 0
+          },
+          "recovery": {
+            "valid_decisions": 5,
+            "model_not_ready": 0
+          }
+        },
+        "evidence": {
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/cuda-deepseek/online-final/planner.selected.log": "aff4ce627aacd6590cb0f1ab75de65ffc3541bc497249377bb3c5b3aa0e70400",
+          "/home/metax/CJ_workspace/dynamo/adapter/m09/results/offline/cuda-deepseek/online-final/load.log": "2952b4eba41ec7037e13f0ed9e9f73c717cb6bc5dac926b415dcac2409e03fd9"
+        },
+        "passed": true
+      },
+      "planner_restart": true,
+      "post_restart_api": {
+        "status": 200,
+        "elapsed_seconds": 4.1631855964660645,
+        "usage": {
+          "prompt_tokens": 87,
+          "completion_tokens": 16,
+          "total_tokens": 103,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "choices": 1,
+        "planner_uid": "84a2f065-fc4e-4d56-8ae2-e6e80e6e29ce",
+        "passed": true
+      },
+      "latency": [
+        {
+          "stage": "load",
+          "concurrency": 2,
+          "requests": 36,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 836.8107108399272,
+          "tpot_p95_ms": 132.96234723745192,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 6,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 382.437749998644,
+          "tpot_p95_ms": 130.65411022123624,
+          "within_target": true
+        }
+      ],
+      "api_errors": 0
+    },
+    {
+      "case": "ascend-deepseek",
+      "status": "failed",
+      "offline_samples": {
+        "prefill": 6,
+        "decode": 9
+      },
+      "fingerprint": "de4e1c38736af56d1210dffb48ecb9f9a1506c244933827d448aa6136703ce28",
+      "online": null,
+      "online_planning": null,
+      "planner_restart": null,
+      "post_restart_api": null,
+      "latency": null,
+      "api_errors": null
+    }
+  ],
+  "passed": false
+}

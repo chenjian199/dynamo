@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "kind": "planner-bootstrap",
+  "identity": {
+    "schema_version": 1,
+    "platform": "ascend",
+    "device_model": "Ascend910B3",
+    "driver": "25.2.0",
+    "sdk": "9.1.0",
+    "engine": "vllm",
+    "engine_version": "0.23.0+empty",
+    "plugin_version": "0.23.0",
+    "model": "/models/current",
+    "model_revision": "config-sha256:97e295b63283935788fac5e4f8860862a56d4089538cafc93f0431f2ebe483bb",
+    "precision": "bf16",
+    "parallelism": {
+      "prefill_tp": 4,
+      "decode_tp": 4
+    },
+    "kv_config": {
+      "worker_arguments": [
+        "python",
+        "-m",
+        "dynamo.vllm",
+        "--model",
+        "/models/current",
+        "--served-model-name",
+        "m09-model",
+        "--enforce-eager",
+        "--tensor-parallel-size",
+        "4",
+        "--max-model-len",
+        "4096",
+        "--max-num-seqs",
+        "16",
+        "--gpu-memory-utilization",
+        "0.9",
+        "--block-size",
+        "128",
+        "--disable-custom-all-reduce",
+        "--kv-cache-memory-bytes",
+        "536870912",
+        "--no-enable-prefix-caching"
+      ]
+    },
+    "topology": {
+      "nodes": 1,
+      "measured_node": "master"
+    },
+    "runtime_image": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82"
+  },
+  "fingerprint": "fd0881033cf61d146d913815992b9649501cd40eb7877f610f06f3dc252a40e1",
+  "created_at": 1793333920.8963275,
+  "files": {
+    "selected_prefill_interpolation/raw_data.npz": "8ddfc5a8605f8c5ab1347ad5120d274e9b1dde0b7fdff9a7404d69f18a51fd2d",
+    "selected_decode_interpolation/raw_data.npz": "c2df1bdcff2d03368b41672a1efb5fec7e0f16580a27c97f5073023743d7b8df"
+  }
+}

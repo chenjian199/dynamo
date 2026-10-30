@@ -44,7 +44,8 @@ def build_pd_contract(config, platform_id):
         "cache_dtype": config.cache_config.cache_dtype,
         "block_size": config.cache_config.block_size,
         "tp": parallel.tensor_parallel_size,
-        # Only ordinary MHA/GQA head sharding is certified for unequal TP.
+        # Deprecated schema-2 hint retained for older readers' exact matching.
+        # It is no longer used to authorize TP ratios or model architectures.
         "tp_reshard": (
             "mha-gqa"
             if all(
@@ -73,38 +74,19 @@ def attach_pd_contract(params, contract):
 
 
 def _compatible_contract(peer, local):
-    if peer == local:
-        return local.get("schema") != 2 or (
-            type(peer.get("tp")) is int and type(local.get("tp")) is int
-        )
     if not isinstance(peer, dict):
         return False
-    # Never relax model, software, precision, block or layout compatibility.
-    if (
-        local.get("schema") != 2
-        or local.get("tp_reshard") != "mha-gqa"
-        or type(peer.get("tp")) is not int
-        or type(local.get("tp")) is not int
-        or {peer["tp"], local["tp"]} != {1, 2}
-        or local.get("dp") != 1
-        or local.get("pp") != 1
-    ):
+    if local.get("schema") != 2:
+        return peer == local  # Preserve legacy exact-match contracts.
+    if any(type(c.get("tp")) is not int or c["tp"] < 1 for c in (peer, local)):
         return False
-    from dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE
-
-    path = (
-        local.get("platform"),
-        local.get("connector"),
-        local.get("connector_module"),
-    )
-    if path not in (
-        ("cuda", "NixlConnector", None),
-        ("metax", "NixlConnector", None),
-        ("metax", "MooncakeConnector", None),
-        ("ascend", "MooncakeConnector", ASCEND_MOONCAKE_MODULE),
-    ):
-        return False
-    return {**peer, "tp": local["tp"]} == local
+    # TP layout negotiation belongs to the engine connector. The old schema-2
+    # tp_reshard field was a certification hint, not a tensor-layout property.
+    # Ignore it for rolling compatibility, but retain every other contract field.
+    ignored = {"tp", "tp_reshard"}
+    return {k: v for k, v in peer.items() if k not in ignored} == {
+        k: v for k, v in local.items() if k not in ignored
+    }
 
 
 def validate_pd_handoff(params, contract):
@@ -113,8 +95,19 @@ def validate_pd_handoff(params, contract):
     if not isinstance(params, dict) or not _compatible_contract(
         params.get(CONTRACT_KEY), contract
     ):
+        peer = params.get(CONTRACT_KEY) if isinstance(params, dict) else None
+        differences = (
+            sorted(
+                key
+                for key in peer.keys() | contract.keys()
+                if peer.get(key) != contract.get(key)
+            )
+            if isinstance(peer, dict)
+            else ["missing_or_invalid_contract"]
+        )
         raise InvalidArgument(
             "Incompatible PD peer: platform, engine version, model, precision, "
-            "block size and connector must match; TP reshaping requires a certified configuration"
+            "block size and connector must match; TP compatibility is checked by the engine connector; "
+            "differing fields: " + ", ".join(differences or ["field_types"])
         )
     return {key: value for key, value in params.items() if key != CONTRACT_KEY}

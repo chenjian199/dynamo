@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +25,11 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
+from dynamo.common.platform.kubernetes import (
+    DEVICE_RESOURCES,
+    container_platform,
+    whole_device_count,
+)
 from dynamo.common.utils.paths import get_workspace_dir
 from dynamo.planner.config.backend_components import WORKER_COMPONENT_NAMES
 from dynamo.planner.config.defaults import SubComponentType
@@ -507,6 +514,9 @@ def setup_worker_component_resources(
     num_gpus_per_node: Optional[int] = None,
 ) -> None:
     """Set worker GPU resources on the v1beta1 main container."""
+    whole_device_count(gpu_count)
+    if num_gpus_per_node is not None:
+        whole_device_count(num_gpus_per_node)
     # Handle multinode configuration if num_gpus_per_node is provided
     if num_gpus_per_node is not None:
         set_multinode_config(worker_component, gpu_count, num_gpus_per_node)
@@ -514,6 +524,12 @@ def setup_worker_component_resources(
     main_container = get_main_container(worker_component)
     if main_container.resources is None:
         main_container.resources = {}
+    platform = container_platform(
+        main_container.model_dump(by_alias=True, exclude_none=True)
+    )
+    if platform not in DEVICE_RESOURCES:
+        raise ValueError("Cannot allocate accelerator resources to a CPU component")
+    resource_key = DEVICE_RESOURCES[platform]
     limits = main_container.resources.setdefault("limits", {})
 
     # Calculate GPU value
@@ -532,7 +548,7 @@ def setup_worker_component_resources(
             resource_dict: The resource dictionary (either limits or requests) to update
             gpu_value: The GPU value to set
         """
-        resource_dict["nvidia.com/gpu"] = str(gpu_value)
+        resource_dict[resource_key] = str(gpu_value)
         if "rdma/ib" in resource_dict:
             resource_dict["rdma/ib"] = str(gpu_value)
 

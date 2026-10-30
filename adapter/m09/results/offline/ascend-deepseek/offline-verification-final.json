@@ -1,0 +1,69 @@
+{
+  "source": "files only; no live worker access",
+  "restart_prediction_tolerance": {
+    "relative": 1e-09,
+    "absolute": 1e-09
+  },
+  "fingerprint": "de4e1c38736af56d1210dffb48ecb9f9a1506c244933827d448aa6136703ce28",
+  "coverage": {
+    "prefill": 6,
+    "decode": 9
+  },
+  "models": [
+    {
+      "role": "prefill",
+      "capabilities": {
+        "num_gpu": 8,
+        "gpu_cost_per_replica": null,
+        "max_num_batched_tokens": 4096,
+        "max_num_seqs": 16,
+        "context_length": 4096,
+        "max_kv_tokens": 31131,
+        "kv_cache_block_size": 128,
+        "speculative_nextn": null,
+        "power_watts_per_replica": null
+      },
+      "capabilities_source": "/offline/prefill-sweep-mdc.json",
+      "samples": 6,
+      "predictions": [
+        null,
+        null
+      ],
+      "reusable": false
+    },
+    {
+      "role": "decode",
+      "capabilities": {
+        "num_gpu": 8,
+        "gpu_cost_per_replica": null,
+        "max_num_batched_tokens": 4096,
+        "max_num_seqs": 16,
+        "context_length": 4096,
+        "max_kv_tokens": 31114,
+        "kv_cache_block_size": 128,
+        "speculative_nextn": null,
+        "power_watts_per_replica": null
+      },
+      "capabilities_source": "/offline/sweep-mdc.json",
+      "samples": 9,
+      "predictions": [
+        {
+          "rps": 0.2747222286778182,
+          "ttft_ms": null,
+          "itl_ms": 455.0050449197336,
+          "e2e_latency_ms": null,
+          "eligible": true
+        },
+        {
+          "rps": 0.2747222286778181,
+          "ttft_ms": null,
+          "itl_ms": 455.00504491973373,
+          "e2e_latency_ms": null,
+          "eligible": true
+        }
+      ],
+      "reusable": true
+    }
+  ],
+  "passed": false
+}

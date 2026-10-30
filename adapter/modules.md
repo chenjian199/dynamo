@@ -118,7 +118,7 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M09 遥测与 Planner/Profiler
 
-当前状态：准备适配。基础引擎指标可用；M08 已提前完成 CUDA/Ascend 的 DGDR Profiler 接入与真实测量到自动部署。平台遥测、画像有效性/精度、配置选择效果、SLA 达标及 Planner 动态扩缩容仍待实现或验收。
+当前状态：实时指标路径已完成有界功能回归，2026-10-30 已实现并测试[离线画像闭环](m09/offline-bootstrap.md)：四组通过、CUDA Qwen32 有限通过，Ascend DeepSeek prefill 原生拟合未通过，完整离线验收尚未收口。CUDA/Ascend 已通过 Qwen3-0.6B、Qwen3-32B 和 DeepSeek-V4-Flash 的 Planner 自动扩缩容、小模型实时 FPM/SLA 决策、Profiler 四候选测量及结果完整性检查；前轮定向单测 474 项通过，前轮测试资源已回收；离线补充测试使用独立工作目录，资源也已回收，补充定向测试 704 项通过。三平台只读遥测、MetaX 本机容量发布已验证。Ascend 部分冷扩容延迟未达标，CUDA DeepSeek 存在瞬态缩扩容震荡；MetaX 集群、非 CUDA 功耗写入、预测数据库准确性和生产 SLA 保留为未认证，详见 [M09 实测记录](m09/results/README.md)。
 
 详细设计：[指标、功耗、性能画像与文件计划](modules/m09-telemetry-planner/README.md)。
 

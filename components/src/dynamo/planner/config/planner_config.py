@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +34,7 @@ from pydantic import (
     model_validator,
 )
 
+from dynamo.common.platform.profile import ProfileIdentity
 from dynamo.planner.config.aic_interpolation_spec import AICInterpolationSpec
 from dynamo.planner.config.defaults import SLAPlannerDefaults
 from dynamo.planner.config.parallelization import PickedParallelConfig
@@ -384,9 +387,9 @@ class PlannerConfig(BaseModel):
         ),
     )
 
-    environment: Literal[
-        "kubernetes", "virtual", "global-planner"
-    ] = SLAPlannerDefaults.environment
+    environment: Literal["kubernetes", "virtual", "global-planner"] = (
+        SLAPlannerDefaults.environment
+    )
     namespace: str = Field(
         default_factory=lambda: os.environ.get("DYN_NAMESPACE", "dynamo"),
         exclude=True,
@@ -471,7 +474,14 @@ class PlannerConfig(BaseModel):
     decode_engine_num_gpu: Optional[int] = None
     prefill_engine_num_gpu: Optional[int] = None
 
+    target_platform: Literal["cuda", "ascend", "metax"] = "cuda"
+    profile_identity: Optional[ProfileIdentity] = None
+    profile_max_age_seconds: float = Field(default=604800, gt=0, allow_inf_nan=False)
     profile_results_dir: str = SLAPlannerDefaults.profile_results_dir
+    pre_deployment_metrics_source: Literal["auto", "files"] = Field(
+        default="auto",
+        description="auto preserves endpoint/AIC/file fallback; files requires a validated persisted profile and fails startup on invalid or missing data",
+    )
 
     aic_interpolation: Optional[AICInterpolationSpec] = Field(
         default=None,
@@ -611,9 +621,9 @@ class PlannerConfig(BaseModel):
     metric_reporting_prometheus_port: int = Field(
         default_factory=lambda: int(os.environ.get("PLANNER_PROMETHEUS_PORT", 0))
     )
-    throughput_metrics_source: Literal[
-        "frontend", "router"
-    ] = SLAPlannerDefaults.throughput_metrics_source
+    throughput_metrics_source: Literal["frontend", "router"] = (
+        SLAPlannerDefaults.throughput_metrics_source
+    )
 
     model_name: Optional[str] = None
 
@@ -948,6 +958,19 @@ class PlannerConfig(BaseModel):
                         "decode_scale_up_kv_rate must be greater than "
                         "decode_scale_down_kv_rate"
                     )
+
+        if (
+            self.profile_identity is not None
+            and self.profile_identity.platform != self.target_platform
+        ):
+            raise ValueError("profile_identity.platform must match target_platform")
+        if self.target_platform != "cuda":
+            if self.aic_interpolation is not None:
+                raise ValueError(
+                    "Non-CUDA AIC interpolation database is not validated; use measured profiles or live observations"
+                )
+            if self.enable_power_awareness:
+                raise ValueError("Non-CUDA power control is not validated")
 
         # Easy mode: force load scaling on, throughput scaling off
         if self.optimization_target != "sla":

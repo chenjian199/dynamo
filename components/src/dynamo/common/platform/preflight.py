@@ -81,7 +81,7 @@ def pd_transport(config, platform_id, kv):
 
 
 def validate_pd_configuration(config, platform_id):
-    """Bound the initial vendor PD integration to eager text TP1/TP2, DP1."""
+    """Validate our connector contract; native engines validate TP layout compatibility."""
     engine = config.engine_args
     kv = engine.kv_transfer_config
     expected_role = (
@@ -93,19 +93,18 @@ def validate_pd_configuration(config, platform_id):
         config.disaggregation_mode
         not in (DisaggregationMode.PREFILL, DisaggregationMode.DECODE)
         or kv is None
-        or engine.tensor_parallel_size not in (1, 2)
+        or type(engine.tensor_parallel_size) is not int
+        or engine.tensor_parallel_size < 1
         or engine.data_parallel_size != 1
         or not engine.enforce_eager
         or config.enable_multimodal
         or engine.enable_lora
-        or engine.quantization is not None
         or engine.speculative_config is not None
-        or engine.enable_expert_parallel
     ):
         raise PlatformError(
             "unsupported_configuration",
             platform_id,
-            "PD requires a connector and eager text TP1/TP2, DP1 without advanced engine features",
+            "PD requires a connector, positive TP, eager text DP1 without LoRA or speculative decoding",
         )
     kv = pd_transport(config, platform_id, kv)
     module = getattr(kv, "kv_connector_module_path", None)
@@ -119,7 +118,8 @@ def validate_pd_configuration(config, platform_id):
         for role in ("prefill", "decode"):
             parallel = extra.get(role, {})
             valid = valid and (
-                parallel.get("tp_size") in (1, 2)
+                type(parallel.get("tp_size")) is int
+                and parallel["tp_size"] > 0
                 and parallel.get("dp_size") == 1
                 and parallel.get("pp_size", 1) == 1
             )
@@ -128,7 +128,9 @@ def validate_pd_configuration(config, platform_id):
             extra.get("prefill", {}).get("tp_size"),
             extra.get("decode", {}).get("tp_size"),
         )
-        valid = valid and (split is True if pair == (1, 2) else split is False)
+        # This opt-in extension implements exactly a two-way split. Otherwise
+        # leave TP ratios to the installed native connector, not a tested-pair list.
+        valid = valid and type(split) is bool and (not split or pair == (1, 2))
         local_role = "prefill" if expected_role == "kv_producer" else "decode"
         valid = (
             valid

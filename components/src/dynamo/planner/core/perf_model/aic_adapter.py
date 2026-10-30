@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """Planner AIC adapter for forward-pass performance modeling.
@@ -236,6 +238,11 @@ class PlannerEnginePerfModel:
         }
 
     def _build_aic_config(self) -> Optional[dict[str, Any]]:
+        # CPU Planner identity is separate from the target worker platform.
+        # With no certified vendor database, AIC receives no CUDA native config;
+        # its existing measured-FPM regression remains available.
+        if self._config.target_platform != "cuda":
+            return None
         spec = self._config.aic_perf_model
         if spec is None:
             return None
@@ -295,9 +302,11 @@ class PlannerEnginePerfModel:
                 pick.moe_tp,
                 pick.moe_ep,
                 pick.dp,
-                self._capabilities.kv_cache_block_size
-                if self._capabilities is not None
-                else None,
+                (
+                    self._capabilities.kv_cache_block_size
+                    if self._capabilities is not None
+                    else None
+                ),
                 aic_extra,
             )
         return (

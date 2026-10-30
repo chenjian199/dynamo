@@ -46,8 +46,9 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 | 独立 KVBM 本地调用链 | native SDK 路径已验证 | ACL native 路径已验证 | MACA native 路径已验证 | PhysicalWorker/TransferManager、G1/G2/G3 与 owned 引擎缓冲区；[证据](m06/independent.md) | M06 |
 | KVBM replicated 集合通信 | 双卡 NCCL 已验证 | 双卡 HCCL 已验证 | 双卡 MCCL 已验证 | 独立 Rust 入口；rank 0 独占 G2/G3，六组布局/宽度配置；不等于 vLLM MLA 模型端到端验收；[证据](m06/independent.md) | M06 |
 | Kubernetes 基础部署 | H800 集群基础路径已验证 | 910B3 集群基础路径已验证 | 整卡资源/计数/准入/Pod 渲染已实现；集群待测 | CUDA/Ascend：DGD、Kubernetes 服务发现、KV 路由、2→3→2→0、重建、同节点跨 Pod 2P3D、跨节点聚合；扩展通过两平台跨节点 2P3D、Grove/KAI、DGDR 自动部署，CUDA DRA 整卡、Ascend DRA 等待新集群；[M08 扩展证据](m08/advanced/README.md) | M08 |
-| SLO Planner/Profiler | 源码已有 | 待调查 | 待调查 | 指标、资源计数、平台实测画像 | M09 |
-| 设备健康与功耗控制 | 源码已有 NVIDIA 路径 | 待调查 | 待调查 | 指标语义、错误码、功耗 API 与权限 | M08/M09 |
+| SLO Planner/Profiler | Qwen 小模型/32B、DeepSeek 自动伸缩，小模型实时 FPM/SLA、TP1/TP2 Profiler 已验证；DeepSeek 瞬态伸缩震荡保留 | 同 CUDA 功能范围已验证；小模型/32B/DeepSeek 含冷扩容延迟未达目标项 | 平台资源/画像门控单测、本机容量发布通过；集群待测 | [M09 证据](m09/results/README.md)；不认证生产 SLA 或配置最优 | M09 |
+| 离线画像 → Planner 文件初始化/重启 | 小模型/DeepSeek 已验证；Qwen32 C2 复用通过但在线拟合间歇不可用 | Qwen 小模型/32B 闭环已验证；DeepSeek 完成采样与重复测量，但 prefill 原生拟合不可用，在线闭环未通过 | 画像身份与文件校验单测通过；集群待测 | [离线补充](m09/results/offline/README.md)；显式文件模式，不冒充实时 FPM 验收 | M09 |
+| 设备健康与功耗控制 | DCGM 只读内存/利用率/功耗已验证；XID 不当作当前完整健康 | exporter 只读指标与 health gauge 已验证；不启用功耗写入 | 本地可见设备内存查询已验证；利用率/功耗 unavailable | [M09](m09/README.md)；区分过期/未知/错误，健康尚不控制 readiness | M08/M09 |
 | GMS/共享内存恢复 | 有限支持：官方 1.5.1 / vLLM 0.28，V1 真机内存存活、MemPool 与 vLLM sleep/wake；旧 tensor/module 回归通过 | 当前组合不支持：HDK 26.1.1 的 RW/查询可用，但 READ 权限与 POSIX 分配失败；预检查拒绝 | 有限支持：MACA FD/VMM，提交前 RO 重映射；V1 真机及旧 tensor/module 回归通过 | 单卡 eager；未认证完整引擎 checkpoint/CRIU；[M07 证据与阻塞原因](m07/README.md) | M07 |
 | 本地 TP/DP | 已验证：TP=2/DP=2 | 已验证：TP=2/DP=2 | 已验证：TP=2/DP=2 | Qwen3-0.6B / Qwen3-8B，eager；逐 rank 容量必须等于物理 KV 容量；[M03 记录](m03/README.md) | M03 |
 | LoRA | 已验证：TP=1/DP=2 | 已验证：TP=1/DP=2 | 已验证：TP=1/DP=2 | Qwen3-0.6B + 非零 rank-8 fixture；加载/卸载/回滚/并发/缓存隔离 | M03 |

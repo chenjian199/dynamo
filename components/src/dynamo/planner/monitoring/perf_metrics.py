@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """Pre-deployment FPM data fetching for planner regression bootstrap.
 
-Priority chain:
+Default priority chain (source="files" instead requires validated persisted data):
   1. Call ``get_perf_metrics`` Dynamo endpoint (PR 7779 self-benchmark)
   2. Run AIConfigurator interpolation in-process if an ``AICInterpolationSpec``
      is supplied (rapid mode)
@@ -15,7 +17,7 @@ import asyncio
 import json
 import logging
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 
@@ -23,6 +25,7 @@ from dynamo.common.forward_pass_metrics import (
     ForwardPassMetrics,
     ScheduledRequestMetrics,
 )
+from dynamo.common.platform.profile import ProfileIdentity, validate_profile_manifest
 from dynamo.planner.config.aic_interpolation_spec import AICInterpolationSpec
 from dynamo.planner.config.defaults import SubComponentType
 from dynamo.planner.monitoring.worker_info import WorkerInfo
@@ -43,8 +46,14 @@ async def fetch_pre_deployment_metrics(
     profile_results_dir: Optional[str],
     component_type: SubComponentType,
     aic_spec: Optional[AICInterpolationSpec] = None,
+    target_platform: str = "cuda",
+    profile_identity: Optional[ProfileIdentity] = None,
+    profile_max_age_seconds: float = 604800,
+    source: Literal["auto", "files"] = "auto",
 ) -> list[ForwardPassMetrics]:
     """Fetch pre-deployment engine perf data as an FPM list.
+
+    Explicit ``source="files"`` bypasses other sources and propagates errors.
 
     1. Try ``get_perf_metrics`` endpoint (PR 7779 self-benchmark).
     2. If ``aic_spec`` is set, run AIC interpolation in-process (rapid mode).
@@ -63,6 +72,42 @@ async def fetch_pre_deployment_metrics(
     Returns:
         List of ForwardPassMetrics suitable for regression bootstrap.
     """
+    if source == "files":
+        # Explicit offline bootstrap must not silently switch to worker samples
+        # or live regression when the persisted artifact is missing/invalid.
+        if not profile_results_dir or profile_identity is None:
+            raise ValueError(
+                "File-only bootstrap requires profile_results_dir and profile_identity"
+            )
+        manifest = validate_profile_manifest(
+            profile_results_dir,
+            profile_identity,
+            max_age_seconds=profile_max_age_seconds,
+        )
+        dp = profile_identity.parallelism.get(
+            f"{component_type.value}_dp", profile_identity.parallelism.get("dp", 1)
+        )
+        if dp != 1:
+            raise ValueError(
+                "File-only bootstrap requires attention DP=1; "
+                "flat profile samples do not preserve rank groups"
+            )
+        fpms = _convert_profiling_data_to_fpms(profile_results_dir, component_type)
+        if not fpms:
+            raise ValueError(
+                "File-only bootstrap contains no samples for " + component_type.value
+            )
+        logger.info(
+            "Offline bootstrap source=files component=%s samples=%d fingerprint=%s path=%s",
+            component_type.value,
+            len(fpms),
+            manifest["fingerprint"],
+            profile_results_dir,
+        )
+        return fpms
+    if source != "auto":
+        raise ValueError("Unknown pre-deployment metrics source: " + source)
+
     fpms = await _try_endpoint(runtime, namespace, worker_info, component_type)
     if fpms:
         logger.info(
@@ -70,7 +115,7 @@ async def fetch_pre_deployment_metrics(
         )
         return fpms
 
-    if aic_spec is not None:
+    if aic_spec is not None and target_platform == "cuda":
         try:
             fpms = _try_aic_interpolation(aic_spec, component_type)
             if fpms:
@@ -90,6 +135,16 @@ async def fetch_pre_deployment_metrics(
 
     if profile_results_dir:
         try:
+            if target_platform != "cuda" and profile_identity is None:
+                raise ValueError(
+                    "Non-CUDA file profiles require a matching profile_identity"
+                )
+            if profile_identity is not None:
+                validate_profile_manifest(
+                    profile_results_dir,
+                    profile_identity,
+                    max_age_seconds=profile_max_age_seconds,
+                )
             fpms = _convert_profiling_data_to_fpms(profile_results_dir, component_type)
             if fpms:
                 logger.info(
@@ -246,6 +301,19 @@ def _convert_profiling_data_to_fpms(
     return fpms
 
 
+def _validate_profile_vectors(*vectors: np.ndarray) -> None:
+    if any(
+        vector.ndim != 1
+        or len(vector) == 0
+        or not np.isfinite(vector).all()
+        or (vector <= 0).any()
+        for vector in vectors
+    ):
+        raise ValueError("Profile samples must be nonempty positive finite vectors")
+    if len({len(vector) for vector in vectors}) != 1:
+        raise ValueError("Profile sample vectors have different lengths")
+
+
 def _convert_prefill_profiling(profile_results_dir: str) -> list[ForwardPassMetrics]:
     npz_path = os.path.join(
         profile_results_dir, "selected_prefill_interpolation", "raw_data.npz"
@@ -270,6 +338,7 @@ def _convert_prefill_profiling(profile_results_dir: str) -> list[ForwardPassMetr
         )
 
     fpms = []
+    _validate_profile_vectors(prefill_isl, prefill_ttft)
     for isl_val, ttft_ms in zip(prefill_isl, prefill_ttft):
         fpms.append(
             ForwardPassMetrics(
@@ -313,6 +382,9 @@ def _convert_decode_profiling(profile_results_dir: str) -> list[ForwardPassMetri
         )
 
     fpms = []
+    _validate_profile_vectors(x_kv_usage, y_context_length, z_itl)
+    if max_kv_tokens <= 0 or (x_kv_usage > 1).any():
+        raise ValueError("Profile KV capacity or usage is invalid")
     for kv_usage, ctx_len, itl_ms in zip(x_kv_usage, y_context_length, z_itl):
         sum_decode_kv = int(round(float(kv_usage) * max_kv_tokens))
         batch_size = (

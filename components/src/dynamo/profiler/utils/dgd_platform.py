@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Adapt generated vLLM defaults to an explicitly selected Ascend platform.
+"""Adapt generated vLLM defaults to an explicitly selected vendor platform.
 
 Only generated defaults are translated. User overrides are applied afterwards
 and remain subject to Operator admission and the engine's platform preflight.
@@ -11,6 +11,7 @@ import copy
 import json
 import shlex
 
+from dynamo.common.platform.kubernetes import DEVICE_RESOURCES
 from dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE
 
 
@@ -62,7 +63,7 @@ def adapt_vllm_blueprint_platform(blueprint, override):
 
     TP counts come from the generated candidate, not a fixed one-card resource
     override. CPU Frontends, CUDA, and configurations without an explicit
-    Ascend selection retain their original defaults.
+    vendor selection retain their original defaults.
     """
     if not override or override.get("apiVersion") != "nvidia.com/v1beta1":
         return blueprint
@@ -87,17 +88,19 @@ def adapt_vllm_blueprint_platform(blueprint, override):
                 "pp_size": int(_value(args, "--pipeline-parallel-size", "1")),
             }
     for component in workers:
-        if selected.get(component["name"]) != "ascend":
+        platform = selected.get(component["name"])
+        if platform not in {"ascend", "metax"}:
             continue
+        resource_key = DEVICE_RESOURCES[platform]
         container = _main(component)
         for field in ("requests", "limits"):
             resources = container.get("resources", {}).get(field, {})
             if "nvidia.com/gpu" in resources:
-                if "huawei.com/Ascend910" in resources:
+                if resource_key in resources:
                     raise ValueError(
-                        "Generated blueprint mixes CUDA and Ascend resources"
+                        f"Generated blueprint mixes CUDA and {platform} resources"
                     )
-                resources["huawei.com/Ascend910"] = resources.pop("nvidia.com/gpu")
+                resources[resource_key] = resources.pop("nvidia.com/gpu")
         args = _args(container)
         raw = _value(args, "--kv-transfer-config")
         default = {"kv_connector": "NixlConnector", "kv_role": "kv_both"}
@@ -108,17 +111,23 @@ def adapt_vllm_blueprint_platform(blueprint, override):
         if role in {"prefill", "decode"}:
             if set(roles) != {"prefill", "decode"}:
                 raise ValueError(
-                    "Ascend PD generation requires both peer parallel configurations"
+                    "Vendor PD generation requires both peer parallel configurations"
                 )
             extra = copy.deepcopy(roles)
-            if (roles["prefill"]["tp_size"], roles["decode"]["tp_size"]) == (1, 2):
+            if platform == "ascend" and (
+                roles["prefill"]["tp_size"],
+                roles["decode"]["tp_size"],
+            ) == (1, 2):
                 extra["heyi_tp_split"] = True
             connector = {
                 "kv_connector": "MooncakeConnector",
-                "kv_connector_module_path": ASCEND_MOONCAKE_MODULE,
                 "kv_role": "kv_producer" if role == "prefill" else "kv_consumer",
                 "kv_connector_extra_config": extra,
             }
+            if platform == "ascend":
+                connector["kv_connector_module_path"] = ASCEND_MOONCAKE_MODULE
+            else:
+                extra["mooncake_protocol"] = "maca"
             args += ["--kv-transfer-config", json.dumps(connector)]
         container["args"] = args
     return result

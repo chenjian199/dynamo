@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +22,11 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from dynamo.common.platform.kubernetes import (
+    DEVICE_RESOURCES,
+    container_platform,
+    scalar_device_count,
+)
 from dynamo.common.utils.runtime import parse_endpoint
 from dynamo.planner.config.defaults import SubComponentType
 from dynamo.planner.errors import (
@@ -182,55 +189,15 @@ class Service(BaseModel):
             return None
 
     def get_gpu_count(self) -> int:
-        """Get the GPU count from the component's resource specification.
-
-        GPU count is read from the v1beta1 main container resources
-        (``nvidia.com/gpu``).
-
-        Returns:
-            The number of GPUs configured for this component
-
-        Raises:
-            ValueError: If GPU count is not specified or invalid
-        """
-        resources = get_main_container(self.service).get("resources", {})
-        limits = resources.get("limits", {})
-        requests = resources.get("requests", {})
-
-        # Prefer limits, fall back to requests. For GPUs, Kubernetes device plugins
-        # typically treat requests and limits as equivalent since GPUs are
-        # non-compressible and allocated exclusively (no fractional sharing).
-        if GPU_RESOURCE_KEY in limits:
-            gpu_str = limits[GPU_RESOURCE_KEY]
-        else:
-            gpu_str = requests.get(GPU_RESOURCE_KEY)
-
-        if gpu_str is None:
-            raise ValueError(
-                f"No GPU count specified for component '{self.name}'. "
-                f"Please set main container resources.limits.{GPU_RESOURCE_KEY} "
-                f"or resources.requests.{GPU_RESOURCE_KEY} in the DGD."
-            )
-
+        """Get the validated main-container whole-device allocation."""
         try:
-            gpu_count = int(gpu_str)
-        except (ValueError, TypeError) as err:
-            raise ValueError(
-                f"Invalid GPU count '{gpu_str}' for component '{self.name}'. "
-                f"GPU count must be a positive integer."
-            ) from err
-        # A zero/negative GPU count is nonsensical and, for power projection,
-        # would make watts_per_replica zero — silently disabling enforcement for
-        # this role. Reject it so the deployment fails loudly instead.
-        if gpu_count <= 0:
-            raise ValueError(
-                f"Invalid GPU count '{gpu_str}' for component '{self.name}'. "
-                f"GPU count must be a positive integer."
-            )
-        return gpu_count
+            return scalar_device_count(get_main_container(self.service))
+        except ValueError as error:
+            raise ValueError(f"Component {self.name!r}: {error}") from error
 
     def get_gpu_shape(self, deployment: dict) -> ComponentGPUShape:
         """Return the current operator-projected shape or a scalar fallback."""
+        container_platform(get_main_container(self.service))
         deployment_status = deployment.get("status", {})
         component_status = deployment_status.get("components", {}).get(self.name, {})
         engine_raw = component_status.get("gpusPerEngine")
@@ -299,11 +266,12 @@ class Service(BaseModel):
             requests = resources.get("requests", {})
             resource_names = set(limits) | set(requests)
             for resource_name in resource_names:
-                if resource_name != GPU_RESOURCE_KEY and not resource_name.startswith(
-                    "nvidia.com/mig-"
+                if (
+                    resource_name not in DEVICE_RESOURCES.values()
+                    and not resource_name.startswith("nvidia.com/mig-")
                 ):
                     continue
-                if is_main and resource_name == GPU_RESOURCE_KEY:
+                if is_main and resource_name in DEVICE_RESOURCES.values():
                     continue
                 raw = limits.get(resource_name, requests.get(resource_name))
                 try:
@@ -363,6 +331,10 @@ class Service(BaseModel):
             PowerAnnotationMissingError: annotation key is absent.
             PowerAnnotationInvalidError: value is empty, non-integer, or <= 0.
         """
+        if container_platform(get_main_container(self.service)) != "cuda":
+            raise ValueError(
+                "Power-aware planning requires a validated platform actuator; non-CUDA control is not enabled"
+            )
         annotations = (
             self.service.get("podTemplate", {}).get("metadata", {}).get("annotations")
             or {}

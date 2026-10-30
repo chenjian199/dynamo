@@ -7,13 +7,22 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M09 遥测与 Planner Profiler
 
-状态：准备适配。基础引擎指标可用；M08 已提前完成 CUDA/Ascend 的 DGDR Profiler 接入与功能验证，M09 主体尚未验收。依赖 M01/M03/M08；功耗与性能建模分为可独立交付的子能力。
+状态：实时指标路径已完成本轮有界功能回归；2026-10-30 已实现并测试[离线画像到在线 Planner](../../m09/offline-bootstrap.md)：四组通过、CUDA Qwen32 有限通过，Ascend DeepSeek prefill 拟合未通过；完整离线验收不标为收口。实际通过项及剩余边界以 [M09 验收记录](../../m09/README.md) 为准。依赖 M01/M03/M08；功耗写入与生产性能建模仍是独立能力，不能由功能测试推导为已认证。
 
-## M08 交接与下一阶段顺序（2026-10-29）
+## 本轮交付（2026-10-29 至 2026-10-30）
+
+- 平台资源计数统一到 `common/platform/kubernetes.py`，保留 Operator 当前 generation 的权威设备数量；Profiler 修改正确的资源键，Planner 验证目标平台，禁止混合厂商或错误身份。CUDA 原有镜像及兼容路径保留。
+- `common/platform/telemetry.py` 提供只读 exporter/可见设备内存观测，区分 available/unavailable/stale/error，使用 bytes/W/percent 和采样时间。CUDA/Ascend exporter 与 MetaX 本地内存查询有真机证据。健康信息暂不自动改变 readiness；功耗写入不启用。
+- `common/platform/profile.py` 记录画像身份、时效与内容 SHA256，区分端到端 benchmark 与 Planner FPM bootstrap。非 CUDA 禁止未认证 AIC 数据库与 rapid 路径，使用 thorough 实测和实时 FPM 回归；搜索容量必须有实际 YAML，不允许未知硬件隐式使用 H200 容量。
+- Planner/Profiler 的单测及集群扩缩容、SLA 决策、TP1/TP2 搜索和大模型验证见 [结果](../../m09/README.md)；[复现步骤](../../m09/reproduce.md) 包含源码覆盖、独立 Planner 依赖和归档方法。最终镜像验收留给 M10。
+
+本轮六项模型扩缩容运行和两项 SLA 决策运行均满足各自功能条件，API 错误为零，删除后四台节点无残留设备进程。DeepSeek 分组 KV 容量改为引擎原生每引擎容量，保持路由事件宽度和旧版兼容；MetaX 本机验证容量发布。Ascend 冷扩容延迟未达目标、CUDA DeepSeek 一次瞬态缩扩容震荡继续记录，生产 SLA 和稳定伸缩不标记通过。
+
+## M08 交接与本轮实施顺序（2026-10-29）
 
 Profiler/Planner 主体归本模块。M08 负责 Kubernetes 编排；为验证 DGDR，已提前交付 H800/910B3 SKU、明确 Ascend 时的资源/connector 转换、PD 配置生成修复、集群服务地址兼容及独立工具镜像。CUDA/Ascend 均通过真实 `thorough` 测量、生成 DGD、自动部署与 API 回归，见 [M08 证据](../../m08/advanced/README.md)。复用这些成果，不从零重新实现，也不把功能通过当作配置最优、画像准确或生产 SLA 达标。
 
-下一阶段顺序：
+本轮采用的实施顺序（未认证项继续保留）：
 
 1. 审计 Planner 的设备资源计数、配置和 Kubernetes 读写路径，保证伸缩保留厂商资源、镜像与部署语义。
 2. 接入平台遥测及健康信息，区分有效零值、不可用、过期和错误；核对现有 exporter 与引擎指标。
@@ -33,9 +42,9 @@ KV 验收已使用引擎容量和 Worker 指标；M01 只读取静态设备/软�
 
 Planner 使用负载、延迟、容量及部署状态调整资源；Profiler 生成搜索空间、运行测量并产出配置。硬件类型既影响资源计数，也影响 TP/DP/EP 配置可行性与性能曲线。
 
-`planner/monitoring/dgd_services.py` 定义 `GPU_RESOURCE_KEY = nvidia.com/gpu`。`profiler/utils/config.py` 更新模板资源时也直接写入该键，模板包含 NVIDIA 镜像和资源。只改 Operator 会漏掉自动生成和规划链路。
+适配前 `planner/monitoring/dgd_services.py` 和 `profiler/utils/config.py` 直接使用 NVIDIA 资源键。本轮已替换这两条运行路径，仍保留 CUDA 模板默认值和旧版行为；厂商平台必须明确提供匹配的 worker 身份、镜像和资源。
 
-Power Agent 已有 `Actuator` Protocol 与 NvmlActuator/DcgmActuator，不需要重建功耗服务。`power_agent.py` 的设备/PID 发现仍有 NVML 依赖。`common/config_dump/system_info.py` 使用 nvidia-smi，诊断信息也需平台化。
+Power Agent 已有 `Actuator` Protocol 与 NvmlActuator/DcgmActuator，不需要重建功耗服务。`power_agent.py` 的设备/PID 发现仍有 NVML 依赖。`common/config_dump/system_info.py` 本轮已接入 exporter/平台只读诊断，保留 CUDA 原有 nvidia-smi 回退。
 
 ## 目标设计
 
@@ -55,7 +64,7 @@ Profiler 搜索空间先根据平台能力过滤无效 precision、parallelism�
 
 Planner 只在该平台的有效画像覆盖范围内使用预测；缺少数据时明确进入测量或受限策略，不使用 NVIDIA 曲线作为其他设备的隐式默认。AISimulate 等外部模型如果未支持认证组合，需要外部扩展或独立实测画像，不能只改 GPU 名称。
 
-## 现有文件修改清单
+## 原设计文件计划（并非全部已实现）
 
 | 文件 | 具体修改 |
 | --- | --- |
@@ -71,7 +80,7 @@ Planner 只在该平台的有效画像覆盖范围内使用预测；缺少数据
 | [aic_adapter.py](../../../components/src/dynamo/planner/core/perf_model/aic_adapter.py) | 检查外部预测模型支持范围，拒绝未知平台的无依据映射 |
 | [planner_config.py](../../../components/src/dynamo/planner/config/planner_config.py) | 校验功耗能力、画像和规划模式的组合，不让未支持模式进入循环 |
 
-## 拟新增文件清单
+## 原设计新增文件计划（以本轮交付为准）
 
 | 拟新增路径 | 内容 |
 | --- | --- |

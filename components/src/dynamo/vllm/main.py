@@ -66,9 +66,11 @@ from . import envs
 from .args import Config, _uses_dynamo_connector, configure_rl_logprobs_mode, parse_args
 from .cache_info import get_configured_kv_event_block_size
 from .capacity import (
+    configure_kv_capacity_worker,
     get_metrics_model_name,
     get_spec_decode_runtime_data,
     per_rank_kv_blocks,
+    publish_kv_cache_capacity,
     publish_vllm_token_budget,
 )
 from .dp_topology import get_dp_range_for_worker
@@ -702,6 +704,7 @@ def _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources):
     # Taken from build_async_engine_client_from_engine_args()
     usage_context = UsageContext.OPENAI_API_SERVER
     vllm_config = engine_args.create_engine_config(usage_context=usage_context)
+    configure_kv_capacity_worker(vllm_config)
     if config.disaggregation_mode in (
         DisaggregationMode.PREFILL,
         DisaggregationMode.DECODE,
@@ -758,9 +761,9 @@ def _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources):
         bench = config._benchmark_additional_config
         if fpm_worker_id and bench["output_path"] == "/tmp/benchmark_results.json":
             short_id = fpm_worker_id[-8:]
-            os.environ[
-                ENV_FPM_BENCHMARK_OUTPUT_PATH
-            ] = f"/tmp/benchmark_results_{short_id}.json"
+            os.environ[ENV_FPM_BENCHMARK_OUTPUT_PATH] = (
+                f"/tmp/benchmark_results_{short_id}.json"
+            )
         vllm_config.additional_config["benchmark"] = bench
         logger.info("Benchmark config injected into additional_config")
 
@@ -912,6 +915,7 @@ async def register_vllm_model(
         )
         num_gpu_blocks = 0
     runtime_config.total_kv_blocks = per_rank_kv_blocks(num_gpu_blocks, dp_range[1])
+    await publish_kv_cache_capacity(runtime_config, engine_client)
     runtime_config.max_num_seqs = runtime_values["max_num_seqs"]
     runtime_config.max_num_batched_tokens = runtime_values["max_num_batched_tokens"]
     runtime_config.enable_local_indexer = config.enable_local_indexer

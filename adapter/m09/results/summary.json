@@ -1,0 +1,347 @@
+{
+  "scope": "Single-run functional regression; overlapping jobs are not isolated performance comparisons",
+  "runs": [
+    {
+      "platform": "cuda",
+      "run": "small-final",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 3,
+      "final": 1,
+      "devices_per_replica": 1,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "visible_text",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 50
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 1507,
+          "ttft_p95_ms": 55.387065978720784,
+          "tpot_p95_ms": 17.729493164840868,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 40,
+          "ttft_p95_ms": 30.790176009759307,
+          "tpot_p95_ms": 12.141015333141766,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1,
+        2,
+        3,
+        2,
+        1
+      ]
+    },
+    {
+      "platform": "cuda",
+      "run": "sla-metrics",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 1,
+      "final": 1,
+      "devices_per_replica": 1,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "visible_text",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 50
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 2464,
+          "ttft_p95_ms": 85.70045814849436,
+          "tpot_p95_ms": 12.222615880965014,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 41,
+          "ttft_p95_ms": 28.927244944497943,
+          "tpot_p95_ms": 11.779857614246293,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1
+      ],
+      "sla": {
+        "configured_targets": {
+          "ttft_p95_ms": 500,
+          "tpot_p95_ms": 25
+        },
+        "positive_itl_decisions": 55,
+        "max_estimated_itl_ms": 12.2,
+        "hold_decisions": 62,
+        "measured_targets_passed": true,
+        "live_prediction_observed": true,
+        "limitation": "Aggregated Planner TTFT estimate is zero; not proof of zero client latency or TTFT prediction accuracy"
+      }
+    },
+    {
+      "platform": "cuda",
+      "run": "qwen32-final",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 2,
+      "final": 1,
+      "devices_per_replica": 4,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "visible_text",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 52.31239250952774
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 2063,
+          "ttft_p95_ms": 717.4162392038852,
+          "tpot_p95_ms": 37.19342862967196,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 21,
+          "ttft_p95_ms": 62.9337509162724,
+          "tpot_p95_ms": 34.520338322439294,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1,
+        2,
+        1
+      ]
+    },
+    {
+      "platform": "cuda",
+      "run": "deepseek-final",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 2,
+      "final": 1,
+      "devices_per_replica": 4,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "streamed_token_ids",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 201.07151923140174
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 760,
+          "empty_visible_text_requests": 8,
+          "ttft_p95_ms": 940.1014009490609,
+          "tpot_p95_ms": 136.48189962144912,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 6,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 148.5521427821368,
+          "tpot_p95_ms": 130.3299785679661,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1,
+        2,
+        1,
+        2,
+        1
+      ]
+    },
+    {
+      "platform": "ascend",
+      "run": "small-final",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 3,
+      "final": 1,
+      "devices_per_replica": 1,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "visible_text",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 101.21643122504739
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 230,
+          "ttft_p95_ms": 6447.134777903557,
+          "tpot_p95_ms": 110.13617173713796,
+          "within_target": false
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 8,
+          "ttft_p95_ms": 151.6798809170723,
+          "tpot_p95_ms": 66.99424464912975,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1,
+        2,
+        3,
+        2,
+        1
+      ]
+    },
+    {
+      "platform": "ascend",
+      "run": "sla-metrics",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 1,
+      "final": 1,
+      "devices_per_replica": 1,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "visible_text",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 104.68787799670002
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 416,
+          "ttft_p95_ms": 236.40784621238708,
+          "tpot_p95_ms": 74.60352837100743,
+          "within_target": true
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 8,
+          "ttft_p95_ms": 146.84049040079117,
+          "tpot_p95_ms": 66.99823036672562,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1
+      ],
+      "sla": {
+        "configured_targets": {
+          "ttft_p95_ms": 1000,
+          "tpot_p95_ms": 100
+        },
+        "positive_itl_decisions": 52,
+        "max_estimated_itl_ms": 77.4,
+        "hold_decisions": 96,
+        "measured_targets_passed": true,
+        "live_prediction_observed": true,
+        "limitation": "Aggregated Planner TTFT estimate is zero; not proof of zero client latency or TTFT prediction accuracy"
+      }
+    },
+    {
+      "platform": "ascend",
+      "run": "qwen32-final",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 2,
+      "final": 1,
+      "devices_per_replica": 4,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "visible_text",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 278.025762302669
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 409,
+          "ttft_p95_ms": 1025.3148823976517,
+          "tpot_p95_ms": 187.5738194138985,
+          "within_target": false
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 5,
+          "ttft_p95_ms": 196.82247191667557,
+          "tpot_p95_ms": 173.72804082284762,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1,
+        2,
+        1
+      ]
+    },
+    {
+      "platform": "ascend",
+      "run": "deepseek-final",
+      "functional_passed": true,
+      "initial": 1,
+      "peak": 2,
+      "final": 1,
+      "devices_per_replica": 8,
+      "terminating_pods": 0,
+      "errors": 0,
+      "latency_basis": "streamed_token_ids",
+      "calibration_targets": {
+        "ttft_p95_ms": 1000,
+        "tpot_p95_ms": 672.3904807677889
+      },
+      "stages": [
+        {
+          "stage": "load",
+          "concurrency": 16,
+          "requests": 168,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 14093.241155147552,
+          "tpot_p95_ms": 542.236429441163,
+          "within_target": false
+        },
+        {
+          "stage": "recovery",
+          "concurrency": 1,
+          "requests": 2,
+          "empty_visible_text_requests": 0,
+          "ttft_p95_ms": 419.9220985174179,
+          "tpot_p95_ms": 422.75622610266754,
+          "within_target": true
+        }
+      ],
+      "desired_replica_sequence": [
+        1,
+        2,
+        1
+      ]
+    }
+  ]
+}

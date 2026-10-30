@@ -11,12 +11,12 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 源码基线：`v1.5.1`，提交 `2093662a4d4e5fd318732935213dde08dc7be818`。
 
-当前阶段：M01–M07 已完成各自记录范围内的适配与回归，保留明确暂缓项及原生引擎问题；不能将其视为全部设计能力完成。CUDA / Ascend 的大小模型、跨节点与 DeepSeek 验证见 [集群回归记录](m02/cluster-regression-plan.md)。M08 已阶段性收尾，在 CUDA / Ascend 集群安装 Operator，并验证基础 DGD 路径，见 [M08 验收](m08/cluster/README.md)；扩展轮已通过两平台跨节点 Operator 2P3D、Grove/KAI、DGDR 自动部署和 CUDA DRA，见 [扩展验收](m08/advanced/README.md)。MetaX 无集群，Ascend DRA 等待新集群；DGDR 预测精度未认证。指定 RDMA 路径通过，Ascend 动态注册压力问题保留；见 [M08 收尾与边界](m08/README.md#阶段性收尾与-m09-交接)。下一阶段推进 M09，复用已完成的 Profiler 接入，再构建新镜像完成 M10 最终回归。
+当前阶段：M01–M07 已完成各自记录范围内的适配与回归，保留明确暂缓项及原生引擎问题；不能将其视为全部设计能力完成。CUDA / Ascend 的大小模型、跨节点与 DeepSeek 验证见 [集群回归记录](m02/cluster-regression-plan.md)。M08 已阶段性收尾，在 CUDA / Ascend 集群安装 Operator，并验证基础 DGD 路径，见 [M08 验收](m08/cluster/README.md)；扩展轮已通过两平台跨节点 Operator 2P3D、Grove/KAI、DGDR 自动部署和 CUDA DRA，见 [扩展验收](m08/advanced/README.md)。MetaX 无集群，Ascend DRA 等待新集群；DGDR 预测精度未认证。指定 RDMA 路径通过，Ascend 动态注册压力问题保留；见 [M08 收尾与边界](m08/README.md#阶段性收尾与-m09-交接)。M09 已完成实时指标路径的 CUDA/Ascend 大小模型功能回归，离线画像接入已实现并完成六组测试：四组通过、CUDA Qwen32 有限通过，Ascend DeepSeek prefill 拟合未通过，完整离线验收尚未收口；保留 Ascend 延迟未达标、CUDA DeepSeek 瞬态伸缩震荡和 MetaX 无集群等边界，见 [M09](m09/README.md)；之后构建新镜像完成 M10 最终回归。
 
 ## 目录约定
 
 - `platforms/{cuda,ascend,metax}`：跨模块开发环境、启动工具及早期推理记录，见 [平台工具](platforms/README.md)。
-- `m01`：平台契约专属脚本与结果；`m02`–`m08`：对应模块实现配套工具与验收记录。
+- `m01`：平台契约专属脚本与结果；`m02`–`m09`：对应模块实现配套工具与验收记录。
 - `modules/m01-*`–`modules/m10-*`：各模块设计；尚未建立执行目录的模块不代表已完成。
 - `results` 子目录：历史证据，原始命令和哈希不会因目录改名而改写。
 
@@ -43,4 +43,4 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 ## 后续工作
 
-按 [模块状态](modules.md) 推进 M09，保留 M08 暂缓项，再以新镜像完成 M10；具体厂商限制见 [支持矩阵](support-matrix.md)。未验证的能力不标记为已支持，关闭某项功能不等于完成该项适配。
+按 [模块状态](modules.md) 保留 M08/M09 明确未认证项，再以新镜像完成 M10；具体厂商限制见 [支持矩阵](support-matrix.md)。未验证的能力不标记为已支持，关闭某项功能不等于完成该项适配。

@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """Shared ModelDeploymentCard (MDC) plumbing for planner connectors.
@@ -44,8 +46,7 @@ class MdcEntry:
 class MdcSource(Protocol):
     """Source of :class:`MdcEntry` records scoped to a sub-component type."""
 
-    def get_entries(self, sub_component_type: SubComponentType) -> list[MdcEntry]:
-        ...
+    def get_entries(self, sub_component_type: SubComponentType) -> list[MdcEntry]: ...
 
 
 def is_model_card(wrapper: dict) -> bool:
@@ -109,6 +110,21 @@ def _parse_speculative_nextn(runtime_cfg: dict) -> Optional[int]:
     return nextn if nextn > 0 else None
 
 
+def _parse_kv_capacity_tokens(runtime_cfg: dict) -> Optional[int]:
+    data = runtime_cfg.get("runtime_data") or {}
+    if not isinstance(data, dict):
+        raise ValueError("Runtime metadata must be an object")
+    capacity = data.get("kv_cache_capacity")
+    if capacity is None:
+        return None
+    if not isinstance(capacity, dict) or capacity.get("scope") != "per_engine":
+        raise ValueError("KV capacity metadata must declare per_engine scope")
+    tokens = capacity.get("tokens")
+    if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens <= 0:
+        raise ValueError("KV capacity metadata must contain positive integer tokens")
+    return tokens
+
+
 def worker_info_from_mdc(
     entry: MdcEntry,
     sub_component_type: SubComponentType,
@@ -152,6 +168,7 @@ def worker_info_from_mdc(
         model_name=model_name,
         total_kv_blocks=runtime_cfg.get("total_kv_blocks"),
         kv_cache_block_size=card.get("kv_cache_block_size"),
+        kv_capacity_tokens=_parse_kv_capacity_tokens(runtime_cfg),
         max_num_seqs=runtime_cfg.get("max_num_seqs"),
         max_num_batched_tokens=runtime_cfg.get("max_num_batched_tokens"),
         context_length=context_length,

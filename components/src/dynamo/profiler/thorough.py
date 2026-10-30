@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +17,7 @@
 
 """THOROUGH search strategy: enumerate candidates, deploy, benchmark, pick."""
 
+import json
 import logging
 import os
 from itertools import chain
@@ -22,10 +25,9 @@ from itertools import chain
 import pandas as pd
 import yaml
 from aiconfigurator.generator.enumerate import enumerate_profiling_configs
+from aiconfigurator.sdk import perf_database
 from aiconfigurator.sdk.picking import pick_autoscale, pick_default, pick_load_match
 from aiconfigurator.sdk.task_v2 import Task
-
-from deploy.utils.dynamo_deployment import DeploymentFailedError, DynamoDeploymentClient
 from dynamo.profiler.rapid import _generate_dgd_from_pick
 from dynamo.profiler.utils.aic_dataframe import (
     build_decode_row,
@@ -49,6 +51,10 @@ from dynamo.profiler.utils.dgdr_v1beta1_types import (
     ProfilingPhase,
 )
 from dynamo.profiler.utils.model_cache_paths import model_cache_path_in_pvc
+from dynamo.profiler.utils.platform_profile import (
+    record_candidate_profile,
+    require_system_capacity,
+)
 from dynamo.profiler.utils.profile_common import (
     ProfilerOperationalConfig,
     derive_backend_image,
@@ -58,6 +64,8 @@ from dynamo.profiler.utils.profile_common import (
 )
 from dynamo.profiler.utils.profile_decode import get_num_request_range
 from dynamo.profiler.utils.profiler_status import ProfilerStatus, write_profiler_status
+
+from deploy.utils.dynamo_deployment import DeploymentFailedError, DynamoDeploymentClient
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +187,7 @@ async def _benchmark_prefill_candidates(
             base_url,
             attention_dp_size=candidate.dp,
         )
+        record_candidate_profile(work_dir, candidate)
 
         await client.delete_deployment()
         deployment_clients.remove(client)
@@ -333,6 +342,7 @@ async def _benchmark_decode_candidates(
                     )
                 )
 
+        record_candidate_profile(work_dir, candidate)
         await client.delete_deployment()
         deployment_clients.remove(client)
 
@@ -406,6 +416,11 @@ async def run_thorough(
     # --- Stage 1: Enumeration ---
     model_cache = dgdr.modelCache or ModelCacheSpec()
     local_or_hf_model = resolve_model_path(dgdr)
+    capacity = require_system_capacity(
+        system, perf_database.get_systems_paths(), dgdr.hardware.vramMb
+    )
+    with open(os.path.join(ops.output_dir, "enumeration-capacity.json"), "w") as stream:
+        json.dump(capacity, stream, indent=2)
     enumerated = enumerate_profiling_configs(
         model_path=local_or_hf_model,
         system=system,

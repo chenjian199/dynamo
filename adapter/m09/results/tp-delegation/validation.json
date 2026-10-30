@@ -1,0 +1,26 @@
+{
+  "scope": "CPU-only adapter TP delegation and rejection regressions; no new GPU transport certification",
+  "upstream_tag": "v1.5.1",
+  "upstream_commit": "2093662a4d4e5fd318732935213dde08dc7be818",
+  "container_image": "heyi/dynamo-vllm-metax-dev:1.5.1-m02",
+  "tests": {
+    "passed": 187,
+    "warnings": 1,
+    "warning": "pytest cache cannot be written to read-only source mount",
+    "seconds": 11.12
+  },
+  "command": "python -m pytest -c adapter/m09/pytest.ini -q components/src/dynamo/vllm/tests/test_pd_contract.py components/src/dynamo/profiler/tests/unit/test_dgd_platform.py components/src/dynamo/common/platform/tests",
+  "files": {
+    "components/src/dynamo/vllm/pd_contract.py": "02b19935a64dd7934b66f8bae2ed0aebf972885660e939febb55c6727e8c463b",
+    "components/src/dynamo/common/platform/preflight.py": "44dcaca66e6b0defcca38d8f4475b735ad49822873cb611f41d32bfdcb1eff85",
+    "components/src/dynamo/common/platform/providers.py": "3d678b2e2f7e9add489a8434a6d43b6492c71dd7dc39225d3779871e39f7f931",
+    "components/src/dynamo/vllm/tests/test_pd_contract.py": "355f354afce8a65fc9e09fe5c7d3527ec73aa4f09dd338e5a75d610dd65e458c",
+    "components/src/dynamo/profiler/tests/unit/test_dgd_platform.py": "ec83c620648c9f8bc03234c684b050c767a7e77902c3cce030a643419901ec03"
+  },
+  "limitations": [
+    "Native connector constraints still apply",
+    "HEYI Ascend split extension only implements P1 to D2",
+    "Older receivers need upgrading to use the new delegation rules",
+    "KVBM gate unchanged"
+  ]
+}

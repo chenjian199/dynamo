@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +21,7 @@ import logging
 import os
 from typing import Optional
 
+from dynamo.common.platform.kubernetes import container_platform
 from dynamo.planner.config.defaults import SubComponentType, TargetReplica
 from dynamo.planner.connectors.base import PlannerConnector
 from dynamo.planner.connectors.clients.kubernetes_api import (
@@ -97,6 +100,24 @@ class KubernetesConnector(PlannerConnector):
         # For backwards compatibility
         self.graph_deployment_name = self.parent_dgd_name
         self.raise_not_ready = raise_not_ready
+
+    def validate_target_platform(self, expected):
+        deployment = self.kube_api.get_graph_deployment(self.graph_deployment_name)
+        platforms = set()
+        for component in get_components_by_name(deployment).values():
+            if get_component_type(component) not in WORKER_COMPONENT_TYPES:
+                continue
+            for container in (
+                component.get("podTemplate", {}).get("spec", {}).get("containers", [])
+            ):
+                if container.get("name") == "main":
+                    platforms.add(container_platform(container))
+        if platforms != {expected}:
+            raise DeploymentValidationError(
+                [
+                    f"Planner target_platform={expected} conflicts with worker platforms {sorted(platforms)}"
+                ]
+            )
 
     async def async_init(self):
         """No-op asynchronous lifecycle hook."""

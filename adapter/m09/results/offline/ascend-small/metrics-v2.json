@@ -1,0 +1,79 @@
+{
+  "apiVersion": "monitoring.coreos.com/v1",
+  "kind": "PodMonitor",
+  "metadata": {
+    "name": "m09-metrics",
+    "namespace": "dynamo-m08-1029",
+    "labels": {
+      "heyi.io/campaign": "m09-1029",
+      "release": "kube-prometheus-stack"
+    }
+  },
+  "spec": {
+    "namespaceSelector": {
+      "matchNames": [
+        "dynamo-m08-1029"
+      ]
+    },
+    "selector": {
+      "matchExpressions": [
+        {
+          "key": "nvidia.com/dynamo-graph-deployment-name",
+          "operator": "In",
+          "values": [
+            "m09-sla",
+            "m09-qwen32",
+            "m09-deepseek",
+            "m09-offline",
+            "m09-offline-qwen32",
+            "m09-offline-deepseek"
+          ]
+        }
+      ]
+    },
+    "podMetricsEndpoints": [
+      {
+        "port": "http",
+        "path": "/metrics",
+        "interval": "2s",
+        "honorLabels": true,
+        "relabelings": [
+          {
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      },
+      {
+        "port": "system",
+        "path": "/metrics",
+        "interval": "2s",
+        "honorLabels": true,
+        "relabelings": [
+          {
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      },
+      {
+        "port": "metrics",
+        "path": "/metrics",
+        "interval": "2s",
+        "honorLabels": true,
+        "relabelings": [
+          {
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      }
+    ]
+  }
+}

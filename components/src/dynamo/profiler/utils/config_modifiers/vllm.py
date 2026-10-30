@@ -625,6 +625,23 @@ class VllmV1ConfigModifier(BaseConfigModifier):
         return 0
 
     @classmethod
+    def get_decode_max_concurrent_requests(
+        cls, config: dict, attention_dp_size: int
+    ) -> int | None:
+        cfg = Config.model_validate(config)
+        worker = get_worker_component_from_config(
+            cfg, backend="vllm", sub_component_type=SubComponentType.DECODE
+        )
+        args = break_arguments(validate_and_get_worker_args(worker, backend="vllm"))
+        value = _get_valued_arg(args, "--max-num-seqs")
+        if value is None:
+            return None  # Do not guess a version-dependent engine default.
+        maximum = int(value)
+        if maximum <= 0:
+            raise ValueError("vLLM max-num-seqs must be positive")
+        return maximum * attention_dp_size
+
+    @classmethod
     def set_prefill_config(
         cls,
         config: dict,

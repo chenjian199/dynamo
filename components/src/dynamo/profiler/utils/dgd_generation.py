@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +15,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import importlib
 import json
 import logging
 import uuid
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any, Optional
 
 import numpy as np
 import yaml
-
 from dynamo._internal.aic import (
     DEFAULT_BACKEND_VERSIONS as _MOCKER_AIC_BACKEND_VERSIONS,
 )
+from dynamo.common.platform.profile import validate_profile_manifest
 from dynamo.common.utils.paths import get_workspace_dir
 from dynamo.planner.config.aic_interpolation_spec import AICInterpolationSpec
 from dynamo.planner.config.backend_components import (
@@ -51,6 +55,7 @@ from dynamo.profiler.utils.config import (
 )
 from dynamo.profiler.utils.config_modifiers.trtllm import enable_trtllm_chunked_prefill
 from dynamo.profiler.utils.dgd_template import load_dgd_template
+from dynamo.profiler.utils.platform_profile import dgdr_platform
 from dynamo.profiler.utils.profile_common import (
     ProfilerOperationalConfig,
     derive_planner_image,
@@ -163,7 +168,11 @@ def assemble_final_config(
     # Step 2: for vLLM deployments, turn on the per-worker self-benchmark so
     # the get_perf_metrics endpoint is available to the planner. Mocker
     # workers don't use DYN_BENCHMARK_MODE, so skip when mocker is active.
-    if not mocker and resolved_backend == "vllm":
+    planner_cfg = dgdr.features.planner if dgdr.features else None
+    file_bootstrap = (
+        planner_cfg is not None and planner_cfg.pre_deployment_metrics_source == "files"
+    )
+    if not mocker and resolved_backend == "vllm" and not file_bootstrap:
         enable_vllm_benchmark_mode(base)
 
     # Steps 3-4: layer features, collecting ConfigMaps
@@ -388,11 +397,8 @@ def enable_planner_worker_scaling_adapters(
             untyped_worker_count,
         ):
             continue
-        scaling_adapter = component.setdefault("scalingAdapter", {})
-        if not isinstance(scaling_adapter, dict):
-            component["scalingAdapter"] = {"enabled": True}
-            continue
-        scaling_adapter["enabled"] = True
+        # v1beta1 uses presence of this empty marker, not an enabled field.
+        component["scalingAdapter"] = {}
 
 
 def _is_planner_scalable_worker_component(
@@ -616,6 +622,18 @@ def add_profile_data_to_config(
     if profiling_data.get("decode"):
         profile_cm_data["decode_raw_data.json"] = json.dumps(profiling_data["decode"])
 
+    manifest_path = Path(output_dir) / "profile-identity.json"
+    if manifest_path.is_file():
+        source_manifest = json.loads(manifest_path.read_text())
+        manifest = validate_profile_manifest(output_dir, source_manifest["identity"])
+        # ConfigMap carries JSON, not the original NPZ bytes. Preserve the
+        # measurement timestamp/identity and bind the actual mounted files.
+        manifest["files"] = {
+            name: hashlib.sha256(content.encode()).hexdigest()
+            for name, content in profile_cm_data.items()
+        }
+        profile_cm_data["profile-identity.json"] = json.dumps(manifest)
+
     profile_data_cm = {
         "apiVersion": "v1",
         "kind": "ConfigMap",
@@ -703,6 +721,14 @@ def _build_planner_config(
     else:
         planner_cfg = PlannerConfig()
 
+    platform = dgdr_platform(dgdr)
+    if (
+        "target_platform" in planner_cfg.model_fields_set
+        and planner_cfg.target_platform != platform
+    ):
+        raise ValueError("Planner target_platform conflicts with DGDR worker platform")
+    planner_cfg.target_platform = platform
+
     if best_prefill_mapping is not None:
         planner_cfg.prefill_engine_num_gpu = best_prefill_mapping.num_gpus
 
@@ -741,6 +767,10 @@ def _build_planner_config(
         if "itl_ms" not in explicit:
             planner_cfg.itl_ms = float(sla.itl)
 
+    if platform != "cuda":
+        # Revalidate after assigning generated fields; model_copy/assignment do
+        # not run Pydantic validators. Preserve the existing CUDA default path.
+        return PlannerConfig.model_validate(planner_cfg.model_dump())
     return planner_cfg
 
 
@@ -758,6 +788,8 @@ def build_aic_perf_model_spec(
     data to try native forward-pass estimation before falling back to
     observed-FPM regression.
     """
+    if dgdr_platform(dgdr) != "cuda":
+        return None
     planner = (
         dgdr.features.planner  # type: ignore[union-attr]
         if dgdr.features is not None and dgdr.features.planner is not None
@@ -767,6 +799,7 @@ def build_aic_perf_model_spec(
         not is_planner_enabled(dgdr)
         or planner is None
         or planner.optimization_target != "sla"
+        or planner.pre_deployment_metrics_source == "files"
     ):
         return None
     if resolved_backend not in ("trtllm", "vllm", "sglang"):
@@ -854,6 +887,7 @@ def build_aic_interpolation_spec(
         is_planner_enabled(dgdr)
         and planner is not None
         and planner.enable_throughput_scaling
+        and planner.pre_deployment_metrics_source != "files"
         and planner.pre_deployment_sweeping_mode == PlannerPreDeploymentSweepMode.Rapid
     )
     if not planner_needs_aic and not mocker_needs_aic:

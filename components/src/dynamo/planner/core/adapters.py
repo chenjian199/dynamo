@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 """Native planner adapter subclasses (one per mode).
@@ -51,6 +53,10 @@ class PrefillPlanner(NativePlannerBase):
                 profile_results_dir=self.config.profile_results_dir,
                 component_type=SubComponentType.PREFILL,
                 aic_spec=self.config.aic_interpolation,
+                target_platform=self.config.target_platform,
+                profile_identity=self.config.profile_identity,
+                profile_max_age_seconds=self.config.profile_max_age_seconds,
+                source=self.config.pre_deployment_metrics_source,
             )
         except PreDeploymentMetricsUnavailableError as e:
             _log_missing_pre_deployment_data("prefill", e)
@@ -95,6 +101,10 @@ class DecodePlanner(NativePlannerBase):
                 profile_results_dir=self.config.profile_results_dir,
                 component_type=SubComponentType.DECODE,
                 aic_spec=self.config.aic_interpolation,
+                target_platform=self.config.target_platform,
+                profile_identity=self.config.profile_identity,
+                profile_max_age_seconds=self.config.profile_max_age_seconds,
+                source=self.config.pre_deployment_metrics_source,
             )
         except PreDeploymentMetricsUnavailableError as e:
             _log_missing_pre_deployment_data("decode", e)
@@ -137,6 +147,10 @@ class AggPlanner(NativePlannerBase):
                 profile_results_dir=self.config.profile_results_dir,
                 component_type=SubComponentType.DECODE,
                 aic_spec=self.config.aic_interpolation,
+                target_platform=self.config.target_platform,
+                profile_identity=self.config.profile_identity,
+                profile_max_age_seconds=self.config.profile_max_age_seconds,
+                source=self.config.pre_deployment_metrics_source,
             )
         except PreDeploymentMetricsUnavailableError as e:
             _log_missing_pre_deployment_data("agg", e)
@@ -186,6 +200,10 @@ class DisaggPlanner(NativePlannerBase):
                     profile_results_dir=self.config.profile_results_dir,
                     component_type=component,
                     aic_spec=self.config.aic_interpolation,
+                    target_platform=self.config.target_platform,
+                    profile_identity=self.config.profile_identity,
+                    profile_max_age_seconds=self.config.profile_max_age_seconds,
+                    source=self.config.pre_deployment_metrics_source,
                 )
                 if component == SubComponentType.PREFILL:
                     prefill_fpms = fpms

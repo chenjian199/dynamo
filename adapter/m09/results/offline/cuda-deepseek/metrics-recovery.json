@@ -1,0 +1,74 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "annotations": {},
+    "labels": {
+      "app": "m09-metrics",
+      "heyi.io/campaign": "m09-1029"
+    },
+    "name": "m09-metrics",
+    "namespace": "dynamo-m08-1029"
+  },
+  "spec": {
+    "activeDeadlineSeconds": 21600,
+    "containers": [
+      {
+        "args": [
+          "--config.file=/config/prometheus.yml",
+          "--storage.tsdb.path=/data",
+          "--storage.tsdb.retention.time=2h"
+        ],
+        "image": "m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+        "imagePullPolicy": "Never",
+        "name": "prometheus",
+        "ports": [
+          {
+            "containerPort": 9090,
+            "name": "http"
+          }
+        ],
+        "resources": {
+          "limits": {
+            "cpu": "2",
+            "memory": "2Gi"
+          },
+          "requests": {
+            "cpu": "100m",
+            "memory": "256Mi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "mountPath": "/config",
+            "name": "config",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/data",
+            "name": "data"
+          }
+        ]
+      }
+    ],
+    "nodeSelector": {
+      "kubernetes.io/hostname": "worker06"
+    },
+    "securityContext": {
+      "fsGroup": 65534
+    },
+    "serviceAccountName": "m09-metrics",
+    "volumes": [
+      {
+        "configMap": {
+          "name": "m09-metrics"
+        },
+        "name": "config"
+      },
+      {
+        "emptyDir": {},
+        "name": "data"
+      }
+    ]
+  }
+}

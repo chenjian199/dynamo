@@ -149,6 +149,7 @@ def test_contract_uses_effective_model_configuration(monkeypatch):
     )
     cfg.cache_config = SimpleNamespace(cache_dtype="auto", block_size=128)
     original = build_pd_contract(cfg, "ascend")
+    assert original["tp_reshard"] is None  # Preserve the legacy wire field.
     hf["_name_or_path"] = "/other"
     assert build_pd_contract(cfg, "ascend") == original
     hf["hidden_size"] = 256
@@ -170,7 +171,10 @@ def test_contract_uses_effective_model_configuration(monkeypatch):
 
 
 @pytest.mark.parametrize("platform", ["cuda", "metax", "metax-nixl", "ascend"])
-def test_pd_preflight_checks_roles_and_parallelism(platform):
+def test_pd_preflight_checks_roles_and_parallelism(platform, monkeypatch):
+    from dynamo.common.platform import providers
+
+    monkeypatch.setattr(providers, "validate_vllm_versions", lambda platform: {})
     cfg = SimpleNamespace(
         disaggregation_mode=DisaggregationMode.PREFILL, enable_multimodal=False
     )
@@ -212,8 +216,32 @@ def test_pd_preflight_checks_roles_and_parallelism(platform):
             validate_pd_configuration(cfg, platform)
         kv.kv_connector_extra_config["prefill"]["tp_size"] = 2
     assert validate_pd_configuration(cfg, platform) == kv.kv_connector
-    cfg.engine_args.tensor_parallel_size = 3
-    with pytest.raises(PlatformError, match="TP1/TP2"):
+    for tp in (4, 8):
+        cfg.engine_args.tensor_parallel_size = tp
+        cfg.engine_args.quantization = "ascend" if platform == "ascend" else "fp8"
+        cfg.engine_args.enable_expert_parallel = True
+        if platform == "ascend":
+            for role in ("prefill", "decode"):
+                kv.kv_connector_extra_config[role]["tp_size"] = tp
+        assert validate_pd_configuration(cfg, platform) == kv.kv_connector
+        caps = providers.build_capabilities(
+            platform,
+            {
+                "engine": "vllm",
+                "task": "text",
+                "eager": "true",
+                "tp": str(tp),
+                "dp": "1",
+                "pd_connector": kv.kv_connector,
+            },
+            {},
+        )
+        assert caps["pd.transfer"]["state"] == "available"
+    if platform == "ascend":
+        kv.kv_connector_extra_config["decode"]["tp_size"] = 4
+        assert validate_pd_configuration(cfg, platform) == kv.kv_connector
+    cfg.engine_args.tensor_parallel_size = 0
+    with pytest.raises(PlatformError, match="positive TP"):
         validate_pd_configuration(cfg, platform)
 
 
@@ -243,8 +271,10 @@ def test_metax_nixl_requires_device_aware_protocols(monkeypatch):
         ("ascend", "MooncakeConnector", ASCEND_MOONCAKE_MODULE),
     ],
 )
-@pytest.mark.parametrize("ptp,dtp", [(1, 2), (2, 1)])
-def test_heterogeneous_tp_requires_certified_path(
+@pytest.mark.parametrize(
+    "ptp,dtp", [(1, 2), (2, 1), (2, 4), (4, 2), (4, 8), (8, 4), (1, 8), (8, 1), (3, 5)]
+)
+def test_heterogeneous_tp_delegates_layout_to_connector(
     platform, connector, module, ptp, dtp
 ):
     local = dict(
@@ -252,7 +282,6 @@ def test_heterogeneous_tp_requires_certified_path(
         platform=platform,
         connector=connector,
         connector_module=module,
-        tp_reshard="mha-gqa",
         tp=dtp,
         dp=1,
         pp=1,
@@ -264,12 +293,18 @@ def test_heterogeneous_tp_requires_certified_path(
     metadata = {"remote_block_ids": [[3]], CONTRACT_KEY: peer}
     assert validate_pd_handoff(metadata, local) == {"remote_block_ids": [[3]]}
     for field, value in [
-        ("tp", 4),
+        ("tp", 0),
+        ("tp", -1),
+        ("tp", "4"),
+        ("tp", 4.0),
         ("tp", True),
         ("schema", 1),
         ("dtype", "fp8"),
         ("block_size", 128),
-        ("tp_reshard", None),
+        ("config_sha256", "other-model-layout"),
+        ("software", {"vllm": "other-version"}),
+        ("dp", 2),
+        ("pp", 2),
         ("connector_module", "unknown"),
     ]:
         with pytest.raises(InvalidArgument):
@@ -277,6 +312,62 @@ def test_heterogeneous_tp_requires_certified_path(
                 {**metadata, CONTRACT_KEY: {**peer, field: value}}, local
             )
     assert peer["tp"] == ptp
+
+    # A stale certification hint cannot forbid native MLA, replicated-head, or
+    # other engine-supported layouts. It is not sent to the native connector.
+    for hint in (None, "mha-gqa"):
+        assert validate_pd_handoff(
+            {**metadata, CONTRACT_KEY: {**peer, "tp_reshard": hint}}, local
+        ) == {"remote_block_ids": [[3]]}
+        assert validate_pd_handoff(metadata, {**local, "tp_reshard": hint}) == {
+            "remote_block_ids": [[3]]
+        }
+
+
+@pytest.mark.parametrize("tp", [0, -1, True, "4", 4.0, None])
+def test_equal_tp_contract_rejects_invalid_sizes(tp):
+    contract = {"schema": 2, "tp": tp}
+    with pytest.raises(InvalidArgument):
+        validate_pd_handoff({CONTRACT_KEY: dict(contract)}, contract)
+
+
+@pytest.mark.parametrize(
+    "pair", [(1, 2), (2, 1), (4, 8), (8, 4), (2, 8), (8, 2), (3, 5)]
+)
+@pytest.mark.parametrize(
+    "role", [DisaggregationMode.PREFILL, DisaggregationMode.DECODE]
+)
+def test_ascend_native_tp_pairs_pass_through_without_split_extension(pair, role):
+    extra = {
+        "prefill": {"tp_size": pair[0], "dp_size": 1, "pp_size": 1},
+        "decode": {"tp_size": pair[1], "dp_size": 1, "pp_size": 1},
+    }
+    is_prefill = role == DisaggregationMode.PREFILL
+    kv = config().kv_transfer_config
+    kv.kv_role = "kv_producer" if is_prefill else "kv_consumer"
+    kv.kv_connector_extra_config = extra
+    cfg = SimpleNamespace(
+        disaggregation_mode=role,
+        enable_multimodal=False,
+        engine_args=SimpleNamespace(
+            kv_transfer_config=kv,
+            tensor_parallel_size=pair[0] if is_prefill else pair[1],
+            data_parallel_size=1,
+            enforce_eager=True,
+            enable_lora=False,
+            speculative_config=None,
+        ),
+    )
+    assert validate_pd_configuration(cfg, "ascend") == "MooncakeConnector"
+    assert "heyi_tp_split" not in extra
+    # The separate HEYI extension has actual two-rank address/ACK assumptions;
+    # these restrictions do not apply to the native connector path above.
+    extra["heyi_tp_split"] = True
+    if pair == (1, 2):
+        assert validate_pd_configuration(cfg, "ascend") == "MooncakeConnector"
+    else:
+        with pytest.raises(PlatformError, match="peer parallel"):
+            validate_pd_configuration(cfg, "ascend")
 
 
 def test_ascend_mooncake_libraries_are_loaded_globally_once(monkeypatch):

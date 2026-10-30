@@ -1,0 +1,366 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "cni.projectcalico.org/containerID": "169cdc6dd0f7c7714be86c39dcb6dcf9b0b4a859634cf7614533e78098b4d135",
+            "cni.projectcalico.org/podIP": "",
+            "cni.projectcalico.org/podIPs": "",
+            "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.108\"\n    ],\n    \"mac\": \"7a:47:af:10:59:af\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"heyi.io/campaign\":\"m09-1029\"},\"name\":\"m09-offline-deepseek-tools\",\"namespace\":\"dynamo-m08-1029\"},\"spec\":{\"activeDeadlineSeconds\":21600,\"containers\":[{\"command\":[\"/bin/bash\",\"-lc\",\"sleep 21600\"],\"env\":[{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"},{\"name\":\"TORCH_DEVICE_BACKEND_AUTOLOAD\",\"value\":\"0\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"PYTHONPATH\",\"value\":\"/m09-deps:/m09-source/components/src:/opt/dynamo/profiler-support\"},{\"name\":\"K3S_DATA_DIR\",\"value\":\"/tmp/m09-k3s\"}],\"image\":\"heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"resources\":{\"limits\":{\"cpu\":\"4\",\"memory\":\"8Gi\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"2Gi\"}},\"volumeMounts\":[{\"mountPath\":\"/m09-source\",\"name\":\"m09-source\",\"readOnly\":true},{\"mountPath\":\"/offline\",\"name\":\"offline-work\"},{\"mountPath\":\"/models/current\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/m09-deps\",\"name\":\"m09-deps\",\"readOnly\":true},{\"mountPath\":\"/opt/dynamo/venv/lib/python3.12/site-packages/aiperf/common/tokenizer.py\",\"name\":\"profiler-tokenizer\",\"readOnly\":true,\"subPath\":\"tokenizer.py\"},{\"mountPath\":\"/opt/dynamo/profiler-support/deploy/utils/dynamo_deployment.py\",\"name\":\"deployment-client\",\"readOnly\":true,\"subPath\":\"dynamo_deployment.py\"}]}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\",\"kubernetes.io/hostname\":\"worker06\"},\"restartPolicy\":\"Never\",\"securityContext\":{\"runAsGroup\":0,\"runAsUser\":0},\"serviceAccountName\":\"m09-offline-tools\",\"volumes\":[{\"hostPath\":{\"path\":\"/home/bedicloud/CJ_workspace/m09-offline-deepseek-1030/source\",\"type\":\"Directory\"},\"name\":\"m09-source\"},{\"hostPath\":{\"path\":\"/home/bedicloud/CJ_workspace/m09-offline-deepseek-1030\",\"type\":\"Directory\"},\"name\":\"offline-work\"},{\"hostPath\":{\"path\":\"/ssd/wtaobj/models/DeepSeek-V4-Flash-0731\",\"type\":\"Directory\"},\"name\":\"models\"},{\"hostPath\":{\"path\":\"/home/bedicloud/CJ_workspace/m09-offline-deepseek-1030/deps\",\"type\":\"Directory\"},\"name\":\"m09-deps\"},{\"configMap\":{\"name\":\"m08-profiler-source\"},\"name\":\"profiler-tokenizer\"},{\"configMap\":{\"name\":\"m08-profiler-source\"},\"name\":\"deployment-client\"}]}}\n"
+        },
+        "creationTimestamp": "2026-10-30T02:57:26Z",
+        "generation": 1,
+        "labels": {
+            "heyi.io/campaign": "m09-1029"
+        },
+        "name": "m09-offline-deepseek-tools",
+        "namespace": "dynamo-m08-1029",
+        "resourceVersion": "40896393",
+        "uid": "7ed31d63-caa5-43f8-a552-0e9a8047a25e"
+    },
+    "spec": {
+        "activeDeadlineSeconds": 21600,
+        "containers": [
+            {
+                "command": [
+                    "/bin/bash",
+                    "-lc",
+                    "sleep 21600"
+                ],
+                "env": [
+                    {
+                        "name": "DYN_PLATFORM",
+                        "value": "cpu"
+                    },
+                    {
+                        "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+                        "value": "0"
+                    },
+                    {
+                        "name": "PYTHONUNBUFFERED",
+                        "value": "1"
+                    },
+                    {
+                        "name": "PYTHONPATH",
+                        "value": "/m09-deps:/m09-source/components/src:/opt/dynamo/profiler-support"
+                    },
+                    {
+                        "name": "K3S_DATA_DIR",
+                        "value": "/tmp/m09-k3s"
+                    }
+                ],
+                "image": "heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+                "imagePullPolicy": "Never",
+                "name": "main",
+                "resources": {
+                    "limits": {
+                        "cpu": "4",
+                        "memory": "8Gi"
+                    },
+                    "requests": {
+                        "cpu": "1",
+                        "memory": "2Gi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/m09-source",
+                        "name": "m09-source",
+                        "readOnly": true
+                    },
+                    {
+                        "mountPath": "/offline",
+                        "name": "offline-work"
+                    },
+                    {
+                        "mountPath": "/models/current",
+                        "name": "models",
+                        "readOnly": true
+                    },
+                    {
+                        "mountPath": "/m09-deps",
+                        "name": "m09-deps",
+                        "readOnly": true
+                    },
+                    {
+                        "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/aiperf/common/tokenizer.py",
+                        "name": "profiler-tokenizer",
+                        "readOnly": true,
+                        "subPath": "tokenizer.py"
+                    },
+                    {
+                        "mountPath": "/opt/dynamo/profiler-support/deploy/utils/dynamo_deployment.py",
+                        "name": "deployment-client",
+                        "readOnly": true,
+                        "subPath": "dynamo_deployment.py"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-bqjfl",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "nodeSelector": {
+            "kubernetes.io/arch": "amd64",
+            "kubernetes.io/hostname": "worker06"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+            "runAsGroup": 0,
+            "runAsUser": 0
+        },
+        "serviceAccount": "m09-offline-tools",
+        "serviceAccountName": "m09-offline-tools",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "hostPath": {
+                    "path": "/home/bedicloud/CJ_workspace/m09-offline-deepseek-1030/source",
+                    "type": "Directory"
+                },
+                "name": "m09-source"
+            },
+            {
+                "hostPath": {
+                    "path": "/home/bedicloud/CJ_workspace/m09-offline-deepseek-1030",
+                    "type": "Directory"
+                },
+                "name": "offline-work"
+            },
+            {
+                "hostPath": {
+                    "path": "/ssd/wtaobj/models/DeepSeek-V4-Flash-0731",
+                    "type": "Directory"
+                },
+                "name": "models"
+            },
+            {
+                "hostPath": {
+                    "path": "/home/bedicloud/CJ_workspace/m09-offline-deepseek-1030/deps",
+                    "type": "Directory"
+                },
+                "name": "m09-deps"
+            },
+            {
+                "configMap": {
+                    "defaultMode": 420,
+                    "name": "m08-profiler-source"
+                },
+                "name": "profiler-tokenizer"
+            },
+            {
+                "configMap": {
+                    "defaultMode": 420,
+                    "name": "m08-profiler-source"
+                },
+                "name": "deployment-client"
+            },
+            {
+                "name": "kube-api-access-bqjfl",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T03:33:58Z",
+                "observedGeneration": 1,
+                "status": "False",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T02:57:26Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T03:33:56Z",
+                "observedGeneration": 1,
+                "reason": "PodFailed",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T03:33:56Z",
+                "observedGeneration": 1,
+                "reason": "PodFailed",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T02:57:26Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "1",
+                    "memory": "2Gi"
+                },
+                "containerID": "containerd://0a0fb7e848e18a398325a5b3ed850cdfe2e882a9002a5a3df228658541cf71d9",
+                "image": "docker.io/heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3",
+                "imageID": "sha256:09fe88bc2df1c8d8c23b39216113c39e6028f3e241b0bd67298203f3b0eb26ef",
+                "lastState": {},
+                "name": "main",
+                "ready": false,
+                "resources": {
+                    "limits": {
+                        "cpu": "4",
+                        "memory": "8Gi"
+                    },
+                    "requests": {
+                        "cpu": "1",
+                        "memory": "2Gi"
+                    }
+                },
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "terminated": {
+                        "containerID": "containerd://0a0fb7e848e18a398325a5b3ed850cdfe2e882a9002a5a3df228658541cf71d9",
+                        "exitCode": 137,
+                        "finishedAt": "2026-10-30T03:33:56Z",
+                        "reason": "OOMKilled",
+                        "startedAt": "2026-10-30T02:57:29Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0
+                        ],
+                        "uid": 0
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/m09-source",
+                        "name": "m09-source",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/offline",
+                        "name": "offline-work"
+                    },
+                    {
+                        "mountPath": "/models/current",
+                        "name": "models",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/m09-deps",
+                        "name": "m09-deps",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/opt/dynamo/venv/lib/python3.12/site-packages/aiperf/common/tokenizer.py",
+                        "name": "profiler-tokenizer",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/opt/dynamo/profiler-support/deploy/utils/dynamo_deployment.py",
+                        "name": "deployment-client",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-bqjfl",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+            {
+                "ip": "192.168.4.6"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Failed",
+        "podIP": "10.244.229.108",
+        "podIPs": [
+            {
+                "ip": "10.244.229.108"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-30T02:57:26Z"
+    }
+}

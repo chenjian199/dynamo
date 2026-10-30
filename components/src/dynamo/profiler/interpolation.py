@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -217,6 +219,13 @@ async def run_interpolation(
     )
     base_url = client.get_service_url()
 
+    decode_options = {}
+    if backend == "vllm":
+        decode_options["max_concurrent_requests"] = (
+            config_modifier.get_decode_max_concurrent_requests(
+                decode_config, attention_dp_size
+            )
+        )
     profile_decode(
         work_dir,
         model_name,
@@ -227,6 +236,7 @@ async def run_interpolation(
         sweep_max_context_length,
         ops.decode_interpolation_granularity,
         attention_dp_size,
+        **decode_options,
     )
 
     await client.delete_deployment()

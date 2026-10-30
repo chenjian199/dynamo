@@ -11,7 +11,9 @@ SPDX-License-Identifier: Apache-2.0
 
 Qwen3-0.6B、eager BF16、DP1/PP1，P=TP2/D=TP1 与 P=TP1/D=TP2 分别测试。三个独立物理设备承担三个 TP rank。不同 TP 不同于先前的 2P3D 副本数量测试。
 
-契约 schema 2 只允许受限 MHA/GQA 的 TP1/TP2 互转；模型配置、引擎/插件版本、dtype、block size 和 connector 仍须一致。CUDA NIXL、MetaX Mooncake 与 MetaX 可选 NIXL 均已验证两种方向，使用引擎原有分片转换。Ascend 0.23.0 原本拒绝 P TP 小于 D TP，新补丁只开放 Qwen3、BF16、连续 NHD 缓存的 P1→D2：每个 D rank 逐 token 拉取自己的一半 KV heads，P 收到两个不同 D rank 的完成确认才交回源块。没有放开 MLA、KV head 复制、任意比例、PD 内部 DP 或高级能力组合。
+当时的契约 schema 2 只允许受限 MHA/GQA 的 TP1/TP2 互转；模型配置、引擎/插件版本、dtype、block size 和 connector 仍须一致。CUDA NIXL、MetaX Mooncake 与 MetaX 可选 NIXL 均已验证两种方向，使用引擎原有分片转换。Ascend 0.23.0 原本拒绝 P TP 小于 D TP，新补丁只开放 Qwen3、BF16、连续 NHD 缓存的 P1→D2：每个 D rank 逐 token 拉取自己的一半 KV heads，P 收到两个不同 D rank 的完成确认才交回源块。当轮没有放开 MLA、KV head 复制、任意比例、PD 内部 DP 或高级能力组合。
+
+2026-10-30 更新：适配层已移除按 TP 数值和模型类型设置的异宽 TP 白名单，交给原生引擎/connector 判断实际可行性；以上仍是历史实测覆盖范围，不作为启动许可表。`heyi_tp_split` 的两路实现限制保留，详见 [参数透传与回归](../m09/tp-delegation.md)。
 
 Ascend 安装顺序（在没有推理 worker 的容器中执行）：
 

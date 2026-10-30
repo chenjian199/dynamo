@@ -1,0 +1,492 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: planner-config-efd1
+  namespace: dynamo-m08-1029
+  labels:
+    heyi.io/campaign: m09-offline-1030
+data:
+  planner_config.json: '{"pre_deployment_sweeping_mode": "thorough", "environment":
+    "kubernetes", "backend": "vllm", "mode": "disagg", "optimization_target": "sla",
+    "log_dir": "/tmp/m09-offline-planner", "throughput_adjustment_interval_seconds":
+    15, "max_gpu_budget": 4, "min_gpu_budget": -1, "min_endpoint": 1, "prefill_min_endpoint":
+    null, "decode_min_endpoint": null, "control_api_port": 9086, "decode_engine_num_gpu":
+    1, "prefill_engine_num_gpu": 1, "target_platform": "ascend", "profile_identity":
+    {"schema_version": 1, "platform": "ascend", "device_model": "Ascend910B3", "driver":
+    "24.1.rc3", "sdk": "9.1.0", "engine": "vllm", "engine_version": "0.23.0+empty",
+    "plugin_version": "0.23.0", "model": "/models/Qwen3-0.6B", "model_revision": "config-sha256:660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+    "precision": "bf16", "parallelism": {"prefill_tp": 1, "decode_tp": 1}, "kv_config":
+    {"cache_bytes": 536870912, "block_size": 128, "max_model_len": 4096, "max_num_seqs":
+    8}, "topology": {"nodes": 1, "node": "master-02-45d4a763", "devices_per_node":
+    8}, "runtime_image": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82"},
+    "profile_max_age_seconds": 604800.0, "profile_results_dir": "/workspace/profiling_results",
+    "pre_deployment_metrics_source": "files", "aic_interpolation": null, "aic_perf_model":
+    null, "ttft_ms": 1000.0, "itl_ms": 150.0, "load_predictor": "constant", "load_predictor_log1p":
+    false, "prophet_window_size": 50, "load_predictor_warmup_trace": null, "kalman_q_level":
+    1.0, "kalman_q_trend": 0.1, "kalman_r": 10.0, "kalman_min_points": 5, "metric_reporting_prometheus_port":
+    9085, "throughput_metrics_source": "frontend", "model_name": "m09-model", "global_planner_namespace":
+    null, "enable_throughput_scaling": true, "enable_load_scaling": false, "load_adjustment_interval_seconds":
+    5, "max_num_fpm_samples": 64, "fpm_sample_bucket_size": 16, "load_scaling_down_sensitivity":
+    80, "prefill_scale_up_queue_tokens": null, "prefill_scale_down_queue_tokens":
+    null, "decode_scale_up_kv_rate": null, "decode_scale_down_kv_rate": null, "load_min_observations":
+    3, "speculative_nextn": 0, "advisory": false, "enable_power_awareness": false,
+    "total_gpu_power_limit": null, "report_interval_hours": 24.0, "report_output_dir":
+    "./planner_reports", "report_filename": null, "report_write_gzip_log": true, "live_dashboard_port":
+    8080, "scheduling": {"tick_max_duration_seconds": 30.0, "external_plugins": [],
+    "gateway": {"enabled": false, "listen": "unix:///var/run/dynamo/planner/registry.sock",
+    "allow_insecure": false}, "scale_interval_seconds": 5.0}, "plugin_registration":
+    {"auth": {"trusted_sources": [], "static_secrets": {}}, "transport": {"allow_insecure_grpc":
+    false, "request_timeout_seconds": 5.0, "keepalive_time_ms": 30000, "max_message_size_bytes":
+    10485760}, "protocol_version_min": "1.0", "protocol_version_max": "1.0", "heartbeat_timeout_seconds":
+    15.0, "heartbeat_missed_threshold": 2, "in_process_plugins": [], "admin": {"mode":
+    "allow_all"}}, "isl": 512, "osl": 128, "metric_pulling_prometheus_endpoint": "http://kube-prometheus-stack-prometheus.monitoring.svc:9090"}'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: planner-profile-data-c7be
+  namespace: dynamo-m08-1029
+  labels:
+    heyi.io/campaign: m09-offline-1030
+data:
+  prefill_raw_data.json: '{"prefill_isl": [100, 796, 1492, 2188, 2884, 3580], "prefill_ttft":
+    [146.465105, 147.461376, 148.378348, 192.884427, 201.26372899999998, 197.82091699999998],
+    "prefill_thpt_per_gpu": [682.7564831909963, 5398.023683164329, 10055.375464889257,
+    11343.580371058159, 14329.457246615957, 18097.17624552312]}'
+  decode_raw_data.json: '{"x_kv_usage": [0.0763025942882058, 0.3052103771528232, 0.5341181600174406,
+    0.33747547416612167, 0.6749509483322433, 0.5986483540440375], "y_context_length":
+    [350.0, 350.0, 350.0, 1548.0, 1548.0, 2746.0], "z_itl": [68.51172185771543, 74.56060591309519,
+    75.74014037274549, 71.51664038306453, 73.53894757014027, 68.60877503607215], "z_thpt_per_gpu":
+    [14.561553857433735, 53.43995399193106, 92.04476019439008, 13.949286037373732,
+    27.10179471555262, 14.536238896874295], "max_kv_tokens": 4587}'
+  profile-identity.json: '{"schema_version": 1, "kind": "planner-bootstrap", "identity":
+    {"schema_version": 1, "platform": "ascend", "device_model": "Ascend910B3", "driver":
+    "24.1.rc3", "sdk": "9.1.0", "engine": "vllm", "engine_version": "0.23.0+empty",
+    "plugin_version": "0.23.0", "model": "/models/Qwen3-0.6B", "model_revision": "config-sha256:660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+    "precision": "bf16", "parallelism": {"prefill_tp": 1, "decode_tp": 1}, "kv_config":
+    {"cache_bytes": 536870912, "block_size": 128, "max_model_len": 4096, "max_num_seqs":
+    8}, "topology": {"nodes": 1, "node": "master-02-45d4a763", "devices_per_node":
+    8}, "runtime_image": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82"},
+    "fingerprint": "8edbea8d8173b72b7b00176c3f4c1eadd6b9c756c1d5fb598ddcc101c75e849e",
+    "created_at": 1793329709.459137, "files": {"prefill_raw_data.json": "cc6b84a9658725267694ba0dc4ac3bae9dfd3268866634a83d535b8cc50754db",
+    "decode_raw_data.json": "ed714d0ddd5d91643a39fd02475d4f4a9b3dc3c802bf0ba71d30137ad3d264e1"}}'
+---
+apiVersion: nvidia.com/v1beta1
+kind: DynamoGraphDeployment
+metadata:
+  name: m09-offline
+  namespace: dynamo-m08-1029
+  annotations:
+    nvidia.com/workload-provider: component
+    nvidia.com/enable-grove: 'false'
+    nvidia.com/dynamo-discovery-backend: kubernetes
+  labels:
+    heyi.io/campaign: m09-offline-1030
+spec:
+  backendFramework: vllm
+  components:
+  - name: Frontend
+    type: frontend
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    podTemplate:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+        containers:
+        - name: main
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          args:
+          - python
+          - -m
+          - dynamo.frontend
+          - --router-mode
+          - kv
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cpu
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+            limits:
+              memory: 32Gi
+              cpu: '8'
+          volumeMounts:
+          - name: models
+            mountPath: /models/Qwen3-0.6B
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+        volumes:
+        - name: models
+          hostPath:
+            path: /data/weight/Qwen3-0.6B
+            type: Directory
+        - name: m09-source
+          hostPath:
+            path: /root/CJ_workspace/m09-offline-1030/source
+            type: Directory
+        terminationGracePeriodSeconds: 120
+  - name: VllmPrefillWorker
+    type: prefill
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    podTemplate:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+        containers:
+        - name: main
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          args:
+          - python
+          - -m
+          - dynamo.vllm
+          - --model
+          - /models/Qwen3-0.6B
+          - --served-model-name
+          - m09-model
+          - --enforce-eager
+          - --tensor-parallel-size
+          - '1'
+          - --max-model-len
+          - '4096'
+          - --max-num-seqs
+          - '8'
+          - --gpu-memory-utilization
+          - '0.3'
+          - --block-size
+          - '128'
+          - --disable-custom-all-reduce
+          - --kv-events-config
+          - '{"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events",
+            "endpoint": "tcp://*:20080"}'
+          - --disaggregation-mode
+          - prefill
+          - --kv-transfer-config
+          - '{"kv_connector": "MooncakeConnector", "kv_role": "kv_producer", "kv_connector_module_path":
+            "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector", "kv_port":
+            20090, "kv_connector_extra_config": {"prefill": {"tp_size": 1, "dp_size":
+            1}, "decode": {"tp_size": 1, "dp_size": 1}}}'
+          - --no-enable-prefix-caching
+          - --kv-cache-memory-bytes
+          - '536870912'
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: ascend
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+              huawei.com/Ascend910: 1
+            limits:
+              memory: 32Gi
+              huawei.com/Ascend910: 1
+              cpu: '8'
+          volumeMounts:
+          - name: models
+            mountPath: /models/Qwen3-0.6B
+            readOnly: true
+          - name: ascend-driver
+            mountPath: /usr/local/Ascend/driver
+            readOnly: true
+          - name: ascend-dcmi
+            mountPath: /usr/local/dcmi
+            readOnly: true
+          - name: ascend-smi
+            mountPath: /usr/local/sbin/npu-smi
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+        volumes:
+        - name: models
+          hostPath:
+            path: /data/weight/Qwen3-0.6B
+            type: Directory
+        - name: ascend-driver
+          hostPath:
+            path: /usr/local/Ascend/driver
+            type: Directory
+        - name: ascend-dcmi
+          hostPath:
+            path: /usr/local/dcmi
+            type: Directory
+        - name: ascend-smi
+          hostPath:
+            path: /usr/local/bin/npu-smi
+            type: File
+        - name: m09-source
+          hostPath:
+            path: /root/CJ_workspace/m09-offline-1030/source
+            type: Directory
+        tolerations:
+        - key: huawei.com/Ascend910
+          operator: Exists
+          effect: NoSchedule
+        terminationGracePeriodSeconds: 120
+      metadata:
+        labels:
+          heyi.io/m08-pd: m08-pd-cross
+    scalingAdapter: {}
+  - name: VllmDecodeWorker
+    type: decode
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    podTemplate:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+        containers:
+        - name: main
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          args:
+          - python
+          - -m
+          - dynamo.vllm
+          - --model
+          - /models/Qwen3-0.6B
+          - --served-model-name
+          - m09-model
+          - --enforce-eager
+          - --tensor-parallel-size
+          - '1'
+          - --max-model-len
+          - '4096'
+          - --max-num-seqs
+          - '8'
+          - --gpu-memory-utilization
+          - '0.3'
+          - --block-size
+          - '128'
+          - --disable-custom-all-reduce
+          - --kv-events-config
+          - '{"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events",
+            "endpoint": "tcp://*:20080"}'
+          - --disaggregation-mode
+          - decode
+          - --kv-transfer-config
+          - '{"kv_connector": "MooncakeConnector", "kv_role": "kv_consumer", "kv_connector_module_path":
+            "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector", "kv_port":
+            20090, "kv_connector_extra_config": {"prefill": {"tp_size": 1, "dp_size":
+            1}, "decode": {"tp_size": 1, "dp_size": 1}}}'
+          - --no-enable-prefix-caching
+          - --kv-cache-memory-bytes
+          - '536870912'
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: ascend
+          - name: DYN_HEALTH_CHECK_PAYLOAD
+            value: '{"token_ids": [1], "sampling_options": {"temperature": 0.0}, "stop_conditions":
+              {"max_tokens": 1}, "annotations": ["x-bypass-remote-prefill"]}'
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+              huawei.com/Ascend910: 1
+            limits:
+              memory: 32Gi
+              huawei.com/Ascend910: 1
+              cpu: '8'
+          volumeMounts:
+          - name: models
+            mountPath: /models/Qwen3-0.6B
+            readOnly: true
+          - name: ascend-driver
+            mountPath: /usr/local/Ascend/driver
+            readOnly: true
+          - name: ascend-dcmi
+            mountPath: /usr/local/dcmi
+            readOnly: true
+          - name: ascend-smi
+            mountPath: /usr/local/sbin/npu-smi
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+        volumes:
+        - name: models
+          hostPath:
+            path: /data/weight/Qwen3-0.6B
+            type: Directory
+        - name: ascend-driver
+          hostPath:
+            path: /usr/local/Ascend/driver
+            type: Directory
+        - name: ascend-dcmi
+          hostPath:
+            path: /usr/local/dcmi
+            type: Directory
+        - name: ascend-smi
+          hostPath:
+            path: /usr/local/bin/npu-smi
+            type: File
+        - name: m09-source
+          hostPath:
+            path: /root/CJ_workspace/m09-offline-1030/source
+            type: Directory
+        tolerations:
+        - key: huawei.com/Ascend910
+          operator: Exists
+          effect: NoSchedule
+        terminationGracePeriodSeconds: 120
+      metadata:
+        labels:
+          heyi.io/m08-pd: m08-pd-cross
+    scalingAdapter: {}
+  - name: planner
+    type: planner
+    replicas: 1
+    podTemplate:
+      spec:
+        containers:
+        - name: main
+          image: heyi/dynamo-profiler-ascend:1.5.1-m08-advanced
+          workingDir: /workspace/components/src/dynamo/planner
+          command:
+          - /opt/dynamo/venv/bin/python
+          args:
+          - -m
+          - dynamo.planner
+          - --config
+          - /workspace/planner_config/planner_config.json
+          volumeMounts:
+          - name: planner-config-efd1
+            mountPath: /workspace/planner_config
+            readOnly: true
+          - name: planner-profile-data-c7be
+            mountPath: /workspace/profiling_results
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+          - name: m09-deps
+            mountPath: /m09-deps
+            readOnly: true
+          env:
+          - name: DYN_PLATFORM
+            value: cpu
+          - name: TORCH_DEVICE_BACKEND_AUTOLOAD
+            value: '0'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-deps:/m09-source/components/src:/opt/dynamo/profiler-support
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+            limits:
+              cpu: '4'
+              memory: 8Gi
+        volumes:
+        - name: planner-config-efd1
+          configMap:
+            name: planner-config-efd1
+        - name: planner-profile-data-c7be
+          configMap:
+            name: planner-profile-data-c7be
+        - name: m09-source
+          hostPath:
+            path: /root/CJ_workspace/m09-offline-1030/source-v4
+            type: Directory
+        - name: m09-deps
+          hostPath:
+            path: /root/CJ_workspace/m09-offline-1030/deps
+            type: Directory
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+    runtimeVersionOverride: 1.5.1

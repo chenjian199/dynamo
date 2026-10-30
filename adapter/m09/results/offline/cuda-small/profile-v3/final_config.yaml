@@ -1,0 +1,384 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: planner-config-793d
+data:
+  planner_config.json: '{"pre_deployment_sweeping_mode":"thorough","environment":"kubernetes","backend":"vllm","mode":"disagg","optimization_target":"sla","log_dir":null,"throughput_adjustment_interval_seconds":180,"max_gpu_budget":4,"min_gpu_budget":-1,"min_endpoint":1,"prefill_min_endpoint":null,"decode_min_endpoint":null,"control_api_port":9086,"decode_engine_num_gpu":1,"prefill_engine_num_gpu":1,"target_platform":"cuda","profile_identity":{"schema_version":1,"platform":"cuda","device_model":"NVIDIA
+    H800","driver":"580.178.04","sdk":"cu130","engine":"vllm","engine_version":"0.28.0","plugin_version":"builtin","model":"/models/Qwen3-0.6B","model_revision":"config-sha256:660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd","precision":"bf16","parallelism":{"prefill_tp":1,"decode_tp":1},"kv_config":{"cache_bytes":536870912,"block_size":128,"max_model_len":4096,"max_num_seqs":8},"topology":{"nodes":1,"node":"worker06","devices_per_node":8},"runtime_image":"sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9"},"profile_max_age_seconds":604800.0,"profile_results_dir":"/workspace/profiling_results","pre_deployment_metrics_source":"files","aic_interpolation":null,"aic_perf_model":null,"ttft_ms":1000.0,"itl_ms":50.0,"load_predictor":"arima","load_predictor_log1p":false,"prophet_window_size":50,"load_predictor_warmup_trace":null,"kalman_q_level":1.0,"kalman_q_trend":0.1,"kalman_r":10.0,"kalman_min_points":5,"metric_reporting_prometheus_port":0,"throughput_metrics_source":"frontend","model_name":"m09-model","global_planner_namespace":null,"enable_throughput_scaling":true,"enable_load_scaling":true,"load_adjustment_interval_seconds":5,"max_num_fpm_samples":64,"fpm_sample_bucket_size":16,"load_scaling_down_sensitivity":80,"prefill_scale_up_queue_tokens":null,"prefill_scale_down_queue_tokens":null,"decode_scale_up_kv_rate":null,"decode_scale_down_kv_rate":null,"load_min_observations":5,"speculative_nextn":0,"advisory":false,"enable_power_awareness":false,"total_gpu_power_limit":null,"report_interval_hours":24.0,"report_output_dir":"./planner_reports","report_filename":null,"report_write_gzip_log":true,"live_dashboard_port":8080,"scheduling":{"tick_max_duration_seconds":30.0,"external_plugins":[],"gateway":{"enabled":false,"listen":"unix:///var/run/dynamo/planner/registry.sock","allow_insecure":false},"scale_interval_seconds":5.0},"plugin_registration":{"auth":{"trusted_sources":[],"static_secrets":{}},"transport":{"allow_insecure_grpc":false,"request_timeout_seconds":5.0,"keepalive_time_ms":30000,"max_message_size_bytes":10485760},"protocol_version_min":"1.0","protocol_version_max":"1.0","heartbeat_timeout_seconds":15.0,"heartbeat_missed_threshold":2,"in_process_plugins":[],"admin":{"mode":"allow_all"}}}'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: planner-profile-data-103d
+data:
+  prefill_raw_data.json: '{"prefill_isl": [100, 796, 1492, 2188, 2884, 3580], "prefill_ttft":
+    [43.367267, 42.885194999999996, 44.800906999999995, 43.518924, 45.166334, 45.253417],
+    "prefill_thpt_per_gpu": [2305.8866033683885, 18561.184110273956, 33302.89719357691,
+    50276.97835543912, 63852.868820391755, 79110.04819812834]}'
+  decode_raw_data.json: '{"x_kv_usage": [0.0763025942882058, 0.3052103771528232, 0.5341181600174406,
+    0.33747547416612167, 0.6749509483322433, 0.5986483540440375], "y_context_length":
+    [350.0, 350.0, 350.0, 1548.0, 1548.0, 2746.0], "z_itl": [12.080730488933602, 12.084428881262523,
+    12.301708191251073, 12.006191615230462, 11.946580259519036, 11.938338575150299],
+    "z_thpt_per_gpu": [82.27672319416183, 329.069548697087, 565.6565914424858, 82.72674356731203,
+    166.46529565158892, 83.27359990326086], "max_kv_tokens": 4587}'
+  profile-identity.json: '{"schema_version": 1, "kind": "planner-bootstrap", "identity":
+    {"schema_version": 1, "platform": "cuda", "device_model": "NVIDIA H800", "driver":
+    "580.178.04", "sdk": "cu130", "engine": "vllm", "engine_version": "0.28.0", "plugin_version":
+    "builtin", "model": "/models/Qwen3-0.6B", "model_revision": "config-sha256:660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+    "precision": "bf16", "parallelism": {"prefill_tp": 1, "decode_tp": 1}, "kv_config":
+    {"cache_bytes": 536870912, "block_size": 128, "max_model_len": 4096, "max_num_seqs":
+    8}, "topology": {"nodes": 1, "node": "worker06", "devices_per_node": 8}, "runtime_image":
+    "sha256:1ae6d6e604c1782888d9eae2ee9719fdd94555e319e0357d3b515ff45ebbd0a9"}, "fingerprint":
+    "3e9c8d6a3d0d2725783c5d220672501907a55170041be4570f17e1c930b5f3c9", "created_at":
+    1793328006.9194074, "files": {"prefill_raw_data.json": "f35c82f37faf2cd0fe053713191f7e1ed6654f238bf9d0afd7ef2e54f9b8ac47",
+    "decode_raw_data.json": "d82d42ee04cce4f920b3074fb3726c335cb5e67127d95be586adb3ce1123a62b"}}'
+---
+apiVersion: nvidia.com/v1beta1
+kind: DynamoGraphDeployment
+metadata:
+  name: m09-offline
+  namespace: dynamo-m08-1029
+  annotations:
+    nvidia.com/workload-provider: component
+    nvidia.com/enable-grove: 'false'
+    nvidia.com/dynamo-discovery-backend: kubernetes
+  labels:
+    heyi.io/campaign: m09-offline-1030
+spec:
+  backendFramework: vllm
+  components:
+  - name: Frontend
+    type: frontend
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    podTemplate:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: amd64
+          kubernetes.io/hostname: worker06
+        containers:
+        - name: main
+          image: heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          args:
+          - python
+          - -m
+          - dynamo.frontend
+          - --router-mode
+          - kv
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cpu
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+            limits:
+              memory: 32Gi
+              cpu: '8'
+          volumeMounts:
+          - name: models
+            mountPath: /models/Qwen3-0.6B
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+        volumes:
+        - name: models
+          hostPath:
+            path: /ssd/models/dynamo-regression/Qwen3-0.6B
+            type: Directory
+        - name: m09-source
+          hostPath:
+            path: /home/bedicloud/CJ_workspace/m09-offline-1030/source
+            type: Directory
+        terminationGracePeriodSeconds: 120
+  - name: VllmPrefillWorker
+    type: prefill
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    podTemplate:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: amd64
+          kubernetes.io/hostname: worker06
+        containers:
+        - name: main
+          image: heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          args:
+          - python
+          - -m
+          - dynamo.vllm
+          - --model
+          - /models/Qwen3-0.6B
+          - --served-model-name
+          - m09-model
+          - --enforce-eager
+          - --tensor-parallel-size
+          - '1'
+          - --max-model-len
+          - '4096'
+          - --max-num-seqs
+          - '8'
+          - --gpu-memory-utilization
+          - '0.3'
+          - --block-size
+          - '128'
+          - --disable-custom-all-reduce
+          - --kv-events-config
+          - '{"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events",
+            "endpoint": "tcp://*:20080"}'
+          - --disaggregation-mode
+          - prefill
+          - --kv-transfer-config
+          - '{"kv_connector": "NixlConnector", "kv_role": "kv_both"}'
+          - --no-enable-prefix-caching
+          - --kv-cache-memory-bytes
+          - '536870912'
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cuda
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: UCX_TLS
+            value: tcp,sm,self,cuda_copy,cuda_ipc
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          - name: DYN_BENCHMARK_MODE
+            value: prefill
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+              nvidia.com/gpu: 1
+            limits:
+              memory: 32Gi
+              nvidia.com/gpu: 1
+              cpu: '8'
+          volumeMounts:
+          - name: models
+            mountPath: /models/Qwen3-0.6B
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+        volumes:
+        - name: models
+          hostPath:
+            path: /ssd/models/dynamo-regression/Qwen3-0.6B
+            type: Directory
+        - name: m09-source
+          hostPath:
+            path: /home/bedicloud/CJ_workspace/m09-offline-1030/source
+            type: Directory
+        tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+        runtimeClassName: nvidia
+        terminationGracePeriodSeconds: 120
+      metadata:
+        labels:
+          heyi.io/m08-pd: m08-pd-cross
+    scalingAdapter:
+      enabled: true
+  - name: VllmDecodeWorker
+    type: decode
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    podTemplate:
+      spec:
+        nodeSelector:
+          kubernetes.io/arch: amd64
+          kubernetes.io/hostname: worker06
+        containers:
+        - name: main
+          image: heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          args:
+          - python
+          - -m
+          - dynamo.vllm
+          - --model
+          - /models/Qwen3-0.6B
+          - --served-model-name
+          - m09-model
+          - --enforce-eager
+          - --tensor-parallel-size
+          - '1'
+          - --max-model-len
+          - '4096'
+          - --max-num-seqs
+          - '8'
+          - --gpu-memory-utilization
+          - '0.3'
+          - --block-size
+          - '128'
+          - --disable-custom-all-reduce
+          - --kv-events-config
+          - '{"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events",
+            "endpoint": "tcp://*:20080"}'
+          - --disaggregation-mode
+          - decode
+          - --kv-transfer-config
+          - '{"kv_connector": "NixlConnector", "kv_role": "kv_both"}'
+          - --no-enable-prefix-caching
+          - --kv-cache-memory-bytes
+          - '536870912'
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cuda
+          - name: DYN_HEALTH_CHECK_PAYLOAD
+            value: '{"token_ids": [1], "sampling_options": {"temperature": 0.0}, "stop_conditions":
+              {"max_tokens": 1}, "annotations": ["x-bypass-remote-prefill"]}'
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: UCX_TLS
+            value: tcp,sm,self,cuda_copy,cuda_ipc
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          - name: DYN_BENCHMARK_MODE
+            value: decode
+          resources:
+            requests:
+              cpu: '1'
+              memory: 2Gi
+              nvidia.com/gpu: 1
+            limits:
+              memory: 32Gi
+              nvidia.com/gpu: 1
+              cpu: '8'
+          volumeMounts:
+          - name: models
+            mountPath: /models/Qwen3-0.6B
+            readOnly: true
+          - name: m09-source
+            mountPath: /m09-source
+            readOnly: true
+        volumes:
+        - name: models
+          hostPath:
+            path: /ssd/models/dynamo-regression/Qwen3-0.6B
+            type: Directory
+        - name: m09-source
+          hostPath:
+            path: /home/bedicloud/CJ_workspace/m09-offline-1030/source
+            type: Directory
+        tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+        runtimeClassName: nvidia
+        terminationGracePeriodSeconds: 120
+      metadata:
+        labels:
+          heyi.io/m08-pd: m08-pd-cross
+    scalingAdapter:
+      enabled: true
+  - name: Planner
+    type: planner
+    replicas: 1
+    podTemplate:
+      spec:
+        containers:
+        - name: main
+          image: heyi/dynamo-planner:1.5.1-m08-advanced3
+          workingDir: /workspace/components/src/dynamo/planner
+          command:
+          - python3
+          - -m
+          - dynamo.planner
+          args:
+          - --config
+          - /workspace/planner_config/planner_config.json
+          volumeMounts:
+          - name: planner-config-793d
+            mountPath: /workspace/planner_config
+            readOnly: true
+          - name: planner-profile-data-103d
+            mountPath: /workspace/profiling_results
+            readOnly: true
+        volumes:
+        - name: planner-config-793d
+          configMap:
+            name: planner-config-793d
+        - name: planner-profile-data-103d
+          configMap:
+            name: planner-profile-data-103d
+    runtimeVersionOverride: 1.5.1

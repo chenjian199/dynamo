@@ -93,7 +93,7 @@ def test_ascend_candidate_maps_generated_device_count_and_removes_pd_default(tp)
     assert source == saved
 
 
-@pytest.mark.parametrize("tp_pair", [(1, 1), (2, 2), (1, 2)])
+@pytest.mark.parametrize("tp_pair", [(1, 1), (2, 2), (1, 2), (4, 8), (8, 4), (2, 8)])
 def test_ascend_pd_uses_both_peer_shapes_and_native_connector(tp_pair):
     source = {
         "spec": {
@@ -115,7 +115,7 @@ def test_ascend_pd_uses_both_peer_shapes_and_native_connector(tp_pair):
         assert extra.get("heyi_tp_split", False) == (tp_pair == (1, 2))
 
 
-@pytest.mark.parametrize("platform", ["cuda", "cpu", "metax"])
+@pytest.mark.parametrize("platform", ["cuda", "cpu"])
 def test_other_platforms_preserve_defaults(platform):
     source = {"spec": {"components": [worker("W", 2)]}}
     assert adapt_vllm_blueprint_platform(source, override(["W"], platform)) == source
@@ -143,3 +143,17 @@ def test_frontend_and_unselected_worker_are_not_mapped():
     front["type"] = "frontend"
     source = {"spec": {"components": [front, worker("W", 1)]}}
     assert adapt_vllm_blueprint_platform(source, override(["F"])) == source
+
+
+def test_metax_maps_resources_and_maca_transport():
+    source = {
+        "spec": {"components": [worker("P", 2, "prefill"), worker("D", 2, "decode")]}
+    }
+    result = adapt_vllm_blueprint_platform(source, override(["P", "D"], "metax"))
+    for index in (0, 1):
+        container = main(result, index)
+        assert container["resources"]["limits"] == {"metax-tech.com/gpu": "2"}
+        args = container["args"]
+        kv = json.loads(args[args.index("--kv-transfer-config") + 1])
+        assert kv["kv_connector_extra_config"]["mooncake_protocol"] == "maca"
+        assert "kv_connector_module_path" not in kv

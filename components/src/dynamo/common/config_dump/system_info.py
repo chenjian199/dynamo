@@ -1,11 +1,17 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 import importlib.metadata
 import logging
+import os
 import platform
 import sys
 from typing import Any, Dict, Optional
+
+from dynamo.common.platform.registry import PlatformError
+from dynamo.common.platform.telemetry import collect_exporter, collect_local
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +112,28 @@ def get_gpu_info() -> Optional[Dict[str, Any]]:
     Note:
         This is a best-effort function and returns None if GPU info cannot be obtained.
     """
+    selected = os.environ.get("DYN_PLATFORM")
+    exporter = os.environ.get("DYN_TELEMETRY_EXPORTER_URL")
+    if exporter:
+        try:
+            return collect_exporter(exporter, selected or "cuda")
+        except ValueError as error:
+            return {
+                "platform_id": selected or "cuda",
+                "state": "unavailable",
+                "reason": str(error),
+            }
+    if selected in {"cpu", "metax", "ascend"}:
+        try:
+            info = collect_local(selected)
+            info["count"] = len(info["devices"])
+            return info
+        except (PlatformError, RuntimeError, ImportError, OSError) as error:
+            return {
+                "platform_id": selected,
+                "state": "unavailable",
+                "reason": str(error),
+            }
     try:
         import subprocess
         import xml.etree.ElementTree as ET

@@ -1,0 +1,267 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "cni.projectcalico.org/containerID": "83ad02306ce1419442407b856fd96d0d11c934330e9374f6f48d757e20676c95",
+            "cni.projectcalico.org/podIP": "10.244.229.170/32",
+            "cni.projectcalico.org/podIPs": "10.244.229.170/32",
+            "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.170\"\n    ],\n    \"mac\": \"a2:fd:dd:7f:17:d2\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"m09-metrics\",\"heyi.io/campaign\":\"m09-1029\"},\"name\":\"m09-metrics\",\"namespace\":\"dynamo-m08-1029\"},\"spec\":{\"activeDeadlineSeconds\":21600,\"containers\":[{\"args\":[\"--config.file=/config/prometheus.yml\",\"--storage.tsdb.path=/data\",\"--storage.tsdb.retention.time=2h\"],\"image\":\"m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996\",\"imagePullPolicy\":\"Never\",\"name\":\"prometheus\",\"ports\":[{\"containerPort\":9090,\"name\":\"http\"}],\"resources\":{\"limits\":{\"cpu\":\"2\",\"memory\":\"2Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"volumeMounts\":[{\"mountPath\":\"/config\",\"name\":\"config\",\"readOnly\":true},{\"mountPath\":\"/data\",\"name\":\"data\"}]}],\"nodeSelector\":{\"kubernetes.io/hostname\":\"worker06\"},\"securityContext\":{\"fsGroup\":65534},\"serviceAccountName\":\"m09-metrics\",\"volumes\":[{\"configMap\":{\"name\":\"m09-metrics\"},\"name\":\"config\"},{\"emptyDir\":{},\"name\":\"data\"}]}}\n"
+        },
+        "creationTimestamp": "2026-10-30T05:21:01Z",
+        "generation": 1,
+        "labels": {
+            "app": "m09-metrics",
+            "heyi.io/campaign": "m09-1029"
+        },
+        "name": "m09-metrics",
+        "namespace": "dynamo-m08-1029",
+        "resourceVersion": "40942245",
+        "uid": "cf953d94-1a87-460a-8c03-cea9c96ea479"
+    },
+    "spec": {
+        "activeDeadlineSeconds": 21600,
+        "containers": [
+            {
+                "args": [
+                    "--config.file=/config/prometheus.yml",
+                    "--storage.tsdb.path=/data",
+                    "--storage.tsdb.retention.time=2h"
+                ],
+                "image": "m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+                "imagePullPolicy": "Never",
+                "name": "prometheus",
+                "ports": [
+                    {
+                        "containerPort": 9090,
+                        "name": "http",
+                        "protocol": "TCP"
+                    }
+                ],
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "2Gi"
+                    },
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "256Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/config",
+                        "name": "config",
+                        "readOnly": true
+                    },
+                    {
+                        "mountPath": "/data",
+                        "name": "data"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-r2rpw",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "nodeSelector": {
+            "kubernetes.io/hostname": "worker06"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+            "fsGroup": 65534
+        },
+        "serviceAccount": "m09-metrics",
+        "serviceAccountName": "m09-metrics",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "configMap": {
+                    "defaultMode": 420,
+                    "name": "m09-metrics"
+                },
+                "name": "config"
+            },
+            {
+                "emptyDir": {},
+                "name": "data"
+            },
+            {
+                "name": "kube-api-access-r2rpw",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T05:21:02Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T05:21:01Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T05:21:02Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T05:21:02Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T05:21:01Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "100m",
+                    "memory": "256Mi"
+                },
+                "containerID": "containerd://3301f4f1a4c44395057a1b6bc2d8a6d80c5a2be38d5e7468a1c65071c5d5a640",
+                "image": "sha256:a3bc50fcb50fb1409287c32773d8fe799f6cad5511c4ba3e2e851784e7a05026",
+                "imageID": "m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+                "lastState": {},
+                "name": "prometheus",
+                "ready": true,
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "2Gi"
+                    },
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "256Mi"
+                    }
+                },
+                "restartCount": 0,
+                "started": true,
+                "state": {
+                    "running": {
+                        "startedAt": "2026-10-30T05:21:02Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 65534,
+                        "supplementalGroups": [
+                            65534
+                        ],
+                        "uid": 65534
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/config",
+                        "name": "config",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/data",
+                        "name": "data"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-r2rpw",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+            {
+                "ip": "192.168.4.6"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.244.229.170",
+        "podIPs": [
+            {
+                "ip": "10.244.229.170"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-10-30T05:21:01Z"
+    }
+}

@@ -146,9 +146,11 @@ def build_capabilities(platform_id, context, software):
         caps["gms.vmm"] = capability(
             "available" if eligible else "unavailable",
             platform_id,
-            "GMS provider installed; device VMM, permissions and socket identity checked at use"
-            if eligible
-            else "install the platform-enabled gpu-memory-service package",
+            (
+                "GMS provider installed; device VMM, permissions and socket identity checked at use"
+                if eligible
+                else "install the platform-enabled gpu-memory-service package"
+            ),
             context,
         )
     if context.get("engine") == "vllm":
@@ -160,9 +162,11 @@ def build_capabilities(platform_id, context, software):
         caps[f"engine.{task}"] = capability(
             "available" if supported else "unknown",
             platform_id,
-            "platform backend installed; requested topology and model support are validated by vLLM at initialization"
-            if supported
-            else "configuration outside current platform integration scope",
+            (
+                "platform backend installed; requested topology and model support are validated by vLLM at initialization"
+                if supported
+                else "configuration outside current platform integration scope"
+            ),
             context,
         )
         if context.get("kvbm") == "true":
@@ -185,7 +189,8 @@ def build_capabilities(platform_id, context, software):
             supported
             and context.get("eager") == "true"
             and context.get("task") == "text"
-            and context.get("tp") in ("1", "2")
+            and context.get("tp", "").isdigit()
+            and int(context["tp"]) > 0
             and context.get("dp") == "1"
             and context.get("pd_connector")
             in (
@@ -202,15 +207,17 @@ def build_capabilities(platform_id, context, software):
             caps["pd.transfer"] = capability(
                 "available",
                 platform_id,
-                "engine-native TP1/TP2 DP1 PD configuration; connector initialization and transfer readiness required",
+                "engine-native TP DP1 PD configuration; connector initialization, TP layout negotiation and transfer readiness required",
                 context,
             )
         caps["kv.events"] = capability(
             "available" if kv else "unavailable",
             platform_id,
-            "vLLM ZMQ events and prefix caching enabled"
-            if kv
-            else "requires supported aggregate configuration and explicit KV events",
+            (
+                "vLLM ZMQ events and prefix caching enabled"
+                if kv
+                else "requires supported aggregate configuration and explicit KV events"
+            ),
             context,
         )
         for name, enabled in (
@@ -222,9 +229,11 @@ def build_capabilities(platform_id, context, software):
             caps[name] = capability(
                 "available" if supported and enabled else "unavailable",
                 platform_id,
-                "requested aggregate engine integration; requires successful model initialization"
-                if supported and enabled
-                else "not enabled in this configuration",
+                (
+                    "requested aggregate engine integration; requires successful model initialization"
+                    if supported and enabled
+                    else "not enabled in this configuration"
+                ),
                 context,
             )
     return caps

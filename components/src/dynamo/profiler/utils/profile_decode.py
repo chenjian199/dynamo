@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 import logging
 from typing import Callable, Optional, Tuple
@@ -50,6 +52,7 @@ def _profile_decode_helper(
         [int, int, int], Tuple[Optional[float], Optional[float]]
     ],
     attention_dp_size,
+    max_concurrent_requests: int | None = None,
 ):
     """interpolate ITL - Active_KV_Cache - Decode_Context_Length"""
     x_kv_usage = []
@@ -58,6 +61,13 @@ def _profile_decode_helper(
     z_thpt_per_gpu = []
 
     osl = 500  # not too large to reduce ITL variance, not too small to have stable measurement
+    if (
+        max_concurrent_requests is not None
+        and max_concurrent_requests < attention_dp_size
+    ):
+        raise ValueError(
+            "Decode concurrency must allow at least one request per DP rank"
+        )
 
     for isl in range(
         100,
@@ -65,6 +75,8 @@ def _profile_decode_helper(
         (max_context_length - osl) // interpolation_granularity,
     ):
         max_concurrency = max_kv_tokens // (isl + osl)
+        if max_concurrent_requests is not None:
+            max_concurrency = min(max_concurrency, max_concurrent_requests)
         if max_concurrency == 0:
             logger.warning(
                 f"max_kv_tokens {max_kv_tokens} is too small for"
@@ -93,6 +105,7 @@ def _profile_decode_helper(
         z_itl=np.array(z_itl),
         z_thpt_per_gpu=np.array(z_thpt_per_gpu),
         max_kv_tokens=np.array([max_kv_tokens]),
+        max_concurrent_requests=np.array([max_concurrent_requests or 0]),
     )
     logger.info(f"Saved data points to {save_path}")
 
@@ -114,6 +127,7 @@ def profile_decode(
     max_context_length: int,
     interpolation_granularity: int,
     attention_dp_size: int,
+    max_concurrent_requests: int | None = None,
 ) -> None:
     def get_itl_and_thpt_per_gpu(isl, osl, num_request):
         ai_perf_artifact_dir = f"{work_dir}/aiperf_isl{isl}_osl{osl}_n{num_request}"
@@ -137,4 +151,5 @@ def profile_decode(
         interpolation_granularity,
         get_itl_and_thpt_per_gpu,
         attention_dp_size,
+        max_concurrent_requests,
     )

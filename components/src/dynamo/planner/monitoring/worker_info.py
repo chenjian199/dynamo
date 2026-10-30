@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +42,7 @@ class WorkerInfo:
     model_name: Optional[str] = None
     total_kv_blocks: Optional[int] = None
     kv_cache_block_size: Optional[int] = None
+    kv_capacity_tokens: Optional[int] = None
     max_num_seqs: Optional[int] = None
     max_num_batched_tokens: Optional[int] = None
     context_length: Optional[int] = None
@@ -47,6 +50,8 @@ class WorkerInfo:
 
     @property
     def max_kv_tokens(self) -> Optional[int]:
+        if self.kv_capacity_tokens is not None:
+            return self.kv_capacity_tokens
         if self.total_kv_blocks is not None and self.kv_cache_block_size is not None:
             return self.total_kv_blocks * self.kv_cache_block_size
         return None

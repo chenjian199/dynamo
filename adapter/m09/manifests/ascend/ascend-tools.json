@@ -1,0 +1,79 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "m09-tools",
+    "namespace": "dynamo-m08-1029",
+    "labels": {
+      "heyi.io/campaign": "m09-1029"
+    }
+  },
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "containers": [
+      {
+        "name": "main",
+        "image": "heyi/dynamo-profiler-ascend:1.5.1-m08-advanced",
+        "imagePullPolicy": "Never",
+        "command": [
+          "/bin/bash",
+          "-lc",
+          "sleep 21600"
+        ],
+        "env": [
+          {
+            "name": "DYN_PLATFORM",
+            "value": "cpu"
+          },
+          {
+            "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+            "value": "0"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "PYTHONPATH",
+            "value": "/m09-deps:/m09-source/components/src:/opt/dynamo/profiler-support"
+          }
+        ],
+        "resources": {
+          "requests": {
+            "cpu": "1",
+            "memory": "2Gi"
+          },
+          "limits": {
+            "cpu": "4",
+            "memory": "8Gi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "m09-source",
+            "mountPath": "/m09-source",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "m09-source",
+        "hostPath": {
+          "path": "/root/CJ_workspace/m09-1029/source",
+          "type": "Directory"
+        }
+      }
+    ],
+    "restartPolicy": "Never",
+    "activeDeadlineSeconds": 21600,
+    "securityContext": {
+      "runAsUser": 0,
+      "runAsGroup": 0
+    }
+  }
+}

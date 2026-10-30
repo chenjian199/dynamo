@@ -1,0 +1,202 @@
+apiVersion: nvidia.com/v1beta1
+kind: DynamoGraphDeployment
+metadata:
+  annotations:
+    nvidia.com/dynamo-discovery-backend: kubernetes
+    nvidia.com/enable-grove: 'false'
+    nvidia.com/workload-provider: component
+  labels:
+    heyi.io/campaign: dynamo-m08-1029
+  name: vllm-agg-6b488378
+spec:
+  backendFramework: vllm
+  components:
+  - name: Frontend
+    podTemplate:
+      spec:
+        containers:
+        - args:
+          - -m
+          - dynamo.frontend
+          - --model-name
+          - /models/Qwen3-0.6B
+          - --model-path
+          - /models/Qwen3-0.6B
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          - python3
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cpu
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          envFrom:
+          - secretRef:
+              name: hf-token-secret
+              optional: true
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          name: main
+          volumeMounts:
+          - mountPath: /models/Qwen3-0.6B
+            name: models
+            readOnly: true
+          - mountPath: /m09-source
+            name: m09-source
+            readOnly: true
+          workingDir: /tmp
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+        volumes:
+        - hostPath:
+            path: /data/weight/Qwen3-0.6B
+            type: Directory
+          name: models
+        - hostPath:
+            path: /root/CJ_workspace/m09-1029/profiler-source
+            type: Directory
+          name: m09-source
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    type: frontend
+  - name: VllmDecodeWorker
+    podTemplate:
+      spec:
+        containers:
+        - args:
+          - --tensor-parallel-size
+          - '1'
+          - --pipeline-parallel-size
+          - '1'
+          - --max-num-seqs
+          - '1'
+          - --max-num-batched-tokens
+          - '1628'
+          - --model
+          - /models/Qwen3-0.6B
+          - --served-model-name
+          - /models/Qwen3-0.6B
+          - --no-enable-prefix-caching
+          - --enforce-eager
+          - --gpu-memory-utilization
+          - '0.3'
+          - --disable-custom-all-reduce
+          - --block-size
+          - '128'
+          - --max-model-len
+          - '1024'
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          - python3
+          - -m
+          - dynamo.vllm
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: ascend
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: DYN_HEALTH_CHECK_PAYLOAD
+            value: '{"token_ids": [1], "sampling_options": {"temperature": 0.0}, "stop_conditions":
+              {"max_tokens": 1}, "annotations": ["x-bypass-remote-prefill"]}'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          envFrom:
+          - secretRef:
+              name: hf-token-secret
+              optional: true
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          name: main
+          resources:
+            limits:
+              huawei.com/Ascend910: '1'
+            requests:
+              ephemeral-storage: 2Gi
+              huawei.com/Ascend910: '1'
+          volumeMounts:
+          - mountPath: /models/Qwen3-0.6B
+            name: models
+            readOnly: true
+          - mountPath: /usr/local/Ascend/driver
+            name: ascend-driver
+            readOnly: true
+          - mountPath: /usr/local/dcmi
+            name: ascend-dcmi
+            readOnly: true
+          - mountPath: /usr/local/sbin/npu-smi
+            name: ascend-smi
+            readOnly: true
+          - mountPath: /m09-source
+            name: m09-source
+            readOnly: true
+          workingDir: /tmp
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+        tolerations:
+        - effect: NoSchedule
+          key: huawei.com/Ascend910
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /data/weight/Qwen3-0.6B
+            type: Directory
+          name: models
+        - hostPath:
+            path: /usr/local/Ascend/driver
+            type: Directory
+          name: ascend-driver
+        - hostPath:
+            path: /usr/local/dcmi
+            type: Directory
+          name: ascend-dcmi
+        - hostPath:
+            path: /usr/local/bin/npu-smi
+            type: File
+          name: ascend-smi
+        - hostPath:
+            path: /root/CJ_workspace/m09-1029/profiler-source
+            type: Directory
+          name: m09-source
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    type: worker

@@ -1,0 +1,248 @@
+apiVersion: nvidia.com/v1beta1
+kind: DynamoGraphDeployment
+metadata:
+  annotations:
+    nvidia.com/dynamo-discovery-backend: kubernetes
+    nvidia.com/enable-grove: 'false'
+    nvidia.com/workload-provider: component
+  labels:
+    heyi.io/campaign: m09-offline-1030
+  name: vllm-agg-38c6af14
+  namespace: dynamo-m08-1029
+spec:
+  backendFramework: vllm
+  components:
+  - name: frontend
+    podTemplate:
+      spec:
+        containers:
+        - args:
+          - python
+          - -m
+          - dynamo.frontend
+          - --router-mode
+          - round-robin
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cpu
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          name: main
+          resources:
+            limits:
+              cpu: '8'
+              memory: 32Gi
+            requests:
+              cpu: '1'
+              memory: 2Gi
+          volumeMounts:
+          - mountPath: /models/current
+            name: models
+            readOnly: true
+          - mountPath: /m09-source
+            name: m09-source
+            readOnly: true
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master-02-45d4a763
+        volumes:
+        - hostPath:
+            path: /data/DeepSeek-V4-Flash-w8a8-mtp
+            type: Directory
+          name: models
+        - hostPath:
+            path: /root/CJ_workspace/m09-offline-deepseek-1030/source
+            type: Directory
+          name: m09-source
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    type: frontend
+  - name: VllmDecodeWorker
+    podTemplate:
+      spec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                  - master-02-45d4a763
+                  - master
+        containers:
+        - args:
+          - python
+          - -m
+          - dynamo.vllm
+          - --model
+          - /models/current
+          - --served-model-name
+          - m09-model
+          - --enforce-eager
+          - --tensor-parallel-size
+          - '8'
+          - --max-model-len
+          - '4096'
+          - --max-num-seqs
+          - '16'
+          - --gpu-memory-utilization
+          - '0.9'
+          - --block-size
+          - '128'
+          - --disable-custom-all-reduce
+          - --tokenizer-mode
+          - deepseek_v4
+          - --reasoning-parser
+          - deepseek_v4
+          - --enable-expert-parallel
+          - --quantization
+          - ascend
+          - --max-num-batched-tokens
+          - '4096'
+          - --additional-config
+          - '{"enable_dsa_cp":true}'
+          - --kv-transfer-config
+          - '{"kv_connector": "MooncakeConnector", "kv_role": "kv_consumer", "kv_connector_module_path":
+            "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector", "kv_port":
+            20090, "kv_connector_extra_config": {"prefill": {"tp_size": 8, "dp_size":
+            1}, "decode": {"tp_size": 8, "dp_size": 1}}}'
+          - --enable-prefix-caching
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: ascend
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '180'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_HEALTH_CHECK_REQUEST_TIMEOUT
+            value: '120'
+          - name: DYN_CANARY_WAIT_TIME
+            value: '30'
+          - name: OMP_PROC_BIND
+            value: 'false'
+          - name: OMP_NUM_THREADS
+            value: '4'
+          - name: PYTORCH_NPU_ALLOC_CONF
+            value: expandable_segments:True
+          - name: HCCL_BUFFSIZE
+            value: '1024'
+          - name: VLLM_ASCEND_ENABLE_FLASHCOMM1
+            value: '1'
+          - name: TASK_QUEUE_ENABLE
+            value: '1'
+          - name: HCCL_OP_EXPANSION_MODE
+            value: AIV
+          - name: HCCL_CONNECT_TIMEOUT
+            value: '300'
+          - name: HCCL_EXEC_TIMEOUT
+            value: '300'
+          - name: DYN_HEALTH_CHECK_PAYLOAD
+            value: '{"token_ids": [1], "sampling_options": {"temperature": 0.0}, "stop_conditions":
+              {"max_tokens": 1}, "annotations": ["x-bypass-remote-prefill"]}'
+          image: heyi/dynamo-vllm-ascend-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          name: main
+          resources:
+            limits:
+              cpu: '32'
+              huawei.com/Ascend910: 8
+              memory: 256Gi
+            requests:
+              cpu: '8'
+              huawei.com/Ascend910: 8
+              memory: 64Gi
+          volumeMounts:
+          - mountPath: /models/current
+            name: models
+            readOnly: true
+          - mountPath: /usr/local/Ascend/driver
+            name: ascend-driver
+            readOnly: true
+          - mountPath: /usr/local/dcmi
+            name: ascend-dcmi
+            readOnly: true
+          - mountPath: /usr/local/sbin/npu-smi
+            name: ascend-smi
+            readOnly: true
+          - mountPath: /m09-source
+            name: m09-source
+            readOnly: true
+        nodeSelector:
+          kubernetes.io/arch: arm64
+          kubernetes.io/hostname: master
+        terminationGracePeriodSeconds: 240
+        tolerations:
+        - effect: NoSchedule
+          key: huawei.com/Ascend910
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /data/DeepSeek-V4-Flash-w8a8-mtp
+            type: Directory
+          name: models
+        - hostPath:
+            path: /usr/local/Ascend/driver
+            type: Directory
+          name: ascend-driver
+        - hostPath:
+            path: /usr/local/dcmi
+            type: Directory
+          name: ascend-dcmi
+        - hostPath:
+            path: /usr/local/bin/npu-smi
+            type: File
+          name: ascend-smi
+        - hostPath:
+            path: /root/CJ_workspace/m09-offline-deepseek-1030/source
+            type: Directory
+          name: m09-source
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 16Gi
+    type: decode

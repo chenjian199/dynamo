@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -96,6 +98,9 @@ class PlannerEnvironmentImpl(PlannerEnvironment):
 
     async def initialize(self) -> None:
         await self.controller.async_init()
+        validate_platform = getattr(self.controller, "validate_target_platform", None)
+        if callable(validate_platform):
+            validate_platform(self.config.target_platform)
         defaults = WORKER_COMPONENT_NAMES.get(self.config.backend)
         await self.controller.validate_deployment(
             prefill_component_name=(

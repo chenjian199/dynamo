@@ -1,0 +1,275 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "cni.projectcalico.org/containerID": "a0e96e814c0dc92a6239f6f329bbf8a4e1cb885c66ea0f2b3f0b49880a075af0",
+            "cni.projectcalico.org/podIP": "",
+            "cni.projectcalico.org/podIPs": "",
+            "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"k8s-pod-network\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.229.103\"\n    ],\n    \"mac\": \"0e:2e:b1:fc:e2:6a\",\n    \"default\": true,\n    \"dns\": {}\n}]",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"m09-metrics\",\"heyi.io/campaign\":\"m09-1029\"},\"name\":\"m09-metrics\",\"namespace\":\"dynamo-m08-1029\"},\"spec\":{\"activeDeadlineSeconds\":7200,\"containers\":[{\"args\":[\"--config.file=/config/prometheus.yml\",\"--storage.tsdb.path=/data\",\"--storage.tsdb.retention.time=2h\"],\"image\":\"m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996\",\"imagePullPolicy\":\"Never\",\"name\":\"prometheus\",\"ports\":[{\"containerPort\":9090,\"name\":\"http\"}],\"resources\":{\"limits\":{\"cpu\":\"2\",\"memory\":\"2Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"volumeMounts\":[{\"mountPath\":\"/config\",\"name\":\"config\",\"readOnly\":true},{\"mountPath\":\"/data\",\"name\":\"data\"}]}],\"nodeSelector\":{\"kubernetes.io/hostname\":\"worker06\"},\"securityContext\":{\"fsGroup\":65534},\"serviceAccountName\":\"m09-metrics\",\"volumes\":[{\"configMap\":{\"name\":\"m09-metrics\"},\"name\":\"config\"},{\"emptyDir\":{},\"name\":\"data\"}]}}\n"
+        },
+        "creationTimestamp": "2026-10-30T02:39:21Z",
+        "generation": 1,
+        "labels": {
+            "app": "m09-metrics",
+            "heyi.io/campaign": "m09-1029"
+        },
+        "name": "m09-metrics",
+        "namespace": "dynamo-m08-1029",
+        "resourceVersion": "40924276",
+        "uid": "43160a4b-bb05-4562-bc8d-86780ff8daf0"
+    },
+    "spec": {
+        "activeDeadlineSeconds": 7200,
+        "containers": [
+            {
+                "args": [
+                    "--config.file=/config/prometheus.yml",
+                    "--storage.tsdb.path=/data",
+                    "--storage.tsdb.retention.time=2h"
+                ],
+                "image": "m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+                "imagePullPolicy": "Never",
+                "name": "prometheus",
+                "ports": [
+                    {
+                        "containerPort": 9090,
+                        "name": "http",
+                        "protocol": "TCP"
+                    }
+                ],
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "2Gi"
+                    },
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "256Mi"
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/config",
+                        "name": "config",
+                        "readOnly": true
+                    },
+                    {
+                        "mountPath": "/data",
+                        "name": "data"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-d6b85",
+                        "readOnly": true
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "nodeName": "worker06",
+        "nodeSelector": {
+            "kubernetes.io/hostname": "worker06"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+            "fsGroup": 65534
+        },
+        "serviceAccount": "m09-metrics",
+        "serviceAccountName": "m09-metrics",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "configMap": {
+                    "defaultMode": 420,
+                    "name": "m09-metrics"
+                },
+                "name": "config"
+            },
+            {
+                "emptyDir": {},
+                "name": "data"
+            },
+            {
+                "name": "kube-api-access-d6b85",
+                "projected": {
+                    "defaultMode": 420,
+                    "sources": [
+                        {
+                            "serviceAccountToken": {
+                                "expirationSeconds": 3607,
+                                "path": "token"
+                            }
+                        },
+                        {
+                            "configMap": {
+                                "items": [
+                                    {
+                                        "key": "ca.crt",
+                                        "path": "ca.crt"
+                                    }
+                                ],
+                                "name": "kube-root-ca.crt"
+                            }
+                        },
+                        {
+                            "downwardAPI": {
+                                "items": [
+                                    {
+                                        "fieldRef": {
+                                            "apiVersion": "v1",
+                                            "fieldPath": "metadata.namespace"
+                                        },
+                                        "path": "namespace"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T04:39:22Z",
+                "observedGeneration": 1,
+                "status": "False",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T02:39:21Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T04:39:21Z",
+                "observedGeneration": 1,
+                "reason": "PodFailed",
+                "status": "False",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T04:39:21Z",
+                "observedGeneration": 1,
+                "reason": "PodFailed",
+                "status": "False",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-10-30T02:39:21Z",
+                "observedGeneration": 1,
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "100m",
+                    "memory": "256Mi"
+                },
+                "containerID": "containerd://096d4840e1c39f41dff324efb693b890601e3cb7834f788f8815bc00567c46bc",
+                "image": "sha256:a3bc50fcb50fb1409287c32773d8fe799f6cad5511c4ba3e2e851784e7a05026",
+                "imageID": "m.daocloud.io/docker.io/prom/prometheus@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996",
+                "lastState": {},
+                "name": "prometheus",
+                "ready": false,
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "2Gi"
+                    },
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "256Mi"
+                    }
+                },
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "terminated": {
+                        "containerID": "containerd://096d4840e1c39f41dff324efb693b890601e3cb7834f788f8815bc00567c46bc",
+                        "exitCode": 0,
+                        "finishedAt": "2026-10-30T04:39:22Z",
+                        "reason": "Completed",
+                        "startedAt": "2026-10-30T02:39:23Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 65534,
+                        "supplementalGroups": [
+                            65534
+                        ],
+                        "uid": 65534
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/config",
+                        "name": "config",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/data",
+                        "name": "data"
+                    },
+                    {
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                        "name": "kube-api-access-d6b85",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.4.6",
+        "hostIPs": [
+            {
+                "ip": "192.168.4.6"
+            }
+        ],
+        "message": "Pod was active on the node longer than the specified deadline",
+        "observedGeneration": 1,
+        "phase": "Failed",
+        "podIP": "10.244.229.103",
+        "podIPs": [
+            {
+                "ip": "10.244.229.103"
+            }
+        ],
+        "qosClass": "Burstable",
+        "reason": "DeadlineExceeded",
+        "startTime": "2026-10-30T02:39:21Z"
+    }
+}

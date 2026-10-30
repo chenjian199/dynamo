@@ -1,0 +1,195 @@
+apiVersion: nvidia.com/v1beta1
+kind: DynamoGraphDeployment
+metadata:
+  annotations:
+    nvidia.com/dynamo-discovery-backend: kubernetes
+    nvidia.com/enable-grove: 'false'
+    nvidia.com/workload-provider: component
+  labels:
+    heyi.io/campaign: m09-offline-1030
+  name: vllm-agg-a9e161f3
+  namespace: dynamo-m08-1029
+spec:
+  backendFramework: vllm
+  components:
+  - name: Frontend
+    podTemplate:
+      spec:
+        containers:
+        - args:
+          - python
+          - -m
+          - dynamo.frontend
+          - --router-mode
+          - kv
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cpu
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          image: heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          name: main
+          resources:
+            limits:
+              cpu: '8'
+              memory: 32Gi
+            requests:
+              cpu: '1'
+              memory: 2Gi
+          volumeMounts:
+          - mountPath: /models/Qwen3-0.6B
+            name: models
+            readOnly: true
+          - mountPath: /m09-source
+            name: m09-source
+            readOnly: true
+        nodeSelector:
+          kubernetes.io/arch: amd64
+          kubernetes.io/hostname: worker06
+        terminationGracePeriodSeconds: 120
+        volumes:
+        - hostPath:
+            path: /ssd/models/dynamo-regression/Qwen3-0.6B
+            type: Directory
+          name: models
+        - hostPath:
+            path: /home/bedicloud/CJ_workspace/m09-offline-1030/source
+            type: Directory
+          name: m09-source
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    type: frontend
+  - name: VllmDecodeWorker
+    podTemplate:
+      metadata:
+        labels:
+          heyi.io/m08-pd: m08-pd-cross
+      spec:
+        containers:
+        - args:
+          - python
+          - -m
+          - dynamo.vllm
+          - --model
+          - /models/Qwen3-0.6B
+          - --served-model-name
+          - m09-model
+          - --enforce-eager
+          - --tensor-parallel-size
+          - '1'
+          - --max-model-len
+          - '4096'
+          - --max-num-seqs
+          - '8'
+          - --gpu-memory-utilization
+          - '0.3'
+          - --block-size
+          - '128'
+          - --disable-custom-all-reduce
+          - --kv-events-config
+          - '{"enable_kv_cache_events": true, "publisher": "zmq", "topic": "kv-events",
+            "endpoint": "tcp://*:20080"}'
+          - --kv-transfer-config
+          - '{"kv_connector": "NixlConnector", "kv_role": "kv_both"}'
+          - --kv-cache-memory-bytes
+          - '536870912'
+          - --enable-prefix-caching
+          command:
+          - /opt/dynamo/bin/entrypoint.sh
+          env:
+          - name: HF_HUB_OFFLINE
+            value: '1'
+          - name: DYN_REQUEST_PLANE
+            value: tcp
+          - name: DYN_EVENT_PLANE
+            value: zmq
+          - name: DYN_ROUTER_USE_KV_EVENTS
+            value: 'true'
+          - name: DYN_PLATFORM
+            value: cuda
+          - name: DYN_HEALTH_CHECK_PAYLOAD
+            value: '{"token_ids": [1], "sampling_options": {"temperature": 0.0}, "stop_conditions":
+              {"max_tokens": 1}, "annotations": ["x-bypass-remote-prefill"]}'
+          - name: VLLM_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: VLLM_MOONCAKE_BOOTSTRAP_PORT
+            value: '20090'
+          - name: VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT
+            value: '60'
+          - name: ASCEND_TRANSFER_TIMEOUT
+            value: '30000'
+          - name: PYTHONUNBUFFERED
+            value: '1'
+          - name: GOMAXPROCS
+            value: '4'
+          - name: SPT_NOENV
+            value: '1'
+          - name: UCX_TLS
+            value: tcp,sm,self,cuda_copy,cuda_ipc
+          - name: PYTHONPATH
+            value: /m09-source/components/src
+          - name: DYN_GRACEFUL_SHUTDOWN_GRACE_PERIOD_SECS
+            value: '60'
+          image: heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+          imagePullPolicy: Never
+          name: main
+          resources:
+            limits:
+              cpu: '8'
+              memory: 32Gi
+              nvidia.com/gpu: 1
+            requests:
+              cpu: '1'
+              memory: 2Gi
+              nvidia.com/gpu: 1
+          volumeMounts:
+          - mountPath: /models/Qwen3-0.6B
+            name: models
+            readOnly: true
+          - mountPath: /m09-source
+            name: m09-source
+            readOnly: true
+        nodeSelector:
+          kubernetes.io/arch: amd64
+          kubernetes.io/hostname: worker06
+        runtimeClassName: nvidia
+        terminationGracePeriodSeconds: 120
+        tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists
+        volumes:
+        - hostPath:
+            path: /ssd/models/dynamo-regression/Qwen3-0.6B
+            type: Directory
+          name: models
+        - hostPath:
+            path: /home/bedicloud/CJ_workspace/m09-offline-1030/source
+            type: Directory
+          name: m09-source
+    replicas: 1
+    runtimeVersionOverride: 1.5.1
+    sharedMemorySize: 8Gi
+    type: decode

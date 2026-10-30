@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "kind": "planner-bootstrap",
+  "identity": {
+    "schema_version": 1,
+    "platform": "ascend",
+    "device_model": "Ascend910B3",
+    "driver": "prefill=24.1.rc3;decode=25.2.0",
+    "sdk": "9.1.0",
+    "engine": "vllm",
+    "engine_version": "0.23.0+empty",
+    "plugin_version": "0.23.0",
+    "model": "/models/current",
+    "model_revision": "config-sha256:c3137398b85ef26b9592debadc424349f0b949b7ebe2f20603dda12efab4d533",
+    "precision": "W8A8",
+    "parallelism": {
+      "prefill_tp": 8,
+      "decode_tp": 8,
+      "prefill_moe_tp": 1,
+      "decode_moe_tp": 1,
+      "prefill_moe_ep": 8,
+      "decode_moe_ep": 8
+    },
+    "kv_config": {
+      "worker_arguments": [
+        "python",
+        "-m",
+        "dynamo.vllm",
+        "--model",
+        "/models/current",
+        "--served-model-name",
+        "m09-model",
+        "--enforce-eager",
+        "--tensor-parallel-size",
+        "8",
+        "--max-model-len",
+        "4096",
+        "--max-num-seqs",
+        "16",
+        "--gpu-memory-utilization",
+        "0.9",
+        "--block-size",
+        "128",
+        "--disable-custom-all-reduce",
+        "--no-enable-prefix-caching",
+        "--tokenizer-mode",
+        "deepseek_v4",
+        "--reasoning-parser",
+        "deepseek_v4",
+        "--enable-expert-parallel",
+        "--quantization",
+        "ascend",
+        "--max-num-batched-tokens",
+        "4096",
+        "--additional-config",
+        "{\"enable_dsa_cp\":true}"
+      ]
+    },
+    "topology": {
+      "nodes": 2,
+      "prefill_node": "master-02-45d4a763",
+      "decode_node": "master"
+    },
+    "runtime_image": "sha256:a0d44e6ad9e0d4e1607fe39d677429cb48d4fa5b3618f8cd9d819eacf6ebbf82"
+  },
+  "fingerprint": "de4e1c38736af56d1210dffb48ecb9f9a1506c244933827d448aa6136703ce28",
+  "created_at": 1793347866.9723537,
+  "files": {
+    "selected_prefill_interpolation/raw_data.npz": "bae3eb8c83f1d615bd3764cf31e10877de2407c87e2d495b3229cfda16074140",
+    "selected_decode_interpolation/raw_data.npz": "d67486b86fb1b25153dd687ea8603c676689c5aacf1af08539af4c03393a2c12"
+  }
+}

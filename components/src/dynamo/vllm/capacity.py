@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -10,6 +12,69 @@ from typing import Any
 from dynamo.common.token_budget import TokenBudget, publish_token_budget
 
 logger = logging.getLogger(__name__)
+
+
+def _worker_kv_capacity(worker: Any) -> int | None:
+    from vllm.v1.core.kv_cache_utils import get_max_concurrency_for_kv_cache_config
+
+    cache = worker.model_runner.kv_cache_config
+    if not cache.kv_cache_groups:
+        return None
+    config = worker.vllm_config
+    return int(
+        get_max_concurrency_for_kv_cache_config(config, cache)
+        * config.model_config.max_model_len
+    )
+
+
+class KVCapacityWorkerExtension:
+    """Primitive-only RPC for engines without a parent-process capacity field."""
+
+    def get_dynamo_kv_capacity(self) -> int | None:
+        return _worker_kv_capacity(self)
+
+
+def configure_kv_capacity_worker(vllm_config: Any) -> None:
+    if hasattr(vllm_config.cache_config, "kv_cache_size_tokens"):
+        return
+    parallel = vllm_config.parallel_config
+    if not getattr(parallel, "worker_extension_cls", None):
+        parallel.worker_extension_cls = "dynamo.vllm.capacity.KVCapacityWorkerExtension"
+
+
+async def publish_kv_cache_capacity(runtime_config: Any, engine: Any) -> None:
+    """Publish the engine's group-aware token capacity independently of KV events.
+
+    Recent vLLM reports this per engine, even when num_gpu_blocks is summed
+    across DP ranks. Event block widths describe routing hashes and cannot be
+    multiplied by a shared hybrid block pool to estimate serving capacity.
+    Older engines are queried on their workers using vLLM's own group-aware
+    calculation. If neither interface exists, retain the legacy contract.
+    """
+    tokens = getattr(engine.vllm_config.cache_config, "kv_cache_size_tokens", None)
+    if tokens is None:
+        try:
+            values = await engine.collective_rpc("get_dynamo_kv_capacity")
+        except Exception as error:
+            logger.warning(
+                "Engine KV capacity query unavailable; retaining legacy capacity: %s",
+                error,
+            )
+            return
+        if not values or any(v is None for v in values):
+            return
+        if any(isinstance(v, bool) or not isinstance(v, int) or v <= 0 for v in values):
+            raise ValueError("vLLM worker KV capacity must be a positive integer")
+        tokens = min(values)
+    if isinstance(tokens, bool) or not isinstance(tokens, int) or tokens < 0:
+        raise ValueError("vLLM kv_cache_size_tokens must be a nonnegative integer")
+    if tokens == 0:
+        # Pooling/encoder engines may have no KV cache to advertise.
+        return
+    runtime_config.set_engine_specific(
+        "kv_cache_capacity",
+        json.dumps({"tokens": tokens, "scope": "per_engine", "source": "vllm"}),
+    )
 
 
 def publish_vllm_token_budget(runtime_config: Any, max_model_len: int | None) -> None:

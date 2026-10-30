@@ -1,0 +1,81 @@
+{
+  "source": "files only; no live worker access",
+  "restart_prediction_tolerance": {
+    "relative": 1e-09,
+    "absolute": 1e-09
+  },
+  "fingerprint": "3e9c8d6a3d0d2725783c5d220672501907a55170041be4570f17e1c930b5f3c9",
+  "coverage": {
+    "prefill": 6,
+    "decode": 6
+  },
+  "models": [
+    {
+      "role": "prefill",
+      "capabilities": {
+        "num_gpu": 1,
+        "gpu_cost_per_replica": null,
+        "max_num_batched_tokens": 8192,
+        "max_num_seqs": 8,
+        "context_length": 4096,
+        "max_kv_tokens": 4608,
+        "kv_cache_block_size": 128,
+        "speculative_nextn": null,
+        "power_watts_per_replica": null
+      },
+      "capabilities_source": "/offline/sweep-mdc.json",
+      "samples": 6,
+      "predictions": [
+        {
+          "rps": 174.10454706716936,
+          "ttft_ms": 45.94940301538252,
+          "itl_ms": null,
+          "e2e_latency_ms": 45.94940301538252,
+          "eligible": true
+        },
+        {
+          "rps": 174.1045470671693,
+          "ttft_ms": 45.949403015382536,
+          "itl_ms": null,
+          "e2e_latency_ms": 45.949403015382536,
+          "eligible": true
+        }
+      ],
+      "reusable": true
+    },
+    {
+      "role": "decode",
+      "capabilities": {
+        "num_gpu": 1,
+        "gpu_cost_per_replica": null,
+        "max_num_batched_tokens": 8192,
+        "max_num_seqs": 8,
+        "context_length": 4096,
+        "max_kv_tokens": 4608,
+        "kv_cache_block_size": 128,
+        "speculative_nextn": null,
+        "power_watts_per_replica": null
+      },
+      "capabilities_source": "/offline/sweep-mdc.json",
+      "samples": 6,
+      "predictions": [
+        {
+          "rps": 5.074427454716821,
+          "ttft_ms": null,
+          "itl_ms": 12.31666046223688,
+          "e2e_latency_ms": null,
+          "eligible": true
+        },
+        {
+          "rps": 5.074427454716823,
+          "ttft_ms": null,
+          "itl_ms": 12.316660462236875,
+          "e2e_latency_ms": null,
+          "eligible": true
+        }
+      ],
+      "reusable": true
+    }
+  ],
+  "passed": true
+}
