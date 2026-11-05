@@ -1,23 +1,44 @@
 {
   "source": "docs/fern/components/releases.data.ts",
   "generator": "docs/fern/scripts/gen_llms_tables.py",
-  "updated": "2026-10-06",
+  "updated": "2026-10-22",
   "current": {
-    "version": "v1.5.1",
-    "date": "Oct 6, 2026",
-    "dateIso": "2026-10-06",
-    "tag": "1.5.1",
-    "wheel": "1.5.1"
+    "version": "v1.6.0",
+    "date": "Oct 22, 2026",
+    "dateIso": "2026-10-22",
+    "tag": "1.6.0",
+    "wheel": "1.6.0"
   },
   "mainTot": {
-    "sglang": "0.5.22",
-    "trtllm": "1.3.0rc29",
-    "vllm": "0.31.0",
-    "nixlSglang": "1.5.0",
+    "sglang": "0.5.23",
+    "trtllm": "1.4.0rc2",
+    "vllm": "0.32.0",
+    "nixlSglang": "1.5.2",
     "nixlTrtllm": "1.3.1",
-    "nixlVllm": "1.4.1"
+    "nixlVllm": "1.5.0"
   },
   "releases": [
+    {
+      "version": "v1.6.0",
+      "notesHref": "/dynamo/dev/reference/releases/v1-6-0",
+      "date": "Oct 22, 2026",
+      "kind": "stable",
+      "github": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.6.0",
+      "docs": "https://docs.nvidia.com/dynamo",
+      "pins": {
+        "sglang": "0.5.21",
+        "trtllm": "1.3.0rc29",
+        "vllm": "0.31.0",
+        "nixlSglang": "1.5.0",
+        "nixlTrtllm": "1.3.1",
+        "nixlVllm": "1.4.1"
+      },
+      "ucx": "1.21.x",
+      "delta": "vLLM worker services renamed to worker, prefill and decode; Dynamo Operator no longer adopts resources it does not own and validates multinode settings more strictly; Grove v0.1.0-alpha.14 required for new multinode deployments, with Coherent updates now opt-in; AIConfigurator options renamed to AISimulate (--aic-* to --ais-*); Router policy YAML takes precedence over the scoring flags, which are deprecated with removal targeted for v1.7.0; structural tags on by default for supported parsers; TensorRT-LLM AutoDeploy backend removed and the TensorRT-LLM sidecar moved to the OpenEngine gRPC API; invalid DYN_REQUEST_PLANE and DYN_EVENT_PLANE values fail at startup.",
+      "notesSummary": "Pluggable flow control on one shared worker-selection core in the Router, V2 tool and reasoning parsers and a rerank endpoint in the Frontend, video-aware KV routing for SGLang, LPX components and role-specific pod templates on Kubernetes, Snapshot-backed engine failover, and runtime GPU budget reconfiguration in the Planner.",
+      "dateIso": "2026-10-22",
+      "notesUrl": "https://docs.nvidia.com/dynamo/dev/reference/releases/v1-6-0"
+    },
     {
       "version": "v1.5.1",
       "notesHref": "/dynamo/dev/reference/releases/v1-5-0#v151",
@@ -607,6 +628,24 @@
     }
   ],
   "cudaHistory": [
+    {
+      "version": "1.6.0",
+      "backend": "SGLang",
+      "toolkit": "13.0",
+      "minDriver": "580.xx+"
+    },
+    {
+      "version": "1.6.0",
+      "backend": "TensorRT-LLM",
+      "toolkit": "13.1",
+      "minDriver": "580.xx+"
+    },
+    {
+      "version": "1.6.0",
+      "backend": "vLLM",
+      "toolkit": "13.0",
+      "minDriver": "580.xx+"
+    },
     {
       "version": "1.5.1",
       "backend": "SGLang",
@@ -1295,16 +1334,16 @@
       "group": "runtime",
       "name": "vllm-runtime",
       "description": "vLLM backend runtime",
-      "meta": "vLLM v0.28.0 · CUDA 13.0 · AMD64/ARM64",
-      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/ai-dynamo/containers/vllm-runtime/tags",
+      "meta": "vLLM v0.31.0 · CUDA 13.0 · AMD64/ARM64",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/vllm-runtime/tags",
       "tags": [
         {
-          "label": "1.5.1",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1"
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.0"
         },
         {
-          "label": "1.5.1-efa",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1-efa",
+          "label": "1.6.0-efa",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.0-efa",
           "variant": "experimental"
         }
       ]
@@ -1314,16 +1353,16 @@
       "group": "runtime",
       "name": "sglang-runtime",
       "description": "SGLang backend runtime",
-      "meta": "SGLang v0.5.18 · CUDA 13.0 · AMD64/ARM64",
-      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/ai-dynamo/containers/sglang-runtime/tags",
+      "meta": "SGLang v0.5.21 · CUDA 13.0 · AMD64/ARM64",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/sglang-runtime/tags",
       "tags": [
         {
-          "label": "1.5.1",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.5.1"
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.6.0"
         },
         {
-          "label": "1.5.1-efa",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.5.1-efa",
+          "label": "1.6.0-efa",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.6.0-efa",
           "variant": "experimental"
         }
       ]
@@ -1333,16 +1372,16 @@
       "group": "runtime",
       "name": "tensorrtllm-runtime",
       "description": "TensorRT-LLM backend runtime",
-      "meta": "TRT-LLM v1.3.0rc25 · CUDA 13.1 · AMD64/ARM64",
-      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/ai-dynamo/containers/tensorrtllm-runtime/tags",
+      "meta": "TRT-LLM v1.3.0rc29 · CUDA 13.1 · AMD64/ARM64",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/tensorrtllm-runtime/tags",
       "tags": [
         {
-          "label": "1.5.1",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.5.1"
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.6.0"
         },
         {
-          "label": "1.5.1-efa",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.5.1-efa",
+          "label": "1.6.0-efa",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.6.0-efa",
           "variant": "experimental"
         }
       ]
@@ -1353,11 +1392,11 @@
       "name": "dynamo-frontend",
       "description": "OpenAI-compatible API gateway with Endpoint Prediction Protocol (EPP)",
       "meta": "AMD64/ARM64",
-      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/ai-dynamo/containers/dynamo-frontend/tags",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/dynamo-frontend/tags",
       "tags": [
         {
-          "label": "1.5.1",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/dynamo-frontend:1.5.1"
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/dynamo-frontend:1.6.0"
         }
       ]
     },
@@ -1367,11 +1406,11 @@
       "name": "dynamo-planner",
       "description": "Standalone Planner used by Profiler jobs and Planner pods",
       "meta": "AMD64/ARM64",
-      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/ai-dynamo/containers/dynamo-planner/tags",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/dynamo-planner/tags",
       "tags": [
         {
-          "label": "1.5.1",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/dynamo-planner:1.5.1"
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/dynamo-planner:1.6.0"
         }
       ]
     },
@@ -1381,11 +1420,26 @@
       "name": "kubernetes-operator",
       "description": "Operator that manages Dynamo deployments and CRDs",
       "meta": "AMD64/ARM64",
-      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/ai-dynamo/containers/kubernetes-operator/tags",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/kubernetes-operator/tags",
       "tags": [
         {
-          "label": "1.5.1",
-          "clipboard": "nvcr.io/nvidia/ai-dynamo/kubernetes-operator:1.5.1"
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/kubernetes-operator:1.6.0"
+        }
+      ]
+    },
+    {
+      "category": "container",
+      "group": "component",
+      "name": "dynamo-sidecar",
+      "description": "Dynamo Sidecar, which runs Dynamo beside a stock SGLang, TensorRT-LLM, or vLLM engine",
+      "meta": "CPU-only · AMD64/ARM64",
+      "href": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/ai-dynamo/containers/dynamo-sidecar/tags",
+      "badge": "Experimental",
+      "tags": [
+        {
+          "label": "1.6.0",
+          "clipboard": "nvcr.io/nvidia/ai-dynamo/dynamo-sidecar:1.6.0"
         }
       ]
     },
@@ -1394,11 +1448,11 @@
       "name": "ai-dynamo",
       "description": "Main package with backend integrations (vLLM, SGLang, TRT-LLM)",
       "meta": "Python 3.10–3.12 · Linux (glibc v2.28+)",
-      "href": "https://pypi.org/project/ai-dynamo/1.5.1/",
+      "href": "https://pypi.org/project/ai-dynamo/1.6.0/",
       "tags": [
         {
-          "label": "uv pip install ai-dynamo==1.5.1",
-          "clipboard": "uv pip install ai-dynamo==1.5.1"
+          "label": "uv pip install ai-dynamo==1.6.0",
+          "clipboard": "uv pip install ai-dynamo==1.6.0"
         }
       ]
     },
@@ -1407,11 +1461,11 @@
       "name": "ai-dynamo-runtime",
       "description": "Core Python bindings for the Dynamo runtime",
       "meta": "Python 3.10–3.12 · Linux (glibc v2.28+)",
-      "href": "https://pypi.org/project/ai-dynamo-runtime/1.5.1/",
+      "href": "https://pypi.org/project/ai-dynamo-runtime/1.6.0/",
       "tags": [
         {
-          "label": "uv pip install ai-dynamo-runtime==1.5.1",
-          "clipboard": "uv pip install ai-dynamo-runtime==1.5.1"
+          "label": "uv pip install ai-dynamo-runtime==1.6.0",
+          "clipboard": "uv pip install ai-dynamo-runtime==1.6.0"
         }
       ]
     },
@@ -1420,11 +1474,11 @@
       "name": "kvbm",
       "description": "KV Block Manager for disaggregated KV cache",
       "meta": "Python 3.10–3.12 · Linux (glibc v2.28+)",
-      "href": "https://pypi.org/project/kvbm/1.5.1/",
+      "href": "https://pypi.org/project/kvbm/1.6.0/",
       "tags": [
         {
-          "label": "uv pip install kvbm==1.5.1",
-          "clipboard": "uv pip install kvbm==1.5.1"
+          "label": "uv pip install kvbm==1.6.0",
+          "clipboard": "uv pip install kvbm==1.6.0"
         }
       ]
     },
@@ -1432,11 +1486,11 @@
       "category": "helm",
       "name": "dynamo-platform",
       "description": "Platform services (etcd, NATS) and the Dynamo Operator for a Dynamo cluster",
-      "href": "https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dynamo-platform-1.5.1.tgz",
+      "href": "https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dynamo-platform-1.6.0.tgz",
       "tags": [
         {
-          "label": "helm install · dynamo-platform 1.5.1",
-          "clipboard": "helm install dynamo-platform https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dynamo-platform-1.5.1.tgz"
+          "label": "helm install · dynamo-platform 1.6.0",
+          "clipboard": "helm install dynamo-platform https://helm.ngc.nvidia.com/nvidia/ai-dynamo/charts/dynamo-platform-1.6.0.tgz"
         }
       ]
     },
@@ -1445,11 +1499,11 @@
       "name": "dynamo-runtime",
       "description": "Core distributed runtime library",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-runtime/1.5.1",
+      "href": "https://crates.io/crates/dynamo-runtime/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-runtime@1.5.1",
-          "clipboard": "cargo add dynamo-runtime@1.5.1"
+          "label": "cargo add dynamo-runtime@1.6.0",
+          "clipboard": "cargo add dynamo-runtime@1.6.0"
         }
       ]
     },
@@ -1458,11 +1512,11 @@
       "name": "dynamo-llm",
       "description": "LLM inference engine",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-llm/1.5.1",
+      "href": "https://crates.io/crates/dynamo-llm/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-llm@1.5.1",
-          "clipboard": "cargo add dynamo-llm@1.5.1"
+          "label": "cargo add dynamo-llm@1.6.0",
+          "clipboard": "cargo add dynamo-llm@1.6.0"
         }
       ]
     },
@@ -1513,11 +1567,11 @@
       "name": "dynamo-memory",
       "description": "Memory management utilities",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-memory/1.5.1",
+      "href": "https://crates.io/crates/dynamo-memory/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-memory@1.5.1",
-          "clipboard": "cargo add dynamo-memory@1.5.1"
+          "label": "cargo add dynamo-memory@1.6.0",
+          "clipboard": "cargo add dynamo-memory@1.6.0"
         }
       ]
     },
@@ -1539,11 +1593,11 @@
       "name": "dynamo-tokens",
       "description": "Tokenizer bindings for LLM inference",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-tokens/1.5.1",
+      "href": "https://crates.io/crates/dynamo-tokens/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-tokens@1.5.1",
-          "clipboard": "cargo add dynamo-tokens@1.5.1"
+          "label": "cargo add dynamo-tokens@1.6.0",
+          "clipboard": "cargo add dynamo-tokens@1.6.0"
         }
       ]
     },
@@ -1566,11 +1620,11 @@
       "name": "dynamo-mocker",
       "description": "Inference engine simulator for benchmarking",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-mocker/1.5.1",
+      "href": "https://crates.io/crates/dynamo-mocker/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-mocker@1.5.1",
-          "clipboard": "cargo add dynamo-mocker@1.5.1"
+          "label": "cargo add dynamo-mocker@1.6.0",
+          "clipboard": "cargo add dynamo-mocker@1.6.0"
         }
       ]
     },
@@ -1579,11 +1633,11 @@
       "name": "dynamo-kv-router",
       "description": "KV-aware request routing library",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-kv-router/1.5.1",
+      "href": "https://crates.io/crates/dynamo-kv-router/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-kv-router@1.5.1",
-          "clipboard": "cargo add dynamo-kv-router@1.5.1"
+          "label": "cargo add dynamo-kv-router@1.6.0",
+          "clipboard": "cargo add dynamo-kv-router@1.6.0"
         }
       ]
     },
@@ -1592,11 +1646,11 @@
       "name": "kvbm-logical",
       "description": "Logical layer for the KV Block Manager",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/kvbm-logical/1.5.1",
+      "href": "https://crates.io/crates/kvbm-logical/1.6.0",
       "tags": [
         {
-          "label": "cargo add kvbm-logical@1.5.1",
-          "clipboard": "cargo add kvbm-logical@1.5.1"
+          "label": "cargo add kvbm-logical@1.6.0",
+          "clipboard": "cargo add kvbm-logical@1.6.0"
         }
       ]
     },
@@ -1605,11 +1659,11 @@
       "name": "dynamo-kv-hashing",
       "description": "Request-to-lineage-hash contract for KV cache identity",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-kv-hashing/1.5.1",
+      "href": "https://crates.io/crates/dynamo-kv-hashing/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-kv-hashing@1.5.1",
-          "clipboard": "cargo add dynamo-kv-hashing@1.5.1"
+          "label": "cargo add dynamo-kv-hashing@1.6.0",
+          "clipboard": "cargo add dynamo-kv-hashing@1.6.0"
         }
       ]
     },
@@ -1618,11 +1672,11 @@
       "name": "dynamo-data-gen",
       "description": "Schemas and primitives for Dynamo data generation and replay traces",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-data-gen/1.5.1",
+      "href": "https://crates.io/crates/dynamo-data-gen/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-data-gen@1.5.1",
-          "clipboard": "cargo add dynamo-data-gen@1.5.1"
+          "label": "cargo add dynamo-data-gen@1.6.0",
+          "clipboard": "cargo add dynamo-data-gen@1.6.0"
         }
       ]
     },
@@ -1631,11 +1685,11 @@
       "name": "dynamo-rl",
       "description": "Dynamo RL worker discovery API",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-rl/1.5.1",
+      "href": "https://crates.io/crates/dynamo-rl/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-rl@1.5.1",
-          "clipboard": "cargo add dynamo-rl@1.5.1"
+          "label": "cargo add dynamo-rl@1.6.0",
+          "clipboard": "cargo add dynamo-rl@1.6.0"
         }
       ]
     },
@@ -1644,11 +1698,11 @@
       "name": "dynamo-bench",
       "description": "Lightweight HTTP benchmarks for Dynamo endpoints",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-bench/1.5.1",
+      "href": "https://crates.io/crates/dynamo-bench/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-bench@1.5.1",
-          "clipboard": "cargo add dynamo-bench@1.5.1"
+          "label": "cargo add dynamo-bench@1.6.0",
+          "clipboard": "cargo add dynamo-bench@1.6.0"
         }
       ]
     },
@@ -1657,11 +1711,11 @@
       "name": "dynamo-truthy",
       "description": "Canonical truthy/falsy boolean flag parsing",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/dynamo-truthy/1.5.1",
+      "href": "https://crates.io/crates/dynamo-truthy/1.6.0",
       "tags": [
         {
-          "label": "cargo add dynamo-truthy@1.5.1",
-          "clipboard": "cargo add dynamo-truthy@1.5.1"
+          "label": "cargo add dynamo-truthy@1.6.0",
+          "clipboard": "cargo add dynamo-truthy@1.6.0"
         }
       ]
     },
@@ -1670,11 +1724,11 @@
       "name": "kvbm-common",
       "description": "Shared types for the KV Block Manager",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/kvbm-common/1.5.1",
+      "href": "https://crates.io/crates/kvbm-common/1.6.0",
       "tags": [
         {
-          "label": "cargo add kvbm-common@1.5.1",
-          "clipboard": "cargo add kvbm-common@1.5.1"
+          "label": "cargo add kvbm-common@1.6.0",
+          "clipboard": "cargo add kvbm-common@1.6.0"
         }
       ]
     },
@@ -1683,11 +1737,11 @@
       "name": "kvbm-config",
       "description": "KVBM configuration for Tokio, Rayon, and Messenger runtimes",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/kvbm-config/1.5.1",
+      "href": "https://crates.io/crates/kvbm-config/1.6.0",
       "tags": [
         {
-          "label": "cargo add kvbm-config@1.5.1",
-          "clipboard": "cargo add kvbm-config@1.5.1"
+          "label": "cargo add kvbm-config@1.6.0",
+          "clipboard": "cargo add kvbm-config@1.6.0"
         }
       ]
     },
@@ -1696,11 +1750,11 @@
       "name": "kvbm-kernels",
       "description": "CUDA kernels for the KV Block Manager",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/kvbm-kernels/1.5.1",
+      "href": "https://crates.io/crates/kvbm-kernels/1.6.0",
       "tags": [
         {
-          "label": "cargo add kvbm-kernels@1.5.1",
-          "clipboard": "cargo add kvbm-kernels@1.5.1"
+          "label": "cargo add kvbm-kernels@1.6.0",
+          "clipboard": "cargo add kvbm-kernels@1.6.0"
         }
       ]
     },
@@ -1709,11 +1763,11 @@
       "name": "kvbm-physical",
       "description": "Physical block layer for the KV Block Manager",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/kvbm-physical/1.5.1",
+      "href": "https://crates.io/crates/kvbm-physical/1.6.0",
       "tags": [
         {
-          "label": "cargo add kvbm-physical@1.5.1",
-          "clipboard": "cargo add kvbm-physical@1.5.1"
+          "label": "cargo add kvbm-physical@1.6.0",
+          "clipboard": "cargo add kvbm-physical@1.6.0"
         }
       ]
     },
@@ -1722,11 +1776,11 @@
       "name": "kvbm-engine",
       "description": "Distributed coordination primitives for KVBM",
       "meta": "MSRV Rust v1.82",
-      "href": "https://crates.io/crates/kvbm-engine/1.5.1",
+      "href": "https://crates.io/crates/kvbm-engine/1.6.0",
       "tags": [
         {
-          "label": "cargo add kvbm-engine@1.5.1",
-          "clipboard": "cargo add kvbm-engine@1.5.1"
+          "label": "cargo add kvbm-engine@1.6.0",
+          "clipboard": "cargo add kvbm-engine@1.6.0"
         }
       ]
     },
@@ -1786,7 +1840,7 @@
       "gaLabel": "Dev-only · v1.4.0 line",
       "statusLine": "First build on the v1.4.0 line; targets the next stable release.",
       "recipeLabel": "Inkling recipe (main)",
-      "recipeHref": "https://github.com/ai-dynamo/dynamo/blob/main/docs/recipes/inkling.mdx",
+      "recipeHref": "/dynamo/dev/recipes/inkling",
       "github": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.4.0-inkling-dev.1",
       "coverage": {
         "images": true,
@@ -2164,6 +2218,13 @@
     }
   ],
   "releaseStats": {
+    "v1.6.0": {
+      "prs": 654,
+      "contributors": 148,
+      "firstTimers": 45,
+      "breaking": 41,
+      "knownIssues": 15
+    },
     "v1.5.1": {
       "breaking": 2,
       "knownIssues": 2
@@ -2171,6 +2232,7 @@
     "v1.5.0": {
       "prs": 658,
       "contributors": 123,
+      "firstTimers": 23,
       "breaking": 44,
       "knownIssues": 12
     },
@@ -2230,34 +2292,31 @@
   "nightliesNote": "ai-dynamo and ai-dynamo-runtime nightly builds from main publish wheels tagged `*.devYYYYMMDD` (since Apr 24, 2026); kvbm joined the nightly train on Aug 2, 2026. Install with pip or uv using `--pre` and the NVIDIA extra-index pattern shown above. Runtime containers publish to the `*-runtime-nightly` repositories on NGC, under a dated `YYYYMMDD-<shortsha>` tag plus a rolling `latest` tag. A night is listed once both its `ai-dynamo` and `ai-dynamo-runtime` wheels published; a night with an incomplete wheel train is omitted.",
   "nightlyBuilds": [
     {
-      "version": "1.6.0.dev20261018",
-      "date": "Oct 18, 2026",
+      "version": "1.7.0.dev20261103",
+      "date": "Nov 3, 2026",
       "packages": [
         "ai-dynamo",
-        "ai-dynamo-runtime",
-        "kvbm"
+        "ai-dynamo-runtime"
       ],
-      "dateIso": "2026-10-18"
+      "dateIso": "2026-11-03"
     },
     {
-      "version": "1.6.0.dev20261016",
-      "date": "Oct 16, 2026",
+      "version": "1.7.0.dev20261102",
+      "date": "Nov 2, 2026",
       "packages": [
         "ai-dynamo",
-        "ai-dynamo-runtime",
-        "kvbm"
+        "ai-dynamo-runtime"
       ],
-      "dateIso": "2026-10-16"
+      "dateIso": "2026-11-02"
     },
     {
-      "version": "1.6.0.dev20261015",
-      "date": "Oct 15, 2026",
+      "version": "1.7.0.dev20261101",
+      "date": "Nov 1, 2026",
       "packages": [
         "ai-dynamo",
-        "ai-dynamo-runtime",
-        "kvbm"
+        "ai-dynamo-runtime"
       ],
-      "dateIso": "2026-10-15"
+      "dateIso": "2026-11-01"
     }
   ]
 }

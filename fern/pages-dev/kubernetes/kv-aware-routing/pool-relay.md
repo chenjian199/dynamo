@@ -1,14 +1,14 @@
 ---
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-title: Deploy the DC KV Relay
+title: Deploy the Pool Relay
 subtitle: Discover existing workers and publish endpoint-local KV pool facts from Kubernetes
 ---
 
-**Experimental.** Deploy NVIDIA Dynamo's DC KV Relay alongside existing inference workers.
+**Experimental.** Deploy NVIDIA Dynamo's Pool Relay (formerly KV DC Relay) alongside existing inference workers.
 The Relay uses the shared Dynamo runtime and universal publisher; it does not serve inference
 requests or choose a destination data center. For the producer model, see
-[DC KV Relay Concepts](../../developer-guide/knowledge-base/modular-components/router/multi-dc-kv-routing.md).
+[Pool Relay Concepts](../../developer-guide/knowledge-base/modular-components/router/multi-dc-kv-routing.md).
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ requests or choose a destination data center. For the producer model, see
 - Ready inference workers using Kubernetes discovery in one Kubernetes namespace. They must
   advertise model cards, KV event sources, and a recoverable KV-state endpoint. Enabling a
   listener on Relay does not enable worker KV events.
-- A container image built from a revision that includes `dynamo.kv_dc_relay`, its Rust bindings,
+- A container image built from a revision that includes `dynamo.pool_relay`, its Rust bindings,
   and the WAN protocol. Older released images may not contain this module; use the repository's
   [container build instructions](https://github.com/ai-dynamo/dynamo/blob/main/container/README.md)
   from the same revision.
@@ -30,6 +30,70 @@ requests or choose a destination data center. For the producer model, see
 
 See [Using the Dynamo Frontend](dynamo-frontend.md) for worker KV-event configuration and
 [Runtime Configuration](../../reference/components/runtime-configuration.mdx) for shared runtime settings.
+
+## Deploy with the Operator
+
+Use `DynamoPoolRelay` for active Relay replicas managed by the operator. Install an operator that
+includes this CRD and use a Relay image built from the same revision. The image must run
+`dynamo.pool_relay` with the `--sources-file` option; an older image with only
+`dynamo.kv_dc_relay` will not start this workload.
+
+Create the resource in the same Kubernetes namespace and with the same name as an existing DGD.
+The DGD must use Kubernetes pod-mode discovery, have at least one worker, and avoid
+`globalDynamoNamespace` on its workers and frontends. Its name must start with a lowercase letter,
+contain only lowercase letters, digits, and hyphens, and be at most 52 characters so the operator
+can create a `<dgd>-pool-relay` Service.
+
+Save the following as `pool-relay-operator.yaml`. Replace the image and cluster ID, then match the
+transport settings to the DGD's workers. The [operator sample](https://github.com/ai-dynamo/dynamo/blob/main/deploy/operator/samples/dynamo-pool-relay.yaml)
+has the same fields.
+
+```yaml
+apiVersion: nvidia.com/v1alpha1
+kind: DynamoPoolRelay
+metadata:
+  name: green
+  namespace: inference
+spec:
+  clusterId: example-cluster
+  replicas: 2
+  podTemplate:
+    spec:
+      containers:
+        - name: main
+          image: REPLACE_WITH_RELAY_IMAGE
+          env:
+            - name: DYN_REQUEST_PLANE
+              value: tcp
+            - name: DYN_EVENT_PLANE
+              value: zmq
+```
+
+```bash
+kubectl -n inference get dgd green
+kubectl apply -f pool-relay-operator.yaml
+kubectl -n inference wait dynamopoolrelay/green --for=condition=Ready --timeout=300s
+kubectl -n inference get dynamopoolrelay green -o jsonpath='{.status.endpoint}{"\n"}'
+```
+
+`Ready` means all requested Relay listeners are available. It does not mean that the DGD's models
+or KV pools are ready. The endpoint is cluster-local and is empty after withdrawal or a failed
+reconciliation. If `Ready` is False, inspect the condition reason with
+`kubectl -n inference describe dynamopoolrelay green` and check the Relay Pod logs. To publish
+serving load, set `DYN_SERVING_LOAD_PUBLISH=1` on the DGD's frontend Pods.
+
+The `podTemplate` follows DGD's Pod configuration shape. Put the image and transport environment
+on its `main` container. You can also set image pull secrets, resources, and sidecars there. The
+operator supplies the main command, listener ports and probes, source volume, service account,
+and Relay identity environment variables; leave those out of the template. Reserved environment
+names are `DYN_NAMESPACE`, `DYN_DISCOVERY_BACKEND`, `DYN_KUBE_DISCOVERY_MODE`, `DYN_SYSTEM_PORT`,
+`DYN_TCP_RESPONSE_STREAM_HOST`, `DYN_TCP_RESPONSE_STREAM_PORT`, `DYN_CLUSTER_ID`, `DYN_RELAY_BIND`,
+`DYN_RELAY_CONNECTION_REVISION`, `DYN_RELAY_NAMESPACES`, `DYN_RELAY_WATCH_ALL`,
+`DYN_RELAY_ENDPOINT_PREFIXES`, `POD_NAME`, `POD_NAMESPACE`, and `POD_UID`. The main container
+cannot use `envFrom` because it could override those values.
+
+The manual manifest below runs one Relay replica and is not an HA deployment. Use it when the
+operator does not manage your Relay.
 
 ## Discovery Scope
 
@@ -63,8 +127,8 @@ discovery modes without checking the workers' registration mode.
 
 ## Deploy the Relay
 
-Save the following manifest as `kv-dc-relay.yaml`. Replace `REPLACE_WITH_RELAY_IMAGE` with your
-image and set `--dc-id` to your stable logical data-center name. Add `imagePullSecrets` if needed.
+Save the following manifest as `pool-relay.yaml`. Replace `REPLACE_WITH_RELAY_IMAGE` with your
+image and set `--cluster-id` to your stable logical data-center name. Add `imagePullSecrets` if needed.
 The manifest uses TCP requests and NATS events. For a deployment without NATS, apply the
 [TCP-only settings](#tcp-only-local-planes-no-nats) below before deploying. Otherwise, replace
 the sample NATS address with the workers' address and supply any credentials through Secrets.
@@ -77,12 +141,12 @@ starting allocations, not sizing guarantees: pool count and expected unique bloc
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kv-dc-relay
+  name: pool-relay
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: kv-dc-relay
+  name: pool-relay
 rules:
   - apiGroups: ["nvidia.com"]
     resources: ["dynamoworkermetadatas"]
@@ -94,41 +158,41 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: kv-dc-relay
+  name: pool-relay
 subjects:
   - kind: ServiceAccount
-    name: kv-dc-relay
+    name: pool-relay
     namespace: dynamo
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: kv-dc-relay
+  name: pool-relay
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kv-dc-relay
+  name: pool-relay
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app.kubernetes.io/name: kv-dc-relay
+      app.kubernetes.io/name: pool-relay
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: kv-dc-relay
+        app.kubernetes.io/name: pool-relay
         nvidia.com/dynamo-discovery-backend: kubernetes
         nvidia.com/dynamo-discovery-enabled: "true"
     spec:
-      serviceAccountName: kv-dc-relay
+      serviceAccountName: pool-relay
       terminationGracePeriodSeconds: 60
       containers:
         - name: relay
           image: REPLACE_WITH_RELAY_IMAGE
-          command: ["python3", "-m", "dynamo.kv_dc_relay"]
-          args: ["--dc-id", "dc-a", "--watch-all", "--bind", "0.0.0.0:5561"]
+          command: ["python3", "-m", "dynamo.pool_relay"]
+          args: ["--cluster-id", "cluster-a", "--watch-all", "--bind", "0.0.0.0:5561"]
           env:
             - name: DYN_NAMESPACE
               value: relay
@@ -182,14 +246,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kv-dc-relay
+  name: pool-relay
   labels:
     nvidia.com/dynamo-discovery-backend: kubernetes
     nvidia.com/dynamo-discovery-enabled: "true"
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: kv-dc-relay
+    app.kubernetes.io/name: pool-relay
   ports:
     - name: grpc
       port: 5561
@@ -246,9 +310,9 @@ Discovery RBAC, the WAN Service, optional mTLS sidecar, and the gRPC checks belo
 ### Apply the Manifest
 
 ```bash
-kubectl -n dynamo apply -f kv-dc-relay.yaml
-kubectl -n dynamo rollout status deployment/kv-dc-relay --timeout=300s
-kubectl -n dynamo logs deployment/kv-dc-relay --tail=100
+kubectl -n dynamo apply -f pool-relay.yaml
+kubectl -n dynamo rollout status deployment/pool-relay --timeout=300s
+kubectl -n dynamo logs deployment/pool-relay --tail=100
 ```
 
 ## Verify Discovery and Published Metadata
@@ -256,7 +320,7 @@ kubectl -n dynamo logs deployment/kv-dc-relay --tail=100
 Forward the listener to your machine:
 
 ```bash
-kubectl -n dynamo port-forward service/kv-dc-relay 5561:5561
+kubectl -n dynamo port-forward service/pool-relay 5561:5561
 ```
 
 In another terminal, query the protocol identity. The decimal marker below is `KVR1`
@@ -310,13 +374,13 @@ advertised producer and validating its complete CBI1 snapshot and subsequent del
 ## Expose the WAN Listener
 
 The example Service is cluster-internal. A trusted in-cluster consumer can use
-`kv-dc-relay.dynamo.svc.cluster.local:5561`. Do not turn this plaintext Service into an
+`pool-relay.dynamo.svc.cluster.local:5561`. Do not turn this plaintext Service into an
 unrestricted LoadBalancer or expose the pod port to another data center directly.
 
 For access across a trust boundary, terminate TLS in an external proxy and route only its
 protected listener through your network ingress. Keep its upstream connection HTTP/2
 and allow long-lived server streams. See the
-[gRPC contract](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/kv_dc_relay/docs/grpc-contract.md)
+[gRPC contract](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/pool_relay/docs/grpc-contract.md)
 for message sizes, reconnect behavior, and error reasons.
 
 ## Optional mTLS Sidecar
@@ -339,7 +403,7 @@ The sidecar's image and configuration depend on your organization's proxy and PK
 For local inspection after this change, forward directly to Relay's loopback listener:
 
 ```bash
-kubectl -n dynamo port-forward deployment/kv-dc-relay 5561:5561
+kubectl -n dynamo port-forward deployment/pool-relay 5561:5561
 ```
 
 The plaintext `grpcurl` commands above still apply. This checks Relay through the Kubernetes
@@ -366,7 +430,7 @@ tunnel, not the externally exposed mTLS path.
 Remove only the resources created by this guide; retain the existing workers and namespace:
 
 ```bash
-kubectl -n dynamo delete -f kv-dc-relay.yaml
+kubectl -n dynamo delete -f pool-relay.yaml
 ```
 
-For all CLI and tuning options, see [Multi-Datacenter KV Relay Configuration](../../reference/components/kv-dc-relay-configuration.md).
+For all CLI and tuning options, see [Pool Relay Configuration](../../reference/components/pool-relay-configuration.md).

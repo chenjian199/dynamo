@@ -1,34 +1,68 @@
 ---
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-title: Multi-Datacenter KV Relay Configuration
+title: Pool Relay Configuration
 subtitle: CLI arguments, environment variables, resource limits, and diagnostic endpoints
 ---
 
-**Experimental.** The DC KV Relay collects worker KV-cache events within a data center and
+**Experimental.** The Pool Relay (formerly KV DC Relay) collects worker KV-cache events within a discovery cluster and
 publishes compact cache-locality, serving-readiness, and load information for external consumers.
 
-This reference describes `python -m dynamo.kv_dc_relay`. For deployment, see
-[Deploy the DC KV Relay](../../kubernetes/kv-aware-routing/kv-dc-relay.md); for an overview and architecture,
-see [DC KV Relay Concepts](../../developer-guide/knowledge-base/modular-components/router/multi-dc-kv-routing.md).
+This reference describes `python -m dynamo.pool_relay`. For deployment, see
+[Deploy the Pool Relay](../../kubernetes/kv-aware-routing/pool-relay.md); for an overview and architecture,
+see [Pool Relay Concepts](../../developer-guide/knowledge-base/modular-components/router/multi-dc-kv-routing.md).
 
 ## CLI Arguments
 
 | Argument | Environment variable | Default | Meaning |
 | --- | --- | --- | --- |
-| `--dc-id` | `DYN_DC_ID` | Required | Logical data-center identity. Keep stable across restarts; must be nonempty without surrounding whitespace. |
+| `--cluster-id` | `DYN_CLUSTER_ID` | Required | Discovery-cluster identity. Keep stable across restarts; must be nonempty without surrounding whitespace. |
 | `--namespaces` | `DYN_RELAY_NAMESPACES` | All visible Dynamo namespaces | Comma-separated Dynamo namespace allowlist. |
 | `--namespace-filter` | None | Unset | Legacy single-namespace form of `--namespaces`. |
 | `--watch-all` | `DYN_RELAY_WATCH_ALL` | Enabled when no scope is set | Include model cards from every Dynamo namespace visible to the discovery backend. |
 | `--endpoint-prefix` | `DYN_RELAY_ENDPOINT_PREFIXES` | No prefix filter | Repeat the CLI option, or use a comma-separated environment value. Match namespace/component/endpoint segments. |
 | `--expected-unique-blocks` | `DYN_RELAY_EXPECTED_UNIQUE_BLOCKS` | `1048576` | Positive expected number of unique blocks per pool; sizes the CKF, not a global Relay memory limit. |
 | `--bind` | `DYN_RELAY_BIND` | No listener | Plaintext gRPC socket address, such as `127.0.0.1:5561` or `[::1]:5561`. Requires a numeric IP and port. |
+| `--global-discovery-url` | `DYN_RELAY_GLOBAL_DISCOVERY_URL` | Unset | Root of the Global Discovery Service, such as `http://global-discovery:8080/`. The Relay reads the Global Router replica list from it every 5 seconds. When a read fails, it keeps the last list and reports why in the health field `global_routers_stale_reason`. When unset, the Relay reads no list. |
 | `--help` | None | — | Print CLI usage and exit. |
+| `--routing-pool` | `DYN_RELAY_ROUTING_POOL` | Unset | Publish this DGD's state to every discovered Global Router as `<cluster>/<Kubernetes namespace>/<DGD name>`. The cluster must match `--cluster-id`. Requires `--global-discovery-url`, `--bind`, and `--routing-pool-region`. |
+| `--routing-pool-region` | `DYN_RELAY_ROUTING_POOL_REGION` | Unset | Region the routing pool is registered in with Global Discovery, such as `us-east-1`. Required with `--routing-pool`. |
+| `--routing-pool-frontends` | `DYN_RELAY_ROUTING_POOL_FRONTENDS` | None | Comma-separated HTTP(S) frontend URLs that Global Routers send the routing pool's requests to. Requires `--routing-pool`. Set it when Global Discovery runs with `--pool-discovery registrations`: a pool without frontends receives no requests. With `mcs` or `karmada`, Global Discovery takes the frontends from MCS and ignores these. |
 
 The protocol and gRPC server are included in the standard build. Omitting `--bind` disables only
 the WAN listener; local discovery and pool maintenance still run. Relay has no TLS flags or
 certificate configuration. Protect a listener across a trust boundary with an
-[optional external sidecar](../../kubernetes/kv-aware-routing/kv-dc-relay.md#optional-mtls-sidecar).
+[optional external sidecar](../../kubernetes/kv-aware-routing/pool-relay.md#optional-mtls-sidecar).
+
+With `--routing-pool`, each router receives the current catalog, serving readiness,
+serving load, and KV load, followed by updates. Router endpoints returned by
+`GET /routers` must address each replica's receiving gRPC listener, rather than
+its HTTP API. Reconnecting sends a fresh snapshot.
+
+The Relay also registers the routing pool with `POST /pools` on the Global
+Discovery Service and renews the registration on the interval the service's
+lease sets. Global Discovery lists the pool only while the registration is
+current, in every mode. With `mcs` or `karmada`, it also requires `--cluster-id`
+to be the cluster name MCS uses.
+
+A registration names one model. The Relay keeps the registered model while it
+is in its serving topology, in any state, so a second model rolling out does not
+move the registration and replicas stay on the same model. Otherwise it
+registers the one Ready model, or the only model while none is Ready. With no
+model, or with several to choose from, it registers nothing. Global Routers
+route the pool only by its registered model, not by aliases or adapters. The
+health field `routing_pool_unregistered_reason` says why the pool is not
+registered, including a failed call, which the Relay retries. On shutdown the
+Relay stops renewing, and the pool leaves `GET /pools` when the lease ends.
+
+The routing pool names a Kubernetes DGD. Scope the Relay's discovery sources to
+that DGD; the routing key does not filter discovery. Dynamo runtime namespaces in
+readiness and load messages can differ from the Kubernetes namespace in this key.
+
+Configure Global Router discovery probes independently of pool availability.
+The frontend's `/live` endpoint is available before Relays connect; `/health`
+requires a routable pool. Using pool-dependent readiness to discover routers
+would prevent Relays from finding a new router.
 
 ## Precedence and Scope
 
@@ -68,10 +102,26 @@ Relay uses the shared `DistributedRuntime`, created by `@dynamo_worker()`.
 
 For connection settings and runtime defaults, see [Runtime Configuration](runtime-configuration.mdx).
 For direct event transport and TCP response-stream addressing, see
-[TCP-only deployment](../../kubernetes/kv-aware-routing/kv-dc-relay.md#tcp-only-local-planes-no-nats).
-For Kubernetes pod identity and RBAC, see [Deploy the DC KV Relay](../../kubernetes/kv-aware-routing/kv-dc-relay.md).
+[TCP-only deployment](../../kubernetes/kv-aware-routing/pool-relay.md#tcp-only-local-planes-no-nats).
+For Kubernetes pod identity and RBAC, see [Deploy the Pool Relay](../../kubernetes/kv-aware-routing/pool-relay.md).
 Relay's CLI does not accept the Frontend's runtime CLI flags; configure the runtime through its
 environment variables.
+
+## Serving-Load Publishers
+
+`SubscribeServingLoad` aggregates load that frontends and routers publish only when
+`DYN_SERVING_LOAD_PUBLISH` is true. It is off by default, so deployments without a Relay run no
+background serving-load publishing. Set it on the processes that feed the Relay, not on the Relay
+itself:
+
+| Process | Publishes |
+| --- | --- |
+| Frontend, including its embedded KV router | Per-model request and token load once per second, and the embedded router's scheduler load |
+| Standalone KV router | Scheduler load of every worker rank once per second |
+
+Set it on all of them. The Relay cannot see a frontend or router that does not publish, so when
+only some do, their load reads as the complete load. Without it anywhere, every serving-load view
+is `UNAVAILABLE`, and after 30 seconds the Relay logs a warning naming the variable.
 
 ## Producer Tuning
 
@@ -103,8 +153,8 @@ error. All values must be positive integers; byte limits use bytes, not MiB.
 | `DYN_RELAY_POOL_HEARTBEAT_INTERVAL_MS` | `10000` | Pool-stream heartbeat interval after snapshot bootstrap. |
 | `DYN_RELAY_READINESS_HEARTBEAT_INTERVAL_MS` | `10000` | Interval for repeating the current readiness snapshot. |
 | `DYN_RELAY_SNAPSHOT_PROGRESS_TIMEOUT_MS` | `60000` | Per-frame progress deadline while producing the initial snapshot. |
-| `DYN_RELAY_LOAD_WINDOW_MS` | `1000` | Load publication window. |
-| `DYN_RELAY_LOAD_FANOUT_CAPACITY` | `16` | Buffered load updates for fanout. |
+| `DYN_RELAY_LOAD_WINDOW_MS` | `1000` | Pool-load and serving-load publication window. |
+| `DYN_RELAY_LOAD_FANOUT_CAPACITY` | `16` | Buffered updates per load stream type for fanout. |
 
 ### Universal Publication Resources
 
@@ -125,7 +175,8 @@ These limits belong to the publisher; the Python launcher exposes their override
 | `DYN_RELAY_MAX_POOL_STREAMS_TOTAL` | `64` | Total active pool streams. |
 | `DYN_RELAY_MAX_SUBSCRIBERS_PER_POOL` | `64` | Subscribers attached to one pool. |
 | `DYN_RELAY_MAX_READINESS_SUBSCRIBERS` | `64` | Concurrent readiness streams. |
-| `DYN_RELAY_MAX_LOAD_SUBSCRIBERS` | `64` | Concurrent load streams. |
+| `DYN_RELAY_MAX_LOAD_SUBSCRIBERS` | `64` | Concurrent pool-load streams. |
+| `DYN_RELAY_MAX_SERVING_LOAD_SUBSCRIBERS` | `64` | Concurrent serving-load streams. |
 
 ### Validation Limits
 
@@ -137,27 +188,28 @@ hold a maximum CBI1 frame plus its required overhead.
 A complete snapshot chunk contains 4 MiB of bucket words plus framing. Configure clients and
 sidecars to accept the server's message size; tonic's default 4 MiB receive limit is insufficient
 for a maximum chunk. Resource exhaustion and snapshot progress deadlines are described in the
-[gRPC contract](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/kv_dc_relay/docs/grpc-contract.md).
+[gRPC contract](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/pool_relay/docs/grpc-contract.md).
 
 ## Diagnostic Endpoints
 
 The component registers Dynamo runtime endpoints under
-`<DYN_NAMESPACE>.kv_dc_relay_<dc-hash>`, where `dc-hash` is the first 32 hexadecimal characters
-of SHA-256 over the UTF-8 DC ID. These are not HTTP paths or WAN RPCs.
+`<DYN_NAMESPACE>.pool_relay_<cluster-hash>`, where `cluster-hash` is the first 32 hexadecimal characters
+of SHA-256 over the UTF-8 cluster ID. These are not HTTP paths or WAN RPCs.
 
 | Endpoint | Availability | Request and response |
 | --- | --- | --- |
-| `health` | Always | Empty request; reports `healthy`, shutdown state, endpoint counts, and WAN state/errors. |
+| `health` | Always | Empty request; reports `healthy`, shutdown state, endpoint counts, WAN state/errors, `global_discovery_enabled`, `global_routers_stale_reason`, and `routing_pool_unregistered_reason`. |
 | `stats` | `ckf-diagnostics` build feature | Empty request; returns detailed endpoint/pool statistics. |
 | `snapshot` | `ckf-diagnostics` build feature | Requires `serving_endpoint`; returns that endpoint's diagnostic snapshot. |
 
 The WAN listener also exposes gRPC reflection and the standard gRPC health service for
-`dynamo.kvrelay.v1.KvEventRelay`. Transport readiness does not prove that pools have been
+`dynamo.kvrelay.v1.KvEventRelay`. The gRPC service name changes in a separate update.
+Transport readiness does not prove that pools have been
 discovered or that a model can serve requests. Inspect catalog and serving-readiness streams
 separately. Terminal host or transport failures stop the component with a nonzero exit status.
 
 ## Sources
 
-- [Python argument parsing](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/kv_dc_relay/cli.py)
-- [Producer defaults](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/kv_dc_relay/host.rs)
-- [gRPC adapter defaults and validation](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/kv_dc_relay/wan/grpc/config.rs)
+- [Python argument parsing](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/pool_relay/cli.py)
+- [Producer defaults](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/pool_relay/host.rs)
+- [gRPC adapter defaults and validation](https://github.com/ai-dynamo/dynamo/blob/main/lib/llm/src/pool_relay/wan/grpc/config.rs)
