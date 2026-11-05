@@ -69,6 +69,8 @@ def measure(isl):
     return float(result["time_to_first_token"]["avg"])
 
 
-_profile_prefill_helper(str(work), data["pick"]["tp"], 4096, 5, measure)
+_profile_prefill_helper(
+    str(work), data["identity"]["parallelism"]["prefill_tp"], 4096, 5, measure
+)
 write_profile_manifest(a.output, data["identity"], now=manifest["created_at"])
 print("REPEATED_PREFILL_COMPLETE", flush=True)

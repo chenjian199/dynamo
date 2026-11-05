@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for :mod:`dynamo.vllm.kv_connector_protocols`.
 
@@ -479,6 +481,7 @@ def test_registry_keys_match_vllm_connector_names():
         "NixlConnector",
         "NeuronNixlConnector",
         "MooncakeConnector",
+        "MooncakeHybridConnector",
     }
     for cls in KV_CONNECTOR_PROTOCOLS.values():
         assert issubclass(cls, KvConnectorProtocol)

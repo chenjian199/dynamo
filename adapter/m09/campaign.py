@@ -22,6 +22,7 @@ parser.add_argument("--recovery", type=int, default=120)
 parser.add_argument("--concurrency", type=int, default=16)
 parser.add_argument("--isl", type=int, default=128)
 parser.add_argument("--osl", type=int, default=256)
+parser.add_argument("--request-timeout", type=int, default=180)
 parser.add_argument("--token-id-metrics", action="store_true")
 parser.add_argument("--settle-timeout", type=int, default=600)
 parser.add_argument(
@@ -171,6 +172,8 @@ with (
             str(args.isl),
             "--osl",
             str(args.osl),
+            "--timeout",
+            str(args.request_timeout),
         ]
         + (["--token-id-metrics"] if args.token_id_metrics else []),
         stdin=source,

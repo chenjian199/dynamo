@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+// Derived from NVIDIA Dynamo. Modified by HEYI.
 
 //! Python bindings for Forward Pass Metrics (FPM = ForwardPassMetrics) event plane integration.
 //!
@@ -58,8 +60,14 @@ impl FpmEventRelay {
     ///         (e.g., "tcp://127.0.0.1:20380").
     #[new]
     #[pyo3(signature = (endpoint, zmq_endpoint))]
-    fn new(endpoint: Endpoint, zmq_endpoint: String) -> PyResult<Self> {
-        let inner = llm_rs::fpm_publisher::FpmEventRelay::new(endpoint.inner.clone(), zmq_endpoint)
+    fn new(py: Python<'_>, endpoint: Endpoint, zmq_endpoint: String) -> PyResult<Self> {
+        let endpoint = endpoint.inner.clone();
+        // Relay initialization blocks on the Rust runtime. Its other tasks can
+        // invoke Python metrics callbacks, so they must be able to acquire the GIL.
+        let inner = py
+            .allow_threads(move || {
+                llm_rs::fpm_publisher::FpmEventRelay::new(endpoint, zmq_endpoint)
+            })
             .map_err(to_pyerr)?;
         Ok(Self { inner })
     }

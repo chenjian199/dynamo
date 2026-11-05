@@ -7,6 +7,8 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # 模块细化与实施工作清单
 
+2026-11-04 M10 阶段性交付：三平台最终镜像的基础设备、推理/KV、KVBM、PD 与有界长稳，以及 CUDA/Ascend 的 Operator、RDMA、Grove/KAI、DGDR 和画像回归按项记录。Ascend r3 已补齐 DeepSeek Hybrid PD 与新画像的采样、静态初始化、在线预测及重启复用，见 [M10](m10/README.md)。各包封存状态以统一索引为准；生产 SLA、原生数值波动、MetaX 无集群及其他暂缓能力继续保留边界。
+
 2026-10-30 MetaX 集群入口补充：跨节点 PD、Grove、DGDR C500 和 Profiler/Planner 清单已补齐，适配代码及 CPU 契约与硬件实测分开记录；集群仍待 M10，见 [交付入口](platforms/metax/cluster/README.md)。
 
 本清单将总体设计拆为可逐项讨论和实现的工作包。M01–M10 已建立详细设计草案，包含现有功能、适配方案和逐文件计划，详见 [模块详情目录](modules/README.md)。M01 第一版平台契约已接入 MetaX 与 Ascend；M04 基础原语第一版已完成三平台验收；M02 已完成三平台 vLLM 增量 runtime / dev 镜像；M03/M05/M10 已交付当前配置的部分能力，厂商支持结论按证据记录。每个工作包的验收只覆盖同一厂商平台的部署。
@@ -131,7 +133,7 @@ M01 平台契约与 M02 构建是公共基础。M03 引擎、M04 设备运行时
 
 ## M10 契约测试与平台认证
 
-当前状态：部分完成：契约及当前硬件冒烟验收。
+当前状态：本轮最终镜像的约定回归范围阶段性完成。交付包含可追溯证据及离线包，生产 SLA、完整硬件矩阵和明确暂缓项不在已认证范围内。
 
 详细设计：[测试分层、认证记录与文件计划](modules/m10-validation/README.md)。
 

@@ -7,6 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 
 > 2026-10-21 基线变更：NVIDIA 后续固定官方 Dynamo 1.5.1 / vLLM 0.28.0。本页 CUDA 0.24 结果为历史证据，不代表 0.28 已通过；详见[版本基线](../version-baselines.md)。
 
+2026-11-04 补充：跨节点与 RDMA 后续结果见 [M08](../m08/README.md)，最终镜像结果见 [M10](../m10/README.md)。M10 新增 Ascend `MooncakeHybridConnector` 接入，用于 DeepSeek V4 的混合 KV 布局；保留各缓存组的原始元数据，不合成统一块大小。r3 已通过两轮跨节点 1P1D、两侧 TP8/EP8 的输入边界、并发、首 token 后取消及恢复检查；聚合输出对照和最终规划回归仍在执行。普通 Mooncake 的 2P3D、长稳与故障证据不能自动推广到 Hybrid。
+
 当前补充验收见 [不同 TP、传输中故障与 30 分钟长稳](completion.md)。本目录实现 vLLM 引擎原生 PD；三平台单机 1P1D、2P3D、TP1/TP2 互转已有真实验证。跨节点、物理断卡/网络黑洞和 Dynamo 自有 TransferProvider/KVBM 不在已验证范围，SGLang 暂缓。MetaX NIXL 的传输中对端退出仍存在 native abort 限制，不能认定所有可选传输路径全部完成。
 
 下文保存 2026-10-16 初轮与 2P3D 验收；运行命令已更新为当前入口。2026-10-19 的补丁、资源检查与最新边界以补充验收为准。

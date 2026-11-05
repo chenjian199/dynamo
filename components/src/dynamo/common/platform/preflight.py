@@ -7,7 +7,10 @@ from types import SimpleNamespace
 
 from dynamo.common.constants import DisaggregationMode
 from dynamo.common.platform import PlatformError, registry
-from dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE
+from dynamo.vllm.kv_connector_protocols import (
+    ASCEND_MOONCAKE_HYBRID_MODULE,
+    ASCEND_MOONCAKE_MODULE,
+)
 from dynamo.vllm.platform import configure_platform_scheduler
 
 KVBM_MODULES = (
@@ -109,11 +112,17 @@ def validate_pd_configuration(config, platform_id):
     kv = pd_transport(config, platform_id, kv)
     module = getattr(kv, "kv_connector_module_path", None)
     if platform_id == "ascend":
-        valid = (
+        hybrid = (kv.kv_connector == "MooncakeHybridConnector" and module is None) or (
             kv.kv_connector == "MooncakeConnector"
-            and module == ASCEND_MOONCAKE_MODULE
-            and kv.kv_role == expected_role
+            and module == ASCEND_MOONCAKE_HYBRID_MODULE
         )
+        valid = (
+            hybrid
+            or (
+                kv.kv_connector == "MooncakeConnector"
+                and module == ASCEND_MOONCAKE_MODULE
+            )
+        ) and kv.kv_role == expected_role
         extra = kv.kv_connector_extra_config
         for role in ("prefill", "decode"):
             parallel = extra.get(role, {})
@@ -130,7 +139,11 @@ def validate_pd_configuration(config, platform_id):
         )
         # This opt-in extension implements exactly a two-way split. Otherwise
         # leave TP ratios to the installed native connector, not a tested-pair list.
-        valid = valid and type(split) is bool and (not split or pair == (1, 2))
+        valid = (
+            valid
+            and type(split) is bool
+            and (not split or (not hybrid and pair == (1, 2)))
+        )
         local_role = "prefill" if expected_role == "kv_producer" else "decode"
         valid = (
             valid

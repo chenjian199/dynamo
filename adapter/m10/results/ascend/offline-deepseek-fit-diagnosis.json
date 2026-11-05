@@ -1,0 +1,133 @@
+{
+  "scope": "Independent unconstrained OLS diagnostic, not introspection of native model parameters or a substitute predictor",
+  "findings": [
+    {
+      "revision": "r1",
+      "source": "/offline/evidence/r1/offline-deepseek-20261104/profile/verification-mounted/decode_raw_data.json",
+      "source_sha256": "ea9abd2ee9a21224d7d2cca644c34dd29da18c185e130b2292d43d210978ed63",
+      "features": [
+        "intercept",
+        "num_decode_requests",
+        "sum_decode_kv_tokens"
+      ],
+      "target_unit": "milliseconds",
+      "coefficients": [
+        439.13301880494595,
+        1.2771328437730907,
+        -0.0002519160832095942
+      ],
+      "samples": [
+        {
+          "batch": 1,
+          "kv_tokens": 350,
+          "itl_ms": 446.5602613466934
+        },
+        {
+          "batch": 8,
+          "kv_tokens": 2800,
+          "itl_ms": 443.29405256588177
+        },
+        {
+          "batch": 16,
+          "kv_tokens": 5600,
+          "itl_ms": 462.512192561498
+        },
+        {
+          "batch": 1,
+          "kv_tokens": 1548,
+          "itl_ms": 420.06894324448893
+        },
+        {
+          "batch": 8,
+          "kv_tokens": 12384,
+          "itl_ms": 438.5975084814629
+        },
+        {
+          "batch": 16,
+          "kv_tokens": 24768,
+          "itl_ms": 454.2503838212675
+        },
+        {
+          "batch": 1,
+          "kv_tokens": 2746,
+          "itl_ms": 449.68811696993987
+        },
+        {
+          "batch": 5,
+          "kv_tokens": 13730,
+          "itl_ms": 460.32527213827655
+        },
+        {
+          "batch": 10,
+          "kv_tokens": 27460,
+          "itl_ms": 438.16960262384765
+        }
+      ]
+    },
+    {
+      "revision": "r3",
+      "source": "/offline/evidence/r3/offline-deepseek-20261104/profile/verification-mounted/decode_raw_data.json",
+      "source_sha256": "abcb796aa9323851bd035a077a9ebab6a6fca53dbc1f627a6e8a2069b2851f3f",
+      "features": [
+        "intercept",
+        "num_decode_requests",
+        "sum_decode_kv_tokens"
+      ],
+      "target_unit": "milliseconds",
+      "coefficients": [
+        442.28096897976985,
+        -0.23373697902333793,
+        -0.00029065005625405506
+      ],
+      "samples": [
+        {
+          "batch": 1,
+          "kv_tokens": 350,
+          "itl_ms": 446.18379475551103
+        },
+        {
+          "batch": 8,
+          "kv_tokens": 2800,
+          "itl_ms": 459.437177011523
+        },
+        {
+          "batch": 16,
+          "kv_tokens": 5600,
+          "itl_ms": 429.4773416792334
+        },
+        {
+          "batch": 1,
+          "kv_tokens": 1548,
+          "itl_ms": 435.0046766312625
+        },
+        {
+          "batch": 8,
+          "kv_tokens": 12384,
+          "itl_ms": 423.4171489301102
+        },
+        {
+          "batch": 16,
+          "kv_tokens": 24768,
+          "itl_ms": 432.9543333366786
+        },
+        {
+          "batch": 1,
+          "kv_tokens": 2746,
+          "itl_ms": 429.8977414529058
+        },
+        {
+          "batch": 5,
+          "kv_tokens": 13730,
+          "itl_ms": 452.22470006653305
+        },
+        {
+          "batch": 10,
+          "kv_tokens": 27460,
+          "itl_ms": 429.9438202977956
+        }
+      ]
+    }
+  ],
+  "native_result": "r3 retains all 9 observations but reports insufficient_data and returns no capacity even without SLA constraints",
+  "action": "Preserve all original measurements. One separately identified complete sweep with max-num-seqs=64 is queued; never force readiness or select points by fitted slope."
+}

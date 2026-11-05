@@ -1,0 +1,113 @@
+{
+  "release": "1.5.1-heyi-m10-4b1efe773c-r1",
+  "status": "sealed_with_explicit_limitations",
+  "platforms": [
+    {
+      "platform": "metax",
+      "archive_host": "metax@192.168.10.94",
+      "archive_path": "/home/metax/CJ_workspace/dynamo-m10/1.5.1-heyi-m10-4b1efe773c-r1/dynamo-metax-1.5.1-heyi-m10-4b1efe773c-r1-amd64.tar",
+      "status": "sealed_with_explicit_limitations",
+      "bytes": 14334515200,
+      "sha256": "25350857b0211d8d56e088ebf53b20f8ac55dd6d868cb8b9e21fdc37ae99ccc5",
+      "engine_version": "0.26.0",
+      "validation_summary": {
+        "checks": {
+          "passed": 9,
+          "limited": 1,
+          "deferred": 3
+        }
+      }
+    },
+    {
+      "platform": "cuda",
+      "archive_host": "metax@192.168.10.94",
+      "archive_path": "/home/metax/CJ_workspace/dynamo-m10/1.5.1-heyi-m10-4b1efe773c-r1-config1/dynamo-cuda-1.5.1-heyi-m10-4b1efe773c-r1-config1-amd64.tar",
+      "status": "sealed_with_explicit_limitations",
+      "bytes": 13604792320,
+      "sha256": "ffe403eb7e2477f86a094ca49c829571cadb89ab619cd87e9acf458016ef02c3",
+      "bundle_revision": "1.5.1-heyi-m10-4b1efe773c-r1-config1",
+      "previous_archive": {
+        "archive_host": "metax@192.168.10.94",
+        "archive_path": "/home/metax/CJ_workspace/dynamo-m10/1.5.1-heyi-m10-4b1efe773c-r1/dynamo-cuda-1.5.1-heyi-m10-4b1efe773c-r1-amd64.tar",
+        "sha256": "417b2dc550077a816db8e3992f7453f42673179af0bedccd77e30d334194f293",
+        "bytes": 13604536320,
+        "status": "sealed_with_explicit_limitations"
+      },
+      "revision_reason": "GPU-budget metadata corrected; same validated r1 images, engine DGD, profile identity and Planner configuration. Installed tools equivalence verified.",
+      "engine_version": "0.28.0",
+      "validation_summary": {
+        "checks": {
+          "passed": 36,
+          "limited": 2,
+          "deferred": 2
+        }
+      }
+    },
+    {
+      "platform": "ascend",
+      "archive_host": "huawei-52 (39.156.164.52)",
+      "archive_path": "/root/CJ_workspace/dynamo-m10/1.5.1-heyi-m10-4b1efe773c-r3/dynamo-ascend-1.5.1-heyi-m10-4b1efe773c-r3-arm64.tar",
+      "status": "sealed_with_explicit_limitations",
+      "candidate": "1.5.1-heyi-m10-4b1efe773c-r3",
+      "verified_so_far": {
+        "hybrid_cross_node_pd_rounds": 2,
+        "cpu_contracts": 285,
+        "dev_offline_editable": "passed",
+        "full_image_export": "verified",
+        "deployment_server_dry_run": 17,
+        "standard_pd_2p3d": "passed",
+        "standard_pd_soak": {
+          "elapsed": 1809.3000303804874,
+          "completed": 1952,
+          "cancellations": 61,
+          "faults": 3,
+          "status": "passed"
+        },
+        "native_hybrid_control_groups": 24,
+        "numerical_consistency": "Limited: two inputs vary in native aggregate and native Hybrid PD; ten stable inputs agree across all controls. Exact token parity not certified.",
+        "deepseek_bounded_scaling": {
+          "status": "passed",
+          "replicas": [
+            1,
+            2,
+            1
+          ],
+          "source": "Planner",
+          "api_exit_code": 0,
+          "final_terminating_pods": 0
+        },
+        "expanded_profile_sampling_static_bootstrap": {
+          "raw_exports": 72,
+          "prefill_points": 6,
+          "decode_points": 9,
+          "status": "passed",
+          "fingerprint": "a9fa1e63a1f631aced69dd99ae0a40989872930f9331f3169cc2bde7cdead672"
+        },
+        "expanded_profile_online_and_restart": "passed bounded workflow; recovery had ten Decode model_not_ready decisions, so continuous predictor availability is not certified"
+      },
+      "initial_profile": "All 72 exports complete; native Decode bootstrap insufficient_data for max-num-seqs=16. Failure retained.",
+      "bytes": 12071915520,
+      "sha256": "5b663b3cc2182bbd0333b712e88838fcddef6ac31e733fe1b42442bcade47ed4",
+      "bundle_revision": "1.5.1-heyi-m10-4b1efe773c-r3",
+      "validation_summary": {
+        "checks": {
+          "passed": 49,
+          "limited": 6,
+          "deferred": 3
+        },
+        "fresh_passed_checks": 33,
+        "carried_forward_checks": 16
+      },
+      "limitations": [
+        "Strict DeepSeek token parity is not certified; two inputs also vary in native controls.",
+        "Original max-num-seqs=16 Decode profile bootstrap failed; expanded profile is a separate max-num-seqs=64 sweep.",
+        "Recovery contained intermittent Decode model_not_ready; API success/file reuse do not certify continuous prediction.",
+        "DeepSeek latency targets were not met under recorded concurrent loads.",
+        "Hybrid mid-transfer forced termination and dedicated soak remain unqualified; other deferred features are enumerated in validation.json."
+      ],
+      "engine_version": "0.23.0+empty"
+    }
+  ],
+  "policy": "Images and evidence remain on the authorized per-platform archive host; index does not imply all platform tests passed.",
+  "index_updated_at": "2026-11-04T18:57:13.965916+00:00"
+}

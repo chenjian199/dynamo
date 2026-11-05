@@ -7,7 +7,9 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M05 PD 协调与数据传输
 
-状态：所选三平台单机 vLLM 路径已完成不同 TP、传输中故障、重启恢复与有界长稳；模块整体仍部分完成，MetaX 可选 NIXL 中断路径仍有 UCX abort，跨节点未验证。依赖 M01/M02/M03；厂商引擎原生 PD 不经过 Dynamo KVBM，Dynamo 自有传输仍需 M04/M06 接入。
+状态：所选三平台单机 vLLM 路径已完成不同 TP、传输中故障、重启恢复与有界长稳；模块整体仍部分完成，MetaX 可选 NIXL 中断路径仍有 UCX abort。CUDA/Ascend 后续跨节点及 RDMA 结果见 [M08](../../m08/README.md)，不改写下面的早期验收范围。依赖 M01/M02/M03；厂商引擎原生 PD 不经过 Dynamo KVBM，Dynamo 自有传输需分别核对 M04/M06 的实现与验收。
+
+2026-11-04：M10 为 Ascend 0.23.0 新增 Hybrid Connector 协议和受源码哈希保护的 CANN 加载顺序补丁。DeepSeek V4 的分组 block IDs、rank 映射和完成元数据原样交给厂商实现；不套用普通 Mooncake 的统一 block size 或 `heyi_tp_split` 扩展。两轮 TP8/EP8 跨节点 PD 请求检查已通过，最终候选其余回归见 [M10](../../m10/README.md)。
 
 ## 实施进度（2026-10-19）
 
@@ -25,7 +27,7 @@ Ascend native 析构异常通过 CANN 库加载顺序修复；完整测试使用
 
 Prefill 与 Decode 分离后，Dynamo 要选择相应 Worker、传递协调信息，并确保 KV 对 Decode 可用。实际 KV 数据传输通常由引擎 connector 或特定数据面完成，请求控制面和 KV 数据面不是同一条链路。
 
-vLLM 的 `KvConnectorProtocol` 已提供 `prefill_request_kv_transfer_params()` 与 `decode_request_kv_transfer_params()`。当前 registry 包含 NixlConnector、NeuronNixlConnector、MooncakeConnector，并处理 MultiConnector/PdConnector 的单一 PD 子 connector。未知名称会报错，不能将新厂商 connector 静默回退到 NIXL。
+vLLM 的 `KvConnectorProtocol` 已提供 `prefill_request_kv_transfer_params()` 与 `decode_request_kv_transfer_params()`。当前 registry 包含 NixlConnector、NeuronNixlConnector、MooncakeConnector、Ascend 的 MooncakeHybridConnector，并处理 MultiConnector/PdConnector 的单一 PD 子 connector。相同类名还需按模块路径区分厂商协议。未知名称会报错，不能将新厂商 connector 静默回退到 NIXL。
 
 SGLang 的 `_disagg.py` 负责 bootstrap 等辅助逻辑。Dynamo 自有 NIXL 内存接口则位于 `lib/memory/src/nixl.rs`，与 `kvbm-physical` 中的传输执行器配合。两种接入路线需要分别说明，不能把它们视为同一个全局替换点。
 

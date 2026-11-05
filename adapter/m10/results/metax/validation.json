@@ -1,0 +1,151 @@
+{
+  "platform": "metax",
+  "status": "qualified_with_explicit_limitations",
+  "baseline_commit": "4b1efe773c9af518dfe2050ff753e270a7e84b7b",
+  "release": "1.5.1-heyi-m10-4b1efe773c-r1",
+  "source_patch_sha256": "f410d8306325923c81c1d6010b2b802660faf0a5f68207e766e60b8689488206",
+  "engine_version": "0.26.0",
+  "checks": [
+    {
+      "name": "runtime-hardware-six-suites",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/hardware/status.tsv": "0beea3e2cc137fbacf986bf6c8cbf608f28e948f2bffc22a5afdc8352fa097cd"
+      }
+    },
+    {
+      "name": "native-device-memory",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/device-memory/native.log": "ebc1052f5ad9098ac2b58425476aacb25026d70b068d9413e7521447c232ba0b",
+        "evidence/container-exits.json": "7274d749055b2b97d4484e7e7c20a403c73f21b935d89f934e1d7c546850666e"
+      }
+    },
+    {
+      "name": "cpu-platform-and-planner-contracts-221",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/tools/contracts.xml": "25bb17c7e3077255e92bd260006ffa00997523c787c5559afd425f3273b990c6",
+        "evidence/tools/installed.json": "2711b0093694374c48dd72ee25abee9c3fcaad83f43e74144a1e67954366baeb"
+      }
+    },
+    {
+      "name": "rust-contracts-and-clippy",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/metax-r1-rust-contracts.log": "b24210e2f80e445071a032d37a722c7ce3c88c1f4d935a6d8a67757f26a6fe17",
+        "evidence/container-exits.json": "7274d749055b2b97d4484e7e7c20a403c73f21b935d89f934e1d7c546850666e"
+      }
+    },
+    {
+      "name": "offline-dev-full-editable",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/metax-r1-dev-offline-all.log": "98a9c9252856912c8cd2acba078991693bd9ddafe8cb26e7fb2d58a3c318d646",
+        "evidence/container-exits.json": "7274d749055b2b97d4484e7e7c20a403c73f21b935d89f934e1d7c546850666e"
+      }
+    },
+    {
+      "name": "lora-dp2-ngram-int8",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/advanced/lora-dp2/case.json": "3e985db4d9fcf3f8451790b4e02331a62384258466b4186b8e00694968c6b851",
+        "evidence/advanced/ngram/case.json": "0f4b11a5060ea28a2336d25399764434317ac4154c39bb65af9874c48a1be3e5",
+        "evidence/advanced/int8/case.json": "74df22c43f356023db27319cb5f1b5e004ddab7d8e348e2d369d82ac79597fe6"
+      }
+    },
+    {
+      "name": "pd-mooncake-nixl-2p3d-and-output-parity",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/pd/status.tsv": "60a907a354f6b82d85ec34cabed6b0847dea3c916669111b597d23ebfc981188",
+        "evidence/pd/parity.json": "c5b9675dda30740ca0d912d67e59a1ef16a5cfb9ac996f83209d320baf495ee8"
+      }
+    },
+    {
+      "name": "bounded-30min-soak-3936-requests",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/pd/soak/soak.json": "9a3b10b030dbaacc35f6ae450060b6db21d08d9e4842564cc1a7fae0dcae4fdd"
+      }
+    },
+    {
+      "name": "operator-cpu-contracts",
+      "status": "passed",
+      "required": true,
+      "evidence": {
+        "evidence/operator-tests-retry.log": "b9e46c5d1d06636338212e12171d501cbdeb0fe11bbf04ab2e26ee85aa8c1d79"
+      }
+    },
+    {
+      "name": "cluster-cross-node-operator-grove-dgdr-planner",
+      "status": "deferred",
+      "required": false,
+      "evidence": {},
+      "reason": "No MetaX Kubernetes cluster; templates and tools are delivered but not cluster-certified."
+    },
+    {
+      "name": "native-ucx-inflight-abort",
+      "status": "limited",
+      "required": false,
+      "evidence": {},
+      "reason": "Previously recorded vendor UCX abort during forced in-flight transport interruption remains outside the passing main-path tests; no vendor source fix available."
+    },
+    {
+      "name": "large-model-and-model-backed-omni",
+      "status": "deferred",
+      "required": false,
+      "evidence": {},
+      "reason": "No usable shared large-model/model-specific media assets on the local MetaX host in this campaign. Historical M03/M07 evidence is not a final-image pass."
+    },
+    {
+      "name": "dra-gms-kubernetes-failover-production-sla",
+      "status": "deferred",
+      "required": false,
+      "evidence": {},
+      "reason": "Independent extensions and production SLA certification remain outside this bounded release scope."
+    }
+  ],
+  "images": [
+    {
+      "reference": "heyi/dynamo-vllm-metax-runtime:1.5.1-heyi-m10-4b1efe773c-r1",
+      "id": "sha256:6ae20df21fa22fdcbd56efc6d6d77c69774b45c933257351c4cb46c09974bca4",
+      "architecture": "amd64",
+      "role": "runtime"
+    },
+    {
+      "reference": "heyi/dynamo-vllm-metax-dev:1.5.1-heyi-m10-4b1efe773c-r1",
+      "id": "sha256:3ee62a4001c154ca2202ac314209b667163927d85137b256d605ca2cf12997d8",
+      "architecture": "amd64",
+      "role": "dev"
+    },
+    {
+      "reference": "heyi/dynamo-tools-metax:1.5.1-heyi-m10-4b1efe773c-r1",
+      "id": "sha256:b6a896a22281630b82a7a099c1473c71c2a49576192151bdf6754f037516ff04",
+      "architecture": "amd64",
+      "role": "tools"
+    },
+    {
+      "reference": "heyi/dynamo-operator:1.5.1-heyi-m10-4b1efe773c-amd64",
+      "id": "sha256:d5ce00766162754fb40289bde84212e7aca9d568ae7484ce7cd34bd19dacc579",
+      "architecture": "amd64",
+      "role": "operator"
+    }
+  ],
+  "notes": [
+    "Images tested without application-source overlays. Test-only helpers were mounted.",
+    "Operator amd64 binary tested on CUDA cluster separately; this report does not certify a MetaX cluster.",
+    "Model config hashes are recorded; whole model weight checksums are not certification inputs.",
+    "Failure attempts retained outside the passing final cases; old candidate evidence is not promoted."
+  ],
+  "source_archive_sha256": "cddfc983a92ce7e54016805d330b0ce48c9dc0b408a24f9b96a65c81077cb951",
+  "source_manifest": "build/source.json"
+}

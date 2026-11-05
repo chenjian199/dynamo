@@ -197,7 +197,7 @@ def build_capabilities(platform_id, context, software):
                 ("MooncakeConnector", "NixlConnector")
                 if platform_id == "metax"
                 else (
-                    ("MooncakeConnector",)
+                    ("MooncakeConnector", "MooncakeHybridConnector")
                     if platform_id == "ascend"
                     else ("NixlConnector",)
                 )

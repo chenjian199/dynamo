@@ -2,11 +2,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Install/revert the version- and hash-guarded Ascend TP1 -> TP2 extension.
+"""Install/revert guarded Ascend TP1 -> TP2 and Mooncake library-load fixes.
 
 Apply the base M05 Mooncake patch first; stop inference workers before mutation.
 All files are checked and staged before replacement. Original vendor behavior is
-preserved unless the connector explicitly sets heyi_tp_split=true.
+preserved unless the connector explicitly sets heyi_tp_split=true. Both plain
+and hybrid connectors load CANN dependencies before the Mooncake extension.
 """
 
 import argparse

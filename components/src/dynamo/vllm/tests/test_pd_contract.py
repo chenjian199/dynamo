@@ -14,8 +14,10 @@ from dynamo.common.platform.preflight import (
 from dynamo.common.platform.registry import PlatformError
 from dynamo.llm.exceptions import InvalidArgument
 from dynamo.vllm.kv_connector_protocols import (
+    ASCEND_MOONCAKE_HYBRID_MODULE,
     ASCEND_MOONCAKE_MODULE,
     AscendMooncakeConnectorProtocol,
+    AscendMooncakeHybridConnectorProtocol,
     make_kv_connector_protocol,
 )
 from dynamo.vllm.pd_contract import (
@@ -30,6 +32,7 @@ pytestmark = [
     pytest.mark.vllm,
     pytest.mark.gpu_0,
     pytest.mark.pre_merge,
+    pytest.mark.core,
 ]
 
 
@@ -71,6 +74,63 @@ def test_vendor_mooncake_is_not_upstream_bootstrap_protocol():
 def test_same_class_name_does_not_authorize_unknown_module():
     with pytest.raises(ValueError, match="Unsupported PD connector module"):
         make_kv_connector_protocol(config("unknown.mooncake"))
+
+
+@pytest.mark.parametrize("wrapper", [None, "MultiConnector", "PdConnector"])
+@pytest.mark.parametrize("registered_alias", [False, True])
+def test_ascend_hybrid_preserves_group_layout_and_completion_metadata(
+    wrapper, registered_alias
+):
+    cfg = config(ASCEND_MOONCAKE_HYBRID_MODULE)
+    if registered_alias:
+        cfg.kv_transfer_config.kv_connector = "MooncakeHybridConnector"
+        cfg.kv_transfer_config.kv_connector_module_path = None
+    if wrapper:
+        child = vars(cfg.kv_transfer_config).copy()
+        cfg.kv_transfer_config = SimpleNamespace(
+            kv_connector=wrapper,
+            kv_connector_extra_config={"connectors": [child]},
+        )
+    protocol = make_kv_connector_protocol(cfg)
+    assert isinstance(protocol, AscendMooncakeHybridConnectorProtocol)
+    assert protocol.prefill_request_kv_transfer_params()["do_remote_decode"] is True
+    payload = dict(
+        do_remote_prefill=True,
+        do_remote_decode=False,
+        remote_engine_id="producer",
+        remote_request_id="request",
+        remote_block_ids=[[1, 3, 5], [], [7]],
+        remote_host="producer.invalid",
+        remote_port=12345,  # Metadata only; no listener is opened.
+        remote_ptp_size=8,
+        remote_multi_nodes_meta_mapping={"0": {"engine_id": "producer-rank0"}},
+        num_prompt_blocks=3,
+        last_token_id=42,
+    )
+    response = SimpleNamespace(kv_transfer_params=payload)
+    assert protocol.decode_request_kv_transfer_params(response) is payload
+    assert "remote_block_size" not in payload
+    # The uniform-layout connector must still reject this distinct wire shape.
+    with pytest.raises(ValueError, match="required KV"):
+        make_kv_connector_protocol(config()).decode_request_kv_transfer_params(response)
+    for key in protocol.required_metadata:
+        incomplete = dict(payload)
+        incomplete.pop(key)
+        with pytest.raises(ValueError, match="required KV"):
+            protocol.decode_request_kv_transfer_params(
+                SimpleNamespace(kv_transfer_params=incomplete)
+            )
+    with pytest.raises(ValueError, match="remote prefill"):
+        protocol.decode_request_kv_transfer_params(
+            SimpleNamespace(kv_transfer_params=dict(payload, do_remote_prefill=False))
+        )
+
+
+def test_hybrid_alias_does_not_authorize_unknown_module():
+    cfg = config("unknown.hybrid")
+    cfg.kv_transfer_config.kv_connector = "MooncakeHybridConnector"
+    with pytest.raises(ValueError, match="Unsupported PD connector module"):
+        make_kv_connector_protocol(cfg)
 
 
 def test_wrapper_uses_child_module():
@@ -337,13 +397,24 @@ def test_equal_tp_contract_rejects_invalid_sizes(tp):
 @pytest.mark.parametrize(
     "role", [DisaggregationMode.PREFILL, DisaggregationMode.DECODE]
 )
-def test_ascend_native_tp_pairs_pass_through_without_split_extension(pair, role):
+@pytest.mark.parametrize(
+    "connector,module",
+    [
+        ("MooncakeConnector", ASCEND_MOONCAKE_MODULE),
+        ("MooncakeConnector", ASCEND_MOONCAKE_HYBRID_MODULE),
+        ("MooncakeHybridConnector", None),
+    ],
+)
+def test_ascend_native_tp_pairs_pass_through_without_split_extension(
+    pair, role, connector, module
+):
     extra = {
         "prefill": {"tp_size": pair[0], "dp_size": 1, "pp_size": 1},
         "decode": {"tp_size": pair[1], "dp_size": 1, "pp_size": 1},
     }
     is_prefill = role == DisaggregationMode.PREFILL
-    kv = config().kv_transfer_config
+    kv = config(module).kv_transfer_config
+    kv.kv_connector = connector
     kv.kv_role = "kv_producer" if is_prefill else "kv_consumer"
     kv.kv_connector_extra_config = extra
     cfg = SimpleNamespace(
@@ -358,12 +429,12 @@ def test_ascend_native_tp_pairs_pass_through_without_split_extension(pair, role)
             speculative_config=None,
         ),
     )
-    assert validate_pd_configuration(cfg, "ascend") == "MooncakeConnector"
+    assert validate_pd_configuration(cfg, "ascend") == connector
     assert "heyi_tp_split" not in extra
     # The separate HEYI extension has actual two-rank address/ACK assumptions;
     # these restrictions do not apply to the native connector path above.
     extra["heyi_tp_split"] = True
-    if pair == (1, 2):
+    if pair == (1, 2) and module == ASCEND_MOONCAKE_MODULE:
         assert validate_pd_configuration(cfg, "ascend") == "MooncakeConnector"
     else:
         with pytest.raises(PlatformError, match="peer parallel"):

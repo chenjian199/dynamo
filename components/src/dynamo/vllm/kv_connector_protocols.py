@@ -109,6 +109,9 @@ class MooncakeConnectorProtocol(KvConnectorProtocol):
 
 
 ASCEND_MOONCAKE_MODULE = "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector"
+ASCEND_MOONCAKE_HYBRID_MODULE = (
+    "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_hybrid_connector"
+)
 
 
 class AscendMooncakeConnectorProtocol(NixlConnectorProtocol):
@@ -119,19 +122,22 @@ class AscendMooncakeConnectorProtocol(NixlConnectorProtocol):
     The connector owns transfer completion and delayed source-block release.
     """
 
+    required_metadata = (
+        "remote_engine_id",
+        "remote_request_id",
+        "remote_block_ids",
+        "remote_host",
+        "remote_port",
+        "remote_block_size",
+    )
+
     def decode_request_kv_transfer_params(
         self, prefill_response: Any
     ) -> Dict[str, Any]:
         params = prefill_response.kv_transfer_params
-        required = (
-            "remote_engine_id",
-            "remote_request_id",
-            "remote_block_ids",
-            "remote_host",
-            "remote_port",
-            "remote_block_size",
-        )
-        if not isinstance(params, dict) or any(key not in params for key in required):
+        if not isinstance(params, dict) or any(
+            key not in params for key in self.required_metadata
+        ):
             raise ValueError(
                 "Ascend Mooncake prefill omitted required KV transfer metadata"
             )
@@ -140,11 +146,32 @@ class AscendMooncakeConnectorProtocol(NixlConnectorProtocol):
         return params
 
 
+class AscendMooncakeHybridConnectorProtocol(AscendMooncakeConnectorProtocol):
+    """Preserve Ascend's per-group hybrid KV layout and completion metadata.
+
+    The vendor connector resolves each group's block stride. Its response has
+    no uniform ``remote_block_size``; synthesizing one corrupts mixed layouts.
+    Source-block release and cancellation remain owned by the native connector.
+    """
+
+    required_metadata = (
+        "remote_engine_id",
+        "remote_request_id",
+        "remote_block_ids",
+        "remote_host",
+        "remote_port",
+        "remote_ptp_size",
+        "remote_multi_nodes_meta_mapping",
+        "num_prompt_blocks",
+    )
+
+
 # Keyed by ``KVTransferConfig.kv_connector``. One entry per connector.
 KV_CONNECTOR_PROTOCOLS: Dict[str, Type[KvConnectorProtocol]] = {
     "NixlConnector": NixlConnectorProtocol,
     "NeuronNixlConnector": NixlConnectorProtocol,
     "MooncakeConnector": MooncakeConnectorProtocol,
+    "MooncakeHybridConnector": AscendMooncakeHybridConnectorProtocol,
 }
 
 # Wrapper connectors that compose sub-connectors under
@@ -160,6 +187,8 @@ def _protocol_class(kv_cfg: Any) -> Type[KvConnectorProtocol]:
     module = getattr(kv_cfg, "kv_connector_module_path", None)
     if module == ASCEND_MOONCAKE_MODULE and name == "MooncakeConnector":
         return AscendMooncakeConnectorProtocol
+    if module == ASCEND_MOONCAKE_HYBRID_MODULE and name == "MooncakeConnector":
+        return AscendMooncakeHybridConnectorProtocol
     # Custom implementations must explicitly declare their wire protocol here;
     # a familiar class name is not evidence of protocol compatibility.
     canonical_modules = {

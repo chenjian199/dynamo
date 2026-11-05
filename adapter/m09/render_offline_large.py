@@ -58,6 +58,11 @@ for role in ["prefill", "decode"]:
     if a.platform == "ascend":
         for side in ["prefill", "decode"]:
             kv["kv_connector_extra_config"][side]["tp_size"] = tp
+        if a.model == "deepseek":
+            # DeepSeek V4 has multiple KV groups with different block strides.
+            # Use the vendor's registered hybrid connector and preserve HMA.
+            kv["kv_connector"] = "MooncakeHybridConnector"
+            kv.pop("kv_connector_module_path", None)
     c["podTemplate"]["spec"]["containers"][0]["args"] += [
         "--disaggregation-mode",
         role,
@@ -68,6 +73,7 @@ for role in ["prefill", "decode"]:
 data["dgd"]["spec"]["components"] = components
 data["dgd"]["metadata"]["name"] = "m09-offline-" + a.model
 data["dgdr"]["model"] = "/models/current"
+data["dgdr"]["hardware"]["totalGpus"] = tp * 2
 data["dgdr"]["features"]["planner"]["max_gpu_budget"] = tp * 2
 provenance = json.loads(
     (

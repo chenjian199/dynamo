@@ -85,7 +85,7 @@ async def request(session, args, sequence):
         )
     if args.token_id_metrics and len(token_ids) != usage["completion_tokens"]:
         raise RuntimeError("Streamed token IDs do not match completion usage")
-    return {
+    result = {
         "sequence": sequence,
         "completed_at": time.time(),
         "ttft_ms": (first - start) * 1000,
@@ -95,6 +95,9 @@ async def request(session, args, sequence):
         "prompt_tokens": usage["prompt_tokens"],
         "visible_characters": visible_characters,
     }
+    if getattr(args, "record_token_ids", False):
+        result["completion_token_ids"] = token_ids
+    return result
 
 
 async def main(args):
@@ -160,7 +163,12 @@ async def main(args):
                         json.JSONDecodeError,
                     ) as error:
                         report["errors"].append(
-                            {"stage": label, "sequence": current, "error": str(error)}
+                            {
+                                "stage": label,
+                                "sequence": current,
+                                "error": str(error),
+                                "error_type": type(error).__name__,
+                            }
                         )
                         print(
                             "REQUEST_ERROR=" + json.dumps(report["errors"][-1]),
@@ -197,6 +205,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", required=True)
     parser.add_argument("--model", default="m09-model")
+    parser.add_argument(
+        "--record-token-ids",
+        action="store_true",
+        help="Retain IDs for paired output checks",
+    )
     parser.add_argument(
         "--token-id-metrics",
         action="store_true",

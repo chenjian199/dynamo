@@ -7,9 +7,9 @@ Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # M10 契约测试与平台认证
 
-2026-10-30 交接：MetaX 无集群条件下的 PD/Grove/DGDR/Planner 配置适配见 [集群交付入口](../../platforms/metax/cluster/README.md)。本轮没有构建新镜像或执行设备/集群测试；M10 必须从同一提交构建 runtime、dev、工具与 Operator 镜像后重新验收，不能沿用源码覆盖结果声明最终镜像通过。
+2026-11-04 本轮约定范围的回归已完成，交付与封包状态见 [M10 执行目录](../../m10/README.md)。基线为 `4b1efe773c`，CUDA/MetaX 使用 FPM 修复后的 `-r1`，Ascend 使用补齐 Hybrid PD 与加载顺序补丁的 `-r3`。r3 已完成两轮 DeepSeek 跨节点 PD、285 项 CPU 契约、断网 editable 安装、六组硬件检查、五卡普通 PD 长稳、Planner 自主 1→2→1，以及新画像的完整采样、静态初始化、在线预测和重启复用。恢复期 Decode 仍有间歇 `model_not_ready`，在线预测连续可用性未认证。严格 token 对照的两个差异输入在原生聚合/Hybrid PD 中也会波动，仍未认证精确数值一致性；原 max-num-seqs=16 的 Decode 拟合失败继续保留，新画像采用独立 max-num-seqs=64 配置，不混合样本。`execution_revision=r1` 的记录为明确沿用证据，不表述为 r3 实测。MetaX 无集群条件下的 PD/Grove/DGDR/Planner 配置见 [集群交付入口](../../platforms/metax/cluster/README.md)，集群认证继续暂缓。
 
-状态：部分完成（MetaX、Ascend 与 CUDA 当前阶段）。覆盖 M01–M09，验证随实施同步推进。
+状态：本轮认证范围阶段性完成；完整设计矩阵、长期生产 SLA 和明确暂缓项尚未全部认证。以下早期设计与历史进度保留，不代表每项均已交付。
 
 ## 实施进度（2026-10-16）
 
