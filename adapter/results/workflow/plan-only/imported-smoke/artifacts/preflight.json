@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "time": "2026-11-05T03:20:07.784453+00:00",
+  "environment_sha256": "af869e2814bdee7e83f5786ae1deb44dfd6128f72426ad64de8cd0375dddecd0",
+  "readiness": {
+    "images": false,
+    "runtime": true,
+    "ssh": true,
+    "workspace": true
+  },
+  "checks": [
+    {
+      "node": "local",
+      "requirement": "ssh",
+      "command": [
+        "true"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "node": "local",
+      "requirement": "workspace",
+      "command": [
+        "test",
+        "-w",
+        "."
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "node": "local",
+      "requirement": "inventory",
+      "command": [
+        "uname",
+        "-a"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout": "Linux 63metax 5.15.0-198-generic #208-Ubuntu SMP Fri Sep 4 10:22:38 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux\n",
+      "stderr": ""
+    },
+    {
+      "node": "local",
+      "requirement": "runtime",
+      "command": [
+        "docker",
+        "info",
+        "--format",
+        "{{.ServerVersion}}"
+      ],
+      "passed": true,
+      "returncode": 0,
+      "stdout": "29.1.3\n",
+      "stderr": ""
+    },
+    {
+      "node": "local",
+      "requirement": "images",
+      "command": null,
+      "passed": false,
+      "error": "List required immutable image digests on every execution node"
+    }
+  ],
+  "passed": false,
+  "identity": "1ade7c31c6a481585ef02ac17ab5b1bd64c5ec62ea3040d7b9b0586ef2eba3a9"
+}

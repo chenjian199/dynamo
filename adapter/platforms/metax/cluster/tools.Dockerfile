@@ -8,7 +8,7 @@ WORKDIR /opt/dynamo/tools-build
 COPY container/platforms/audit.py ./audit.py
 COPY container/platforms/metax.json ./container/platforms/metax.json
 COPY adapter/platforms/metax/cluster/requirements-tools.txt ./requirements-tools.txt
-COPY adapter/m09/requirements-planner-cuda.txt ./requirements-planner.txt
+COPY adapter/modules/m09-telemetry-planner/common/packaging/requirements-planner-cuda.txt ./requirements-planner.txt
 RUN /opt/dynamo/venv/bin/python audit.py snapshot before.json && \
     /opt/dynamo/venv/bin/python audit.py constraints metax protected.txt && \
     /opt/dynamo/venv/bin/python -m pip install -c protected.txt -r requirements-tools.txt -r requirements-planner.txt && \
@@ -19,7 +19,7 @@ RUN /opt/dynamo/venv/bin/python audit.py snapshot before.json && \
 COPY deploy /opt/dynamo/profiler-support/deploy
 # Binaries must be built/provided for amd64 in the build context (see README).
 COPY --chmod=755 artifacts/metax-cluster/kubectl artifacts/metax-cluster/dgd-apply-overrides /usr/local/bin/
-COPY adapter/m08/advanced/patch-aiperf.py ./patch-aiperf.py
+COPY adapter/modules/m08-kubernetes/common/advanced/patch-aiperf.py ./patch-aiperf.py
 RUN /opt/dynamo/venv/bin/python patch-aiperf.py && \
     ln -sf /bin/bash /bin/sh && \
     mkdir -p /opt/dynamo/platform-capacity && \

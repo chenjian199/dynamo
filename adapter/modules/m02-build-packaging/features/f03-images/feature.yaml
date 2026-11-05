@@ -1,0 +1,122 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+schema_version: 1
+id: M02-F03
+revision: 2
+name: runtime dev tools 镜像
+module: M02
+owner: HEYI
+dependencies:
+- M02-F02
+requirements:
+- ssh
+- workspace
+- runtime
+- images
+implementation_paths:
+- Cargo.lock
+- Cargo.toml
+- container/platforms
+- lib/bindings/kvbm
+- lib/bindings/python
+- pyproject.toml
+- adapter/modules/m02-build-packaging/common
+reference:
+  baseline: container/platforms/cuda.json
+  rule: Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine
+    arguments.
+scope:
+  behavior: runtime dev tools 镜像
+  exclusions:
+  - Unmeasured hardware/topologies and vendor-native failures are not certified by this feature.
+cases:
+- id: M02-F03-C01
+  name: runtime dev tools 镜像
+  required_assertions:
+  - behavior
+  - cleanup
+  - identity
+  - runtime_installed_imports
+  - dev_derives_runtime
+  - tools_isolation
+  evidence_requirements:
+  - command
+  - environment
+  - raw_output
+  - verifier
+  checks:
+    behavior:
+    - op: positive
+      path: /completed_operations
+    cleanup:
+    - op: equal
+      path: /resources_remaining
+      value: []
+    identity:
+    - op: equal
+      path: /identity
+      expected_from: /identity
+    - op: equal
+      path: /installed_versions
+      expected_from: /stack/versions
+    - op: equal
+      path: /execution_image
+      expected_from: /case_binding/image
+    - op: equal
+      path: /observed_topology
+      expected_from: /case_binding/topology
+    - op: equal
+      path: /model_manifests
+      expected_from: /model_manifests
+    runtime_installed_imports:
+    - op: equal_fields
+      path: /measurements/runtime_installed_imports/actual
+      other: /measurements/runtime_installed_imports/reference
+      nonempty: true
+    dev_derives_runtime:
+    - op: equal_fields
+      path: /measurements/dev_derives_runtime/actual
+      other: /measurements/dev_derives_runtime/reference
+      nonempty: true
+    tools_isolation:
+    - op: equal_fields
+      path: /measurements/tools_isolation/actual
+      other: /measurements/tools_isolation/reference
+      nonempty: true
+  recipe:
+    entrypoints: &id001
+    - adapter/modules/m02-build-packaging/common/images/collect.py
+    - adapter/modules/m02-build-packaging/common/images/dev-validate.py
+    binding: environment.case_bindings.M02-F03-C01
+    phases:
+    - prepare
+    - run
+    - observe
+    - cleanup
+    - verify
+    verifier: adapter/workflow/evidence/verify.py
+    required_inputs:
+    - nodes
+    - image
+    - topology
+    observation: cases/M02-F03-C01/observations.json
+  negative_cases:
+  - missing_or_modified_measurement
+  - wrong_image_or_model_identity
+  - native_failure_kept_separate
+  native_control: Same model revision, engine parameters, workload and topology; paired raw outputs required
+    where parity is asserted.
+failure_classes:
+- environment
+- adaptation
+- native_engine
+- unsupported_evidenced
+- insufficient_evidence
+retry:
+  max_attempts: 2
+  policy: Diagnose first; never hide an earlier failure.
+acceptance_notes:
+- Assertions require independently observed evidence, not copied constants or a generic passed flag.
+- For a capability with multiple native backends, choose a supported backend in campaign scope; do not
+  require every vendor to implement every transport.
+entrypoints: *id001

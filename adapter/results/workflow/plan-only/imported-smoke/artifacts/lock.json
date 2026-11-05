@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "platform": "metax",
+  "chip": "workflow-fixture",
+  "environment": {
+    "schema_version": 1,
+    "name": "local-source-check",
+    "nodes": [
+      {
+        "id": "local",
+        "ssh": null,
+        "workspace": ".",
+        "runtime": "docker",
+        "device_probe": [],
+        "images": [],
+        "models": []
+      }
+    ],
+    "budgets": {
+      "task_timeout_seconds": 60,
+      "max_attempts": 2,
+      "max_tasks": 10
+    },
+    "execution_enabled": false
+  },
+  "stack": {
+    "id": "metax",
+    "architecture": "amd64",
+    "python": "/opt/conda/bin/python",
+    "base_image": "cr.metax-tech.com/public-ai-release/maca/vllm-metax@sha256:e7e59c3713ad4ef1290cc0d5029759f2844b2695f36de0bca2f4630c671add95",
+    "versions": {
+      "vllm": "0.26.0",
+      "torch": "2.10.0+metax3.8.2.2",
+      "vllm-metax": "0.26.0+g097358.d20260911.maca3.8.2.208.torch2.10.0"
+    },
+    "protected_packages": [
+      "vllm",
+      "vllm-metax",
+      "torch",
+      "torchvision",
+      "torchaudio",
+      "nixl",
+      "mccl",
+      "triton",
+      "mooncake-transfer-engine",
+      "maca-python",
+      "maca-tile"
+    ],
+    "runtime_features": [
+      "mm-routing",
+      "request-trace-s3"
+    ],
+    "kvbm_features": [],
+    "gms": true,
+    "omni": "optional-overlay",
+    "kernel_mode": "vendor-host-staging",
+    "nixl_link_mode": "runtime-capi"
+  },
+  "stack_sha256": "f39359dfbba7a957c6df029022a94154d8469b4dd34f8c3f2d0bdfd1a1e5e2ca",
+  "source": {
+    "head": "906df36b62344eb56c22d4f50efefe5be7327d1a",
+    "files_sha256": "bb95e659b9e9b5262b7ce3bb3d39967456e41475851610620d03ef39e586f788"
+  },
+  "features": {
+    "M02-F01": {
+      "schema_version": 1,
+      "id": "M02-F01",
+      "revision": 1,
+      "name": "开发环境与 editable 安装",
+      "module": "M02",
+      "owner": "HEYI",
+      "dependencies": [],
+      "requirements": [
+        "ssh",
+        "workspace",
+        "runtime",
+        "images"
+      ],
+      "implementation_paths": [
+        "container/platforms"
+      ],
+      "reference": {
+        "baseline": "container/platforms/cuda.json",
+        "rule": "Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine arguments."
+      },
+      "scope": {
+        "behavior": "开发环境与 editable 安装",
+        "exclusions": [
+          "Unmeasured hardware/topologies and vendor-native failures are not certified by this feature."
+        ]
+      },
+      "cases": [
+        {
+          "id": "M02-F01-C01",
+          "name": "开发环境与 editable 安装：声明范围下的行为与回收验证",
+          "required_assertions": [
+            "behavior",
+            "cleanup",
+            "identity",
+            "editable_imports_match_source",
+            "toolchain_available"
+          ],
+          "evidence_requirements": [
+            "command",
+            "environment",
+            "raw_output",
+            "verifier"
+          ]
+        }
+      ],
+      "failure_classes": [
+        "environment",
+        "adaptation",
+        "native_engine",
+        "unsupported_evidenced",
+        "insufficient_evidence"
+      ],
+      "retry": {
+        "max_attempts": 2,
+        "policy": "Diagnose first; never hide an earlier failure."
+      },
+      "acceptance_notes": [
+        "Assertions require independently observed evidence, not copied constants or a generic passed flag.",
+        "For a capability with multiple native backends, choose a supported backend in campaign scope; do not require every vendor to implement every transport."
+      ],
+      "entrypoints": [
+        "adapter/modules/m02-build-packaging/common/images/collect.py",
+        "adapter/modules/m02-build-packaging/common/images/dev-validate.py",
+        "adapter/modules/m02-build-packaging/common/images/run.sh"
+      ],
+      "contract_path": "adapter/modules/m02-build-packaging/features/f01-bootstrap/feature.yaml",
+      "contract_sha256": "58155d50d5ff52cdf963d1529a5dee4932e836a0059bdc1ec73a2f44e2938610"
+    }
+  },
+  "required": [
+    "M02-F01"
+  ],
+  "planned": [
+    "M02-F01"
+  ],
+  "identity": "1ade7c31c6a481585ef02ac17ab5b1bd64c5ec62ea3040d7b9b0586ef2eba3a9"
+}

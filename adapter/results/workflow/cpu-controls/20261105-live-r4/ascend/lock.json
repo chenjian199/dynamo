@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "platform": "ascend",
+  "chip": "workflow-cpu-control",
+  "environment": {
+    "nodes": [
+      {
+        "id": "controller",
+        "ssh": "huawei-52",
+        "workspace": "/root/CJ_workspace/adapter-workflow-validation"
+      }
+    ],
+    "ssh_config": "/var/tmp/dynamo-m10/ssh-config-resume",
+    "budgets": {
+      "task_timeout_seconds": 90,
+      "max_attempts": 2,
+      "max_tasks": 10
+    },
+    "kubernetes": {
+      "host": "huawei-52",
+      "context": "default",
+      "namespace": "adapter-workflow-validation"
+    }
+  },
+  "features": {
+    "WF-CONTROL": {
+      "cases": []
+    }
+  },
+  "planned": [
+    "WF-CONTROL"
+  ],
+  "required": [
+    "WF-CONTROL"
+  ],
+  "fixture_kind": "executor recovery only; no chip inference certification",
+  "identity": "a61d41e6e9b0d6535aa6dbe5f955698ccc7860098c115622b0dc05808a00423f"
+}

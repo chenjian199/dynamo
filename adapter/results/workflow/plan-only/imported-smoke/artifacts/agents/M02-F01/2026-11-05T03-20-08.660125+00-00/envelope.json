@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "identity": "1ade7c31c6a481585ef02ac17ab5b1bd64c5ec62ea3040d7b9b0586ef2eba3a9",
+  "feature": {
+    "schema_version": 1,
+    "id": "M02-F01",
+    "revision": 1,
+    "name": "开发环境与 editable 安装",
+    "module": "M02",
+    "owner": "HEYI",
+    "dependencies": [],
+    "requirements": [
+      "ssh",
+      "workspace",
+      "runtime",
+      "images"
+    ],
+    "implementation_paths": [
+      "container/platforms"
+    ],
+    "reference": {
+      "baseline": "container/platforms/cuda.json",
+      "rule": "Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine arguments."
+    },
+    "scope": {
+      "behavior": "开发环境与 editable 安装",
+      "exclusions": [
+        "Unmeasured hardware/topologies and vendor-native failures are not certified by this feature."
+      ]
+    },
+    "cases": [
+      {
+        "id": "M02-F01-C01",
+        "name": "开发环境与 editable 安装：声明范围下的行为与回收验证",
+        "required_assertions": [
+          "behavior",
+          "cleanup",
+          "identity",
+          "editable_imports_match_source",
+          "toolchain_available"
+        ],
+        "evidence_requirements": [
+          "command",
+          "environment",
+          "raw_output",
+          "verifier"
+        ]
+      }
+    ],
+    "failure_classes": [
+      "environment",
+      "adaptation",
+      "native_engine",
+      "unsupported_evidenced",
+      "insufficient_evidence"
+    ],
+    "retry": {
+      "max_attempts": 2,
+      "policy": "Diagnose first; never hide an earlier failure."
+    },
+    "acceptance_notes": [
+      "Assertions require independently observed evidence, not copied constants or a generic passed flag.",
+      "For a capability with multiple native backends, choose a supported backend in campaign scope; do not require every vendor to implement every transport."
+    ],
+    "entrypoints": [
+      "adapter/modules/m02-build-packaging/common/images/collect.py",
+      "adapter/modules/m02-build-packaging/common/images/dev-validate.py",
+      "adapter/modules/m02-build-packaging/common/images/run.sh"
+    ],
+    "contract_path": "adapter/modules/m02-build-packaging/features/f01-bootstrap/feature.yaml",
+    "contract_sha256": "58155d50d5ff52cdf963d1529a5dee4932e836a0059bdc1ec73a2f44e2938610"
+  },
+  "source": {
+    "head": "906df36b62344eb56c22d4f50efefe5be7327d1a",
+    "files_sha256": "bb95e659b9e9b5262b7ce3bb3d39967456e41475851610620d03ef39e586f788"
+  },
+  "environment": {
+    "schema_version": 1,
+    "name": "local-source-check",
+    "nodes": [
+      {
+        "id": "local",
+        "ssh": null,
+        "workspace": ".",
+        "runtime": "docker",
+        "device_probe": [],
+        "images": [],
+        "models": []
+      }
+    ],
+    "budgets": {
+      "task_timeout_seconds": 60,
+      "max_attempts": 2,
+      "max_tasks": 10
+    },
+    "execution_enabled": false
+  },
+  "state": {
+    "implementation": "not_started",
+    "task": "queued",
+    "test": "not_run",
+    "qualification": "pending",
+    "attempts": []
+  },
+  "campaign": "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/plan-only/imported-smoke/artifacts",
+  "allowed_write_paths": [
+    "container/platforms"
+  ],
+  "policy": "/home/metax/CJ_workspace/dynamo/adapter/contracts/policy.yaml",
+  "result_semantics": "Proposal only; no qualification state changes. No hardware deployment from this handoff. Use frozen tasks and deterministic runner for hardware."
+}

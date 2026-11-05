@@ -1,0 +1,180 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+schema_version: 1
+id: M07-F04
+revision: 2
+name: Omni 阶段生命周期与通道
+module: M07
+owner: HEYI
+dependencies:
+- M03-F01
+- M04-F01
+- M07-F02
+requirements:
+- ssh
+- workspace
+- device
+- runtime
+- images
+- models
+implementation_paths:
+- components/src/dynamo/common/platform
+- components/src/dynamo/vllm
+- lib/gpu_memory_service
+- adapter/modules/m07-gms-multimodal/common
+reference:
+  baseline: container/platforms/cuda.json
+  rule: Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine
+    arguments.
+scope:
+  behavior: Omni 阶段生命周期与通道
+  exclusions:
+  - Unmeasured hardware/topologies and vendor-native failures are not certified by this feature.
+cases:
+- id: M07-F04-C01
+  name: 阶段通道
+  required_assertions:
+  - behavior
+  - cleanup
+  - identity
+  - stage_contract
+  - hidden_state_channel
+  evidence_requirements:
+  - command
+  - environment
+  - raw_output
+  - verifier
+  checks:
+    behavior:
+    - op: positive
+      path: /completed_operations
+    cleanup:
+    - op: equal
+      path: /resources_remaining
+      value: []
+    identity:
+    - op: equal
+      path: /identity
+      expected_from: /identity
+    - op: equal
+      path: /installed_versions
+      expected_from: /stack/versions
+    - op: equal
+      path: /execution_image
+      expected_from: /case_binding/image
+    - op: equal
+      path: /observed_topology
+      expected_from: /case_binding/topology
+    - op: equal
+      path: /model_manifests
+      expected_from: /model_manifests
+    stage_contract:
+    - op: equal_fields
+      path: /measurements/stage_contract/actual
+      other: /measurements/stage_contract/reference
+      nonempty: true
+    hidden_state_channel:
+    - op: equal_fields
+      path: /measurements/hidden_state_channel/actual
+      other: /measurements/hidden_state_channel/reference
+      nonempty: true
+  recipe:
+    entrypoints: &id001
+    - adapter/modules/m07-gms-multimodal/common/media/omni-check.py
+    - adapter/modules/m07-gms-multimodal/common/media/omni_soak.py
+    binding: environment.case_bindings.M07-F04-C01
+    phases:
+    - prepare
+    - run
+    - observe
+    - cleanup
+    - verify
+    verifier: adapter/workflow/evidence/verify.py
+    required_inputs:
+    - nodes
+    - image
+    - topology
+    - models
+    observation: cases/M07-F04-C01/observations.json
+  negative_cases:
+  - missing_or_modified_measurement
+  - wrong_image_or_model_identity
+  - native_failure_kept_separate
+  native_control: Same model revision, engine parameters, workload and topology; paired raw outputs required
+    where parity is asserted.
+- id: M07-F04-C02
+  name: 取消与长稳回收
+  required_assertions:
+  - behavior
+  - cleanup
+  - identity
+  - cancel_cleanup
+  evidence_requirements:
+  - command
+  - environment
+  - raw_output
+  - verifier
+  checks:
+    behavior:
+    - op: positive
+      path: /completed_operations
+    cleanup:
+    - op: equal
+      path: /resources_remaining
+      value: []
+    identity:
+    - op: equal
+      path: /identity
+      expected_from: /identity
+    - op: equal
+      path: /installed_versions
+      expected_from: /stack/versions
+    - op: equal
+      path: /execution_image
+      expected_from: /case_binding/image
+    - op: equal
+      path: /observed_topology
+      expected_from: /case_binding/topology
+    - op: equal
+      path: /model_manifests
+      expected_from: /model_manifests
+    cancel_cleanup:
+    - op: equal
+      path: /metrics/active_stages_after_cancel
+      value: 0
+  recipe:
+    entrypoints: *id001
+    binding: environment.case_bindings.M07-F04-C02
+    phases:
+    - prepare
+    - run
+    - observe
+    - cleanup
+    - verify
+    verifier: adapter/workflow/evidence/verify.py
+    required_inputs:
+    - nodes
+    - image
+    - topology
+    - models
+    observation: cases/M07-F04-C02/observations.json
+  negative_cases:
+  - missing_or_modified_measurement
+  - wrong_image_or_model_identity
+  - native_failure_kept_separate
+  native_control: Same model revision, engine parameters, workload and topology; paired raw outputs required
+    where parity is asserted.
+failure_classes:
+- environment
+- adaptation
+- native_engine
+- unsupported_evidenced
+- insufficient_evidence
+retry:
+  max_attempts: 2
+  policy: Diagnose first; never hide an earlier failure.
+acceptance_notes:
+- Assertions require independently observed evidence, not copied constants or a generic passed flag.
+- For a capability with multiple native backends, choose a supported backend in campaign scope; do not
+  require every vendor to implement every transport.
+entrypoints: *id001

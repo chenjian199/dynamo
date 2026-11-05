@@ -184,7 +184,7 @@ def test_file_bootstrap_is_explicit_and_cpu_only(config):
 
 
 def test_identity_cli_records_metax_plugin_and_requires_inventory(config, tmp_path):
-    script = renderer.ROOT / "adapter/m09/profile_identity.py"
+    script = renderer.ROOT / "adapter/modules/m09-telemetry-planner/common/offline/profile_identity.py"
     provenance = tmp_path / "provenance.json"
     provenance.write_text(
         json.dumps(

@@ -1,0 +1,126 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+schema_version: 1
+id: M09-F04
+revision: 2
+name: SLA 与性能分析
+module: M09
+owner: HEYI
+dependencies:
+- M08-F01
+- M03-F01
+- M09-F01
+requirements:
+- ssh
+- workspace
+- device
+- runtime
+- images
+- models
+- kubernetes
+implementation_paths:
+- components/src/dynamo/common/config_dump
+- components/src/dynamo/common/platform
+- components/src/dynamo/planner
+- components/src/dynamo/profiler
+- adapter/modules/m09-telemetry-planner/common
+reference:
+  baseline: container/platforms/cuda.json
+  rule: Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine
+    arguments.
+scope:
+  behavior: SLA 与性能分析
+  exclusions:
+  - Unmeasured hardware/topologies and vendor-native failures are not certified by this feature.
+cases:
+- id: M09-F04-C01
+  name: SLA 与性能分析
+  required_assertions:
+  - behavior
+  - cleanup
+  - identity
+  - comparable_workload
+  - valid_ttft_tpot
+  - explicit_slo_result
+  evidence_requirements:
+  - command
+  - environment
+  - raw_output
+  - verifier
+  checks:
+    behavior:
+    - op: positive
+      path: /completed_operations
+    cleanup:
+    - op: equal
+      path: /resources_remaining
+      value: []
+    identity:
+    - op: equal
+      path: /identity
+      expected_from: /identity
+    - op: equal
+      path: /installed_versions
+      expected_from: /stack/versions
+    - op: equal
+      path: /execution_image
+      expected_from: /case_binding/image
+    - op: equal
+      path: /observed_topology
+      expected_from: /case_binding/topology
+    - op: equal
+      path: /model_manifests
+      expected_from: /model_manifests
+    comparable_workload:
+    - op: equal_fields
+      path: /measurements/comparable_workload/actual
+      other: /measurements/comparable_workload/reference
+      nonempty: true
+    valid_ttft_tpot:
+    - op: equal_fields
+      path: /measurements/valid_ttft_tpot/actual
+      other: /measurements/valid_ttft_tpot/reference
+      nonempty: true
+    explicit_slo_result:
+    - op: equal_fields
+      path: /measurements/explicit_slo_result/actual
+      other: /measurements/explicit_slo_result/reference
+      nonempty: true
+  recipe:
+    entrypoints: &id001
+    - adapter/modules/m09-telemetry-planner/common/evidence/summarize.py
+    - adapter/modules/m09-telemetry-planner/common/online/load.py
+    binding: environment.case_bindings.M09-F04-C01
+    phases:
+    - prepare
+    - run
+    - observe
+    - cleanup
+    - verify
+    verifier: adapter/workflow/evidence/verify.py
+    required_inputs:
+    - nodes
+    - image
+    - topology
+    - models
+    observation: cases/M09-F04-C01/observations.json
+  negative_cases:
+  - missing_or_modified_measurement
+  - wrong_image_or_model_identity
+  - native_failure_kept_separate
+  native_control: Same model revision, engine parameters, workload and topology; paired raw outputs required
+    where parity is asserted.
+failure_classes:
+- environment
+- adaptation
+- native_engine
+- unsupported_evidenced
+- insufficient_evidence
+retry:
+  max_attempts: 2
+  policy: Diagnose first; never hide an earlier failure.
+acceptance_notes:
+- Assertions require independently observed evidence, not copied constants or a generic passed flag.
+- For a capability with multiple native backends, choose a supported backend in campaign scope; do not
+  require every vendor to implement every transport.
+entrypoints: *id001

@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# Merge into the site environment after observing real assets; never execute placeholders.
+case_bindings:
+  M01-F01-C01:
+    nodes: [worker-1]
+    image: REPLACE_IMAGE_WITH_DIGEST
+    models: []
+    topology: {tp: 1, dp: 1, pp: 1}
+    containers: {worker-1: REPLACE_EXISTING_CONTAINER}
+    commands:
+      prepare: []
+      run:
+      - executor: container
+        node: worker-1
+        container: REPLACE_EXISTING_CONTAINER
+        argv: [python3, '{repo}/adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py', --help]
+      # Replace --help with the real smoke arguments and an independently reviewed observation normalizer.
+      observe: []
+      cleanup: []
+      resources: []

@@ -1,48 +1,50 @@
 <!--
-SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 SPDX-License-Identifier: Apache-2.0
-Derived from NVIDIA Dynamo. Modified by HEYI.
 -->
 
-# Dynamo 多厂商生态适配
+# 芯片适配工作流
 
-2026-11-04：[M10 最终镜像验收与离线归档](m10/README.md)已完成本轮回归范围。CUDA/MetaX 使用 `-r1`，Ascend 使用补齐 Hybrid PD 的 `-r3`，大模型离线采样、在线预测及重启复用已有独立结果。三平台按各自的 `validation.json` 和限制说明交付，封包状态及路径以统一索引为准。此前 M01–M09 记录保留原时间与环境，不改写为新镜像实测。
+使用同一套功能契约，将新芯片从环境准备推进到 M01–M10 验收与离线交付。当前工作流支持本地、SSH、已有容器和指定 Kubernetes context 的任务执行；Codex/Claude 可接收源码实施任务，GPT Responses 接口通过受限文件工具实施源码修改并生成结构化计划。AI 返回成功不直接更新认证状态。
 
-本目录用于设计和推进 Dynamo v1.5.1 的多厂商生态接入。每个推理部署选择一个厂商平台；CPU 控制面和主机内存仍可参与。目标是复用核心代码，支持 CUDA、Ascend、MetaX 及后续平台，不涉及异构推理或跨厂商混合调度。
+**工作流 1.0.0 定版：四组补齐工作已落地；真实 AI 账号调用按用户决定暂缓，未计为实测通过。** 见 [完整方案定版审计](workflow/finalization.md) 和 [逐项检查清单](contracts/workflow-audit.yaml)。
 
-源码基线：`v1.5.1`，提交 `2093662a4d4e5fd318732935213dde08dc7be818`。
+[本次改造验证](workflow/validation.md) · [总体设计](design.md) · [操作手册](workflow/README.md) · [模块功能目录](modules.md) · [证据矩阵](support-matrix.md) · [版本基线](version-baselines.md) · [遗留事项](contracts/issues.yaml) · [已封存交付](releases/1.5.1-heyi-m10/index.json)
 
-当前阶段：M01–M07 已完成各自记录范围内的适配与回归，保留明确暂缓项及原生引擎问题；不能将其视为全部设计能力完成。CUDA / Ascend 的大小模型、跨节点与 DeepSeek 验证见 [集群回归记录](m02/cluster-regression-plan.md)。M08 已阶段性收尾，在 CUDA / Ascend 集群安装 Operator，并验证基础 DGD 路径，见 [M08 验收](m08/cluster/README.md)；扩展轮已通过两平台跨节点 Operator 2P3D、Grove/KAI、DGDR 自动部署和 CUDA DRA，见 [扩展验收](m08/advanced/README.md)。MetaX 无集群，Ascend DRA 等待新集群；DGDR 预测精度未认证。指定 RDMA 路径通过，Ascend 动态注册压力问题保留；见 [M08 收尾与边界](m08/README.md#阶段性收尾与-m09-交接)。M09 阶段已完成实时指标路径的 CUDA/Ascend 大小模型功能回归，当时离线画像六组测试记录为：四组通过、CUDA Qwen32 有限通过，Ascend DeepSeek prefill 拟合未通过，当时完整离线验收尚未收口；保留 Ascend 延迟未达标、CUDA DeepSeek 瞬态伸缩震荡和 MetaX 无集群等边界，见 [M09](m09/README.md)。M10 使用最终镜像追加验证并保留原失败；最新画像及交付结论见页首 M10 入口。
+## 快速开始
 
-## 目录约定
+```bash
+# 在仓库根目录；可使用现有开发环境或独立 CPU 虚拟环境。
+python3 -m pip install -r adapter/workflow/requirements.txt
+python3 -m adapter.workflow --help
 
-- `platforms/{cuda,ascend,metax}`：跨模块开发环境、启动工具及早期推理记录，见 [平台工具](platforms/README.md)。
-- `m01`：平台契约专属脚本与结果；`m02`–`m10`：对应模块实现配套工具、验收记录与交付入口。
-- `modules/m01-*`–`modules/m10-*`：各模块设计；尚未建立执行目录的模块不代表已完成。
-- `results` 子目录：历史证据，原始命令和哈希不会因目录改名而改写。
+# 按目标机器填写环境文件；SSH 密钥和 kubeconfig 留在操作系统凭据配置中。
+cp adapter/environments/examples/cluster.yaml /tmp/chip-environment.yaml
+# 编辑 /tmp/chip-environment.yaml，先保持 execution_enabled: false。
+python3 -m adapter.workflow init \
+  --platform metax --chip C500 \
+  --environment /tmp/chip-environment.yaml \
+  --campaign adapter/results/metax/C500/onboarding \
+  --features M01-F01 M01-F02
+python3 -m adapter.workflow doctor --campaign adapter/results/metax/C500/onboarding
+python3 -m adapter.workflow plan --campaign adapter/results/metax/C500/onboarding
+python3 -m adapter.workflow status --campaign adapter/results/metax/C500/onboarding
+```
 
-原 `adapt/` 已统一改名为 `adapter/`。请从仓库根目录执行更新后的命令；远端旧副本需要重新同步才会使用新路径。
+上述是操作示例，不代表目标环境已经预检通过。未配置完整的模板会明确失败。新增平台先创建其真实 `container/platforms/<id>.json` 版本锁，再执行 `onboard --platform <id> --stack-profile container/platforms/<id>.json --resource-key <官方资源名>`；45 个共享功能自动可用，不复制厂商模块目录。
 
-## 阅读入口
+## 目录职责
 
-| 文件 | 用途 |
+| 目录 | 内容 |
 | --- | --- |
-| [m01/README.md](m01/README.md) | M01 平台契约、脚本和三平台证据入口 |
-| [workload.md](workload.md) | v1.5.1 至当前工作树的累计工作量、统计口径及复现命令 |
-| [design.md](design.md) | 范围、架构边界、接口职责、构建策略、准备工作和实施关卡 |
-| [modules.md](modules.md) | 模块编号、源码位置、工作包、依赖关系与后续细化模板 |
-| [modules/README.md](modules/README.md) | 十个模块详情入口、公共契约归属及逐文件修改/新增计划 |
-| [support-matrix.md](support-matrix.md) | 现状、能力状态、版本组合与验收证据记录规则 |
-| [metax-bringup.md](platforms/metax/metax-bringup.md) | MetaX 实测版本、兼容修复、容器构建/启动/验收命令及限制 |
-| [metax-platform.md](m01/metax-platform.md) | M01 实现、兼容边界、平台身份和拒绝启动的验收证据 |
-| [ascend-bringup.md](platforms/ascend/ascend-bringup.md) | 华为 0.23.0 镜像、ARM 构建、平台身份、基础推理及 KV 验收 |
-| [metax-kv-routing.md](platforms/metax/metax-kv-routing.md) | MetaX 双 Worker KV 路由、缓存失效修复及真实事件验收 |
+| [contracts](contracts/README.md) | 顶层规则、[数据格式](contracts/schemas/README.md)、结构化遗留项 |
+| [modules/<模块>/features/<功能>](modules/README.md) | 稳定编号、范围、依赖、断言与功能入口 |
+| [modules/<模块>/common](modules/README.md) | 本模块共享工具；各模块 README → common README → 功能组 README 可逐层查看脚本作用 |
+| [workflow](workflow/README.md) | 预检、状态、执行器、AI handoff、证据门禁和报告；regression/cluster 是跨模块回归库 |
+| [platforms/<平台>](platforms/README.md) | 规范资源名、版本锁引用、平台 bringup/cluster 入口 |
+| [environments](environments/README.md) | 现场配置说明与[无凭据模板](environments/examples/README.md) |
+| [results/<平台>/<芯片>/<campaign>](results/README.md) | 编号后的历史索引与结果；新现场结果同样在此目录 |
+| [releases](releases/README.md) | 外部已封存离线包索引，不放巨大镜像 |
+| [tools](tools/README.md) | 项目统计和开发辅助工具 |
 
-## 架构范围
-
-架构分层见 [总体设计](design.md)。每个部署只选择一个加速平台。NIXL 等传输库以及厂商 SDK 是插件可使用的实现，不是所有平台必须共同安装的依赖。
-
-## 后续工作
-
-按 [模块状态](modules.md) 继续推进未认证能力、新环境复验和生产指标验证；已交付范围以 M10 的逐项记录为准；具体厂商限制见 [支持矩阵](support-matrix.md)。未验证的能力不标记为已支持，关闭某项功能不等于完成该项适配。
+历史执行说明保存在各模块 execution.md；设计中旧的阶段状态不作为当前门禁，权威判断来自 feature 契约与对应 campaign。功能索引已经统一，不再保留兼容目录。

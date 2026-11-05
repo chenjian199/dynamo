@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "platform": "cuda",
+  "chip": "workflow-cpu-control",
+  "environment": {
+    "nodes": [
+      {
+        "id": "controller",
+        "ssh": "h800-6",
+        "workspace": "/home/bedicloud/CJ_workspace/adapter-workflow-validation"
+      }
+    ],
+    "ssh_config": "/var/tmp/dynamo-m10/ssh-config-resume",
+    "budgets": {
+      "task_timeout_seconds": 90,
+      "max_attempts": 2,
+      "max_tasks": 10
+    },
+    "kubernetes": {
+      "host": "h800-6",
+      "context": "kubernetes-admin@h800-production",
+      "namespace": "adapter-workflow-validation"
+    }
+  },
+  "features": {
+    "WF-CONTROL": {
+      "cases": []
+    }
+  },
+  "planned": [
+    "WF-CONTROL"
+  ],
+  "required": [
+    "WF-CONTROL"
+  ],
+  "fixture_kind": "executor recovery only; no chip inference certification",
+  "identity": "1485f4a431c1dd951aec90c28874e8431899dbaa6cc40512315a9709a7734bc2"
+}

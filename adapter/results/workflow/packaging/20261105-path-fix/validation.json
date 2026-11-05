@@ -1,0 +1,44 @@
+{
+  "recorded_at": "2026-11-05T07:09:35.167746+00:00",
+  "scope": "CPU packaging regression; real filesystem copies, Docker substituted; no image build or hardware inference",
+  "source_git_head": "906df36b62344eb56c22d4f50efefe5be7327d1a",
+  "working_tree_files": {
+    "adapter/modules/m02-build-packaging/common/images/run.sh": "2b374c07e85785de779684667f706900fc9ab5787e33b03699217133171e8881",
+    "adapter/modules/m10-validation/common/images/rebuild-app-image.py": "93ba1d82776f02af01ae634307d9525f52c606c2b7cc69108d31ef5e9f3820f0",
+    "adapter/workflow/tests/test_packaging_paths.py": "605731c30423397e52b1634165e063b8711c9f0b9d674682d32e00d991b7dba3"
+  },
+  "before_fix": {
+    "passed": 1,
+    "failed": 2,
+    "failures": [
+      "M02: missing nested harness target directory",
+      "M10 --refresh-vendor-patches: installer read from obsolete module-root path"
+    ]
+  },
+  "after_fix": {
+    "targeted": {
+      "passed": 3,
+      "failed": 0
+    },
+    "suite": {
+      "passed": 98,
+      "failed": 0,
+      "command": "python -m pytest -c adapter/workflow/tests/pytest.ini -q adapter/workflow/tests adapter/modules/m10-validation/common/offline/test_delivery.py --tb=short"
+    }
+  },
+  "checks": {
+    "ruff": "passed",
+    "bash_syntax": "passed",
+    "git_diff_check": "passed",
+    "readme_links": "passed",
+    "workflow_check_require_ready": "passed",
+    "skills_validation": "passed",
+    "catalog_drift_check": "passed"
+  },
+  "artifacts": [
+    {
+      "path": "pytest.txt",
+      "sha256": "b0b3f1799cbe25ec7b1572ff98f6c8c01ec9c07a7bb3cfe6111d68c145ed0195"
+    }
+  ]
+}

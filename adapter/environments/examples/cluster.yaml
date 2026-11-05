@@ -1,0 +1,65 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+schema_version: 1
+name: replace-with-test-environment
+nodes:
+- id: worker-1
+  ssh: replace-with-ssh-alias
+  workspace: /srv/dynamo
+  device_probe:
+  - nvidia-smi
+  - -L
+  runtime: containerd
+  images:
+  - replace-with-image@sha256:REPLACE
+  models:
+  - id: REPLACE_MODEL_ID
+    path: /models/REPLACE
+    revision: REPLACE_IMMUTABLE_REVISION
+    manifest: adapter-model-manifest.json
+    manifest_sha256: REPLACE_64_HEX_SHA256
+  device_paths: []
+  network_probe:
+  - ip
+  - -br
+  - link
+- id: worker-2
+  ssh: replace-with-second-ssh-alias
+  workspace: /srv/dynamo
+  device_probe:
+  - nvidia-smi
+  - -L
+  runtime: containerd
+  images:
+  - replace-with-image@sha256:REPLACE
+  models:
+  - id: REPLACE_MODEL_ID
+    path: /models/REPLACE
+    revision: REPLACE_IMMUTABLE_REVISION
+    manifest: adapter-model-manifest.json
+    manifest_sha256: REPLACE_64_HEX_SHA256
+  device_paths: []
+  network_probe:
+  - ip
+  - -br
+  - link
+kubernetes:
+  host: replace-with-ssh-alias
+  context: replace-with-context
+  namespace: adapter-regression
+  resource_key: nvidia.com/gpu
+  minimum_devices_per_node: 1
+  # Require only APIs already needed by the selected campaign, not APIs it installs.
+  required_apis: []
+  required_resources: []
+  nodes:
+  - replace-with-node-1
+  - replace-with-node-2
+# Full model hashing may take minutes; choose a bounded duration for local storage.
+asset_probe_timeout_seconds: 1800
+budgets:
+  task_timeout_seconds: 1800
+  max_attempts: 2
+  max_tasks: 100
+execution_enabled: false

@@ -1,0 +1,139 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+schema_version: 1
+review_date: '2026-11-05'
+proposed_version: 1.0.0
+status: ready
+scope: M01-M10 workflow implementation and deterministic/real executor validation; real AI account calls
+  deferred explicitly by the operator.
+criteria:
+- id: WF-01
+  name: 统一目录、平台分离、功能编号、版权与指令入口
+  status: implemented
+  required: true
+  evidence:
+  - adapter/AGENTS.md
+  - adapter/README.md
+  - adapter/tools/check-workflow.py
+  remaining: []
+- id: WF-02
+  name: 历史路径、证据索引与封存包边界
+  status: implemented
+  required: true
+  evidence:
+  - adapter/results
+  - adapter/releases
+  - adapter/tools/check-workflow.py
+  remaining: []
+- id: WF-03
+  name: 版本冻结、模型身份与执行前置检查
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/bindings.py
+  - adapter/workflow/runtime_probe.py
+  - adapter/workflow/preflight.py
+  - adapter/workflow/tests/test_contracts.py
+  remaining: []
+- id: WF-04
+  name: 每功能可执行用例与独立验收
+  status: implemented
+  required: true
+  evidence:
+  - adapter/modules
+  - adapter/workflow/state/compile.py
+  - adapter/workflow/evidence/verify.py
+  - adapter/workflow/tests/test_contracts.py
+  remaining: []
+- id: WF-05
+  name: 完整依赖、范围与证据时效策略
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/scope.py
+  - adapter/workflow/identity.py
+  - adapter/workflow/evidence/inheritance.py
+  - adapter/workflow/tests/test_contracts.py
+  remaining: []
+- id: WF-06
+  name: 本地执行、计划冻结与证据完整性
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/state/plan.py
+  - adapter/workflow/state/runner.py
+  - adapter/workflow/tests/test_workflow.py
+  remaining: []
+- id: WF-07
+  name: 远端执行与资源恢复闭环
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/executors/resources.py
+  - adapter/workflow/executors/transfers.py
+  - adapter/results/workflow/cpu-controls/20261105-live-r4/summary.json
+  - adapter/results/workflow/cpu-controls/20261105-staging/summary.json
+  remaining: []
+- id: WF-08
+  name: 可替换 AI 驱动的端到端流程
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/state/loop.py
+  - adapter/workflow/harnesses/isolation.py
+  - adapter/workflow/tests/test_loop.py
+  remaining: []
+- id: WF-09
+  name: 生成当前支持矩阵及遗留视图
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/reporting/reports.py
+  - adapter/support-matrix.md
+  remaining: []
+- id: WF-10
+  name: M02/M10 自动交付接入
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/delivery.py
+  - adapter/workflow/tests/test_delivery_pipeline.py
+  - adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/summary.json
+  remaining: []
+- id: WF-11
+  name: 技能与跨 harness 结构化交接
+  status: implemented
+  required: true
+  evidence:
+  - .agents/skills/adapter-onboard-platform
+  - .agents/skills/adapter-plan-feature
+  - .agents/skills/adapter-implement-feature
+  - .agents/skills/adapter-diagnose-regression
+  - .agents/skills/adapter-qualify-feature
+  - .agents/skills/adapter-release
+  remaining: []
+- id: WF-12
+  name: 工作流编排与执行器验收；真实 AI 账号另列 WF-13
+  status: implemented
+  required: true
+  evidence:
+  - adapter/workflow/validation.md
+  - adapter/results/workflow/cpu-controls/20261105-finalization/pytest.log
+  - adapter/results/workflow/cpu-controls/20261105-live-r4/summary.json
+  - adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/summary.json
+  remaining: []
+- id: WF-13
+  name: 真实 Codex/Claude/GPT 账号与模型服务调用
+  status: unverified
+  required: false
+  accepted_by: user
+  acceptance_reference: '2026-11-05 user reply: 否，暂时不需要验证'
+  evidence:
+  - adapter/workflow/validation.md
+  - adapter/workflow/tests/test_api_tools.py
+  - adapter/workflow/tests/test_loop.py
+  remaining:
+  - Real authenticated model calls and cross-provider session recovery have not been executed; offline
+    fixtures are not account certification.
+version: 1.0.0

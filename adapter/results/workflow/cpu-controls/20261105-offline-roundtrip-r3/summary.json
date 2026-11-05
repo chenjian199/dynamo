@@ -1,0 +1,211 @@
+{
+  "fixture_only": true,
+  "architecture": "amd64",
+  "imported_ids_match": true,
+  "command_bytes_match": true,
+  "archive_sha256": "bc4663928d57efadb1781aaac995c69133e802db07ee65bac4d770064b13a5a2",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "/bin/registry",
+        "docker.m.daocloud.io/library/registry:2",
+        "--version"
+      ],
+      "returncode": 0,
+      "log": "baseline.log",
+      "sha256": "50f0b3258ddeb5ba6efbb05d8c1a57d6897214222dfc6663fed35858f35de4ad"
+    },
+    {
+      "argv": [
+        "docker",
+        "tag",
+        "docker.m.daocloud.io/library/registry:2",
+        "heyi/adapter-workflow-fixture-runtime:20261105"
+      ],
+      "returncode": 0,
+      "log": "tag-0.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "tag",
+        "docker.m.daocloud.io/library/registry:2",
+        "heyi/adapter-workflow-fixture-dev:20261105"
+      ],
+      "returncode": 0,
+      "log": "tag-1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "tag",
+        "docker.m.daocloud.io/library/registry:2",
+        "heyi/adapter-workflow-fixture-tools:20261105"
+      ],
+      "returncode": 0,
+      "log": "tag-2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "tag",
+        "docker.m.daocloud.io/library/registry:2",
+        "heyi/adapter-workflow-fixture-operator:20261105"
+      ],
+      "returncode": 0,
+      "log": "tag-3.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python",
+        "/home/metax/CJ_workspace/dynamo/adapter/modules/m10-validation/common/offline/export-images.py",
+        "--output",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/contents",
+        "heyi/adapter-workflow-fixture-runtime:20261105",
+        "heyi/adapter-workflow-fixture-dev:20261105",
+        "heyi/adapter-workflow-fixture-tools:20261105",
+        "heyi/adapter-workflow-fixture-operator:20261105"
+      ],
+      "returncode": 0,
+      "log": "export.log",
+      "sha256": "82c1c7b05fdf072dff1ecc29fa9199e495a93e34a22c80fd15eec8d419cf2e11"
+    },
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python",
+        "/home/metax/CJ_workspace/dynamo/adapter/modules/m10-validation/common/offline/dependency-inventory.py",
+        "--directory",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/contents/dependencies/images",
+        "--arch",
+        "amd64",
+        "--output",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/contents/dependencies.json"
+      ],
+      "returncode": 0,
+      "log": "dependency-inventory.log",
+      "sha256": "8f3cba36ee25aa8b16efe759f2c3dfe020bf7d86769af01332856173a7de065a"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "heyi/adapter-workflow-fixture-runtime:20261105"
+      ],
+      "returncode": 0,
+      "log": "untag-0.log",
+      "sha256": "2d41506c81ab86bf7a65d022a211327d848cc18a04ef40c8177d8be4f7338005"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "heyi/adapter-workflow-fixture-dev:20261105"
+      ],
+      "returncode": 0,
+      "log": "untag-1.log",
+      "sha256": "7fea9a00ad9462ce1d7cc88693c3032e6857760cf36711c1f142d0d7a786d39a"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "heyi/adapter-workflow-fixture-tools:20261105"
+      ],
+      "returncode": 0,
+      "log": "untag-2.log",
+      "sha256": "ce39c2b70243f6b22a98279247ae8a0f8d754479995e4657016c376f0a165f22"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "heyi/adapter-workflow-fixture-operator:20261105"
+      ],
+      "returncode": 0,
+      "log": "untag-3.log",
+      "sha256": "c5a7c9c752a950240801e2ce8c14aa6f513560ae2ecc737a947c1ce38ae0690c"
+    },
+    {
+      "argv": [
+        "bash",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/contents/import.sh",
+        "docker"
+      ],
+      "returncode": 0,
+      "log": "import.log",
+      "sha256": "5f3a49a0a6dd609440b03683cd013e76c8d9fcd250abe728369fe72c470fa72c"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "heyi/adapter-workflow-fixture-runtime:20261105",
+        "heyi/adapter-workflow-fixture-dev:20261105",
+        "heyi/adapter-workflow-fixture-tools:20261105",
+        "heyi/adapter-workflow-fixture-operator:20261105"
+      ],
+      "returncode": 0,
+      "log": "inspect-import.log",
+      "sha256": "12dee66dd68d5fbfbb69813e7831af88bbc0799a421b2d873fa7e7779a39e1f8"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "/bin/registry",
+        "heyi/adapter-workflow-fixture-runtime:20261105",
+        "--version"
+      ],
+      "returncode": 0,
+      "log": "after-import.log",
+      "sha256": "50f0b3258ddeb5ba6efbb05d8c1a57d6897214222dfc6663fed35858f35de4ad"
+    },
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python",
+        "/home/metax/CJ_workspace/dynamo/adapter/modules/m10-validation/common/offline/bundle.py",
+        "--directory",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/contents",
+        "--archive",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/workflow-fixture.tar",
+        "--prepared-export"
+      ],
+      "returncode": 0,
+      "log": "seal.log",
+      "sha256": "f0193fd495e77f999b127657e204c45d3351f73d16409087d26c09e09c4ed8dc"
+    },
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python",
+        "/home/metax/CJ_workspace/dynamo/adapter/modules/m10-validation/common/offline/bundle.py",
+        "--directory",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/contents",
+        "--archive",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/workflow/cpu-controls/20261105-offline-roundtrip-r3/unused.tar",
+        "--verify-only"
+      ],
+      "returncode": 0,
+      "log": "reverify.log",
+      "sha256": "b042127bb02c43518824d5fc81ab28339ec25de7a9733838c8df738902ac1211"
+    }
+  ]
+}

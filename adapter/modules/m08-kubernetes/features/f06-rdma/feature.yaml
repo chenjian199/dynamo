@@ -1,0 +1,125 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+schema_version: 1
+id: M08-F06
+revision: 2
+name: 集群 RDMA 路径
+module: M08
+owner: HEYI
+dependencies:
+- M01-F02
+- M02-F03
+- M08-F01
+- M05-F05
+requirements:
+- ssh
+- workspace
+- device
+- runtime
+- images
+- kubernetes
+- multinode
+- network
+implementation_paths:
+- components/src/dynamo/profiler/utils
+- deploy/helm
+- deploy/operator
+- adapter/modules/m08-kubernetes/common
+reference:
+  baseline: container/platforms/cuda.json
+  rule: Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine
+    arguments.
+scope:
+  behavior: 集群 RDMA 路径
+  exclusions:
+  - Unmeasured hardware/topologies and vendor-native failures are not certified by this feature.
+cases:
+- id: M08-F06-C01
+  name: 集群 RDMA 路径
+  required_assertions:
+  - behavior
+  - cleanup
+  - identity
+  - rdma_counters
+  - transport_not_tcp_fallback
+  - byte_parity
+  evidence_requirements:
+  - command
+  - environment
+  - raw_output
+  - verifier
+  checks:
+    behavior:
+    - op: positive
+      path: /completed_operations
+    cleanup:
+    - op: equal
+      path: /resources_remaining
+      value: []
+    identity:
+    - op: equal
+      path: /identity
+      expected_from: /identity
+    - op: equal
+      path: /installed_versions
+      expected_from: /stack/versions
+    - op: equal
+      path: /execution_image
+      expected_from: /case_binding/image
+    - op: equal
+      path: /observed_topology
+      expected_from: /case_binding/topology
+    - op: equal
+      path: /model_manifests
+      expected_from: /model_manifests
+    rdma_counters:
+    - op: positive
+      path: /metrics/rdma_bytes_delta
+    transport_not_tcp_fallback:
+    - op: equal
+      path: /transport/tcp_fallback_bytes
+      value: 0
+    - op: positive
+      path: /transport/rdma_bytes
+    byte_parity:
+    - op: equal_fields
+      path: /measurements/byte_parity/actual
+      other: /measurements/byte_parity/reference
+      nonempty: true
+  recipe:
+    entrypoints: &id001
+    - adapter/modules/m08-kubernetes/common/rdma/run-transfer.py
+    - adapter/modules/m08-kubernetes/common/rdma/counters.py
+    binding: environment.case_bindings.M08-F06-C01
+    phases:
+    - prepare
+    - run
+    - observe
+    - cleanup
+    - verify
+    verifier: adapter/workflow/evidence/verify.py
+    required_inputs:
+    - nodes
+    - image
+    - topology
+    observation: cases/M08-F06-C01/observations.json
+  negative_cases:
+  - missing_or_modified_measurement
+  - wrong_image_or_model_identity
+  - native_failure_kept_separate
+  native_control: Same model revision, engine parameters, workload and topology; paired raw outputs required
+    where parity is asserted.
+failure_classes:
+- environment
+- adaptation
+- native_engine
+- unsupported_evidenced
+- insufficient_evidence
+retry:
+  max_attempts: 2
+  policy: Diagnose first; never hide an earlier failure.
+acceptance_notes:
+- Assertions require independently observed evidence, not copied constants or a generic passed flag.
+- For a capability with multiple native backends, choose a supported backend in campaign scope; do not
+  require every vendor to implement every transport.
+entrypoints: *id001

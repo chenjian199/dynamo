@@ -1,0 +1,38 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "workflow-owned-control"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 180,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "containers": [
+          {
+            "name": "probe",
+            "image": "docker.io/heyi/dynamo-tools-cuda:1.5.1-heyi-m10-4b1efe773c",
+            "imagePullPolicy": "Never",
+            "command": [
+              "python3",
+              "-c",
+              "import time; print(\"owned\",flush=True); time.sleep(120)"
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "10m",
+                "memory": "32Mi"
+              },
+              "limits": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

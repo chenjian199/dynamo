@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Count baseline-to-working-tree changes without altering the real Git index.
 
-Includes tracked changes and nonignored adapter files. Other untracked paths,
+Includes tracked changes, nonignored adapter files and adapter skills. Other untracked paths,
 including reference/, are excluded. Results and generated files are separate
 from source code. Physical line counts include comments and blank lines.
 """
@@ -57,7 +57,15 @@ def main():
 
         git("read-tree", "HEAD")
         git("add", "-u")
-        git("add", "--", "adapter")
+        git(
+            "add",
+            "--",
+            "adapter",
+            *[
+                str(p.relative_to(ROOT))
+                for p in sorted((ROOT / ".agents/skills").glob("adapter-*"))
+            ],
+        )
         tree = git("write-tree").strip()
         entries = iter(git("diff", "--numstat", "-z", "-M", BASE, tree).split("\0"))
         rows = []
@@ -69,7 +77,11 @@ def main():
             old = path
             if not path:  # Git encodes rename source and destination separately.
                 old, path = next(entries), next(entries)
-            if path == REPORT:
+            if path == REPORT or (
+                path.startswith("adapter/results/")
+                and Path(path).name
+                in {"change-stats.json", "change-stats.json.license"}
+            ):
                 continue  # Avoid self-referential report counts.
             rows.append(
                 {
@@ -105,8 +117,9 @@ def main():
                     "commits_since_baseline": int(
                         git("rev-list", "--count", BASE + "..HEAD")
                     ),
-                    "scope": "tracked worktree changes plus nonignored adapter files; excludes "
-                    + REPORT,
+                    "scope": "tracked worktree changes plus nonignored adapter files and adapter skills; excludes "
+                    + REPORT
+                    + " and generated change-stats.json/sidecar",
                     "totals": dict(totals),
                     "files": rows,
                 },

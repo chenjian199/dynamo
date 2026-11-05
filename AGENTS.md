@@ -90,6 +90,15 @@ to it — edit only the canonical copy. Reach for the right group first:
 - `dynamo-interconnect-check` — validate NIXL/UCX/NCCL readiness for disaggregation
 - `troubleshoot-dynamo` — diagnose failed or unhealthy deployments
 
+**For chip adaptation workflows:**
+
+- `adapter-onboard-platform` — Establishes a new chip platform contract and runs environment preflight before adaptation.
+- `adapter-plan-feature` — Plans a numbered adapter feature from its frozen contract and available evidence.
+- `adapter-implement-feature` — Implements a bounded chip adaptation feature while preserving upstream behavior and vendor baselines.
+- `adapter-diagnose-regression` — Diagnoses an adapter regression using paired native and Dynamo evidence without hiding failures.
+- `adapter-qualify-feature` — Qualifies a feature using independent assertions and hashed campaign evidence.
+- `adapter-release` — Audits declared adapter scope and produces reproducible platform offline delivery records.
+
 **Adding a skill:** the folder name must equal the frontmatter `name` (kebab-case); the
 `description` is third person, states what the skill does and when to use it, and is at
 most 1024 characters; include `license: Apache-2.0` and a `metadata:` block with `author`

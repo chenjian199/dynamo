@@ -1,0 +1,43 @@
+{
+  "identity": "1485f4a431c1dd951aec90c28874e8431899dbaa6cc40512315a9709a7734bc2",
+  "feature_id": "WF-CONTROL",
+  "attempt": "attempt-001",
+  "resources": [
+    {
+      "kind": "Job",
+      "name": "workflow-owned-control"
+    },
+    {
+      "kind": "process",
+      "name": "sleeper",
+      "node": "controller"
+    }
+  ],
+  "owned_resources_absent": false,
+  "observations": [
+    {
+      "resource": {
+        "kind": "process",
+        "name": "sleeper",
+        "node": "controller"
+      },
+      "absent": false,
+      "error": "Command '['ssh', '-F', '/var/tmp/dynamo-m10/ssh-config-resume', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', '-o', 'StrictHostKeyChecking=yes', 'h800-6', 'python3 -c \\'\\nimport json,os,pathlib,signal,subprocess,sys,time\\nmode,record_name,identity=sys.argv[1:4];path=pathlib.Path(record_name)\\ndef identity_for(pid):\\n try:\\n  stat=pathlib.Path(\\'\"\\'\"\\'/proc/%s/stat\\'\"\\'\"\\'%pid).read_text().rsplit(\\'\"\\'\"\\')\\'\"\\'\"\\',1)[1].split()\\n  if stat[0]==\\'\"\\'\"\\'Z\\'\"\\'\"\\': return None\\n  return {\\'\"\\'\"\\'boot_id\\'\"\\'\"\\':pathlib.Path(\\'\"\\'\"\\'/proc/sys/kernel/random/boot_id\\'\"\\'\"\\').read_text().strip(),\\'\"\\'\"\\'start_ticks\\'\"\\'\"\\':stat[19]}\\n except FileNotFoundError:return None\\nif mode==\\'\"\\'\"\\'launch\\'\"\\'\"\\':\\n if path.exists():\\n  record=json.loads(path.read_text())\\n  if record[\\'\"\\'\"\\'identity\\'\"\\'\"\\']!=identity:raise SystemExit(\\'\"\\'\"\\'Foreign process record\\'\"\\'\"\\')\\n  if record.get(\\'\"\\'\"\\'argv\\'\"\\'\"\\')!=json.loads(sys.argv[4]):raise SystemExit(\\'\"\\'\"\\'Process command changed\\'\"\\'\"\\')\\n else:\\n  path.parent.mkdir(parents=True,exist_ok=True)\\n  with path.with_suffix(\\'\"\\'\"\\'.log\\'\"\\'\"\\').open(\\'\"\\'\"\\'ab\\'\"\\'\"\\') as log:\\n   proc=subprocess.Popen(json.loads(sys.argv[4]),stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True)\\n  record={\\'\"\\'\"\\'identity\\'\"\\'\"\\':identity,\\'\"\\'\"\\'pid\\'\"\\'\"\\':proc.pid,\\'\"\\'\"\\'process_identity\\'\"\\'\"\\':identity_for(proc.pid),\\'\"\\'\"\\'argv\\'\"\\'\"\\':json.loads(sys.argv[4])}\\n  temp=path.with_suffix(\\'\"\\'\"\\'.partial\\'\"\\'\"\\');temp.write_text(json.dumps(record));temp.replace(path)\\nelse:\\n if not path.exists():raise SystemExit(\\'\"\\'\"\\'Process ownership record unavailable\\'\"\\'\"\\')\\n record=json.loads(path.read_text())\\n if record[\\'\"\\'\"\\'identity\\'\"\\'\"\\']!=identity:raise SystemExit(\\'\"\\'\"\\'Foreign process record\\'\"\\'\"\\')\\n live=identity_for(record[\\'\"\\'\"\\'pid\\'\"\\'\"\\']); matches=bool(live and live==record[\\'\"\\'\"\\'process_identity\\'\"\\'\"\\'])\\n if mode==\\'\"\\'\"\\'stop\\'\"\\'\"\\' and matches:\\n  os.killpg(record[\\'\"\\'\"\\'pid\\'\"\\'\"\\'],signal.SIGTERM)\\n  for _ in range(40):\\n   if identity_for(record[\\'\"\\'\"\\'pid\\'\"\\'\"\\'])!=live:break\\n   time.sleep(.1)\\n  if identity_for(record[\\'\"\\'\"\\'pid\\'\"\\'\"\\'])==live:os.killpg(record[\\'\"\\'\"\\'pid\\'\"\\'\"\\'],signal.SIGKILL)\\n record[\\'\"\\'\"\\'running\\'\"\\'\"\\']=identity_for(record[\\'\"\\'\"\\'pid\\'\"\\'\"\\'])==record[\\'\"\\'\"\\'process_identity\\'\"\\'\"\\'] and record[\\'\"\\'\"\\'process_identity\\'\"\\'\"\\'] is not None\\nprint(json.dumps(record))\\n\\' observe /home/bedicloud/CJ_workspace/adapter-workflow-validation/adapter/results/workflow/cpu-controls/20261105-live-r2/cuda/features/WF-CONTROL/attempt-001/owned-sleeper.json 1485f4a431c1dd951aec90c28874e8431899dbaa6cc40512315a9709a7734bc2']' returned non-zero exit status 1."
+    },
+    {
+      "resource": {
+        "kind": "Job",
+        "name": "workflow-owned-control",
+        "namespace": "adapter-workflow-validation",
+        "uid": "1c916996-3fe9-4ccf-9a42-96e76526a71a",
+        "labels": {
+          "adapter.heyi.io/campaign": "1485f4a431c1dd951aec90c28874e843",
+          "adapter.heyi.io/attempt": "attempt-001"
+        }
+      },
+      "absent": true,
+      "actual_uid": null
+    }
+  ],
+  "time": "2026-11-05T05:05:28.300561+00:00"
+}

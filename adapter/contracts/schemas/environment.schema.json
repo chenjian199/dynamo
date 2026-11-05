@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "name",
+    "nodes",
+    "budgets",
+    "execution_enabled"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "workspace"
+        ]
+      }
+    },
+    "execution_enabled": {
+      "type": "boolean"
+    },
+    "budgets": {
+      "type": "object",
+      "required": [
+        "task_timeout_seconds",
+        "max_attempts",
+        "max_tasks"
+      ]
+    },
+    "case_bindings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "nodes",
+          "topology"
+        ],
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "image": {
+            "type": "string",
+            "pattern": "@sha256:[0-9a-f]{64}$"
+          },
+          "models": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "topology": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "commands": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "ssh_config": {
+      "type": "string"
+    }
+  }
+}

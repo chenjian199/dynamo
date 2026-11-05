@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+schema_version: 1
+execution:
+  default: plan_only
+  passwordless_ssh_required: true
+  no_driver_upgrades: true
+  owned_resource_cleanup_only: true
+  max_attempts: 2
+evidence:
+  required:
+  - identity
+  - artifacts
+  - cases
+  historical_auto_qualification: false
+  exit_zero_is_test_pass: false
+  assertions:
+  - behavior
+  - cleanup
+  - identity
+qualification:
+  required_failure_blocks_release: true
+  optional_requires_explicit_scope: true
+  unknown_is_not_unsupported: true
+  engine_parameters: pass_through_native_supported
+states:
+  implementation:
+  - not_started
+  - designed
+  - in_progress
+  - implemented
+  task:
+  - queued
+  - running
+  - succeeded
+  - failed
+  - blocked
+  - cancelled
+  test:
+  - not_run
+  - passed
+  - failed
+  - inconclusive
+  qualification:
+  - verified
+  - limited
+  - pending
+  - blocked
+  - deferred
+  - not_applicable
+  freshness:
+  - valid
+  - stale
+  - superseded
+  evidence_origin:
+  - current_run
+  - inherited
+  - historical

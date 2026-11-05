@@ -5,6 +5,17 @@ SPDX-License-Identifier: Apache-2.0
 
 # MetaX 集群适配交付入口
 
+## 文件导航
+
+| 文件 | 作用 |
+| --- | --- |
+| [render.py](render.py) | 根据显式现场配置渲染聚合、PD、Grove、DGDR 与 Planner 清单 |
+| [tools.Dockerfile](tools.Dockerfile) | 从 MetaX runtime 派生 Profiler/Planner 工具镜像 |
+| [requirements-tools.txt](requirements-tools.txt) | 工具镜像的 Python 依赖 |
+| [test_render.py](test_render.py) | 配置与清单的静态/单元检查，不执行集群回归 |
+
+新现场从 [环境配置](../../../environments/README.md) 开始，输出归入 [results](../../../results/README.md)。以下是该入口的设计和已有验证范围，实际认证以 campaign 为准。
+
 2026-10-30：本轮仅补齐实现、配置生成和 CPU 契约检查。**没有部署集群、构建新镜像或执行硬件回归，集群支持状态仍为待验证。** M10 使用最终镜像再认证。保持 vLLM-metax/vLLM 0.26.0；DRA、Kubernetes GMS/failover/checkpoint、功耗写入继续暂缓。
 
 ## 已补齐内容
@@ -52,16 +63,16 @@ python3 adapter/platforms/metax/cluster/render.py \
 
 输出六份 JSON 清单及 license。各服务使用独立名称，**M10 按场景依次部署和删除，不能一次 apply 整个目录**，否则会同时申请多组设备。
 
-M10 操作顺序：更新 Operator/CRD → 安装或检查厂商 Device Plugin → 检查 runtimeClass、模型挂载、网络、镜像 → 单独部署 aggregate → pd-cross → grove → planner-load → profile-inputs + dgdr。复用 `adapter/m08/check-cluster.py` 检查显式资源和节点，再执行 server dry-run；这些检查不替代可用卡数和真实调度检查。
+M10 操作顺序：更新 Operator/CRD → 安装或检查厂商 Device Plugin → 检查 runtimeClass、模型挂载、网络、镜像 → 单独部署 aggregate → pd-cross → grove → planner-load → profile-inputs + dgdr。复用 `adapter/modules/m08-kubernetes/common/operator/check-cluster.py` 检查显式资源和节点，再执行 server dry-run；这些检查不替代可用卡数和真实调度检查。
 
 ## 离线 Profiler 到 Planner
 
 先用现场 Worker 采集身份（命令只供 M10 使用，本轮未执行）：
 
 ```bash
-python3 adapter/m09/provenance.py --namespace dynamo-metax \
+python3 adapter/modules/m09-telemetry-planner/common/offline/provenance.py --namespace dynamo-metax \
   --name metax-regression-aggregate --output /var/tmp/metax-provenance.json
-python3 adapter/m09/profile_identity.py \
+python3 adapter/modules/m09-telemetry-planner/common/offline/profile_identity.py \
   --provenance /var/tmp/metax-provenance.json --device-model 'MetaX C500' \
   --devices-per-node 8 --nodes 2 --output /var/tmp/metax-identity.json
 ```
@@ -87,11 +98,11 @@ docker build -f adapter/platforms/metax/cluster/tools.Dockerfile \
 
 工具镜像复用已记录的 amd64 Planner Python依赖集合，但这不等于 MetaX 已完成依赖闭包验收；构建会锁住厂商包，M10 还需核对 pip 依赖、wheel 哈希和镜像启动。容量文件以 ConfigMap 挂载 `/opt/dynamo/platform-capacity/metax_c500.yaml`，镜像只放置 AISimulate 搜索路径到该文件的链接，不写入默认容量或预测数据。
 
-Operator 镜像及离线 Helm 包沿用 [M08 构建说明](../../../m08/operator-image.md)，必须重建以携带新增 CRD。原 `adapter/m08/cluster/install.sh` 是 CUDA/Ascend 历史集群脚本；不要在新 MetaX 集群直接运行它。使用离线包中的 amd64 values，按目标命名空间/镜像地址安装，Grove/KAI 使用相应平台 Chart 配置。
+Operator 镜像及离线 Helm 包沿用 [M08 构建说明](../../../modules/m08-kubernetes/common/operator/operator-image.md)，必须重建以携带新增 CRD。原 `adapter/modules/m08-kubernetes/common/cluster/install.sh` 是 CUDA/Ascend 历史集群脚本；不要在新 MetaX 集群直接运行它。使用离线包中的 amd64 values，按目标命名空间/镜像地址安装，Grove/KAI 使用相应平台 Chart 配置。
 
 ## 本地检查与 M10 边界
 
-本轮 238 项 Python CPU 检查通过，另通过 Go 硬件转换测试、配置合并工具编译和 CRD/Pydantic 生成检查；见 [本地检查记录](validation.json)。这些数量不包含历史硬件验收。
+本轮 238 项 Python CPU 检查通过，另通过 Go 硬件转换测试、配置合并工具编译和 CRD/Pydantic 生成检查；见 [本地检查记录](../../../results/metax/unspecified/imported-m03/features/M03-F01/artifacts/validation.json)。这些数量不包含历史硬件验收。
 
 CPU 检查覆盖：生成清单的资源/平台/拓扑、2P3D、不同 TP 参数、Go override 合并、C500 DGDR 类型、显式容量和 files bootstrap 配置、alpha/beta 转换。测试不加载模型、不连接集群。
 

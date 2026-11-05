@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[4]
 spec = importlib.util.spec_from_file_location(
-    "m08_render", ROOT / "adapter/m08/render.py"
+    "m08_render", ROOT / "adapter/modules/m08-kubernetes/common/operator/render.py"
 )
 m08 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m08)
