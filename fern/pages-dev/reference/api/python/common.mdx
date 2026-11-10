@@ -233,7 +233,7 @@ normalization downstream.
 Also supports the NIXL decoded variant for frontend-decoded audio
 transferred via RDMA.
 
-[`components/src/dynamo/common/multimodal/audio_loader.py#L77`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L77)
+[`components/src/dynamo/common/multimodal/audio_loader.py#L88`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L88)
 
 **Public methods**
 
@@ -245,7 +245,7 @@ __init__(http_timeout: float = 30.0, enable_frontend_decoding: bool = False, url
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L91)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L102)
 
 <h4 id="api-dynamo-common-multimodal-audio-loader-audioloader-load-audio">load_audio</h4>
 
@@ -258,7 +258,7 @@ Load audio from a URL and return a (waveform, sample_rate) tuple.
 Supports http(s), data: URIs, file:// paths, and bare filesystem paths.
 Audio is loaded at the native sample rate — no resampling is performed.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L146)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L157)
 
 <h4 id="api-dynamo-common-multimodal-audio-loader-audioloader-load-audio-batch">load_audio_batch</h4>
 
@@ -277,7 +277,7 @@ Supports two paths:
 
 - `List[tuple[np.ndarray, float]]` — List of (waveform, sample_rate) tuples.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L208)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/multimodal/audio_loader.py#L239)
 </Accordion>
 
 <Accordion id="api-dynamo-common-backend-engine-baseengine" title="BaseEngine (class)">
@@ -2325,7 +2325,7 @@ or a `DiffusionEngine` (raw media pipeline). The request adapter is
 selected from the engine kind (``raw=isinstance(engine, RawEngine)``);
 ``WorkerConfig.model_input`` is validated against that kind.
 
-[`components/src/dynamo/common/backend/worker.py#L208`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L208)
+[`components/src/dynamo/common/backend/worker.py#L211`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L211)
 
 **Public methods**
 
@@ -2337,7 +2337,7 @@ __init__(engine: BaseEngine, config: WorkerConfig)
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L216)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L219)
 
 <h4 id="api-dynamo-common-backend-worker-worker-run">run</h4>
 
@@ -2347,7 +2347,7 @@ run() -> None
 
 No summary available.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L220)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L223)
 </Accordion>
 
 <Accordion id="api-dynamo-common-backend-worker-workerconfig" title="WorkerConfig (class)">
@@ -2358,7 +2358,7 @@ from dynamo.common.backend import WorkerConfig
 ```
 
 ```python
-WorkerConfig(namespace: str, component: str = 'backend', endpoint: str = 'generate', model_name: str = '', served_model_name: Optional[str] = None, model_input: ModelInput = (lambda: ModelInput.Tokens)(), endpoint_types: str = 'chat,completions', discovery_backend: str = 'etcd', request_plane: str = 'tcp', event_plane: Optional[str] = None, use_kv_events: bool = False, custom_jinja_template: Optional[str] = None, tool_call_parser: Optional[str] = None, reasoning_parser: Optional[str] = None, exclude_tools_when_tool_choice_none: bool = True, enable_local_indexer: bool = True, enable_kv_routing: bool = True, metrics_labels: list[tuple[str, str]] = list(), disaggregation_mode: DisaggregationMode = DisaggregationMode.AGGREGATED, health_check_payload: Optional[dict] = None, structural_tag: Optional[dict[str, object]] = None, route_to_encoder: bool = False, media_decoder: Optional[MediaDecoder] = None, media_fetcher: Optional[MediaFetcher] = None, kv_state_endpoint: Optional[str] = None, default_thinking_mode: Optional[str] = None, response_plane: str = 'tcp') -> None
+WorkerConfig(namespace: str, component: str = 'backend', endpoint: str = 'generate', model_name: str = '', served_model_name: Optional[str] = None, model_input: ModelInput = (lambda: ModelInput.Tokens)(), endpoint_types: str = 'chat,completions', discovery_backend: str = 'etcd', request_plane: str = 'tcp', event_plane: Optional[str] = None, use_kv_events: bool = False, custom_jinja_template: Optional[str] = None, tool_call_parser: Optional[str] = None, reasoning_parser: Optional[str] = None, exclude_tools_when_tool_choice_none: bool = True, enable_local_indexer: bool = True, enable_kv_routing: bool = True, metrics_labels: list[tuple[str, str]] = list(), disaggregation_mode: DisaggregationMode = DisaggregationMode.AGGREGATED, health_check_payload: Optional[dict] = None, structural_tag: Optional[dict[str, object]] = None, route_to_encoder: bool = False, media_decoder: Optional[MediaDecoder] = None, media_fetcher: Optional[MediaFetcher] = None, kv_state_endpoint: Optional[str] = None, default_thinking_mode: Optional[str] = None, response_plane: str = 'tcp', configure_logging: bool = True) -> None
 ```
 
 [`components/src/dynamo/common/backend/worker.py#L102`](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L102)
@@ -2373,12 +2373,12 @@ from_runtime_config(cls, runtime_cfg, model_name: str, served_model_name: Option
 
 Build from any object that carries DynamoRuntimeConfig fields.
 
-[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L148)
+[source](https://github.com/ai-dynamo/dynamo/blob/main/components/src/dynamo/common/backend/worker.py#L151)
 
 <h4 id="api-dynamo-common-backend-worker-workerconfig-init">__init__</h4>
 
 ```python
-__init__(namespace: str, component: str = 'backend', endpoint: str = 'generate', model_name: str = '', served_model_name: Optional[str] = None, model_input: ModelInput = (lambda: ModelInput.Tokens)(), endpoint_types: str = 'chat,completions', discovery_backend: str = 'etcd', request_plane: str = 'tcp', event_plane: Optional[str] = None, use_kv_events: bool = False, custom_jinja_template: Optional[str] = None, tool_call_parser: Optional[str] = None, reasoning_parser: Optional[str] = None, exclude_tools_when_tool_choice_none: bool = True, enable_local_indexer: bool = True, enable_kv_routing: bool = True, metrics_labels: list[tuple[str, str]] = list(), disaggregation_mode: DisaggregationMode = DisaggregationMode.AGGREGATED, health_check_payload: Optional[dict] = None, structural_tag: Optional[dict[str, object]] = None, route_to_encoder: bool = False, media_decoder: Optional[MediaDecoder] = None, media_fetcher: Optional[MediaFetcher] = None, kv_state_endpoint: Optional[str] = None, default_thinking_mode: Optional[str] = None, response_plane: str = 'tcp') -> None
+__init__(namespace: str, component: str = 'backend', endpoint: str = 'generate', model_name: str = '', served_model_name: Optional[str] = None, model_input: ModelInput = (lambda: ModelInput.Tokens)(), endpoint_types: str = 'chat,completions', discovery_backend: str = 'etcd', request_plane: str = 'tcp', event_plane: Optional[str] = None, use_kv_events: bool = False, custom_jinja_template: Optional[str] = None, tool_call_parser: Optional[str] = None, reasoning_parser: Optional[str] = None, exclude_tools_when_tool_choice_none: bool = True, enable_local_indexer: bool = True, enable_kv_routing: bool = True, metrics_labels: list[tuple[str, str]] = list(), disaggregation_mode: DisaggregationMode = DisaggregationMode.AGGREGATED, health_check_payload: Optional[dict] = None, structural_tag: Optional[dict[str, object]] = None, route_to_encoder: bool = False, media_decoder: Optional[MediaDecoder] = None, media_fetcher: Optional[MediaFetcher] = None, kv_state_endpoint: Optional[str] = None, default_thinking_mode: Optional[str] = None, response_plane: str = 'tcp', configure_logging: bool = True) -> None
 ```
 
 No summary available.
