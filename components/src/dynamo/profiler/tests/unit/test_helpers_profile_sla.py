@@ -943,7 +943,7 @@ class TestAssembleFinalConfig:
             component["name"]: component
             for component in dgd_config["spec"]["components"]
         }
-        assert components["prefill"]["scalingAdapter"] == {"enabled": True}
+        assert components["prefill"]["scalingAdapter"] == {}
         assert components["prefill"]["type"] == "prefill"
         assert "scalingAdapter" not in components["decode"]
         assert components["decode"]["type"] == "worker"

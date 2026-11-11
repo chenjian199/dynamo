@@ -16,7 +16,7 @@ from dynamo.vllm.platform import (
     publish_platform_engine_metadata,
     validate_platform_engine_config,
 )
-from dynamo.vllm.worker_factory import _DecodeWorkerLifecycle
+from dynamo.vllm.worker_factory import _WorkerLifecycle
 
 pytestmark = [
     pytest.mark.unit,
@@ -95,7 +95,7 @@ def test_registration_records_effective_precision_and_parallelism(monkeypatch):
 def test_lifecycle_cleans_partial_state_once_even_on_error():
     handler, engine, resource = Mock(), Mock(), Mock()
     handler.cleanup.side_effect = RuntimeError("publisher failure")
-    state = _DecodeWorkerLifecycle(
+    state = _WorkerLifecycle(
         engine_client=engine,
         vllm_config=SimpleNamespace(shutdown_timeout=3),
         handler=handler,
@@ -148,6 +148,7 @@ def test_startup_failure_releases_acquired_resources(monkeypatch, tmp_path, fail
         model_config=model_config,
         additional_config={},
         cache_config=SimpleNamespace(block_size=64),
+        parallel_config=SimpleNamespace(worker_extension_cls=None),
     )
     engine = Mock()
     create = Mock(

@@ -615,6 +615,8 @@ def test_setup_vllm_engine_reuses_engine_config_model_config(monkeypatch):
     vllm_config = SimpleNamespace(
         additional_config={},
         cache_config=SimpleNamespace(block_size=None),
+        parallel_config=SimpleNamespace(worker_extension_cls=None),
+        kv_events_config=None,
         model_config=FakeModelConfig(),
     )
 
