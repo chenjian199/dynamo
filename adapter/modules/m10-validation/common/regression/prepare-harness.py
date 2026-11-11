@@ -51,6 +51,7 @@ files = [
     "container/platforms/native-smoke.py",
     "tests/__init__.py",
     "tests/utils/managed_process.py",
+    "tests/utils/http_checks.py",
     "tests/utils/port_utils.py",
     "tests/utils/constants.py",
     "tests/utils/test_output.py",
