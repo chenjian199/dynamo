@@ -37,8 +37,14 @@ from adapter.workflow.state.runner import reconcile, run
 
 
 def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "upgrade":
+        from adapter.workflow.upgrade.cli import main as upgrade_main
+
+        return upgrade_main(argv[1:])
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
+    sub.add_parser("upgrade", help="Upstream version upgrade control plane")
     init = sub.add_parser("init")
     init.add_argument("--campaign", type=Path, required=True)
     init.add_argument("--platform", required=True)

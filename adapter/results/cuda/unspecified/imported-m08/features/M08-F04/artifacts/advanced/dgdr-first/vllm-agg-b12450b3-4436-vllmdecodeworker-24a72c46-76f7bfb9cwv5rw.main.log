@@ -1,0 +1,39 @@
+[2m2026-10-29T07:05:09.187924Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS is deprecated and no longer used. System health is now determined by endpoints that register with health check payloads. Please update your configuration to register health check payloads directly on endpoints.
+[2m2026-10-29T07:05:09.187976Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_ENABLED is deprecated. System metrics server is now controlled solely by DYN_SYSTEM_PORT. Set DYN_SYSTEM_PORT to a positive value to enable the server, or set to -1 to disable (default).
+[2m2026-10-29T07:05:14.646419Z[0m [32m INFO[0m [2mpatch[0m[2m:[0m NVFP4 W4A4 weight_scale NaN-clamp: installed.
+[2m2026-10-29T07:05:14.741168Z[0m [32m INFO[0m [2mpatch._patch_inductor_factorable_divisibility[0m[2m:[0m inductor factorable-divisibility patch: installed.
+[2m2026-10-29T07:05:14.748119Z[0m [32m INFO[0m [2mpatch._patch_cumem_free_callback_cuda[0m[2m:[0m [cumem-cuda] CuMemAllocator._python_free_callback patched: asleep guard extended to all platforms.
+[2m2026-10-29T07:05:15.277757Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'modelexpress.engines.vllm.loader.MxModelLoader'>` with load format `mx`
+[2m2026-10-29T07:05:15.367123Z[0m [32m INFO[0m [2margs.get_host_ip[0m[2m:[0m NIXL side-channel host determined via hostname resolution: 10.244.229.219
+[2m2026-10-29T07:05:15.367199Z[0m [32m INFO[0m [2margs.ensure_side_channel_host[0m[2m:[0m Set VLLM_NIXL_SIDE_CHANNEL_HOST to 10.244.229.219 (auto-detected)
+[2m2026-10-29T07:05:15.367227Z[0m [32m INFO[0m [2margs.create_kv_events_config[0m[2m:[0m No kv_events_config required: prefix caching is disabled
+[2m2026-10-29T07:05:15.367250Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: None (use_kv_events=False)
+[2m2026-10-29T07:05:15.367287Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Forward pass metrics enabled: scheduler_cls set to InstrumentedScheduler (port=20380)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/__main__.py", line 18, in <module>
+    main()
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 1040, in main
+    uvloop.run(worker())
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+    return __asyncio.run(
+           ^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+    return await main
+           ^^^^^^^^^^
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 174, in worker
+    platform_descriptor = prepare_vllm_platform(config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py", line 235, in prepare_vllm_platform
+    validate_kvbm_configuration(config, platform_id, engine.kv_transfer_config)
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/preflight.py", line 35, in validate_kvbm_configuration
+    raise PlatformError(
+dynamo.common.platform.registry.PlatformError: cuda: unsupported_configuration: KVBM requires DynamoConnector and eager dense text TP1/TP2, DP1

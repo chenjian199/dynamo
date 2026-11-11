@@ -1,0 +1,47 @@
+[2m2026-10-29T07:15:26.305720Z[0m [32m INFO[0m [2mfont_manager._load_fontmanager[0m[2m:[0m generated new fontManager
+[2m2026-10-29T07:15:26.988154Z[0m [32m INFO[0m [2mprofile_sla._extract_profiler_params[0m[2m:[0m Profiler config: model=/models/Qwen3-0.6B, backend=vllm, system=h800_sxm, total_gpus=2, isl=128, osl=16, ttft=10000.0, itl=1000.0, e2e_latency=None, strategy=thorough, picking=load_match
+[2m2026-10-29T07:15:26.988553Z[0m [32m INFO[0m [2mutils._infer_quantization_fields[0m[2m:[0m Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+[2m2026-10-29T07:15:26.988636Z[0m [32m INFO[0m [2mutils.get_model_config_from_model_path[0m[2m:[0m Loaded model config for /models/Qwen3-0.6B: architecture=Qwen3ForCausalLM, layers=28, n=16, n_kv=8, d=128, hidden_size=1024, inter_size=3072, vocab=151936, context=40960, topk=0, num_experts=0, moe_inter_size=3072, extra_params={'architecture': 'Qwen3ForCausalLM', 'use_qk_norm': True}
+[2m2026-10-29T07:15:27.024684Z[0m [33m WARN[0m [2mthorough.run_thorough[0m[2m:[0m THOROUGH mode: only disagg configurations are supported.
+[2m2026-10-29T07:15:27.025392Z[0m [32m INFO[0m [2mnaive._estimate_weight_bytes_from_config[0m[2m:[0m Estimated model weight size for /models/Qwen3-0.6B: 1.00 GiB (0.54B params)
+[2m2026-10-29T07:15:27.026805Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m AIC disagg support for /models/Qwen3-0.6B on h800_sxm/vllm: False
+[2m2026-10-29T07:15:27.026875Z[0m [32m INFO[0m [2mnaive._calculate_min_tp[0m[2m:[0m TP calculation: model=1.00GiB, vram=80.00GiB, required=1.50GiB (1.5x), min_tp=1, selected_tp=1, fit=True, required_tp=1
+[2m2026-10-29T07:15:27.027010Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Minimum GPUs per engine (memory fit): 1
+[2m2026-10-29T07:15:27.027055Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Parallel lists: is_moe=False, enable_wideep=False, min_gpus=1, prefill_max_gpus=2, decode_max_gpus=2, prefill_num_gpu_list=[1, 2, 4, 8], prefill_dp_list=[1], prefill_moe_ep_list=[1]
+[2m2026-10-29T07:15:27.027115Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumerated 2 prefill configs, 2 decode configs
+[2m2026-10-29T07:15:27.027148Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-10-29T07:15:27.125788Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-10-29T07:15:27.142996Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-10-29T07:15:27.163312Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-10-29T07:15:27.180350Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumeration complete: 2 prefill DGDs, 2 decode DGDs
+[2m2026-10-29T07:15:27.180430Z[0m [32m INFO[0m [2mthorough.run_thorough[0m[2m:[0m Enumerated 2 prefill candidates, 2 decode candidates
+[2m2026-10-29T07:15:27.319736Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+[2m2026-10-29T07:15:27.432320Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+[2m2026-10-29T07:15:27.543322Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+[2m2026-10-29T07:15:27.658299Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+[2m2026-10-29T07:15:27.659070Z[0m [32m INFO[0m [2mthorough.run_thorough[0m[2m:[0m Materialized 2 prefill + 2 decode benchmark candidates.
+2026-10-29 07:15:27 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-10-29T07:15:27.664367Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-10-29T07:15:27.664425Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Profiling prefill candidate tp1 with 1 GPUs...
+[2m2026-10-29T07:15:27.699288Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Waiting for prefill deployment to be ready...
+Added ownerReference to DGDR m08-dgdr for auto-cleanup
+Successfully created deployment vllm-agg-09cf4cda-ec88
+⏳ Waiting for deployment 'vllm-agg-09cf4cda-ec88'...
+[2m2026-10-29T07:18:27.876072Z[0m [31mERROR[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Prefill tp1 with 1 GPUs entered a terminal failure state, skipping to next candidate: Deployment 'vllm-agg-09cf4cda-ec88' entered a terminal failure state after 180.2s: pod vllm-agg-09cf4cda-ec88-vllmdecodeworker-9f898a3b-59dfcb7b8nx4pm container main in CrashLoopBackOff: back-off 20s restarting failed container=main pod=vllm-agg-09cf4cda-ec88-vllmdecodeworker-9f898a3b-59dfcb7b8nx4pm_dynamo-m08-1029(d32f1c22-a8bb-46ba-8dab-69ab9a899615)
+2026-10-29 07:18:27 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-10-29T07:18:27.886697Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-10-29T07:18:27.886767Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Profiling prefill candidate tp2 with 2 GPUs...
+[2m2026-10-29T07:18:27.909359Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Waiting for prefill deployment to be ready...
+[K⠋ [0s] State: unknown[K⠙ [20s] State: pending[K⠹ [40s] State: pending[K⠸ [60s] State: pending[K⠼ [80s] State: pending[K⠴ [100s] State: pending[K⠦ [120s] State: pending[K⠧ [140s] State: pending[K⠇ [160s] State: pending[K⠏ [180s] State: pending[K❌ Deployment 'vllm-agg-09cf4cda-ec88' failed: pod vllm-agg-09cf4cda-ec88-vllmdecodeworker-9f898a3b-59dfcb7b8nx4pm container main in CrashLoopBackOff: back-off 20s restarting failed container=main pod=vllm-agg-09cf4cda-ec88-vllmdecodeworker-9f898a3b-59dfcb7b8nx4pm_dynamo-m08-1029(d32f1c22-a8bb-46ba-8dab-69ab9a899615)
+Added ownerReference to DGDR m08-dgdr for auto-cleanup
+Successfully created deployment vllm-agg-0d83d39a-f4d7
+⏳ Waiting for deployment 'vllm-agg-0d83d39a-f4d7'...
+[2m2026-10-29T07:22:08.156363Z[0m [31mERROR[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Prefill tp2 with 2 GPUs entered a terminal failure state, skipping to next candidate: Deployment 'vllm-agg-0d83d39a-f4d7' entered a terminal failure state after 220.2s: pod vllm-agg-0d83d39a-f4d7-vllmdecodeworker-988d63e8-c46bdf7c-v4jz6 container main in CrashLoopBackOff: back-off 20s restarting failed container=main pod=vllm-agg-0d83d39a-f4d7-vllmdecodeworker-988d63e8-c46bdf7c-v4jz6_dynamo-m08-1029(dfeba174-934c-4f45-8ec3-3fb7db889544)
+2026-10-29 07:22:08 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-10-29T07:22:08.170810Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-10-29T07:22:08.170883Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Profiling decode candidate tp1 with 1 GPUs...
+[2m2026-10-29T07:22:08.193653Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Waiting for decode deployment to be ready...
+[K⠋ [0s] State: unknown[K⠙ [20s] State: pending[K⠹ [40s] State: pending[K⠸ [60s] State: pending[K⠼ [80s] State: pending[K⠴ [100s] State: pending[K⠦ [120s] State: pending[K⠧ [140s] State: pending[K⠇ [160s] State: pending[K⠏ [180s] State: pending[K⠋ [200s] State: pending[K⠙ [220s] State: pending[K❌ Deployment 'vllm-agg-0d83d39a-f4d7' failed: pod vllm-agg-0d83d39a-f4d7-vllmdecodeworker-988d63e8-c46bdf7c-v4jz6 container main in CrashLoopBackOff: back-off 20s restarting failed container=main pod=vllm-agg-0d83d39a-f4d7-vllmdecodeworker-988d63e8-c46bdf7c-v4jz6_dynamo-m08-1029(dfeba174-934c-4f45-8ec3-3fb7db889544)
+Added ownerReference to DGDR m08-dgdr for auto-cleanup
+Successfully created deployment vllm-agg-d59924ea-bada
+⏳ Waiting for deployment 'vllm-agg-d59924ea-bada'...
