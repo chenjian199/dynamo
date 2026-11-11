@@ -850,6 +850,81 @@ impl DiscoveryInstance {
             }),
         }
     }
+
+    /// Returns true if this instance satisfies `query`.
+    pub fn matches(&self, query: &DiscoveryQuery) -> bool {
+        match (self, query) {
+            (Self::Endpoint(_), DiscoveryQuery::AllEndpoints) => true,
+            (Self::Endpoint(i), DiscoveryQuery::NamespacedEndpoints { namespace }) => {
+                &i.namespace == namespace
+            }
+            (
+                Self::Endpoint(i),
+                DiscoveryQuery::ComponentEndpoints {
+                    namespace,
+                    component,
+                },
+            ) => &i.namespace == namespace && &i.component == component,
+            (
+                Self::Endpoint(i),
+                DiscoveryQuery::Endpoint {
+                    namespace,
+                    component,
+                    endpoint,
+                },
+            ) => &i.namespace == namespace && &i.component == component && &i.endpoint == endpoint,
+
+            (Self::Model { .. }, DiscoveryQuery::AllModels) => true,
+            (Self::Model { namespace: ns, .. }, DiscoveryQuery::NamespacedModels { namespace }) => {
+                ns == namespace
+            }
+            (
+                Self::Model {
+                    namespace: ns,
+                    component: comp,
+                    ..
+                },
+                DiscoveryQuery::ComponentModels {
+                    namespace,
+                    component,
+                },
+            ) => ns == namespace && comp == component,
+            (
+                Self::Model {
+                    namespace: ns,
+                    component: comp,
+                    endpoint: ep,
+                    ..
+                },
+                DiscoveryQuery::EndpointModels {
+                    namespace,
+                    component,
+                    endpoint,
+                },
+            ) => ns == namespace && comp == component && ep == endpoint,
+
+            (
+                Self::EventChannel {
+                    scope, topic: t, ..
+                },
+                DiscoveryQuery::EventChannels(q),
+            ) => {
+                q.scope.as_ref().is_none_or(|expected| expected == scope)
+                    && q.topic.as_ref().is_none_or(|qt| qt == t)
+            }
+            (
+                Self::EventSource {
+                    scope, topic: t, ..
+                },
+                DiscoveryQuery::EventSources(q),
+            ) => {
+                q.scope.as_ref().is_none_or(|expected| expected == scope)
+                    && q.topic.as_ref().is_none_or(|qt| qt == t)
+            }
+
+            _ => false,
+        }
+    }
 }
 
 /// Unique identifier for an endpoint instance
@@ -1123,6 +1198,13 @@ pub enum DiscoveryEvent {
     ModelTaintsUpdated(ModelTaintsUpdate),
     /// An instance was removed (identified by its unique ID)
     Removed(DiscoveryInstanceId),
+    /// The full set of instances that match the query at one moment.
+    ///
+    /// Sent once at startup, after the `Added` events of the same snapshot, and again after a
+    /// backend resync. A consumer that holds state from another source, such as an earlier
+    /// stream or a [`Discovery::list`] call, replaces it with the payload. One that builds its
+    /// state from this stream alone can ignore the event.
+    Resync(Vec<DiscoveryInstance>),
 }
 
 /// A scoped, idempotent update to an existing model card's routing taints.
@@ -1434,6 +1516,20 @@ pub(crate) fn reconcile_discovery_snapshot(
     (events, next)
 }
 
+/// Reconcile an authoritative snapshot after a backend resync.
+///
+/// Returns the changes between `known` and the snapshot, then one [`DiscoveryEvent::Resync`]
+/// with the reconciled set. `known` becomes the reconciled set.
+pub(crate) fn resync_discovery_events(
+    known: &mut HashMap<DiscoveryInstanceId, DiscoveryInstance>,
+    current: HashMap<DiscoveryInstanceId, DiscoveryInstance>,
+) -> Vec<DiscoveryEvent> {
+    let (mut events, reconciled) = reconcile_discovery_snapshot(known, current);
+    *known = reconciled;
+    events.push(DiscoveryEvent::Resync(known.values().cloned().collect()));
+    events
+}
+
 fn model_with_updated_taints(
     existing: &DiscoveryInstance,
     mut taints: HashSet<String>,
@@ -1474,6 +1570,13 @@ fn model_with_updated_taints(
 /// Discovery trait for service discovery across different backends
 #[async_trait]
 pub trait Discovery: Send + Sync {
+    /// Probe required discovery connectivity without registering a worker.
+    /// In-process implementations have no remote dependency. Remote backends
+    /// override this with a read against their authoritative store.
+    async fn check_connection(&self) -> Result<()> {
+        Ok(())
+    }
+
     /// Returns a unique identifier for this worker (e.g lease id if using etcd or generated id for memory store)
     /// Endpoint and model objects created by this worker use this ID. Event
     /// channels and sources use a publisher-level ID because a worker can own
@@ -1576,7 +1679,21 @@ pub trait Discovery: Send + Sync {
     /// This is a one-time snapshot without watching for changes
     async fn list(&self, query: DiscoveryQuery) -> Result<Vec<DiscoveryInstance>>;
 
-    /// Returns a stream of discovery events (Added/Removed) for the given discovery query
+    /// Returns a stream of discovery events for the given discovery query
+    ///
+    /// The watch is established before this returns. A backend still initializing waits for it,
+    /// and fails the call if that initialization ends first.
+    ///
+    /// The stream starts with the state at establishment: one `Added` per matching instance,
+    /// then one [`DiscoveryEvent::Resync`] holding the same set, empty when nothing matches.
+    /// Later changes follow that `Resync`, which never replays over them.
+    ///
+    /// A backend that falls behind sends the changes it missed, then one `Resync` of the full
+    /// set. A change that started and ended inside the gap is not reported.
+    ///
+    /// Replace any state held from an earlier stream or a [`Discovery::list`] call on every
+    /// `Resync`. Instances that left are absent from it, with no `Removed` event to report them.
+    ///
     /// The optional cancellation token can be used to stop the watch stream
     async fn list_and_watch(
         &self,
@@ -1588,6 +1705,130 @@ pub trait Discovery: Send + Sync {
     /// For KV store backends, this deletes owned registrations immediately rather than
     /// waiting for TTL expiry. Default is a no-op for backends that don't need cleanup.
     fn shutdown(&self) {}
+}
+
+/// The `list_and_watch` startup contract, checked the same way against every backend, and the
+/// helpers backend tests use to consume the startup events.
+#[cfg(test)]
+pub(crate) mod startup_contract {
+    use super::*;
+    use futures::StreamExt;
+    use std::collections::HashSet;
+    use std::time::Duration;
+
+    const EVENT_TIMEOUT: Duration = Duration::from_secs(2);
+    /// Long enough for a late event to arrive on the memory and file stores.
+    const QUIET_PERIOD: Duration = Duration::from_millis(200);
+
+    /// The contract watches model cards, the one instance kind every backend updates in place.
+    fn query() -> DiscoveryQuery {
+        DiscoveryQuery::ComponentModels {
+            namespace: "contract".to_string(),
+            component: "comp".to_string(),
+        }
+    }
+
+    fn model_spec(endpoint: &str) -> DiscoverySpec {
+        DiscoverySpec::Model {
+            namespace: "contract".to_string(),
+            component: "comp".to_string(),
+            endpoint: endpoint.to_string(),
+            card_json: serde_json::json!({
+                "display_name": "model",
+                "runtime_config": {"taints": ["initial"]}
+            }),
+            model_suffix: None,
+        }
+    }
+
+    pub(crate) async fn next(stream: &mut DiscoveryStream) -> DiscoveryEvent {
+        tokio::time::timeout(EVENT_TIMEOUT, stream.next())
+            .await
+            .expect("the stream sent no event")
+            .expect("the stream ended")
+            .expect("the stream reported an error")
+    }
+
+    /// Consumes the startup snapshot of a watch opened on an empty registry.
+    pub(crate) async fn expect_empty_snapshot(stream: &mut DiscoveryStream) {
+        assert_eq!(next(stream).await, DiscoveryEvent::Resync(vec![]));
+    }
+
+    async fn assert_quiet(stream: &mut DiscoveryStream) {
+        if let Ok(event) = tokio::time::timeout(QUIET_PERIOD, stream.next()).await {
+            panic!("unexpected event after the sequence: {event:?}");
+        }
+    }
+
+    /// Checks the startup contract against an empty `discovery`.
+    ///
+    /// A watch on the empty registry sends one empty `Resync` and nothing else. A populated
+    /// registry arrives as `Added` events then one `Resync` of the same set. A registration, an
+    /// update, and a removal made right after `list_and_watch` returns follow that snapshot,
+    /// which still holds the pre-update state, in whatever order the backend chooses.
+    pub(crate) async fn check(discovery: &dyn Discovery) {
+        let mut stream = discovery.list_and_watch(query(), None).await.unwrap();
+        expect_empty_snapshot(&mut stream).await;
+        assert_quiet(&mut stream).await;
+        drop(stream);
+
+        let first = discovery.register(model_spec("first")).await.unwrap();
+        let second = discovery.register(model_spec("second")).await.unwrap();
+        let DiscoveryInstanceId::Model(second_id) = second.id() else {
+            panic!("expected a model instance");
+        };
+        let mut stream = discovery.list_and_watch(query(), None).await.unwrap();
+        // Mutate before the stream is read: the snapshot is already captured.
+        let third = discovery.register(model_spec("third")).await.unwrap();
+        discovery
+            .update_model_taints(second_id.clone(), HashSet::from(["updated".to_string()]))
+            .await
+            .unwrap();
+        discovery.unregister(first.clone()).await.unwrap();
+
+        let initial = HashSet::from([first.id(), second.id()]);
+        let mut added = HashSet::new();
+        for _ in 0..2 {
+            let DiscoveryEvent::Added(instance) = next(&mut stream).await else {
+                panic!("expected an Added event in the startup burst");
+            };
+            added.insert(instance.id());
+        }
+        assert_eq!(added, initial);
+        let DiscoveryEvent::Resync(snapshot) = next(&mut stream).await else {
+            panic!("expected one Resync after the Added burst");
+        };
+        assert_eq!(
+            snapshot
+                .iter()
+                .map(DiscoveryInstance::id)
+                .collect::<HashSet<_>>(),
+            initial
+        );
+        assert!(
+            snapshot.contains(&second),
+            "the snapshot must hold the pre-update instance, got {snapshot:?}"
+        );
+
+        let changes = [
+            next(&mut stream).await,
+            next(&mut stream).await,
+            next(&mut stream).await,
+        ];
+        let expected = [
+            DiscoveryEvent::Added(third),
+            DiscoveryEvent::ModelTaintsUpdated(ModelTaintsUpdate {
+                id: second_id,
+                taints: vec!["updated".to_string()],
+            }),
+            DiscoveryEvent::Removed(first.id()),
+        ];
+        assert!(
+            expected.iter().all(|event| changes.contains(event)),
+            "expected {expected:?} after the snapshot, got {changes:?}"
+        );
+        assert_quiet(&mut stream).await;
+    }
 }
 
 #[cfg(test)]
@@ -1667,6 +1908,62 @@ mod tests {
             }
             _ => panic!("expected endpoint discovery metadata"),
         }
+    }
+
+    #[test]
+    fn matches_routes_by_query_scope() {
+        let endpoint = DiscoveryInstance::Endpoint(Instance {
+            namespace: "ns".to_string(),
+            component: "comp".to_string(),
+            endpoint: "ep".to_string(),
+            instance_id: 1,
+            transport: TransportType::Tcp("127.0.0.1:1234".to_string()),
+            device_type: None,
+            request_plane_codec: None,
+        });
+        let model = DiscoveryInstance::Model {
+            namespace: "ns".to_string(),
+            component: "comp".to_string(),
+            endpoint: "ep".to_string(),
+            instance_id: 1,
+            card_json: serde_json::json!({}),
+            model_suffix: None,
+        };
+
+        assert!(endpoint.matches(&DiscoveryQuery::AllEndpoints));
+        assert!(endpoint.matches(&DiscoveryQuery::NamespacedEndpoints {
+            namespace: "ns".to_string()
+        }));
+        assert!(endpoint.matches(&DiscoveryQuery::ComponentEndpoints {
+            namespace: "ns".to_string(),
+            component: "comp".to_string(),
+        }));
+        assert!(endpoint.matches(&DiscoveryQuery::Endpoint {
+            namespace: "ns".to_string(),
+            component: "comp".to_string(),
+            endpoint: "ep".to_string(),
+        }));
+
+        assert!(!endpoint.matches(&DiscoveryQuery::NamespacedEndpoints {
+            namespace: "other".to_string()
+        }));
+        assert!(!endpoint.matches(&DiscoveryQuery::AllModels));
+
+        assert!(model.matches(&DiscoveryQuery::AllModels));
+        assert!(model.matches(&DiscoveryQuery::NamespacedModels {
+            namespace: "ns".to_string()
+        }));
+        assert!(model.matches(&DiscoveryQuery::ComponentModels {
+            namespace: "ns".to_string(),
+            component: "comp".to_string(),
+        }));
+        assert!(model.matches(&DiscoveryQuery::EndpointModels {
+            namespace: "ns".to_string(),
+            component: "comp".to_string(),
+            endpoint: "ep".to_string(),
+        }));
+
+        assert!(!model.matches(&DiscoveryQuery::AllEndpoints));
     }
 }
 

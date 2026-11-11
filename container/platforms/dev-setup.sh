@@ -21,6 +21,11 @@ apt-get install -y --no-install-recommends build-essential pkg-config cmake prot
     libprotobuf-dev libssl-dev libclang-dev libudev-dev libnuma-dev libzmq3-dev \
     git curl ca-certificates patch gdb strace
 rm -rf /var/lib/apt/lists/*
+if [[ $(protoc --version) == "libprotoc 3.12."* ]]; then
+    mkdir -p /opt/dynamo/dev/bin
+    printf '#!/bin/sh\nexec /usr/bin/protoc --experimental_allow_proto3_optional "$@"\n' > /opt/dynamo/dev/bin/protoc
+    chmod +x /opt/dynamo/dev/bin/protoc
+fi
 python -m pip install -c /opt/dynamo/dev/runtime-constraints.txt \
     -r /opt/dynamo/dev/dev.txt --report /opt/dynamo/dev/python-install.json
 if [[ ${RUST_MIRROR:-} == rsproxy ]]; then

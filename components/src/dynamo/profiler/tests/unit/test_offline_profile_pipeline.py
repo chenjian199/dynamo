@@ -106,7 +106,7 @@ def pipeline(tmp_path, monkeypatch):
 
     def assemble(request, ops, *args, **kwargs):
         assert kwargs["aic_spec"] is None
-        assert kwargs["aic_perf_model"] is None
+        assert kwargs["ais_perf_model"] is None
         # Fail here if run_profile forgot the manifest or wrote it too late.
         validate_profile_manifest(
             ops.output_dir, request.features.planner.profile_identity

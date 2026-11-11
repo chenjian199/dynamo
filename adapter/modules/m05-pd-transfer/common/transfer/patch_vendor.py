@@ -34,8 +34,11 @@ def main():
     patches = Path(__file__).with_name("patches")
     entry = json.loads((patches / "manifest.json").read_text())[args.platform]
     version = importlib.metadata.version(entry["distribution"])
+    if args.platform == "ascend" and version.split("+")[0] == "0.30.0":
+        patches = patches / "ascend-0.30.0"
+        entry = json.loads((patches / "manifest.json").read_text())[args.platform]
     if version.split("+")[0] != entry["version"]:
-        raise RuntimeError(f"Unvalidated vendor version: {version}")
+        raise RuntimeError(f"Unsupported vendor source version: {version}")
     spec = importlib.util.find_spec(entry["package"])
     target = Path(next(iter(spec.submodule_search_locations))) / entry["relative_path"]
     before = digest(target)

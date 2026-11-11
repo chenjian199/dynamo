@@ -42,13 +42,143 @@ ARG ENABLE_GPU_MEMORY_SERVICE
 ARG TARGETARCH
 ARG NIXL_REF
 
+# Remove the upstream runtime's Git LFS package without pruning shared dependencies.
+RUN apt-get purge -y git-lfs && rm -rf /var/lib/apt/lists/*
+
+# Create the LD_PRELOAD target before the ENV below names it. ENV applies to
+# every RUN after it, so a preload path that does not exist yet costs one
+# `ld.so: object ... cannot be preloaded ... ignored` line per process for the
+# rest of the stage: 432 of them from the apt layer alone, measured by building
+# this stage against 1.3.0rc27. The lines are noise, and the preload the ENV
+# exists to apply is absent from exactly the steps that follow it.
+#
+# The symlink gives system libstdc++ a stable path, which keeps
+# PyInstaller-bundled tools (specifically `jet`, NVIDIA's internal
+# PyInstaller-packaged CI runner) from shadowing it with an older copy. The
+# `test -f` keeps the build honest if the base image moves the library.
+RUN ARCH_ALT=$([ "${TARGETARCH}" = "amd64" ] && echo "x86_64" || echo "aarch64") && \
+    mkdir -p /opt/dynamo && \
+    LIBSTDCPP=/usr/lib/${ARCH_ALT}-linux-gnu/libstdc++.so.6 && \
+    test -f "$LIBSTDCPP" && ln -sf "$LIBSTDCPP" /opt/dynamo/libstdc++.so.6
+
+# One fixed path for the MPI the worker runs on, resolved per architecture, so a
+# single ENV block below can name it.
+#
+# TRT-LLM spawns its executor ranks with MPI.COMM_SELF.Spawn through mpi4py's
+# MpiPoolSession. 1.3.0rc27 repointed /opt/hpcx/ompi and /usr/local/mpi from
+# ompi4 to ompi5, and on amd64 that spawn does not work: the child reaches
+# mpi4py's barrier and dies there, so the worker never binds its gRPC port and
+# every serving test waits out its deadline. Measured in the built image on an
+# amd64 GPU host, running as the image's own uid 1000: VRAM stays at 456 MiB and
+# nothing registers, and the log carries `ucp_ep_create(proc=0) failed:
+# Destination is unreachable` followed by MPI_ERR_OTHER and MPI_ABORT. CI agrees
+# from the other side: at f3fe60fe, where ompi4 reached the shipped image, both
+# tests that hang elsewhere passed, 232s and 184s, and the 2-GPU amd64 job went
+# green for the only time on this branch.
+#
+# arm64 keeps ompi5, and that is not a preference. ompi4 there lacks
+# ompi_mpi_short_float, which the base image's libtorch_cpu.so needs, so the
+# arm64 runtime sanity check fails on `import torch` the moment ompi4 wins.
+#
+# The symlink alone does not do it: with the ENV still naming ompi5's bin and
+# prefix, Open MPI 4 cannot launch its own runtime and the spawn fails at
+# dpm.c:1997. The three ENV entries below are what make it work, measured in the
+# same image: VRAM 456 MiB to 6.7 GB to 41.6 GB, `Registered endpoint` once, and
+# zero MPI errors.
+#
+# Selecting ompi4 also means taking on its etc/openmpi-mca-params.conf. The base
+# image edits two lines of that file, and only in the Open MPI it selects itself:
+# `hwloc_base_binding_policy = core` becomes `none`, and `btl = self` is
+# commented out. In 1.3.0rc27 that is ompi5, so ompi4 keeps the HPC-X defaults.
+# rc26's ompi4 file and rc27's ompi5 file are byte-identical, and rc27's ompi4
+# file differs from them at those two lines and nowhere else.
+#
+# The binding line is not cosmetic. `import tensorrt_llm` runs MPI_Init
+# (tensorrt_llm/_utils.py imports mpi4py.MPI), and with `core` that singleton
+# MPI_Init binds the calling process to CPUs 0-1. Every thread and child it
+# starts inherits the mask. Measured on an amd64 GPU host in the image as
+# shipped before this edit: a bare `import tensorrt_llm` went from 32 CPUs to
+# [0, 1], and a running `python3 -m dynamo.trtllm` worker reported
+# Cpus_allowed_list 0-1. The `btl = self` line leaves Open MPI's ob1 PML no
+# transport between ranks: in the same image, `mpirun --mca pml ob1 -n 2` fails
+# in MPI_INIT with "at least one MPI process is unreachable from another". The
+# multi-node launch path passes that flag
+# (deploy/operator/internal/dynamo/backend_trtllm.go).
+#
+# So apply the same two edits to whichever Open MPI is selected, and fail the
+# build if either setting survives. The edits are idempotent: on a file that
+# already has them, sed changes nothing and the guards pass.
+#
+# tests/dependencies/test_trtllm_mpi.py checks all of this in the built image:
+# the link's target per architecture, the library mpi4py loads, a
+# MPI.COMM_SELF.Spawn, a two-rank ob1 launch, the CPU affinity after MPI_Init,
+# and the PMIX_HOSTNAME hook below. container/dev/50-framework-paths.sh prefers
+# the same link in login shells.
+#
+# ompi5 has two spawn defects, and the amd64 choice avoids both. arm64 cannot
+# avoid them that way, because of the libtorch symbol above.
+#
+# First, a singleton cannot MPI_Comm_spawn when the hostname length plus the
+# digits of its pid exceeds 37. Open MPI passes the singleton's name,
+# "singleton.<hostname>.<pid>.0", to the prte daemon through a 50-byte print
+# buffer. A longer name is cut short, prte registers the wrong name, and Spawn
+# raises MPI_ERR_UNKNOWN. Measured on arm64 with a 2-digit pid, a 35-character
+# hostname spawns and a 36-character one fails. CI's pod names are longer: ompi5
+# fails with the arm64 runner's 46-character name and with the amd64 runner's
+# 50-character name, while ompi4 spawns with the 50-character one. A short
+# PMIX_HOSTNAME fixes it, so where ompi5 is selected, a .pth line imports
+# container/deps/trtllm/_dynamo_pmix_hostname.py when Python starts. It sets
+# PMIX_HOSTNAME only for processes that no MPI launcher started, on hosts whose
+# names are longer than 30 characters (30 plus the 7 digits of the largest pid
+# is 37), so launched ranks keep the real hostname. A PMIX_HOSTNAME that is
+# already set is left alone, even a long one. .dockerignore drops *.pth files,
+# so the RUN writes that line itself.
+#
+# Second, on the amd64 GPU host above, spawn also depends on the network: UCX
+# tries an address of another host interface (10.42.0.0, a k3s flannel address)
+# and fails while the host's interfaces are visible. In a bridge network (eth0
+# and lo only), or with OMPI_MCA_pml=ob1, ompi5 spawns there.
+#
+# Transitional, in two parts. Re-measure each part rather than assume.
+# - The hook. open-mpi/ompi#14398 fixes the first defect (v5.0.x backport:
+#   open-mpi/ompi#14409), and Mellanox/ompi's v5.0.x_hpcx branch has had it
+#   since Mellanox/ompi#61. No release had it yet: Open MPI 5.0.11 does not, and
+#   TRT-LLM 1.3.0rc27 and 1.3.0rc28 ship HPC-X v2.50 with Open MPI 5.0.10rc2.
+#   When the base image's /opt/hpcx/VERSION names a later HPC-X, run a spawn
+#   with a 46-character hostname (docker run --hostname) in an image without
+#   the hook. If it passes, delete the hook, its install step here, and its
+#   tests in tests/dependencies/test_trtllm_mpi.py. Tracked in
+#   NVIDIA/TensorRT-LLM#19607.
+# - The amd64 ompi4 selection, the ENV entries and the test's per-architecture
+#   expectation. Delete them only when ompi5 spawns on amd64 without the hook,
+#   both in CI and on a host with the extra interfaces above.
+RUN --mount=type=bind,source=./container/deps/trtllm/_dynamo_pmix_hostname.py,target=/tmp/_dynamo_pmix_hostname.py \
+    if [ "${TARGETARCH}" = "amd64" ]; then t=/opt/hpcx/ompi4; else t=/opt/hpcx/ompi5; fi && \
+    test -d "$t" && \
+    conf="$t/etc/openmpi-mca-params.conf" && \
+    test -f "$conf" && \
+    sed -i -e 's/^\(hwloc_base_binding_policy\) = core$/\1 = none/' \
+           -e 's/^\(btl = self\)$/#\1/' "$conf" && \
+    ! grep -qE '^[[:space:]]*hwloc_base_binding_policy[[:space:]]*=[[:space:]]*core' "$conf" && \
+    ! grep -qE '^[[:space:]]*btl[[:space:]]*=[[:space:]]*self[[:space:]]*$' "$conf" && \
+    if [ "$t" = /opt/hpcx/ompi5 ]; then \
+        site=/usr/local/lib/python3.12/dist-packages && \
+        test -d "$site" && \
+        cp /tmp/_dynamo_pmix_hostname.py "$site/" && \
+        echo 'import _dynamo_pmix_hostname' > "$site/dynamo-pmix-hostname.pth"; \
+    fi && \
+    mkdir -p /opt/dynamo && ln -sfn "$t" /opt/dynamo/mpi && \
+    echo "MPI for ${TARGETARCH}: $(readlink -f /opt/dynamo/mpi)"
+
 # LD_PRELOAD pins TRT-LLM's bundled libnixl to dodge ai-dynamo/nixl#1668
 # (nixl-cu13's UCX 1.20.0 hangs with two agents/host); drop it when fixed.
 # NIXL_VERSION= clears the base image's stale value (see nixl-versions.txt).
 ENV DYNAMO_HOME=/workspace \
     HOME=/home/dynamo \
-    PATH=/usr/local/bin/etcd:${PATH} \
+    PATH=/opt/dynamo/mpi/bin:/usr/local/bin/etcd:${PATH} \
     LD_PRELOAD=/opt/dynamo/libstdc++.so.6:/usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/libnixl.so \
+    LD_LIBRARY_PATH=/opt/dynamo/mpi/lib:${LD_LIBRARY_PATH} \
+    OPAL_PREFIX=/opt/dynamo/mpi \
     NIXL_PLUGIN_DIR=/usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/plugins \
     NIXL_VERSION=
 
@@ -58,12 +188,9 @@ WORKDIR /workspace
 # TRT-LLM lib paths with ldconfig (upstream's /etc/shinit_v2 only sets them
 # for shells, not K8s python3 launches), swap upstream's standalone etcd
 # tooling (etcd, etcdctl, etcdutl) for dynamo_base's directory so the image
-# carries a single copy of each tool, drop the unused wandb developer tooling
-# the DLFW base carries (upstream removes it on main, Dockerfile.multi), and
-# symlink system libstdc++ to a stable
-# path for LD_PRELOAD — keeps PyInstaller-bundled tools (specifically `jet`,
-# NVIDIA's internal PyInstaller-packaged CI runner) from shadowing it with an
-# older copy.
+# carries a single copy of each tool, and drop the unused wandb developer
+# tooling the DLFW base carries (upstream removes it on main,
+# Dockerfile.multi).
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
@@ -71,7 +198,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         openssh-server \
         libturbojpeg \
         librdmacm1 \
-        rdma-core && \
+        rdma-core \
+        libjemalloc2 && \
     test -f /usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/libnixl.so && \
     test -d "${NIXL_PLUGIN_DIR}" && \
     ARCH_ALT=$([ "${TARGETARCH}" = "amd64" ] && echo "x86_64" || echo "aarch64") && \
@@ -90,10 +218,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         /usr/local/bin/etcdutl && \
     /usr/bin/python3 -m pip uninstall -y --break-system-packages wandb && \
     ! /usr/bin/python3 -c "import wandb" 2>/dev/null && \
-    [ ! -e /usr/local/lib/python3.12/dist-packages/wandb ] && \
-    mkdir -p /opt/dynamo && \
-    LIBSTDCPP=/usr/lib/${ARCH_ALT}-linux-gnu/libstdc++.so.6 && \
-    test -f "$LIBSTDCPP" && ln -sf "$LIBSTDCPP" /opt/dynamo/libstdc++.so.6
+    [ ! -e /usr/local/lib/python3.12/dist-packages/wandb ]
 
 # Restore Triton's default CUDA header/tool paths for SSH-launched ranks that
 # lack the image ENV (GH-14864). Use per-file links inside real directories so
@@ -131,6 +256,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --only-upgrade \
+        ca-certificates \
         dirmngr \
         gnupg \
         gnupg-utils \
@@ -141,8 +267,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         gpgsm \
         gpgv \
         keyboxd \
+        libbrotli1 \
         libssl3t64 \
         openssl
+
+{% include "templates/verify_ca_certificates.Dockerfile" %}
+
+ENV GRPC_DEFAULT_SSL_ROOTS_FILE_PATH=/etc/ssl/certs/ca-certificates.crt
 
 # One COPY pulls nats-server, etcd/, uv, uvx into their final paths.
 COPY --from=dynamo_base_export / /
@@ -255,12 +386,15 @@ RUN /usr/bin/python3 -m pip uninstall -y --break-system-packages opencv-python-h
     ! /usr/bin/python3 -c "import cv2" 2>/dev/null && \
     [ ! -e /usr/local/lib/python3.12/dist-packages/opencv_python_headless.libs ]
 
-# Upgrade DALI past its own media-codec cleanup. Upstream restricted DALI's
-# vendored ffmpeg build to drop the software h264/hevc/aac decoders
-# (NVIDIA/DALI_deps#162, NVIDIA/DALI#6352), first released in 2.1.1; the base
-# image here carries 2.1.0, which predates it.
+# Hold DALI at a version that carries its own media-codec cleanup. Upstream
+# restricted DALI's vendored ffmpeg build to drop the software h264/hevc/aac
+# decoders (NVIDIA/DALI_deps#162, NVIDIA/DALI#6352), first released in 2.1.1.
+# The base image carried 2.1.0 through 1.3.0rc26, which predates it, and carries
+# 2.2.0 from 1.3.0rc27, which does not. So on this base the install below is a
+# no-op and what the block still buys is the two checks around it: the version
+# tripwire and the decoder enumeration.
 #
-# Upgrade rather than remove. The vendored libav*/libsw* set cannot be trimmed
+# Pin rather than remove. The vendored libav*/libsw* set cannot be trimmed
 # on its own -- every one of them is DT_NEEDED by libdali.so and its siblings, so
 # deleting the codec libraries breaks `import nvidia.dali` outright -- and while
 # nothing in this image imports DALI today, it belongs to TensorRT-LLM rather
@@ -269,21 +403,25 @@ RUN /usr/bin/python3 -m pip uninstall -y --break-system-packages opencv-python-h
 #
 # Measured on the shipped image: 2.1.0 registers 446 decoders including h264,
 # hevc, aac, aac_fixed and aac_latm; 2.1.1 and 2.2.0 each register 440 with all
-# five absent and vp8/vp9/mjpeg/av1 retained.
+# five absent and vp8/vp9/mjpeg/av1 retained. 2.2.0 measured again on
+# tensorrt-llm/release:1.3.0rc27 itself, now that DALI arrives with the base.
 #
-# Pinned exactly, not a floor. `>=2.1.1` resolves to whatever is newest -- 2.2.0
-# at the time of writing -- which is a minor-version jump into a component this
-# repo does not own, taken silently at build time. 2.1.1 is the smallest change
-# that removes the decoders, so it is the one to take.
+# Pinned exactly, not a floor. `>=2.1.1` resolves to whatever is newest, which is
+# a jump into a component this repo does not own, taken silently at build time.
+# The pin names the version that was measured, so moving it means measuring the
+# new one.
 #
-# A pin can go stale in the one direction that matters: if TensorRT-LLM later
-# ships a base image with a newer DALI, installing 2.1.1 over it is a downgrade.
+# The pin can go stale in the one direction that matters: if TensorRT-LLM later
+# ships a base image with a newer DALI, installing 2.2.0 over it is a downgrade.
 # The check below turns that into a build failure with instructions rather than a
-# silent regression, which also makes this block self-retiring -- when upstream
-# catches up, the build tells whoever is looking to delete it.
+# silent regression. The pin now equals the base version, so the next base image
+# that moves DALI past 2.2.0 stops the build, which is the point: a human
+# re-measures and moves the pin, or deletes this RUN and lets the base version
+# stand. A base that moves DALI back below 2.2.0 passes that check and the
+# install below puts the measured version back, which is what it is there for.
 #
-# THIS BLOCK IS TRANSITIONAL. It exists because the base image predates upstream's
-# own cleanup. The guards after it and the bundled-libavcodec assertion in
+# THIS BLOCK IS TRANSITIONAL, and on this base it is already down to its checks.
+# The guards after it and the bundled-libavcodec assertion in
 # tests/dependencies/test_no_software_video_codecs.py are NOT transitional: they
 # are the permanent statement of what this image may contain, and they must
 # outlive the workaround.
@@ -292,17 +430,22 @@ RUN /usr/bin/python3 -m pip uninstall -y --break-system-packages opencv-python-h
 # VIRTUAL_ENV set, plain pip targets the venv and leaves the system-site copy in
 # place. The guard enumerates what the library actually registers rather than
 # trusting the version string, so a wheel that reintroduces a decoder fails the
-# build. Mirrored by the pre_runtime whiteout below, which matters more here than
-# for a deletion: DALI's libraries are hash-named, so an upgrade RENAMES them and
-# the squash COPY would otherwise leave the old codec-carrying copy in place
-# beside the new one.
+# build. It finds that library by filename, and a loop over an empty glob checks
+# nothing and exits 0, so it fails on an empty match as well: a release that
+# links the codec into a differently named library has to be looked at, not
+# waved through.
+#
+# Mirrored by the pre_runtime whiteout below, which is inert while the install is
+# a no-op and load-bearing again the moment it is not: DALI's libraries are
+# hash-named, so an upgrade RENAMES them and the squash COPY would otherwise
+# leave the old codec-carrying copy in place beside the new one.
 RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.py,target=/tmp/enumerate_bundled_decoders.py \
     set -eu; \
     before=$(/usr/bin/python3 -c 'import importlib.metadata as m; print(m.version("nvidia-dali-cuda130"))'); \
     echo "DALI in base image: $before"; \
-    newest=$(printf '%s\n2.1.1\n' "$before" | sort -V | tail -1); \
-    if [ "$newest" != "2.1.1" ]; then \
-        echo "ERROR: base image already carries DALI $before, so pinning 2.1.1 would" >&2; \
+    newest=$(printf '%s\n2.2.0\n' "$before" | sort -V | tail -1); \
+    if [ "$newest" != "2.2.0" ]; then \
+        echo "ERROR: base image already carries DALI $before, so pinning 2.2.0 would" >&2; \
         echo "       downgrade it. Upstream has caught up -- delete this RUN and let" >&2; \
         echo "       the base version stand. Keep the guards below and the bundled-" >&2; \
         echo "       libavcodec assertion in tests/dependencies/, which are what stop" >&2; \
@@ -310,18 +453,27 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
         exit 1; \
     fi; \
     /usr/bin/python3 -m pip install --break-system-packages --no-cache-dir \
-        --extra-index-url https://pypi.nvidia.com 'nvidia-dali-cuda130==2.1.1'; \
+        --extra-index-url https://pypi.nvidia.com 'nvidia-dali-cuda130==2.2.0'; \
     v=$(/usr/bin/python3 -c 'import importlib.metadata as m; print(m.version("nvidia-dali-cuda130"))'); \
     echo "DALI version: $v"; \
-    [ "$v" = "2.1.1" ] || { echo "ERROR: wanted DALI 2.1.1, got $v" >&2; exit 1; }; \
-    for lib in $(find /usr/local/lib/python3.12/dist-packages/nvidia/dali/.libs -name 'libavcodec*.so*'); do \
+    [ "$v" = "2.2.0" ] || { echo "ERROR: wanted DALI 2.2.0, got $v" >&2; exit 1; }; \
+    libs=$(find /usr/local/lib/python3.12/dist-packages/nvidia/dali/.libs -name 'libavcodec*.so*'); \
+    if [ -z "$libs" ]; then \
+        echo "ERROR: DALI $v ships no libavcodec under .libs, so the enumeration" >&2; \
+        echo "       below would check nothing and pass. Either the vendored ffmpeg" >&2; \
+        echo "       moved, or the codec is now linked into another library, the way" >&2; \
+        echo "       PyNvVideoCodec 2.2.0 links it into libavformat. Look before this" >&2; \
+        echo "       ships: widen the glob to the library that carries it." >&2; \
+        exit 1; \
+    fi; \
+    for lib in $libs; do \
         /usr/bin/python3 /tmp/enumerate_bundled_decoders.py "$lib"; \
     done; \
     /usr/bin/python3 -c 'import nvidia.dali'
 
 # Replace the base image's PyNvVideoCodec with one past the release that stopped
 # shipping a separate libavcodec. rc24 is the first TensorRT-LLM base image to
-# ship this package at all, and rc24 through the currently pinned rc25 all ship
+# ship this package at all, and rc24 through the currently pinned rc28 all ship
 # 2.1.0, which bundles libavcodec, libavdevice, libavfilter, libswresample and
 # libswscale alongside the libavformat and libavutil it actually uses. 2.2.x
 # ships only the latter two -- but libavcodec is not gone, it is statically
@@ -409,7 +561,7 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
 # Removing the file keeps the narrow waivers, and the tripwire, intact.
 #
 # Pinned exactly, like DALI above: requirements.trtllm.txt installs
-# PyNvVideoCodec==2.2.3 into /opt/dynamo/venv and this stage pins the system copy
+# PyNvVideoCodec==2.2.4 into /opt/dynamo/venv and this stage pins the system copy
 # to the same version, so the guard below is a plain equality and the venv
 # cross-check compares the two copies to each other. tests/dependencies/
 # test_pynvvideocodec_spec.py asserts that, and covers the vllm and sglang
@@ -432,8 +584,8 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
 # This deliberately overrides a dependency of TensorRT-LLM's, which is why the
 # build log carries a pip resolver complaint here:
 #
-#     tensorrt-llm 1.3.0rc25 requires PyNvVideoCodec~=2.1.0,
-#     but you have pynvvideocodec 2.2.3 which is incompatible
+#     tensorrt-llm 1.3.0rc28 requires PyNvVideoCodec~=2.1.0,
+#     but you have pynvvideocodec 2.2.4 which is incompatible
 #
 # The complaint is expected and the override is deliberate. `~=2.1.0` excludes
 # everything above 2.1.x by construction, and 2.1.0 is the version that bundles
@@ -441,7 +593,8 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
 # CreateDemuxer, CreateDecoder, PyNvVCException and OutputColorType, all of which
 # 2.2.3 still exports, and it imports PyNvVideoCodec function-locally so `import
 # tensorrt_llm` does not touch it. Re-check that list when this base image moves:
-# if upstream relaxes the pin to allow 2.2.0, this note is the thing to delete.
+# if upstream relaxes its own specifier to admit 2.2.x, this note is the thing
+# to delete.
 #
 # Dynamo's own use is narrower still and unaffected by the one API 2.2.3 drops.
 # common/multimodal/nvdec_decoder.py and the SGLang decoder construct
@@ -455,7 +608,7 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
 # No `import PyNvVideoCodec` smoke test here, deliberately. Unlike nvidia.dali it
 # dlopens libnvcuvid and needs NVIDIA_DRIVER_CAPABILITIES to include "video",
 # which the builder does not have, so an import check would fail every build.
-RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.py,target=/tmp/enumerate_bundled_decoders.py \
+RUN --mount=type=bind,source=./container/compliance,target=/tmp/compliance/compliance \
     set -eu; \
     before=$(/usr/bin/python3 -c 'import importlib.metadata as m; print(m.version("pynvvideocodec"))' 2>/dev/null || echo none); \
     echo "PyNvVideoCodec in base image: $before"; \
@@ -466,8 +619,8 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
         echo "       requirements.trtllm.txt is the one that matters." >&2; \
         exit 1; \
     fi; \
-    newest=$(printf '%s\n2.2.3\n' "$before" | sort -V | tail -1); \
-    if [ "$before" = "2.2.3" ] || [ "$newest" != "2.2.3" ]; then \
+    newest=$(printf '%s\n2.2.4\n' "$before" | sort -V | tail -1); \
+    if [ "$before" = "2.2.4" ] || [ "$newest" != "2.2.4" ]; then \
         echo "ERROR: base image already carries PyNvVideoCodec $before, so this block" >&2; \
         echo "       is obsolete -- delete it and let the base version stand. Keep the" >&2; \
         echo "       libavcodec assertion below and the post-overlay one in" >&2; \
@@ -484,33 +637,15 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
         exit 1; \
     fi; \
     /usr/bin/python3 -m pip install --break-system-packages --no-cache-dir \
-        'PyNvVideoCodec==2.2.3'; \
+        'PyNvVideoCodec==2.2.4'; \
+    PYTHONPATH=/tmp/compliance /usr/bin/python3 -m compliance.check_pynvvideocodec --pinned 2.2.4; \
     v=$(/usr/bin/python3 -c 'import importlib.metadata as m; print(m.version("pynvvideocodec"))'); \
     echo "PyNvVideoCodec version: $v"; \
-    [ "$v" = "2.2.3" ] \
-        || { echo "ERROR: wanted PyNvVideoCodec 2.2.3, got $v -- this stage and" >&2; \
-             echo "       requirements.trtllm.txt must pin the same version." >&2; exit 1; }; \
-    dists=$(find /usr/local/lib/python3.12/dist-packages -maxdepth 1 \
-        -name 'pynvvideocodec-*.dist-info' | wc -l); \
-    [ "$dists" -eq 1 ] \
-        || { echo "ERROR: expected exactly one PyNvVideoCodec in system site, found $dists:" >&2; \
-             find /usr/local/lib/python3.12/dist-packages -maxdepth 1 \
-                 -name 'pynvvideocodec-*.dist-info' >&2; exit 1; }; \
-    tarballs=$(find /usr/local/external/ffmpeg -name 'ffmpeg-*.tar.*' 2>/dev/null | wc -l); \
-    [ "$tarballs" -eq 1 ] \
-        || { echo "ERROR: expected exactly one bundled FFmpeg source tarball after the" >&2; \
-             echo "       removal and reinstall, found $tarballs:" >&2; \
-             find /usr/local/external/ffmpeg -name 'ffmpeg-*.tar.*' >&2; exit 1; }; \
-    if find /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec -name 'libavcodec*' | grep -q .; then \
-        echo "ERROR: PyNvVideoCodec $v still bundles a libavcodec:" >&2; \
-        find /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec -name 'libavcodec*' >&2; \
-        exit 1; \
-    fi; \
     examined=0; \
     for lib in $(find /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec \
             -name 'libavcodec*.so*' -o -name 'libavformat*.so*'); do \
         examined=$((examined + 1)); \
-        /usr/bin/python3 /tmp/enumerate_bundled_decoders.py "$lib"; \
+        /usr/bin/python3 /tmp/compliance/compliance/enumerate_bundled_decoders.py "$lib"; \
     done; \
     [ "$examined" -gt 0 ] \
         || { echo "ERROR: found no FFmpeg libraries under PyNvVideoCodec to examine;" >&2; \
@@ -565,8 +700,41 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
 # one, in range, so a surviving old copy beside the new one fails the build.
 # Version-compared rather than glob-matched: a glob range silently stops matching
 # at the end of the series it was written for.
-RUN /usr/bin/python3 -m pip install --break-system-packages --upgrade "aiohttp>=3.14.3,<4.0" && \
-    /usr/bin/python3 -c 'import glob, os, sys; d = glob.glob("/usr/local/lib/python3.12/dist-packages/aiohttp-*.dist-info"); vs = [os.path.basename(p)[8:-10] for p in d]; print("aiohttp dist-info in system site:", vs); tv = lambda s: tuple(int(x) for x in s.split(".")[:3]); sys.exit(0 if len(vs) == 1 and (3, 14, 3) <= tv(vs[0]) < (4, 0, 0) else 1)'
+RUN /usr/bin/python3 -m pip install --break-system-packages --upgrade pip==26.2.2 "aiohttp>=3.14.4,<4.0" && \
+    /usr/bin/python3 -c 'import glob, os, sys; d = glob.glob("/usr/local/lib/python3.12/dist-packages/aiohttp-*.dist-info"); vs = [os.path.basename(p)[8:-10] for p in d]; print("aiohttp dist-info in system site:", vs); tv = lambda s: tuple(int(x) for x in s.split(".")[:3]); sys.exit(0 if len(vs) == 1 and (3, 14, 4) <= tv(vs[0]) < (4, 0, 0) else 1)'
+
+# Refresh the base image's certifi CA bundle in system site, for the same
+# inventory reason as aiohttp above. certifi has no dependencies, so this moves
+# exactly one distribution. Mirrored by the pre_runtime whiteout below: the
+# upgrade renames the version-stamped dist-info directory.
+RUN /usr/bin/python3 -m pip install --break-system-packages --upgrade certifi==2026.10.19 && \
+    /usr/bin/python3 -c 'import glob, os, sys; d = glob.glob("/usr/local/lib/python3.12/dist-packages/certifi-*.dist-info"); vs = [os.path.basename(p)[8:-10] for p in d]; print("certifi dist-info in system site:", vs); tv = lambda s: tuple(int(x) for x in s.split(".")[:3]); sys.exit(0 if len(vs) == 1 and tv(vs[0]) >= (2026, 10, 19) else 1)'
+
+# Raise the base image's Pillow in system site, for the same inventory reason as
+# aiohttp above; requirements.trtllm.txt only reaches the venv. Pillow has no
+# required dependencies, so this moves exactly one distribution. Mirrored by the
+# pre_runtime whiteout below: the upgrade renames the dist-info directory and the
+# hash-named libraries vendored in pillow.libs.
+RUN /usr/bin/python3 -m pip install --break-system-packages --upgrade "pillow>=13.0.0,<14" && \
+    /usr/bin/python3 -c 'import glob, os, sys; d = glob.glob("/usr/local/lib/python3.12/dist-packages/pillow-*.dist-info"); vs = [os.path.basename(p)[7:-10] for p in d]; print("pillow dist-info in system site:", vs); tv = lambda s: tuple(int(x) for x in s.split(".")[:3]); sys.exit(0 if len(vs) == 1 and (13, 0, 0) <= tv(vs[0]) < (14, 0, 0) else 1)'
+
+# Pin the upstream developer stack in system site, where the image inventory
+# reads it. The rc29 baseline on both architectures satisfies all transitive
+# requirements of these versions. Fail if the solve changes another distribution:
+# its package paths must be added to the rebase whiteouts first.
+RUN /usr/bin/python3 -m pip install --break-system-packages --upgrade \
+        --report /tmp/jupyter-upgrade.json \
+        "jupyter-server==2.21.1" "jupyterlab==4.6.4" \
+        "notebook==7.6.3" "urllib3==2.8.0" && \
+    /usr/bin/python3 -c 'import json; d = json.load(open("/tmp/jupyter-upgrade.json")); changed = {p["metadata"]["name"].lower().replace("_", "-") for p in d["install"]}; print("upgraded system distributions:", sorted(changed)); assert changed <= {"jupyter-server", "jupyterlab", "notebook", "urllib3"}, "Add whiteouts for upgraded transitive distributions"' && \
+    rm /tmp/jupyter-upgrade.json && \
+    /usr/bin/python3 -c 'import glob, importlib.metadata as m; from packaging.version import Version; bounds = {"jupyter-server": ("2.21.0", "3"), "jupyterlab": ("4.6.4", "5"), "notebook": ("7.6.3", "8"), "urllib3": ("2.8.0", "3")}; versions = {n: m.version(n) for n in bounds}; print("system-site versions:", versions); assert all(len(glob.glob("/usr/local/lib/python3.12/dist-packages/" + n.replace("-", "_") + "-*.dist-info")) == 1 and Version(lo) <= Version(versions[n]) < Version(hi) for n, (lo, hi) in bounds.items()); from jupyter_server.serverapp import ServerApp; from jupyterlab.labapp import LabApp; from notebook.app import JupyterNotebookApp; import urllib3'
+
+{% if target not in ("dev", "local-dev") %}
+# The runtime venv takes precedence over system site. Check its resolved imports
+# so an older venv distribution cannot shadow the refreshed system packages.
+RUN /opt/dynamo/venv/bin/python3 -c 'import importlib.metadata as m, sys; from packaging.version import Version; bounds = {"jupyter-server": ("2.21.0", "3"), "jupyterlab": ("4.6.4", "5"), "notebook": ("7.6.3", "8"), "urllib3": ("2.8.0", "3")}; versions = {n: m.version(n) for n in bounds}; print("runtime interpreter versions:", versions); assert all(Version(lo) <= Version(versions[n]) < Version(hi) for n, (lo, hi) in bounds.items()); from jupyter_server.serverapp import ServerApp; from jupyterlab.labapp import LabApp; from notebook.app import JupyterNotebookApp; import urllib3; print("runtime import paths:", sys.modules[ServerApp.__module__].__file__, sys.modules[LabApp.__module__].__file__, sys.modules[JupyterNotebookApp.__module__].__file__, urllib3.__file__)'
+{% endif %}
 
 # Pull /workspace_src (incl. LICENSE) from the transport stage and
 # wire up the launch screen in a single RUN — saves the standalone workspace COPY layer.
@@ -594,6 +762,12 @@ CMD ["/bin/bash"]
 # (ENV/WORKDIR/USER/CMD) and then overlay runtime_full's filesystem as a
 # single layer. Only Dynamo-specific env needs redeclaring below.
 FROM ${RUNTIME_IMAGE}:${RUNTIME_IMAGE_TAG} AS pre_runtime
+# The filesystem overlay does not carry runtime_full's image environment.
+ENV GRPC_DEFAULT_SSL_ROOTS_FILE_PATH=/etc/ssl/certs/ca-certificates.crt
+
+# Remove the upstream runtime's Git LFS package without pruning shared dependencies.
+RUN apt-get purge -y git-lfs && rm -rf /var/lib/apt/lists/*
+
 # Whiteout paths runtime_full removed — COPY can't represent deletions, so
 # without this, upstream's /workspace, /home/ubuntu, standalone
 # /usr/local/bin/etcd* tools, and preinstalled opencv (cv2/ + vendored
@@ -621,11 +795,11 @@ FROM ${RUNTIME_IMAGE}:${RUNTIME_IMAGE_TAG} AS pre_runtime
 # overlay COPY has nothing to write over them and the base image's copies would
 # come straight back. Without this entry the upgrade buys nothing and the scan
 # fails exactly as it did before. The version-stamped dist-info is renamed by the
-# upgrade (pynvvideocodec-2.1.0.dist-info -> -2.2.3.dist-info), so the glob takes
+# upgrade (pynvvideocodec-2.1.0.dist-info -> -2.2.4.dist-info), so the glob takes
 # that and the stray `pynvvideocodec.` entry beside it.
 #
 # The SONAMEs move too, which is why the deletion cannot be narrowed to a version
-# glob: 2.1.0 ships libavformat.so.61 / libavutil.so.59 (FFmpeg 7.0.2) and 2.2.3
+# glob: 2.1.0 ships libavformat.so.61 / libavutil.so.59 (FFmpeg 7.0.2) and 2.2.4
 # ships libavformat.so.63 / libavutil.so.61 (FFmpeg 9.0.1). The overlay writes
 # over the two bare `libav*.so` symlinks and nothing else -- every versioned file
 # the base carries, and the whole libavcodec/libavdevice/libavfilter/libsw*
@@ -660,7 +834,12 @@ FROM ${RUNTIME_IMAGE}:${RUNTIME_IMAGE_TAG} AS pre_runtime
 # has the same doubling problem. Dropping them here is free: the overlay restores
 # whatever runtime_full holds, so listing one that did not move costs nothing and
 # omitting one that did would leave stale metadata behind.
+# Remove old trust-store files and Python metadata before restoring the updated overlay.
 RUN rm -rf /workspace /home/ubuntu \
+    /etc/ssl/certs \
+    /usr/share/ca-certificates \
+    /usr/local/lib/python3.12/dist-packages/pip \
+    /usr/local/lib/python3.12/dist-packages/pip-*.dist-info \
     /usr/local/bin/etcd \
     /usr/local/bin/etcdctl \
     /usr/local/bin/etcdutl \
@@ -674,6 +853,16 @@ RUN rm -rf /workspace /home/ubuntu \
     /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec \
     /usr/local/lib/python3.12/dist-packages/pynvvideocodec* \
     /usr/local/external/ffmpeg \
+    /usr/local/share/jupyter/lab \
+    /usr/local/share/jupyter/labextensions/@jupyter-notebook/lab-extension \
+    /usr/local/lib/python3.12/dist-packages/jupyter_server \
+    /usr/local/lib/python3.12/dist-packages/jupyter_server-*.dist-info \
+    /usr/local/lib/python3.12/dist-packages/jupyterlab \
+    /usr/local/lib/python3.12/dist-packages/jupyterlab-*.dist-info \
+    /usr/local/lib/python3.12/dist-packages/notebook \
+    /usr/local/lib/python3.12/dist-packages/notebook-*.dist-info \
+    /usr/local/lib/python3.12/dist-packages/urllib3 \
+    /usr/local/lib/python3.12/dist-packages/urllib3-*.dist-info \
     /usr/local/lib/python3.12/dist-packages/aiohttp \
     /usr/local/lib/python3.12/dist-packages/aiohttp-* \
     /usr/local/lib/python3.12/dist-packages/multidict \
@@ -690,10 +879,43 @@ RUN rm -rf /workspace /home/ubuntu \
     /usr/local/lib/python3.12/dist-packages/aiohappyeyeballs-* \
     /usr/local/lib/python3.12/dist-packages/attr \
     /usr/local/lib/python3.12/dist-packages/attrs \
-    /usr/local/lib/python3.12/dist-packages/attrs-* && \
+    /usr/local/lib/python3.12/dist-packages/attrs-* \
+    /usr/local/lib/python3.12/dist-packages/certifi \
+    /usr/local/lib/python3.12/dist-packages/certifi-* \
+    /usr/local/lib/python3.12/dist-packages/PIL \
+    /usr/local/lib/python3.12/dist-packages/pillow-* \
+    /usr/local/lib/python3.12/dist-packages/pillow.libs && \
     ! /usr/bin/python3 -c "import cv2" 2>/dev/null && \
     ! /usr/bin/python3 -c "import wandb" 2>/dev/null
 COPY --from=runtime_full / /
+
+# Package trees and shared JupyterLab assets are whiteouted before the overlay.
+# Validate after the overlay so stale base metadata cannot survive the refresh.
+RUN /usr/bin/python3 -c 'import glob, importlib.metadata as m; from packaging.version import Version; bounds = {"jupyter-server": ("2.21.0", "3"), "jupyterlab": ("4.6.4", "5"), "notebook": ("7.6.3", "8"), "urllib3": ("2.8.0", "3")}; versions = {n: m.version(n) for n in bounds}; print("system-site versions:", versions); assert all(len(glob.glob("/usr/local/lib/python3.12/dist-packages/" + n.replace("-", "_") + "-*.dist-info")) == 1 and Version(lo) <= Version(versions[n]) < Version(hi) for n, (lo, hi) in bounds.items()); from jupyter_server.serverapp import ServerApp; from jupyterlab.labapp import LabApp; from notebook.app import JupyterNotebookApp; import urllib3'
+RUN /usr/bin/python3 -c 'import glob, os, sys; d = glob.glob("/usr/local/lib/python3.12/dist-packages/certifi-*.dist-info"); vs = [os.path.basename(p)[8:-10] for p in d]; print("certifi dist-info after overlay:", vs); tv = lambda s: tuple(int(x) for x in s.split(".")[:3]); sys.exit(0 if len(vs) == 1 and tv(vs[0]) >= (2026, 10, 19) else 1)'
+RUN /usr/bin/python3 -c 'import glob, os, sys; d = glob.glob("/usr/local/lib/python3.12/dist-packages/pillow-*.dist-info"); vs = [os.path.basename(p)[7:-10] for p in d]; print("pillow dist-info after overlay:", vs); tv = lambda s: tuple(int(x) for x in s.split(".")[:3]); sys.exit(0 if len(vs) == 1 and (13, 0, 0) <= tv(vs[0]) < (14, 0, 0) else 1)'
+
+{% if target not in ("dev", "local-dev") %}
+RUN /opt/dynamo/venv/bin/python3 -c 'import importlib.metadata as m, sys; from packaging.version import Version; bounds = {"jupyter-server": ("2.21.0", "3"), "jupyterlab": ("4.6.4", "5"), "notebook": ("7.6.3", "8"), "urllib3": ("2.8.0", "3")}; versions = {n: m.version(n) for n in bounds}; print("runtime interpreter versions:", versions); assert all(Version(lo) <= Version(versions[n]) < Version(hi) for n, (lo, hi) in bounds.items()); from jupyter_server.serverapp import ServerApp; from jupyterlab.labapp import LabApp; from notebook.app import JupyterNotebookApp; import urllib3; print("runtime import paths:", sys.modules[ServerApp.__module__].__file__, sys.modules[LabApp.__module__].__file__, sys.modules[JupyterNotebookApp.__module__].__file__, urllib3.__file__)'
+{% endif %}
+
+# Check the merged filesystem: both base stages must purge package-owned paths.
+RUN test ! -e /usr/bin/git-lfs && \
+    test ! -e /usr/local/bin/git-lfs && \
+    ! command -v git-lfs && \
+    status=$(dpkg-query -W -f='${db:Status-Status}' git-lfs 2>/dev/null || true) && \
+    test "$status" != installed && \
+    set -- /var/lib/dpkg/info/git-lfs.* && test ! -e "$1"
+
+# Post-overlay guard for the Open MPI settings edit in runtime_full. This stage
+# starts from the base image again, where the selected Open MPI's
+# etc/openmpi-mca-params.conf is the base image's copy, so the edit ships only
+# if the overlay above carried it across. Check the file the shipped ENV points
+# at.
+RUN conf=/opt/dynamo/mpi/etc/openmpi-mca-params.conf && \
+    test -f "$conf" && \
+    ! grep -qE '^[[:space:]]*hwloc_base_binding_policy[[:space:]]*=[[:space:]]*core' "$conf" && \
+    ! grep -qE '^[[:space:]]*btl[[:space:]]*=[[:space:]]*self[[:space:]]*$' "$conf"
 
 # Post-overlay guard for the DALI whiteout above. This is the only stage where
 # the failure can appear: runtime_full holds exactly one DALI, and the whiteout
@@ -705,10 +927,20 @@ COPY --from=runtime_full / /
 # back; with it, one copy and clean.
 #
 # Every match is checked, not just the first: the whole point is catching the
-# case where more than one exists.
+# case where more than one exists. Zero matches is a failure too, for the reason
+# the DALI block above gives: a loop over an empty glob checks nothing and exits
+# 0, so an empty match here means DALI's vendored library moved or changed name,
+# and a human has to say whether the new shape is clean.
 RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.py,target=/tmp/enumerate_bundled_decoders.py \
     set -eu; \
-    for lib in $(find /usr/local/lib/python3.12/dist-packages/nvidia/dali/.libs -name 'libavcodec*.so*' 2>/dev/null); do \
+    libs=$(find /usr/local/lib/python3.12/dist-packages/nvidia/dali/.libs -name 'libavcodec*.so*' 2>/dev/null); \
+    if [ -z "$libs" ]; then \
+        echo "ERROR: post-overlay DALI carries no libavcodec under .libs, so this" >&2; \
+        echo "       guard checked nothing. Match what the runtime_full block says" >&2; \
+        echo "       about the same glob before changing either one." >&2; \
+        exit 1; \
+    fi; \
+    for lib in $libs; do \
         /usr/bin/python3 /tmp/enumerate_bundled_decoders.py "$lib"; \
     done; \
     if find /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec -name 'libavcodec*' 2>/dev/null | grep -q .; then \
@@ -719,10 +951,15 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
         find /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec -name 'libavcodec*' >&2; \
         exit 1; \
     fi; \
+    examined=0; \
     for lib in $(find /usr/local/lib/python3.12/dist-packages/PyNvVideoCodec \
             -name 'libavcodec*.so*' -o -name 'libavformat*.so*' 2>/dev/null); do \
+        examined=$((examined + 1)); \
         /usr/bin/python3 /tmp/enumerate_bundled_decoders.py "$lib"; \
     done; \
+    [ "$examined" -gt 0 ] \
+        || { echo "ERROR: found no FFmpeg libraries under PyNvVideoCodec to examine;" >&2; \
+             echo "       the package layout changed and this check went blind." >&2; exit 1; }; \
     tarballs=$(find /usr/local/external/ffmpeg -name 'ffmpeg-*.tar.*' 2>/dev/null | wc -l); \
     if [ "$tarballs" -gt 1 ]; then \
         echo "ERROR: more than one FFmpeg source tarball survived the overlay, so the" >&2; \
@@ -731,6 +968,13 @@ RUN --mount=type=bind,source=./container/compliance/enumerate_bundled_decoders.p
         find /usr/local/external/ffmpeg -name 'ffmpeg-*.tar.*' >&2; \
         exit 1; \
     fi
+
+# The PyNvVideoCodec replacement in runtime_full needs the same post-overlay
+# check. A missed whiteout leaves the base image's dist-info beside the new one,
+# and the tarball count above cannot see that when both releases ship the same
+# FFmpeg source. The shared guard counts distributions, so it runs again here.
+RUN --mount=type=bind,source=./container/compliance,target=/tmp/compliance/compliance \
+    PYTHONPATH=/tmp/compliance /usr/bin/python3 -m compliance.check_pynvvideocodec --pinned 2.2.4
 
 # The Nsight Systems CLI in the CUDA base ships an optional efa_metrics sampler
 # for EFA network counters. Nothing in the Dynamo tree references it, and AWS
@@ -779,18 +1023,22 @@ RUN set -eu; \
 {% if target in ("dev", "local-dev") %}
 ENV DYNAMO_HOME=/workspace \
     HOME=/home/dynamo \
-    PATH=/opt/uv/bin:/usr/local/bin/etcd:${PATH} \
+    PATH=/opt/dynamo/mpi/bin:/opt/uv/bin:/usr/local/bin/etcd:${PATH} \
     IMAGEIO_FFMPEG_EXE=/usr/local/bin/ffmpeg \
     LD_PRELOAD=/opt/dynamo/libstdc++.so.6:/usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/libnixl.so \
+    LD_LIBRARY_PATH=/opt/dynamo/mpi/lib:${LD_LIBRARY_PATH} \
+    OPAL_PREFIX=/opt/dynamo/mpi \
     NIXL_PLUGIN_DIR=/usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/plugins \
     NIXL_VERSION=
 {% else %}
 ENV DYNAMO_HOME=/workspace \
     HOME=/home/dynamo \
     VIRTUAL_ENV=/opt/dynamo/venv \
-    PATH=/opt/dynamo/venv/bin:/opt/uv/bin:/usr/local/bin/etcd:${PATH} \
+    PATH=/opt/dynamo/venv/bin:/opt/dynamo/mpi/bin:/opt/uv/bin:/usr/local/bin/etcd:${PATH} \
     IMAGEIO_FFMPEG_EXE=/usr/local/bin/ffmpeg \
     LD_PRELOAD=/opt/dynamo/libstdc++.so.6:/usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/libnixl.so \
+    LD_LIBRARY_PATH=/opt/dynamo/mpi/lib:${LD_LIBRARY_PATH} \
+    OPAL_PREFIX=/opt/dynamo/mpi \
     NIXL_PLUGIN_DIR=/usr/local/lib/python3.12/dist-packages/tensorrt_llm/libs/nixl/plugins \
     NIXL_VERSION=
 {% endif %}

@@ -7,7 +7,7 @@ import importlib.metadata
 
 from dynamo.common.platform.registry import PlatformError
 
-VLLM_VERSIONS = {"cuda": "0.28.0", "metax": "0.26.0", "ascend": "0.23.0"}
+VLLM_VERSIONS = {"cuda": "0.28.0", "metax": "0.26.0", "ascend": "0.30.0"}
 
 
 def validate_vllm_versions(platform_id):

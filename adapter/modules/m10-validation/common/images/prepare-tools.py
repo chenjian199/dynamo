@@ -24,11 +24,11 @@ p.add_argument(
 )
 a = p.parse_args()
 expected = (
-    "17122bf4c057d2ba05abb682c0989a55e0bdae387917fffbf07100a9f3bd10e8"
+    "3f3330d5d4521b0e5ee5fd11a649e3be8d971c0dc41079af7a82d7034c6b0e89"
     if a.platform == "ascend"
-    else "d33bbb8c71a642eb5ed6b791aa85c6e93d0198f00e40eebb575a7d8e6159e00b"
+    else "3d3815659bd6d692d747f551d3bc3d71b9b2cb206bb33d783bdbe245c389bdb0"
 )
-# Published SHA256 values from https://pypi.nvidia.com/aisimulate/ for 0.12.0.
+# Published SHA256 values from https://pypi.nvidia.com/aisimulate/ for 0.13.0 (Dynamo 1.6.2).
 if hashlib.sha256(a.aisimulate_wheel.read_bytes()).hexdigest() != expected:
     p.error("AISimulate wheel does not match the pinned official hash")
 a.output.mkdir(parents=True, exist_ok=False)

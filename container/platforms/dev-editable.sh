@@ -25,6 +25,9 @@ export PIP_NO_DEPS=1 PIP_DISABLE_PIP_VERSION_CHECK=1
 export CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-12} CARGO_PROFILE_RELEASE_DEBUG=0 CUDARC_CUDA_VERSION=13000
 export SWAGGER_UI_DOWNLOAD_URL=file:///opt/dynamo/dev/downloads/swagger-ui-v5.17.14.zip
 unset CONDA_PREFIX
+if [[ -x /opt/dynamo/dev/bin/protoc ]]; then
+    export PROTOC=/opt/dynamo/dev/bin/protoc
+fi
 if [[ $(uname -m) == aarch64 ]]; then
     export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C target-cpu=generic -C force-frame-pointers=yes --cfg tokio_unstable'
 fi

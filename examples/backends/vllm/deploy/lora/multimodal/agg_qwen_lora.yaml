@@ -32,13 +32,13 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           name: main
     replicas: 1
     type: frontend
   - modelRef:
       name: Qwen/Qwen3-VL-2B-Instruct
-    name: VllmWorker
+    name: worker
     podTemplate:
       spec:
         containers:
@@ -93,7 +93,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           name: main
           resources:
             limits:

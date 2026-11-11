@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 
 本入口在原有 M01–M10 之上增加升级控制层：冻结旧上游 B、HEYI 适配 H、目标上游 T，分析两组差异，在隔离分支迁移适配，再交给现有功能执行器、AI harness 和交付流程验收。不会把合并成功或旧结果复制解释为升级通过。
 
-本次已实现控制层和 CPU 契约测试。**尚未执行 Dynamo 1.6.2 合并、厂商引擎适配、硬件回归或镜像发布。** 用户先按 [镜像准备说明](images-1.6.2.md) 下载镜像，之后才启动本流程。当前 `container/platforms/*.json` 保留原有已验证基线；[目标意向](targets/dynamo-1.6.2.yaml) 不是第二份生效版本锁。
+控制层已实现。2026-11-11 起按用户确认优先执行 Ascend 升级：在隔离工作树合并 Dynamo 1.6.2，使用已核验的 Ascend 0.30.0 镜像迁移代码。**当前仍在构建与回归阶段，尚未发布或完成全套认证。** CUDA 与沐曦多机测试暂缓。[华为范围](targets/dynamo-1.6.2-ascend.yaml) 不代表另外两个平台通过。候选分支的 `container/platforms/ascend.json` 已更新到 receipt 中的摘要和实际版本；其它平台版本锁保持原值。
 
 2026-11-10 进展：沐曦和华为目标镜像的元数据核验通过；用户确认 H800 4.6 镜像仍在下载，CUDA 回归暂缓。详见 [镜像准备状态](image-readiness.md)。
 
@@ -55,7 +55,7 @@ python3 -m adapter.workflow upgrade bind-image --session "$UPGRADE_SESSION" \
 python3 -m adapter.workflow upgrade bind-image --session "$UPGRADE_SESSION" \
   --platform metax --receipt "$UPGRADE_SESSION/images/metax.json"
 
-# 此命令才创建隔离 worktree 并执行三方合并；本轮尚未运行。
+# 此命令创建隔离 worktree 并执行三方合并。
 python3 -m adapter.workflow upgrade prepare --session "$UPGRADE_SESSION"
 ```
 

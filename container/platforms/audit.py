@@ -11,7 +11,7 @@ import json
 import shutil
 import subprocess
 import sys
-import urllib.request
+import tempfile
 from pathlib import Path
 
 
@@ -33,9 +33,9 @@ def snapshot():
             }
         },
         "pip_check_exit": result.returncode,
-        "pip_check": sorted(set(result.stdout.splitlines()))
-        if result.returncode
-        else [],
+        "pip_check": (
+            sorted(set(result.stdout.splitlines())) if result.returncode else []
+        ),
         "pip_check_stderr": result.stderr,
     }
 
@@ -74,10 +74,37 @@ def main():
             if not name.endswith(".whl"):
                 raise RuntimeError(f"Runtime dependency is not a binary wheel: {name}")
             target = destination / name
-            urllib.request.urlretrieve(url, target)
             expected = info["archive_info"]["hashes"]["sha256"]
-            if digest(target) != expected:
-                raise RuntimeError(f"Dependency hash mismatch: {name}")
+            if target.is_file() and digest(target) == expected:
+                continue
+            # Use pip's already-populated download cache and proxy handling.
+            # A bounded retry cannot hang image construction indefinitely, and
+            # incomplete or corrupt downloads never replace a published wheel.
+            with tempfile.TemporaryDirectory(
+                prefix=".download-", dir=destination
+            ) as tmp:
+                subprocess.run(
+                    [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "download",
+                        "--no-deps",
+                        "--timeout",
+                        "60",
+                        "--retries",
+                        "3",
+                        "--dest",
+                        tmp,
+                        url,
+                    ],
+                    check=True,
+                    timeout=300,
+                )
+                staged = Path(tmp) / name
+                if not staged.is_file() or digest(staged) != expected:
+                    raise RuntimeError(f"Dependency hash mismatch: {name}")
+                staged.replace(target)
     elif action == "native":
         destination = Path(arguments[1])
         libraries, binaries = [], []

@@ -503,14 +503,7 @@ mod tests {
                 .env("DYNAMO_ROUTING_HOP_TEST", test_name)
                 .env("DYN_TCP_RPC_HOST", "127.0.0.1")
                 .env("DYN_TCP_RPC_PORT", "0")
-                .env(
-                    "DYN_TCP_RESPONSE_STREAM_HOST",
-                    if cfg!(target_os = "macos") {
-                        "lo0"
-                    } else {
-                        "lo"
-                    },
-                )
+                .env("DYN_TCP_RESPONSE_STREAM_HOST", "127.0.0.1")
                 .env("DYN_TCP_RESPONSE_STREAM_PORT", "0")
                 .kill_on_drop(true);
             let output = tokio::time::timeout(Duration::from_secs(30), child.output())
@@ -525,13 +518,13 @@ mod tests {
             );
             return;
         }
-        dynamo_runtime::logging::init();
         let runtime = Runtime::from_current().unwrap();
         let store = tempfile::tempdir().unwrap();
         let config = || DistributedConfig {
             discovery_backend: DiscoveryBackend::KvStore(kv::Selector::File(store.path().into())),
             nats_config: None,
             request_plane: RequestPlaneMode::Tcp,
+            response_plane: None,
             event_transport_kind: EventTransportKind::Zmq,
         };
         let namespace = format!("encoder-admission-{}", uuid::Uuid::new_v4());

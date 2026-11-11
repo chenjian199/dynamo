@@ -37,10 +37,12 @@ precedence when set. It cannot add a missing Dynamo relay to an unsupported topo
 | SGLang (`python -m dynamo.sglang`) | Aggregated, prefill, decode, or LLM diffusion, including `--enable-multimodal` without a dedicated encoder | Supported |
 | SGLang (`python -m dynamo.sglang`) | Embedding or dedicated multimodal encoder | Not supported; Dynamo warns and does not auto-enable FPM |
 | SGLang (`python -m dynamo.sglang`) | Image diffusion, video generation, or snapshot mode | Not supported |
-| TensorRT-LLM and mocker | Direct-publisher paths | Persistence supported; no Python relay activation is required |
+| TensorRT-LLM (`python -m dynamo.trtllm`) | Aggregated, prefill, or decode | Supported; also enables the engine's `enable_iter_perf_stats`. `--publish-metrics` enables FPM too, since it turns the same statistics on |
+| Mocker | Direct-publisher path | Persistence supported; forward-pass metrics are always published |
 
 For vLLM, an explicit `DYN_FORWARDPASS_METRIC_PORT` wins; otherwise trace activation uses port
-`20380`. SGLang uses its existing per-worker IPC endpoint.
+`20380`. SGLang uses its existing per-worker IPC endpoint. TensorRT-LLM publishes in-process, so
+the port value is unused, but setting the variable still opts the worker in.
 
 ## Capture Modes
 
@@ -127,6 +129,25 @@ Each line uses the shared gzip JSONL envelope:
 `observed_at_unix_ms` is the absolute observation time. The outer `timestamp` is milliseconds since
 the writer started. The nested `fpm` object is the canonical payload. A `counter_id` gap can result
 from sampling, local queue pressure, an upstream ZMQ drop, a crash, or node loss.
+
+## Native benchmark engine evidence
+
+The vLLM self-benchmark writes an `engine` object in each per-rank benchmark
+JSON artifact. It records the loaded model identity, parallel configuration,
+runtime versions, and initialized KV-cache group specs. Full-attention specs
+retain their observed `sliding_window`, `attention_chunk_size`, and `non_causal`
+fields; uniform wrappers include their per-layer specs. Missing fields stay
+missing, and capture failures are recorded as `engine.capture_error`.
+
+AISimulate needs these facts to qualify the deliberate
+`dense_model_content_insensitive` warm-up skip for dense full-attention decode.
+A completed benchmark with `usable=true` alone does not establish eligibility.
+Use a runtime containing this evidence capture and rerun smoke collection;
+previous artifacts without the evidence cannot be retroactively qualified.
+
+This release captures scheduler-side engine facts. Worker-resolved attention
+and graph fields remain unresolved, and this evidence alone does not establish
+complete measurement quality or serving accuracy.
 
 ## Related
 

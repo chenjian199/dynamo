@@ -48,6 +48,8 @@ from dynamo.common.multimodal.nvdec_decoder import (
 )
 from dynamo.common.utils.runtime import run_async
 
+from dynamo.common.http.media_reference import max_media_bytes  # isort: skip
+
 logger = logging.getLogger(__name__)
 
 _decode_slots = WeakKeyDictionary()
@@ -76,6 +78,34 @@ async def _bounded_decode(function, *args, **kwargs):
 
     task.add_done_callback(finished)
     return await asyncio.shield(task)
+
+
+def _attributable_to_cv2(exc: BaseException, media_io: Any | None = None) -> bool:
+    """Identify OpenCV errors without relabeling failures from other video backends."""
+    if getattr(exc, "name", None) == "cv2" or "cv2" in str(exc):
+        return True
+    return (
+        isinstance(exc, ValueError)
+        and str(exc) == "Could not open video stream"
+        and (getattr(media_io, "kwargs", None) or {}).get("backend", "opencv")
+        == "opencv"
+    )
+
+
+@functools.lru_cache(maxsize=1)
+def _cv2_lacks_video_backend() -> bool:
+    """Return whether OpenCV is broken or lacks FFmpeg and GStreamer."""
+    try:
+        import cv2
+    except ImportError:
+        return False
+    except Exception:  # noqa: BLE001 - a broken import has no usable video backend
+        return True
+    build_info = cv2.getBuildInformation()
+    return not any(
+        re.search(rf"^\s*{backend}:\s*YES", build_info, re.MULTILINE | re.IGNORECASE)
+        for backend in ("FFMPEG", "GSTREAMER")
+    )
 
 
 def _attributable_to_cv2(exc: BaseException, media_io: Any | None = None) -> bool:
@@ -202,7 +232,10 @@ class VideoLoader:
         # data: and file:// never touch the network, so vLLM can handle them.
         if urlparse(normalized_url).scheme in ("http", "https"):
             content = await fetch_bytes(
-                normalized_url, self._http_timeout, policy=self._url_policy
+                normalized_url,
+                self._http_timeout,
+                policy=self._url_policy,
+                max_bytes=max_media_bytes(),
             )
             return await self._decode_video_bytes(content, media_io)
 

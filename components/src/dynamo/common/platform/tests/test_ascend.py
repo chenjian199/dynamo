@@ -46,9 +46,9 @@ def test_ascend_uses_physical_identity_and_preserves_stack_boundary(monkeypatch)
 
     versions = {
         "torch": "2.10.0+cpu",
-        "torch-npu": "2.10.0.post4",
-        "vllm-ascend": "0.23.0",
-        "vllm": "0.23.0+empty",
+        "torch-npu": "2.10.0.post7",
+        "vllm-ascend": "0.30.0",
+        "vllm": "0.30.0+empty",
     }
     monkeypatch.setattr(provider.importlib, "import_module", load)
     monkeypatch.setattr(provider.importlib.metadata, "version", versions.__getitem__)
@@ -89,3 +89,35 @@ def test_dcmi_rejects_zero_die_identity():
         dcmi.identity(0)
     assert ctypes.sizeof(provider._DieId) == 20
     assert ctypes.sizeof(provider._PcieInfo) == 64
+
+
+def test_mooncake_preloads_active_cann_once(monkeypatch, tmp_path):
+    from dynamo.common.platform import ascend_mooncake
+
+    active = tmp_path / "cann-9.2.1"
+    library = active / "lib64/libllm_datadist.so"
+    library.parent.mkdir(parents=True)
+    library.touch()
+    monkeypatch.setenv("ASCEND_HOME_PATH", str(active))
+    monkeypatch.setattr(ascend_mooncake, "_cann_datadist", None)
+    loaded = []
+    handle = object()
+
+    def load(path, *, mode):
+        loaded.append((path, mode))
+        return handle
+
+    monkeypatch.setattr(ascend_mooncake.ctypes, "CDLL", load)
+    ascend_mooncake.prepare_mooncake_libraries()
+    ascend_mooncake.prepare_mooncake_libraries()
+    assert loaded == [(str(library), ctypes.RTLD_GLOBAL)]
+    assert ascend_mooncake._cann_datadist is handle
+
+
+def test_mooncake_rejects_missing_cann_environment(monkeypatch):
+    from dynamo.common.platform import ascend_mooncake
+
+    monkeypatch.setattr(ascend_mooncake, "_cann_datadist", None)
+    monkeypatch.setattr(ascend_mooncake.Path, "is_file", lambda _: False)
+    with pytest.raises(RuntimeError, match="initialize the active CANN environment"):
+        ascend_mooncake.prepare_mooncake_libraries()

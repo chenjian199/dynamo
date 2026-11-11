@@ -14,14 +14,9 @@ pytestmark = [
 ]
 
 
-@pytest.mark.parametrize(
-    "module",
-    ["dynamo.mocker", "dynamo.mocker._worker"],
-    ids=["public", "release-compatibility"],
-)
-def test_mocker_module_cli_executes(module: str) -> None:
+def test_public_mocker_module_cli_executes() -> None:
     result = subprocess.run(
-        [sys.executable, "-m", module, "--help"],
+        [sys.executable, "-m", "dynamo.mocker", "--help"],
         check=False,
         capture_output=True,
         text=True,

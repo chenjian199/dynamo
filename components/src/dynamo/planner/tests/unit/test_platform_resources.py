@@ -44,8 +44,18 @@ def test_count_multinode_and_profiler_preserve_platform(platform):
     component = worker(platform)
     component["multinode"] = {"nodeCount": 2}
     svc = Service(name="worker", service=component)
-    assert svc.get_gpu_count() == 2
-    assert svc.get_gpu_shape({}).gpus_per_replica == 4
+    assert scalar_device_count(component["podTemplate"]["spec"]["containers"][0]) == 2
+    # 1.6.2 makes current Operator status authoritative; no stale spec fallback.
+    with pytest.raises(GPUShapeUnavailableError):
+        svc.get_gpu_shape({})
+    deployment = {
+        "metadata": {"generation": 2},
+        "status": {
+            "observedGeneration": 2,
+            "components": {"worker": {"gpusPerEngine": 2, "gpusPerReplica": 4}},
+        },
+    }
+    assert svc.get_gpu_shape(deployment).gpus_per_replica == 4
     model = Component.model_validate(component)
     setup_worker_component_resources(model, 4)
     container = model.podTemplate.spec.containers[0]
@@ -106,23 +116,35 @@ def test_auxiliary_device_requires_operator_status(platform):
 
 @pytest.mark.parametrize("platform", ["ascend", "metax"])
 def test_vendor_does_not_use_native_cuda_perf_config(platform):
-    from dynamo.planner.config.planner_config import AICPerfModelSpec, PlannerConfig
-    from dynamo.planner.core.perf_model.aic_adapter import PlannerEnginePerfModel
+    from dynamo.planner.config.planner_config import PlannerConfig
+    from dynamo.planner.core.perf_model.ais_adapter import PlannerEnginePerfModel
+    from dynamo.planner.core.types import EngineCapabilities
 
     config = PlannerConfig(
         target_platform=platform,
         mode="agg",
-        aic_perf_model=AICPerfModelSpec(
-            hf_id="Qwen/Qwen3-0.6B",
-            system="h200_sxm",
-            backend="vllm",
-            decode_pick={"tp": 1, "pp": 1, "dp": 1},
-        ),
+        ais_perf_model={
+            "roles": {
+                "aggregated": {
+                    "model": "Qwen/Qwen3-0.6B",
+                    "system": "h200_sxm",
+                    "backend": "vllm",
+                }
+            }
+        },
     )
     adapter = PlannerEnginePerfModel(
-        worker_type="aggregated", config=config, capabilities=None
+        worker_type="aggregated",
+        config=config,
+        capabilities=EngineCapabilities(
+            max_num_batched_tokens=2048, max_num_seqs=4, max_kv_tokens=4096
+        ),
     )
-    assert adapter._build_aic_config() is None
+    effective = adapter._build_ais_config()
+    assert effective["estimation_mode"] == "fpm_regression"
+    assert effective["fallback_policy"] == "deny"
+    # Do not mutate the user's authored object while binding runtime policy.
+    assert config.ais_perf_model.roles["aggregated"]["estimation_mode"] == "auto"
 
 
 @pytest.mark.asyncio

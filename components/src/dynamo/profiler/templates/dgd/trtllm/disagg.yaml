@@ -19,7 +19,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.6.2
           name: main
     replicas: 1
     type: frontend
@@ -43,7 +43,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.6.2
           name: main
           resources:
             limits:
@@ -64,6 +64,7 @@ spec:
           - ./examples/backends/trtllm/engine_configs/qwen3/prefill.yaml
           - --disaggregation-mode
           - prefill
+          - --publish-kv-events
           command:
           - python3
           - -m
@@ -71,7 +72,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/tensorrtllm-runtime:1.6.2
           name: main
           resources:
             limits:

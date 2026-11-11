@@ -89,6 +89,7 @@ func TestDGDWorkloadProgramSelection(t *testing.T) {
 				assert.NotNil(t, grove.rollout)
 				assert.NotNil(t, grove.restart)
 				assert.NotNil(t, grove.restartProgress)
+				assert.NotNil(t, grove.lpxRestartProgress)
 				assert.NotNil(t, grove.workloads)
 				assert.NotNil(t, grove.scalingAdapters)
 				assert.NotNil(t, grove.topology)
@@ -115,6 +116,30 @@ func TestSelectedGroveProgramDoesNotFallbackWhenUnavailable(t *testing.T) {
 	assert.Equal(t, metav1.ConditionFalse, ready.Status)
 	assert.Equal(t, string(reasonSelectedWorkloadProviderUnavailable), ready.Reason)
 	assert.Contains(t, ready.Message, "Grove is disabled")
+}
+
+func TestComponentProgramRejectsExternallyManagedComponents(t *testing.T) {
+	t.Log("Create a component-provider DGD containing an externally managed component")
+	dgd := &nvidiacomv1beta1.DynamoGraphDeployment{
+		ObjectMeta: metav1.ObjectMeta{Generation: 4},
+		Spec: nvidiacomv1beta1.DynamoGraphDeploymentSpec{
+			Components: []nvidiacomv1beta1.DynamoComponentDeploymentSharedSpec{{
+				ComponentName: "serving",
+				ComponentType: nvidiacomv1beta1.ComponentTypeLPX,
+			}},
+		},
+	}
+
+	t.Log("Reconcile the component program")
+	result, err := (&componentProgram{}).Reconcile(t.Context(), workloadProgramRequest{DGD: dgd})
+	require.ErrorIs(t, err, reconcile.TerminalError(nil))
+
+	t.Log("Verify the program returns the component rejection without a terminal-error prefix")
+	ready := meta.FindStatusCondition(result.Status.Conditions, "Ready")
+	require.NotNil(t, ready)
+	assert.Equal(t, metav1.ConditionFalse, ready.Status)
+	assert.Equal(t, "UnsupportedComponent", ready.Reason)
+	assert.Equal(t, `component "serving" of type "lpx" requires the Grove workload provider`, ready.Message)
 }
 
 func TestNewWorkloadProgramResultCopiesStatus(t *testing.T) {
@@ -460,14 +485,14 @@ func TestGroveRendererFailsWhenResolvedDRADependencyDisappears(t *testing.T) {
 	)
 
 	t.Log("Verify the renderer initially publishes the full multinode shape")
-	rendered, err := renderer.Render(t.Context(), dgd, nil, nil, false)
+	rendered, err := renderer.Render(t.Context(), groveReconcileRequest{DGD: dgd}, nil, nil, false)
 	require.NoError(t, err)
 	assert.Equal(t, int64(4), rendered.gpuShapes["decode"].GPUsPerEngine)
 	assert.Equal(t, int64(4), rendered.gpuShapes["decode"].GPUsPerReplica)
 
 	t.Log("Delete the dependency without changing DGD generation and render again")
 	require.NoError(t, kubeClient.Delete(t.Context(), claimTemplate))
-	_, err = renderer.Render(t.Context(), dgd, nil, nil, false)
+	_, err = renderer.Render(t.Context(), groveReconcileRequest{DGD: dgd}, nil, nil, false)
 	require.ErrorContains(t, err, "ResourceClaimTemplate default/gpu-template")
 }
 
@@ -734,7 +759,7 @@ func TestComponentWorkloadsReconciler_PreserveExistingDCDState(t *testing.T) {
 		},
 		{
 			name:             "existing DCD follows automatic wait policy while native capture is pending",
-			dcdName:          "vllm-disagg-planner-vllmdecodeworker-2dad72b9",
+			dcdName:          "vllm-disagg-planner-decode-2dad72b9",
 			existingReplicas: ptr.To(int32(2)),
 			checkpointInfo: &checkpoint.CheckpointInfo{
 				Enabled:          true,
@@ -747,7 +772,7 @@ func TestComponentWorkloadsReconciler_PreserveExistingDCDState(t *testing.T) {
 		},
 		{
 			name:             "explicit pending snapshot applies wait policy to an existing DCD",
-			dcdName:          "vllm-disagg-planner-vllmdecodeworker-explicit",
+			dcdName:          "vllm-disagg-planner-decode-explicit",
 			existingReplicas: ptr.To(int32(2)),
 			checkpointInfo: &checkpoint.CheckpointInfo{
 				Enabled:       true,
@@ -842,6 +867,43 @@ func TestComponentWorkloadsReconciler_ApplyCheckpointStartupPolicy(t *testing.T)
 			wantStartupPolicy: nvidiacomv1beta1.CheckpointStartupPolicyWaitForCheckpoint,
 		},
 		{
+			name:     "pending explicit snapshot under wait policy keeps compatibility hash and gates replicas",
+			replicas: 3,
+			checkpointInfo: checkpoint.CheckpointInfo{
+				Enabled:                   true,
+				Exists:                    true,
+				Ready:                     false,
+				CheckpointName:            "snapshot-name",
+				StartupPolicy:             nvidiacomv1alpha1.CheckpointStartupPolicyWaitForCheckpoint,
+				SnapshotCompatibilityHash: "compatibility-v1",
+			},
+			wantReplicas:          0,
+			wantStartupPolicy:     nvidiacomv1beta1.CheckpointStartupPolicyWaitForCheckpoint,
+			wantCompatibilityHash: true,
+		},
+		{
+			name:     "ready explicit snapshot under wait policy stamps candidate and compatibility hash",
+			replicas: 2,
+			checkpointInfo: checkpoint.CheckpointInfo{
+				Enabled:                   true,
+				Exists:                    true,
+				Ready:                     true,
+				CheckpointName:            "snapshot-name",
+				StartupPolicy:             nvidiacomv1alpha1.CheckpointStartupPolicyWaitForCheckpoint,
+				SnapshotCompatibilityHash: "compatibility-v1",
+				NativeSnapshot: &checkpoint.ResolvedPodSnapshot{
+					UID:                  types.UID("snapshot-uid"),
+					BoundContentName:     "content-a",
+					CompatibilityVersion: commonconsts.SnapshotCompatibilityVersion,
+					GMSMode:              commonconsts.SnapshotGMSModeDisabled,
+				},
+			},
+			wantReplicas:          2,
+			wantStartupPolicy:     nvidiacomv1beta1.CheckpointStartupPolicyWaitForCheckpoint,
+			wantCandidate:         true,
+			wantCompatibilityHash: true,
+		},
+		{
 			name:     "pending explicit snapshot carries compatibility without becoming a restore candidate",
 			replicas: 2,
 			checkpointInfo: checkpoint.CheckpointInfo{
@@ -909,10 +971,13 @@ func TestComponentWorkloadsReconciler_ApplyCheckpointStartupPolicy(t *testing.T)
 				assert.Equal(t, "compatibility-v1", dcd.Spec.PodTemplate.Annotations[commonconsts.SnapshotCandidateCompatibilityHashAnnotation])
 			}
 			if !tt.wantCandidate {
+				if dcd.Spec.PodTemplate != nil {
+					assert.NotContains(t, dcd.Spec.PodTemplate.Annotations, commonconsts.CheckpointRestoreCandidateAnnotation)
+				}
 				return
 			}
 
-			t.Log("Verify immediate startup publishes stable restore-candidate metadata")
+			t.Log("Verify a Ready snapshot publishes stable restore-candidate metadata under every startup policy")
 			assert.Equal(t, commonconsts.KubeLabelValueTrue, dcd.Spec.PodTemplate.Annotations[commonconsts.CheckpointRestoreCandidateAnnotation])
 			assert.Equal(t, tt.checkpointInfo.CheckpointName, dcd.Spec.PodTemplate.Annotations[commonconsts.CheckpointNameAnnotation])
 			assert.Equal(t, commonconsts.MainContainerName, dcd.Spec.PodTemplate.Annotations[commonconsts.RestoreCandidateTargetContainersAnnotation])

@@ -32,6 +32,14 @@ rustup toolchain install "$rust_version" --profile minimal
 export CARGO_TARGET_DIR=/build-cache/target CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-12}
 export CARGO_PROFILE_RELEASE_DEBUG=0 CUDARC_CUDA_VERSION=13000
 unset CONDA_PREFIX
+# Ubuntu 22.04 vendor images ship protoc 3.12: proto3 optional is opt-in there.
+# Keep the upstream protobuf schema unchanged; scope the flag to this tool version.
+if [[ $(protoc --version) == "libprotoc 3.12."* ]]; then
+    mkdir -p /build-cache/tools
+    printf '#!/bin/sh\nexec /usr/bin/protoc --experimental_allow_proto3_optional "$@"\n' > /build-cache/tools/protoc
+    chmod +x /build-cache/tools/protoc
+    export PROTOC=/build-cache/tools/protoc
+fi
 if [[ $(uname -m) == aarch64 ]]; then
     export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C target-cpu=generic -C force-frame-pointers=yes --cfg tokio_unstable'
 fi

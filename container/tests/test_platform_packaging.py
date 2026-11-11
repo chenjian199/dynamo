@@ -208,3 +208,53 @@ def test_dev_proxy_args_do_not_expose_values(monkeypatch, tmp_path):
     assert "HTTP_PROXY" in calls[0]
     assert proxy not in str(calls)
     assert proxy not in (tmp_path / "out/image.json").read_text()
+
+
+@pytest.mark.parametrize("corrupt", [False, True])
+def test_download_verifies_before_publishing_and_reuses_cache(
+    audit, monkeypatch, tmp_path, corrupt
+):
+    import hashlib
+
+    destination = tmp_path / "wheels"
+    destination.mkdir()
+    report = tmp_path / "dependencies.json"
+    expected = hashlib.sha256(b"complete wheel").hexdigest()
+    report.write_text(
+        json.dumps(
+            {
+                "install": [
+                    {
+                        "download_info": {
+                            "url": "https://example.invalid/package.whl",
+                            "archive_info": {"hashes": {"sha256": expected}},
+                        }
+                    }
+                ]
+            }
+        )
+    )
+    calls = []
+
+    def download(argv, **kwargs):
+        calls.append((argv, kwargs))
+        assert kwargs["timeout"] == 300
+        stage = Path(argv[argv.index("--dest") + 1])
+        (stage / "package.whl").write_bytes(
+            b"truncated" if corrupt else b"complete wheel"
+        )
+
+    monkeypatch.setattr(audit.subprocess, "run", download)
+    monkeypatch.setattr(
+        audit.sys, "argv", ["audit.py", "download", str(report), str(destination)]
+    )
+    if corrupt:
+        with pytest.raises(RuntimeError, match="hash mismatch"):
+            audit.main()
+        assert not (destination / "package.whl").exists()
+    else:
+        audit.main()
+        audit.main()
+        assert len(calls) == 1
+        assert (destination / "package.whl").read_bytes() == b"complete wheel"
+    assert not list(destination.glob(".download-*"))

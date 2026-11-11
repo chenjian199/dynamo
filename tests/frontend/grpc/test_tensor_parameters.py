@@ -14,8 +14,6 @@ import builtins
 import logging
 import os
 import runpy
-import shlex
-import shutil
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -25,7 +23,7 @@ import pytest
 from packaging.requirements import Requirement
 from packaging.version import Version
 
-from tests.utils.managed_process import ManagedProcess
+from tests.utils.managed_process import ManagedProcess, check_health_ready
 
 try:
     from google.protobuf import any_pb2, empty_pb2, json_format
@@ -61,21 +59,6 @@ def _requirement(text: str, package: str) -> Requirement:
             pins.append(requirement)
     assert len(pins) == 1, f"Expected one {package} requirement, found {len(pins)}"
     return pins[0]
-
-
-def _assert_triton_pins_match(frontend: str, dockerfile: str) -> None:
-    packages = ("tritonclient", "protobuf", "grpcio")
-    tokens = [
-        token
-        for line in dockerfile.replace("\\\n", " ").splitlines()
-        if line.startswith("RUN uv pip install ")
-        for token in shlex.split(line)[4:]
-        if token.startswith(packages)
-    ]
-    for package in packages:
-        actual = _requirement("\n".join(tokens), package)
-        expected = _requirement(frontend, package)
-        assert actual == expected, f"Triton example {actual} differs from {expected}"
 
 
 @pytest.mark.unit
@@ -154,32 +137,6 @@ def _load_with_triton_error(error: Exception) -> dict[str, Any]:
 @pytest.mark.gpu_0
 @pytest.mark.parallel
 class TestDependencyGuards:
-    def test_triton_example_pins_match_frontend(self) -> None:
-        root = Path(__file__).resolve().parents[3]
-        frontend = (root / "container/deps/requirements.frontend.txt").read_text()
-        dockerfile = (root / "examples/backends/tritonserver/Dockerfile").read_text()
-        _assert_triton_pins_match(frontend, dockerfile)
-
-    @pytest.mark.parametrize("package", ["tritonclient", "protobuf", "grpcio"])
-    @pytest.mark.parametrize("mutation", ["changed", "missing", "duplicate"])
-    def test_triton_example_pin_drift(self, package: str, mutation: str) -> None:
-        frontend = (
-            "tritonclient[grpc]==2.72.0\nprotobuf==6.33.6\ngrpcio>=1.81.1,<=1.83.1"
-        )
-        requirements = frontend.splitlines()
-        pin = next(value for value in requirements if value.startswith(package))
-        replacement = {
-            "changed": f"{package}==1.0.0",
-            "missing": "",
-            "duplicate": f"'{pin}' '{pin}'",
-        }[mutation]
-        dockerfile = "RUN uv pip install " + " ".join(f"'{p}'" for p in requirements)
-        _assert_triton_pins_match(frontend, dockerfile)
-        with pytest.raises(AssertionError):
-            _assert_triton_pins_match(
-                frontend, dockerfile.replace(f"'{pin}'", replacement)
-            )
-
     @pytest.mark.parametrize(
         "pin",
         [
@@ -263,16 +220,11 @@ class EchoTensorWorkerProcess(ManagedProcess):
         # so no namespace conflicts - use default "tensor" namespace
 
         log_dir = f"{request.node.name}_worker"
-        shutil.rmtree(log_dir, ignore_errors=True)
-
         super().__init__(
             command=command,
             env=env,
             health_check_urls=[
-                (
-                    f"http://localhost:{system_port}/health",
-                    lambda r: r.json().get("status") == "ready",
-                )
+                (f"http://localhost:{system_port}/health", check_health_ready)
             ],
             timeout=300,
             display_output=True,

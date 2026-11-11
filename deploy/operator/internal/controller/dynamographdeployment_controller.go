@@ -27,7 +27,9 @@ import (
 	networkingv1beta1 "istio.io/client-go/pkg/apis/networking/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	resourcev1 "k8s.io/api/resource/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/events"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -47,7 +49,6 @@ import (
 	commoncontroller "github.com/ai-dynamo/dynamo/deploy/operator/internal/controller_common"
 	"github.com/ai-dynamo/dynamo/deploy/operator/internal/dynamo"
 	"github.com/ai-dynamo/dynamo/deploy/operator/internal/features"
-	"github.com/ai-dynamo/dynamo/deploy/operator/internal/observability"
 	snapshotv1alpha1 "github.com/ai-dynamo/snapshot/api/v1alpha1"
 )
 
@@ -134,6 +135,13 @@ func (r *DynamoGraphDeploymentReconciler) Reconcile(ctx context.Context, req ctr
 		return ctrl.Result{}, err
 	}
 
+	// Reject stored LPX graphs before provider selection or any workload writes.
+	if dynamoDeployment.HasLPXComponent() && !r.RuntimeConfig.Gate.Enabled(features.LPX) {
+		programResult := newWorkloadProgramResult(dynamoDeployment)
+		programResult.Fail(dynamoDeployment.Generation, "lpx_disabled", errors.New("LPX integration is disabled"))
+		return programResult.Result, r.persistWorkloadProgramResult(ctx, dynamoDeployment, programResult)
+	}
+
 	// Lock in the provider before allowing any other reconciliation effects.
 	provider, err := r.ensureWorkloadProvider(ctx, dynamoDeployment)
 
@@ -156,6 +164,9 @@ func (r *DynamoGraphDeploymentReconciler) Reconcile(ctx context.Context, req ctr
 	var compatibilityErrs []error
 	for i := range dynamoDeployment.Spec.Components {
 		component := &dynamoDeployment.Spec.Components[i]
+		if snapshotFailoverErr := dynamo.ValidateSnapshotFailover(component, field.NewPath("spec", "components").Index(i), dynamoDeployment.Spec.BackendFramework).ToAggregate(); snapshotFailoverErr != nil {
+			compatibilityErrs = append(compatibilityErrs, snapshotFailoverErr)
+		}
 		for _, compatibilityErr := range checkpoint.ValidateCheckpointCompatibility(component.Experimental) {
 			compatibilityErrs = append(
 				compatibilityErrs,
@@ -184,7 +195,6 @@ func (r *DynamoGraphDeploymentReconciler) Reconcile(ctx context.Context, req ctr
 		return ctrl.Result{}, err
 	}
 
-	// Dispatch exclusively through the persisted provider.
 	program, err := r.selectWorkloadProgram(provider)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -192,6 +202,18 @@ func (r *DynamoGraphDeploymentReconciler) Reconcile(ctx context.Context, req ctr
 	programResult, programErr := program.Reconcile(ctx, workloadProgramRequest{
 		DGD: dynamoDeployment,
 	})
+	ownershipConflictCondition, ownershipConflictTransition := applyOwnershipConflict(
+		programResult.Status.Conditions,
+		dynamoDeployment.Generation,
+		programErr,
+	)
+	if ownershipConflictCondition != nil {
+		meta.SetStatusCondition(&programResult.Status.Conditions, *ownershipConflictCondition)
+	}
+	if ownershipConflictTransition == ownershipConflictRaised {
+		programResult.Eventf(corev1.EventTypeWarning, ownershipConflictCondition.Reason,
+			"Refusing to reconcile a resource with conflicting controller ownership: %s", ownershipConflictCondition.Message)
+	}
 	result = programResult.Result
 	if statusErr := r.persistWorkloadProgramResult(ctx, dynamoDeployment, programResult); statusErr != nil {
 		logger.Error(statusErr, "unable to persist workload program status")
@@ -258,7 +280,7 @@ func (r *DynamoGraphDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) err
 
 	ctrlBuilder := ctrl.NewControllerManagedBy(mgr).
 		For(&nvidiacomv1beta1.DynamoGraphDeployment{}, builder.WithPredicates(
-			generationOrDeletionChangedPredicate(),
+			dgdPrimaryPredicate(),
 		)).
 		Named(consts.ResourceTypeDynamoGraphDeployment).
 		Watches(
@@ -341,14 +363,17 @@ func (r *DynamoGraphDeploymentReconciler) SetupWithManager(mgr ctrl.Manager) err
 		}))
 	}
 
+	// LPX child status can wake the DGD only when its controller is enabled.
+	if r.RuntimeConfig.Gate.Enabled(features.LPX) {
+		ctrlBuilder = ctrlBuilder.Owns(&nvidiacomv1alpha1.LPXGraphDeployment{})
+	}
+
 	// Register Grove-owned workload watches only when the Grove feature is enabled.
 	if r.RuntimeConfig.Gate.Enabled(features.Grove) {
 		ctrlBuilder = newGroveWatchSetup(r.Client).addTo(ctrlBuilder)
 	}
 
-	// Wrap with metrics collection
-	observedReconciler := observability.NewObservedReconciler(r, consts.ResourceTypeDynamoGraphDeployment)
-	return ctrlBuilder.Complete(observedReconciler)
+	return ctrlBuilder.Complete(r)
 }
 
 func (r *DynamoGraphDeploymentReconciler) GetRecorder() events.EventRecorder {

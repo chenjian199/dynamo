@@ -51,12 +51,12 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           imagePullPolicy: IfNotPresent
           name: main
     replicas: 1
     type: frontend
-  - name: VllmDecodeWorker
+  - name: worker
     podTemplate:
       spec:
         containers:

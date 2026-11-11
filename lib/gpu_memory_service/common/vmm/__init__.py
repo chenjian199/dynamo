@@ -152,7 +152,9 @@ def _create_vmm(device_type: VMMDeviceType) -> VMMDevice:
         )
 
     if device_type is VMMDeviceType.XPU:
-        raise NotImplementedError("'xpu' VMM backend is not implemented yet")
+        from .xpu_utils import XpuVMM
+
+        return XpuVMM()
 
     raise ValueError(f"Unhandled VMM device type: {device_type!r}")
 
@@ -162,10 +164,17 @@ def _create_vmm(device_type: VMMDeviceType) -> VMMDevice:
 # ---------------------------------------------------------------------------
 
 
+# Keep stale XPU VMM refs alive so SYCL/L0 resources are not GC'd
+# prematurely. The C++ runtime handles orderly teardown at process exit.
+_stale_xpu_vmm_refs: list = []
+
+
 def _reset_vmm_singleton() -> None:
     """Reset the singleton for test isolation. NOT for production use."""
     global _vmm_instance, _vmm_device_type
     with _lock:
+        if _vmm_instance is not None and _vmm_device_type == VMMDeviceType.XPU:
+            _stale_xpu_vmm_refs.append(_vmm_instance)
         _vmm_instance = None
         _vmm_device_type = None
 

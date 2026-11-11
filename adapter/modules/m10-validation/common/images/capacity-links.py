@@ -5,7 +5,7 @@
 import sys
 from pathlib import Path
 
-from aiconfigurator.sdk import perf_database
+from aisimulate_core.sdk import perf_database
 
 systems = {
     "cuda": ["h800_sxm", "h800_pcie"],

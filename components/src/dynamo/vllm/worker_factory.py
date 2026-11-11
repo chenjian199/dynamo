@@ -29,6 +29,7 @@ from dynamo.common.utils.endpoint_types import parse_endpoint_types
 from dynamo.common.utils.prometheus import (
     LLMBackendMetrics,
     register_embedding_cache_metrics,
+    register_image_loader_metrics,
 )
 from dynamo.llm import ModelInput, ModelType, WorkerType, register_model
 from dynamo.runtime import DistributedRuntime, Endpoint
@@ -49,11 +50,46 @@ from .health_check import (
     VllmHealthCheckPayload,
     VllmPrefillHealthCheckPayload,
 )
-from .instrumented_scheduler import ENV_FPM_BENCHMARK_OUTPUT_PATH, ENV_FPM_WORKER_ID
+from .instrumented_scheduler import (
+    ENV_FPM_BENCHMARK_OUTPUT_PATH,
+    ENV_FPM_WORKER_ID,
+    InstrumentedScheduler,
+)
 from .pooling_handlers import ClassifyWorkerHandler
 from .publisher import StatLoggerFactory
-from .realtime import RealtimeHandler, RealtimeTranscriptionHandler
+from .realtime import RealtimeHandler, RealtimeTextHandler, RealtimeTranscriptionHandler
 from .state_agent import StateAgentLifecycle, state_agent_settings
+
+
+def _register_request_cache_metrics(
+    endpoint: Endpoint,
+    handler: Any,
+    config: Config,
+) -> None:
+    """Register cache metrics owned by a vLLM request handler."""
+    model_name = config.served_model_name or config.model
+
+    embedding_cache = getattr(handler, "embedding_cache_manager", None)
+    if embedding_cache is not None:
+        register_embedding_cache_metrics(
+            endpoint=endpoint,
+            cache=embedding_cache,
+            model_name=model_name,
+            component_name=config.component,
+        )
+
+    if not config.enable_multimodal:
+        return
+    request_processor = getattr(handler, "_multimodal_request_processor", None)
+    image_loader = getattr(request_processor, "image_loader", None)
+    if image_loader is not None:
+        register_image_loader_metrics(
+            endpoint=endpoint,
+            loader=image_loader,
+            model_name=model_name,
+            component_name=config.component,
+        )
+
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +99,89 @@ logger = logging.getLogger(__name__)
 # and scheduler-loop slack before failing closed.
 BENCHMARK_SOFT_TIMEOUT_GRACE_SECONDS = 90
 
+# Bound for the post-benchmark worker GC stop RPC. Restoring GC in a healthy
+# worker is sub-second; a longer wait means the engine is gone, and neither
+# serving nor error propagation may hang on it.
+WORKER_GC_STOP_TIMEOUT_SECONDS = 30.0
+
 # (engine_client, vllm_config, default_sampling_params, cleanup_resource, component_gauges)
 # component_gauges is None on the embedding-worker path: pooling engines
 # have no KV cache / scheduler gauges, so setup_vllm_engine() skips the
 # LLMBackendMetrics registration there.
 EngineSetupResult = tuple[AsyncLLM, VllmConfig, Any, Any, Optional[LLMBackendMetrics]]
+SnapshotEngineSetupResult = tuple[EngineSetupResult, StatLoggerFactory]
+
+# Utility installed on EngineCore by instrumented_scheduler; retargets a
+# snapshot-restored child whose FPM worker id was baked as "".
+FPM_SET_WORKER_ID_METHOD_NAME = "set_fpm_worker_id"
+
+# call_utility_async() has no deadline of its own (as of vLLM 0.30.0);
+# under DP it fans out to every rank, so this bounds the slowest one.
+FPM_SET_WORKER_ID_TIMEOUT_SECONDS = 30.0
+
+
+def _snapshot_uses_instrumented_scheduler(vllm_config: VllmConfig) -> bool:
+    """Whether the snapshot's EngineCore runs an InstrumentedScheduler.
+
+    False only for a user-supplied ``--scheduler-cls``, which has no FPM publisher.
+    Resolution errors propagate: the EngineCore already resolved the same class.
+    """
+    scheduler_cls = vllm_config.scheduler_config.get_scheduler_cls()
+    return isinstance(scheduler_cls, type) and issubclass(
+        scheduler_cls, InstrumentedScheduler
+    )
+
+
+async def _sync_fpm_worker_id(
+    engine_client: AsyncLLM, vllm_config: VllmConfig, new_worker_id: str
+) -> None:
+    """Push ``new_worker_id`` into a restored EngineCore's FPM publisher.
+
+    Raises on failure: a replica publishing an empty id is invisible to the planner.
+    """
+    if not _snapshot_uses_instrumented_scheduler(vllm_config):
+        return
+
+    try:
+        await asyncio.wait_for(
+            engine_client.engine_core.call_utility_async(
+                FPM_SET_WORKER_ID_METHOD_NAME, new_worker_id
+            ),
+            timeout=FPM_SET_WORKER_ID_TIMEOUT_SECONDS,
+        )
+    except asyncio.TimeoutError as exc:
+        raise RuntimeError(
+            f"Timed out after {FPM_SET_WORKER_ID_TIMEOUT_SECONDS}s setting FPM "
+            f"worker_id {new_worker_id} on the restored engine; an EngineCore rank "
+            f"is not answering utility RPCs"
+        ) from exc
+    except Exception as exc:
+        # vLLM surfaces a failed utility as a bare Exception(failure_message).
+        raise RuntimeError(
+            f"Failed to set FPM worker_id {new_worker_id} on the restored engine; "
+            f"this replica would publish an empty worker id and stay invisible to "
+            f"the planner"
+        ) from exc
+
+
+async def _sync_fpm_worker_id_or_shutdown(
+    engine_client: AsyncLLM, vllm_config: VllmConfig, new_worker_id: str
+) -> None:
+    """``_sync_fpm_worker_id``, shutting the engine down on failure.
+
+    For realtime and prefill, which have no lifecycle owning the engine yet.
+    """
+    try:
+        await _sync_fpm_worker_id(engine_client, vllm_config, new_worker_id)
+    except BaseException:
+        try:
+            engine_client.shutdown(timeout=vllm_config.shutdown_timeout)
+        except Exception:
+            logger.exception(
+                "Failed to shut down the restored engine after the FPM worker_id "
+                "sync failed"
+            )
+        raise
 
 
 def _benchmark_rank_path(base_path: Path, dp_rank: int) -> Path:
@@ -545,6 +659,74 @@ async def _wait_and_load_benchmark(bench_cfg: dict, vllm_config: VllmConfig) -> 
     return merged
 
 
+async def _stop_worker_gc_policy(engine_client: AsyncLLM) -> None:
+    """Restore worker-process GC once the self-benchmark has finished.
+
+    Model workers auto-start the FPM freeze policy when
+    ``worker_extension_cls`` resolves (importing ``dynamo.vllm.gc_policy``
+    starts it), while ``InstrumentedScheduler`` only restores the
+    engine-core process. Without this symmetric stop the workers would keep
+    serving real traffic with automatic gen2 collection disabled and the
+    freeze daemon alive, so cyclic garbage would never be reclaimed.
+    Awaiting the RPC holds serving until every worker has restored its
+    thresholds and collected the previously frozen heap; both normal
+    completion and benchmark abort funnel through the same benchmark-wait
+    call sites. A failure here must propagate: serving on a worker that is
+    not GC-equivalent to a never-benchmarked one is worse than failing
+    startup.
+    """
+    if os.environ.get("DYN_FPM_GC_POLICY", "").strip().lower() != "freeze":
+        return
+    await engine_client.collective_rpc("fpm_gc_stop")
+    logger.info("FPM GC policy stopped in all model workers")
+
+
+async def _restore_benchmark_workers(bench_cfg: dict, engine_client: AsyncLLM) -> None:
+    try:
+        if bench_cfg.get("randomize_kda_state", False):
+            await engine_client.collective_rpc("finish_benchmark_kda_state")
+    finally:
+        await _stop_worker_gc_policy(engine_client)
+
+
+async def _await_benchmark_then_restore_workers(
+    bench_cfg: dict, vllm_config: VllmConfig, engine_client: AsyncLLM
+) -> dict:
+    """Wait for the self-benchmark and restore worker state and GC on every exit path.
+
+    The worker stop must not depend on the wait succeeding: ``_bench_abort``
+    publishes ``status="failed"`` artifacts, so an aborted benchmark makes
+    ``_wait_and_load_benchmark`` raise during validation, and the workers
+    would otherwise keep automatic gen2 collection disabled through teardown
+    or, if a caller survives the error, into serving. On the success path a
+    stop failure fails closed; on the failure path it is logged and the
+    original error propagates unchanged.
+    """
+    try:
+        results = await _wait_and_load_benchmark(bench_cfg, vllm_config)
+    except BaseException:
+        # The failure may be the engine dying; an unbounded RPC would then
+        # hang the launcher on the very path that is supposed to surface the
+        # error, so the cleanup stop is time-boxed and the original error
+        # always wins.
+        try:
+            await asyncio.wait_for(
+                _restore_benchmark_workers(bench_cfg, engine_client),
+                timeout=WORKER_GC_STOP_TIMEOUT_SECONDS,
+            )
+        except BaseException:
+            logger.exception(
+                "Failed to restore model workers while "
+                "handling a self-benchmark failure"
+            )
+        raise
+    await asyncio.wait_for(
+        _restore_benchmark_workers(bench_cfg, engine_client),
+        timeout=WORKER_GC_STOP_TIMEOUT_SECONDS,
+    )
+    return results
+
+
 SetupVllmEngineFn = Callable[..., EngineSetupResult]
 SetupKvEventPublisherFn = Callable[..., Optional[Any]]
 SetupKvStateAttachmentOwnerFn = Callable[..., Awaitable[Optional[Any]]]
@@ -554,14 +736,21 @@ SetupMetricsCollectionFn = Callable[..., None]
 
 
 @dataclass
-class _DecodeWorkerLifecycle:
+class _WorkerLifecycle:
+    """Owns the engine and handler of a prefill, decode, or aggregated worker.
+
+    On exit it shuts the vLLM EngineCore down explicitly. EngineCore is a
+    non-daemon child, so leaving it to interpreter exit can block the main
+    process forever in multiprocessing's exit-time join.
+    """
+
     engine_client: Optional[AsyncLLM] = None
     vllm_config: Optional[VllmConfig] = None
     handler: Optional[BaseWorkerHandler] = None
     cleanup_resource: Any = None
     shutdown_event: asyncio.Event | None = None
 
-    def __enter__(self) -> "_DecodeWorkerLifecycle":
+    def __enter__(self) -> "_WorkerLifecycle":
         return self
 
     def __exit__(
@@ -575,13 +764,11 @@ class _DecodeWorkerLifecycle:
         except Exception:
             if original_error is None:
                 raise
-            logger.exception(
-                "Failed to clean up decode worker after an earlier failure"
-            )
+            logger.exception("Failed to clean up worker after an earlier failure")
 
     def cleanup(self) -> None:
         """Release resources in reverse construction order."""
-        logger.debug("Cleaning up decode worker")
+        logger.debug("Cleaning up worker")
         if self.shutdown_event is not None:
             self.shutdown_event.set()
         # Detach ownership first, so repeated cleanup (including after a failure)
@@ -663,7 +850,7 @@ class WorkerFactory:
         config: Config,
         shutdown_event: asyncio.Event,
         shutdown_endpoints: list,
-        snapshot_engine: Optional[EngineSetupResult] = None,
+        snapshot_engine: Optional[SnapshotEngineSetupResult] = None,
     ) -> None:
         """Create the appropriate multimodal worker based on config flags."""
 
@@ -725,7 +912,7 @@ class WorkerFactory:
         config: Config,
         shutdown_event: asyncio.Event,
         shutdown_endpoints: list,
-        snapshot_engine: Optional[EngineSetupResult] = None,
+        snapshot_engine: Optional[SnapshotEngineSetupResult] = None,
     ) -> None:
         """Initialize an aggregated vLLM realtime worker."""
         del shutdown_event  # Connection cancellation is carried by Dynamo Context.
@@ -737,17 +924,19 @@ class WorkerFactory:
 
         fpm_worker_id = str(generate_endpoint.connection_id())
         if snapshot_engine is not None:
+            engine_setup, factory = snapshot_engine
             (
                 engine_client,
                 vllm_config,
                 _default_sampling_params,
                 prometheus_temp_dir,
-                component_gauges,
-            ) = snapshot_engine
+                _component_gauges,
+            ) = engine_setup
             os.environ[ENV_FPM_WORKER_ID] = fpm_worker_id
-            factory = StatLoggerFactory(
-                endpoint=generate_endpoint,
-                component_gauges=component_gauges,
+            factory.bind_endpoint(generate_endpoint)
+
+            await _sync_fpm_worker_id_or_shutdown(
+                engine_client, vllm_config, fpm_worker_id
             )
         else:
             factory = StatLoggerFactory(endpoint=generate_endpoint)
@@ -756,7 +945,7 @@ class WorkerFactory:
                 vllm_config,
                 _default_sampling_params,
                 prometheus_temp_dir,
-                component_gauges,
+                _component_gauges,
             ) = self.setup_vllm_engine(
                 config,
                 factory,
@@ -772,15 +961,26 @@ class WorkerFactory:
         factory.init_publish()
 
         model_name = config.served_model_name or config.model
-        handler = RealtimeHandler(
-            {
-                "transcription": RealtimeTranscriptionHandler.from_engine(
-                    engine_client=engine_client,
-                    model_name=model_name,
-                    model_path=config.model,
-                )
-            }
-        )
+        supported_tasks = await engine_client.get_supported_tasks()
+        handlers: dict[str, RealtimeTextHandler | RealtimeTranscriptionHandler] = {}
+        if "generate" in supported_tasks:
+            handlers["realtime"] = RealtimeTextHandler.from_engine(
+                engine_client=engine_client,
+                model_name=model_name,
+                model_path=config.model_source_path,
+                chat_template_path=config.custom_jinja_template,
+            )
+        if "realtime" in supported_tasks:
+            handlers["transcription"] = RealtimeTranscriptionHandler.from_engine(
+                engine_client=engine_client,
+                model_name=model_name,
+                model_path=config.model_source_path,
+            )
+        if not handlers:
+            raise ValueError(
+                f"Model {model_name!r} does not support realtime text or transcription"
+            )
+        handler = RealtimeHandler(handlers)
         self.setup_metrics_collection(config, generate_endpoint, logger)
 
         await self.register_vllm_model(
@@ -841,6 +1041,12 @@ class WorkerFactory:
             embedding_cache_capacity_gb=config.multimodal_embedding_cache_capacity_gb,
         )
         await handler.async_init(runtime)
+        register_image_loader_metrics(
+            endpoint=generate_endpoint,
+            loader=handler.image_loader,
+            model_name=config.served_model_name or config.model,
+            component_name=config.component,
+        )
 
         # Encode workers register a model card so the frontend's
         # serving-readiness gate can count them. The card carries no OpenAI
@@ -1122,12 +1328,12 @@ class WorkerFactory:
         config: Config,
         shutdown_event: asyncio.Event,
         shutdown_endpoints: list,  # mutated in place
-        snapshot_engine: Optional[EngineSetupResult] = None,
+        snapshot_engine: Optional[SnapshotEngineSetupResult] = None,
     ) -> None:
         """
         Instantiate and serve
         """
-        with _DecodeWorkerLifecycle(shutdown_event=shutdown_event) as lifecycle:
+        with _WorkerLifecycle(shutdown_event=shutdown_event) as lifecycle:
             try:
                 await self._run_decode_worker(
                     runtime,
@@ -1146,8 +1352,8 @@ class WorkerFactory:
         config: Config,
         shutdown_event: asyncio.Event,
         shutdown_endpoints: list,  # mutated in place
-        snapshot_engine: Optional[EngineSetupResult],
-        lifecycle: _DecodeWorkerLifecycle,
+        snapshot_engine: Optional[SnapshotEngineSetupResult],
+        lifecycle: _WorkerLifecycle,
     ) -> None:
         """Initialize and serve a decode worker."""
 
@@ -1198,19 +1404,16 @@ class WorkerFactory:
         # Use pre-created engine if provided (checkpoint mode), otherwise create new
         fpm_worker_id = str(generate_endpoint.connection_id())
         if snapshot_engine is not None:
+            engine_setup, factory = snapshot_engine
             (
                 engine_client,
                 vllm_config,
                 default_sampling_params,
                 prometheus_temp_dir,
-                component_gauges,
-            ) = snapshot_engine
+                _component_gauges,
+            ) = engine_setup
             os.environ[ENV_FPM_WORKER_ID] = fpm_worker_id
-            # Factory is created after unpack so component_gauges is available
-            factory = StatLoggerFactory(
-                endpoint=generate_endpoint,
-                component_gauges=component_gauges,
-            )
+            factory.bind_endpoint(generate_endpoint)
         else:
             # Factory is created without component_gauges; setup_vllm_engine() will
             # create the gauges after setup_multiprocess_prometheus() and set them
@@ -1223,11 +1426,14 @@ class WorkerFactory:
                 vllm_config,
                 default_sampling_params,
                 prometheus_temp_dir,
-                component_gauges,
+                _component_gauges,
             ) = self.setup_vllm_engine(config, factory, fpm_worker_id=fpm_worker_id)
+        # Sync after the lifecycle owns the engine, so a failure shuts it down.
         lifecycle.engine_client = engine_client
         lifecycle.vllm_config = vllm_config
         lifecycle.cleanup_resource = prometheus_temp_dir
+        if snapshot_engine is not None:
+            await _sync_fpm_worker_id(engine_client, vllm_config, fpm_worker_id)
         await configure_kv_event_block_size(engine_client, vllm_config)
 
         # TODO Hack to get data, move this to registering in TBD
@@ -1287,22 +1493,15 @@ class WorkerFactory:
             handler.kv_publishers = kv_publishers
 
         # Set up forward pass metrics relay (child ZMQ -> event plane).
-        # In checkpoint mode the engine was created before the runtime, so
-        # ForwardPassMetrics.worker_id will be empty (relay still works).
+        # In checkpoint mode _sync_fpm_worker_id() has already set the child's
+        # ForwardPassMetrics.worker_id.
         fpm_relays = self.setup_fpm_relay(config, generate_endpoint, vllm_config)
         if fpm_relays:
             handler.fpm_relays = fpm_relays
 
         self.setup_metrics_collection(config, generate_endpoint, logger)
 
-        embedding_cache = getattr(handler, "embedding_cache_manager", None)
-        if embedding_cache is not None:
-            register_embedding_cache_metrics(
-                endpoint=generate_endpoint,
-                cache=embedding_cache,
-                model_name=config.served_model_name or config.model,
-                component_name=config.component,
-            )
+        _register_request_cache_metrics(generate_endpoint, handler, config)
 
         # Register engine routes
         self.register_engine_routes(
@@ -1336,8 +1535,8 @@ class WorkerFactory:
         # Wait for self-benchmark to complete before registering.
         bench_cfg = vllm_config.additional_config.get("benchmark")
         if bench_cfg:
-            handler._benchmark_results = await _wait_and_load_benchmark(
-                bench_cfg, vllm_config
+            handler._benchmark_results = await _await_benchmark_then_restore_workers(
+                bench_cfg, vllm_config, handler.engine_client
             )
 
         # Model-serving-readiness role.
@@ -1457,19 +1656,20 @@ class WorkerFactory:
         config: Config,
         shutdown_event: asyncio.Event,
         shutdown_endpoints: list,
-        snapshot_engine: Optional[EngineSetupResult] = None,
+        snapshot_engine: Optional[SnapshotEngineSetupResult] = None,
     ) -> None:
-        try:
-            await self._run_prefill_worker(
-                runtime,
-                config,
-                shutdown_event,
-                shutdown_endpoints,
-                snapshot_engine,
-            )
-        except BaseException:
-            await self.state_agent_lifecycle.close()
-            raise
+        with _WorkerLifecycle(shutdown_event=shutdown_event) as lifecycle:
+            try:
+                await self._run_prefill_worker(
+                    runtime,
+                    config,
+                    shutdown_event,
+                    shutdown_endpoints,
+                    snapshot_engine=snapshot_engine,
+                    lifecycle=lifecycle,
+                )
+            finally:
+                await self.state_agent_lifecycle.close()
 
     async def _run_prefill_worker(
         self,
@@ -1477,11 +1677,9 @@ class WorkerFactory:
         config: Config,
         shutdown_event: asyncio.Event,
         shutdown_endpoints: list,  # mutated in place
-        snapshot_engine: Optional[EngineSetupResult] = None,
+        snapshot_engine: Optional[SnapshotEngineSetupResult],
+        lifecycle: _WorkerLifecycle,
     ) -> None:
-        """
-        Instantiate and serve
-        """
         generate_endpoint = runtime.endpoint(
             f"{config.namespace}.{config.component}.{config.endpoint}"
         )
@@ -1513,27 +1711,42 @@ class WorkerFactory:
         # Use pre-created engine if provided (checkpoint mode), otherwise create new
         fpm_worker_id = str(generate_endpoint.connection_id())
         if snapshot_engine is not None:
+            engine_setup, factory = snapshot_engine
             (
                 engine_client,
                 vllm_config,
                 default_sampling_params,
                 prometheus_temp_dir,
                 _component_gauges,
-            ) = snapshot_engine
-            # TODO: The scheduler in the child process still has worker_id=""
-            # because the engine was forked before the runtime existed.
-            # Propagating the new ID to the child requires shared memory or
-            # a restart of the EngineCore process.
+            ) = engine_setup
+            factory.bind_endpoint(generate_endpoint)
             os.environ[ENV_FPM_WORKER_ID] = fpm_worker_id
+
+            await _sync_fpm_worker_id_or_shutdown(
+                engine_client, vllm_config, fpm_worker_id
+            )
         else:
+            factory = StatLoggerFactory(endpoint=generate_endpoint)
             (
                 engine_client,
                 vllm_config,
                 default_sampling_params,
                 prometheus_temp_dir,
                 _component_gauges,
-            ) = self.setup_vllm_engine(config, fpm_worker_id=fpm_worker_id)
+            ) = self.setup_vllm_engine(config, factory, fpm_worker_id=fpm_worker_id)
+        # Owned only after the snapshot sync, which shuts the engine down itself
+        # on failure; from here on any exit shuts it down through the lifecycle.
+        lifecycle.engine_client = engine_client
+        lifecycle.vllm_config = vllm_config
         await configure_kv_event_block_size(engine_client, vllm_config)
+
+        _, dp_size = get_dp_range_for_worker(vllm_config)
+        per_rank_num_gpu_blocks = per_rank_kv_blocks(
+            vllm_config.cache_config.num_gpu_blocks,
+            dp_size,
+        )
+        factory.set_num_gpu_blocks_all(per_rank_num_gpu_blocks or 0)
+        factory.init_publish()
 
         encode_worker_client = await self._maybe_get_encode_worker_client(
             runtime, config
@@ -1553,6 +1766,7 @@ class WorkerFactory:
             enable_frontend_decoding=config.frontend_decoding,
             encode_worker_client=encode_worker_client,
         )
+        lifecycle.handler = handler
         handler.add_temp_dir(prometheus_temp_dir)
 
         # Check if kv event consolidator is enabled (port was allocated in setup_vllm_engine)
@@ -1580,22 +1794,15 @@ class WorkerFactory:
             handler.kv_publishers = kv_publishers
 
         # Set up forward pass metrics relay (child ZMQ -> event plane).
-        # In checkpoint mode the engine was created before the runtime, so
-        # ForwardPassMetrics.worker_id will be empty (relay still works).
+        # In checkpoint mode _sync_fpm_worker_id() has already set the child's
+        # ForwardPassMetrics.worker_id.
         fpm_relays = self.setup_fpm_relay(config, generate_endpoint, vllm_config)
         if fpm_relays:
             handler.fpm_relays = fpm_relays
 
         self.setup_metrics_collection(config, generate_endpoint, logger)
 
-        embedding_cache = getattr(handler, "embedding_cache_manager", None)
-        if embedding_cache is not None:
-            register_embedding_cache_metrics(
-                endpoint=generate_endpoint,
-                cache=embedding_cache,
-                model_name=config.served_model_name or config.model,
-                component_name=config.component,
-            )
+        _register_request_cache_metrics(generate_endpoint, handler, config)
 
         # Register engine routes
         self.register_engine_routes(
@@ -1614,8 +1821,8 @@ class WorkerFactory:
         # Wait for self-benchmark to complete before registering.
         bench_cfg = vllm_config.additional_config.get("benchmark")
         if bench_cfg:
-            handler._benchmark_results = await _wait_and_load_benchmark(
-                bench_cfg, vllm_config
+            handler._benchmark_results = await _await_benchmark_then_restore_workers(
+                bench_cfg, vllm_config, handler.engine_client
             )
 
         perf_endpoint = runtime.endpoint(
@@ -1723,10 +1930,6 @@ class WorkerFactory:
         except Exception as e:
             logger.error(f"Failed to serve endpoints: {e}")
             raise
-        finally:
-            logger.debug("Cleaning up prefill worker")
-            await self.state_agent_lifecycle.close()
-            handler.cleanup()
 
     async def _maybe_get_encode_worker_client(
         self, runtime: DistributedRuntime, config: Config
@@ -1778,6 +1981,7 @@ class WorkerFactory:
             "init_weights_update_group": handler.init_weights_update_group,
             "destroy_weights_update_group": handler.destroy_weights_update_group,
             "get_weight_version": handler.get_weight_version,
+            "set_weight_version": handler.set_weight_version,
         }
 
         if lora_enabled:

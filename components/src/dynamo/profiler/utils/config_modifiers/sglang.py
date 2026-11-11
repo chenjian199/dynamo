@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from dynamo.planner.config.defaults import SubComponentType
 from dynamo.profiler.utils.config import (
+    Component,
     Config,
     append_argument,
     break_arguments,
@@ -64,10 +65,30 @@ def _has_arg(args: list[str], key: str) -> bool:
     return any(arg == key or arg.startswith(f"{key}=") for arg in args)
 
 
+# SGLang 0.5.21 removed these aliases, which argparse now rejects as ambiguous;
+# generator templates still emit them, so map each to the -decode form it meant.
+_LEGACY_CUDA_GRAPH_ARGS = {
+    "--cuda-graph-bs": "--cuda-graph-bs-decode",
+    "--cuda-graph-max-bs": "--cuda-graph-max-bs-decode",
+}
+
+
+def _rename_legacy_cuda_graph_args(args: list[str]) -> list[str]:
+    renamed: list[str] = []
+    for arg in break_arguments(args):
+        name, sep, value = arg.partition("=")
+        new_name = _LEGACY_CUDA_GRAPH_ARGS.get(name)
+        if new_name is not None:
+            logger.info("Renaming removed SGLang arg %s to %s", name, new_name)
+            arg = f"{new_name}{sep}{value}"
+        renamed.append(arg)
+    return renamed
+
+
 def _ensure_safe_prefill_cuda_graph_bs(args: list[str]) -> list[str]:
     args = list(args)
     parsed_args = break_arguments(args)
-    if _has_arg(parsed_args, "--cuda-graph-bs") or _has_arg(
+    if _has_arg(parsed_args, "--cuda-graph-bs-decode") or _has_arg(
         parsed_args, "--disable-cuda-graph"
     ):
         return args
@@ -85,7 +106,7 @@ def _ensure_safe_prefill_cuda_graph_bs(args: list[str]) -> list[str]:
             default=1,
         )
         safe_bs = max(1, dp_size)
-        args = append_argument(args, ["--cuda-graph-bs", str(safe_bs)])
+        args = append_argument(args, ["--cuda-graph-bs-decode", str(safe_bs)])
     return args
 
 
@@ -177,7 +198,10 @@ class SGLangConfigModifier(BaseConfigModifier):
         decode_gpus: int,
         num_gpus_per_node: int | None = None,
     ) -> None:
-        prefill_cli_args = _normalize_prefill_dp_limits(prefill_cli_args)
+        # Rename before the prefill safety check so it sees generated values.
+        prefill_cli_args = _normalize_prefill_dp_limits(
+            _rename_legacy_cuda_graph_args(prefill_cli_args)
+        )
         super()._apply_disagg_workers(
             cfg,
             prefill_cli_args=prefill_cli_args,
@@ -186,6 +210,23 @@ class SGLangConfigModifier(BaseConfigModifier):
             decode_cli_args=decode_cli_args,
             decode_replicas=decode_replicas,
             decode_gpus=decode_gpus,
+            num_gpus_per_node=num_gpus_per_node,
+        )
+
+    @classmethod
+    def _apply_worker_config(
+        cls,
+        component: Component,
+        cli_args: list[str],
+        replicas: int,
+        gpus: int,
+        num_gpus_per_node: int | None = None,
+    ) -> None:
+        super()._apply_worker_config(
+            component,
+            _rename_legacy_cuda_graph_args(cli_args),
+            replicas,
+            gpus,
             num_gpus_per_node=num_gpus_per_node,
         )
 

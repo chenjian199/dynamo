@@ -3,7 +3,9 @@
 
 import asyncio
 import logging
+import os
 import re as re_mod
+import threading
 from copy import deepcopy
 from dataclasses import dataclass
 from types import SimpleNamespace
@@ -23,13 +25,14 @@ if not torch.cuda.is_available():
         allow_module_level=True,
     )
 from tensorrt_llm.executor.request import DEFAULT_REQUEST_PRIORITY
+from tensorrt_llm.executor.utils import RequestError
 from tensorrt_llm.llmapi import DisaggregatedParams
 from tensorrt_llm.llmapi.llm import SamplingParams
 
 from dynamo.common.backend.logprobs import extract_from_completion_output
 from dynamo.llm.exceptions import EngineShutdown
 from dynamo.trtllm.constants import DisaggregationMode
-from dynamo.trtllm.health_check import TrtllmHealthCheckPayload
+from dynamo.trtllm.health_check import HEALTH_CHECK_CACHE_SALT, TrtllmHealthCheckPayload
 from dynamo.trtllm.multimodal_processor import MultimodalRequestProcessor
 from dynamo.trtllm.request_handlers.handler_base import (
     BYPASS_REMOTE_PREFILL_ANNOTATION,
@@ -211,6 +214,31 @@ class TestOverrideSamplingParams:
             HandlerBase._override_sampling_params(sampling_params, request)
 
         mock_post_init.assert_called_once()
+
+
+class TestNormalizeRequestFormat:
+    def test_moves_openai_stop_fields_without_overwriting_internal_values(self):
+        request = {
+            "max_tokens": 64,
+            "min_tokens": 32,
+            "ignore_eos": True,
+            "temperature": 0.5,
+            "stop_conditions": {"min_tokens": 16},
+            "sampling_options": {"temperature": 0.25},
+        }
+
+        HandlerBase._normalize_request_format(request)
+
+        assert request["stop_conditions"] == {
+            "max_tokens": 64,
+            "min_tokens": 16,
+            "ignore_eos": True,
+        }
+        assert "max_tokens" not in request
+        assert "min_tokens" not in request
+        assert "ignore_eos" not in request
+        assert request["sampling_options"] == {"temperature": 0.25}
+        assert "temperature" not in request
 
 
 class TestGuidedDecodingFromToolChoice:
@@ -821,7 +849,9 @@ class TestGenerateLocally:
             prompt_logprobs = []
         return self._make_mock_generation_result_sequence([prompt_logprobs])
 
-    def _make_mock_generation_result_sequence(self, prompt_logprobs_per_chunk):
+    def _make_mock_generation_result_sequence(
+        self, prompt_logprobs_per_chunk, cached_tokens=mock.sentinel.unset
+    ):
         """Mock GenerationResult with cumulative output across streaming chunks."""
         results = []
         last_index = len(prompt_logprobs_per_chunk) - 1
@@ -836,6 +866,8 @@ class TestGenerateLocally:
             res = MagicMock()
             res.outputs = [output]
             res.finished = index == last_index
+            if cached_tokens is not mock.sentinel.unset:
+                res.cached_tokens = cached_tokens
             results.append(res)
 
         generation_result = MagicMock()
@@ -855,6 +887,73 @@ class TestGenerateLocally:
         context.async_killed_or_stopped.return_value = never_resolve
         context.id.return_value = "test-priority"
         return context
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("mode", "request_type", "multimodal", "cached_tokens", "expected"),
+        [
+            (
+                DisaggregationMode.AGGREGATED,
+                None,
+                False,
+                2,
+                {"prompt_tokens": 3, "reused_tokens": 2},
+            ),
+            (
+                DisaggregationMode.PREFILL,
+                "context_only",
+                False,
+                1,
+                {"prompt_tokens": 3, "reused_tokens": 1},
+            ),
+            (DisaggregationMode.DECODE, "generation_only", False, 3, None),
+            (DisaggregationMode.AGGREGATED, None, True, 2, None),
+            (DisaggregationMode.AGGREGATED, None, False, None, None),
+        ],
+        ids=[
+            "aggregated",
+            "prefill",
+            "generation-only",
+            "multimodal",
+            "missing-counter",
+        ],
+    )
+    async def test_final_chunk_reports_context_attempt_cache_reuse(
+        self, mode, request_type, multimodal, cached_tokens, expected
+    ):
+        handler = self._make_handler()
+        handler.disaggregation_mode = mode
+        if multimodal:
+            # The multimodal processor hands the engine a prompt dict whose
+            # cached count covers expanded image tokens.
+            handler._prepare_input_for_generation = mock.AsyncMock(
+                return_value={"prompt_token_ids": [1, 2, 3], "multi_modal_data": {}}
+            )
+        params = (
+            None
+            if request_type is None
+            else SimpleNamespace(request_type=request_type, disagg_request_id=None)
+        )
+        handler._setup_disaggregated_params_for_mode = MagicMock(
+            return_value=(params, None, {})
+        )
+        handler._encode_and_pack_disaggregated_params = MagicMock(return_value=None)
+        handler.engine.llm.generate_async = MagicMock(
+            return_value=self._make_mock_generation_result_sequence(
+                [[]], cached_tokens=cached_tokens
+            )
+        )
+        request = {
+            "token_ids": [1, 2, 3],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+
+        chunks = [
+            c async for c in handler.generate_locally(request, self._make_context())
+        ]
+
+        assert chunks[-1].get("engine_data", {}).get("kv_cache_hit") == expected
 
     @pytest.mark.asyncio
     async def test_health_check_gets_priority_1(self):
@@ -896,6 +995,266 @@ class TestGenerateLocally:
         handler.engine.llm.generate_async.assert_called_once()
         _, kwargs = handler.engine.llm.generate_async.call_args
         assert kwargs["priority"] == DEFAULT_REQUEST_PRIORITY
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "error",
+        [
+            ValueError("invalid sampling bounds"),
+            NotImplementedError("unsupported input path"),
+        ],
+        ids=["value-error", "not-implemented-error"],
+    )
+    async def test_presubmit_validation_error_is_request_local(self, error):
+        handler = self._make_handler()
+        handler.engine.llm.generate_async = MagicMock(side_effect=error)
+        handler._initiate_shutdown = mock.AsyncMock()
+
+        request = {
+            "token_ids": [1, 2, 3],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+        chunks = [
+            chunk
+            async for chunk in handler.generate_locally(request, self._make_context())
+        ]
+
+        assert chunks == [
+            {
+                "finish_reason": {"error": str(error)},
+                "token_ids": [],
+            }
+        ]
+        handler._initiate_shutdown.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_bind_compatible_presubmit_type_error_is_request_local(self):
+        handler = self._make_handler()
+        error = TypeError("malformed inputs")
+
+        def reject_inputs(
+            *,
+            inputs,
+            sampling_params,
+            disaggregated_params,
+            streaming,
+            trace_headers,
+            scheduling_params,
+            priority,
+            cache_salt,
+        ):
+            raise error
+
+        handler.engine.llm.generate_async = reject_inputs
+        handler._initiate_shutdown = mock.AsyncMock()
+
+        request = {
+            "token_ids": [1, 2, 3],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+        chunks = [
+            chunk
+            async for chunk in handler.generate_locally(request, self._make_context())
+        ]
+
+        assert chunks == [
+            {
+                "finish_reason": {"error": str(error)},
+                "token_ids": [],
+            }
+        ]
+        handler._initiate_shutdown.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @pytest.mark.core
+    async def test_presubmit_request_error_raises_invalid_argument(self):
+        """Preserve an engine rejection as a client error without shutting down."""
+        handler = self._make_handler()
+        error = RequestError(
+            "The prompt length (5.0) should not exceed max_num_tokens (4)"
+        )
+        handler.engine.llm.generate_async = MagicMock(side_effect=error)
+        handler._initiate_shutdown = mock.AsyncMock()
+
+        request = {
+            "token_ids": [1, 2, 3, 4, 5],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+        with pytest.raises(InvalidArgument) as exc_info:
+            async for _ in handler.generate_locally(request, self._make_context()):
+                pass
+
+        assert str(exc_info.value) == str(error)
+        assert exc_info.value.__cause__ is error
+        handler.engine.llm.generate_async.assert_called_once()
+        handler._initiate_shutdown.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    @pytest.mark.core
+    async def test_long_encoder_prompt_reaches_engine(self):
+        """Let the engine validate decoder length after encoder preprocessing."""
+        handler = self._make_handler()
+        handler.engine.llm.args = SimpleNamespace(
+            backend="pytorch",
+            enable_chunked_prefill=False,
+            max_num_tokens=4,
+            parallel_config=SimpleNamespace(cp_size=1),
+        )
+        handler.engine.llm._is_encoder_decoder_model.return_value = True
+        handler.engine.llm.generate_async = MagicMock(
+            return_value=self._make_mock_generation_result()
+        )
+        handler._initiate_shutdown = mock.AsyncMock()
+        request = {
+            "token_ids": [1, 2, 3, 4, 5],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+
+        chunks = [
+            chunk
+            async for chunk in handler.generate_locally(request, self._make_context())
+        ]
+
+        assert chunks[-1]["token_ids"] == [42]
+        handler.engine.llm.generate_async.assert_called_once()
+        assert handler.engine.llm.generate_async.call_args.kwargs["inputs"] == [
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]
+        handler._initiate_shutdown.assert_not_awaited()
+
+    @pytest.mark.asyncio
+    async def test_presubmit_signature_type_error_is_fatal(self):
+        handler = self._make_handler()
+
+        def legacy_generate_async(
+            *,
+            inputs,
+            sampling_params,
+            disaggregated_params,
+            streaming,
+            trace_headers,
+            scheduling_params,
+            priority,
+        ):
+            raise AssertionError("the incompatible call must not enter the function")
+
+        handler.engine.llm.generate_async = legacy_generate_async
+        handler._initiate_shutdown = mock.AsyncMock()
+
+        request = {
+            "token_ids": [1, 2, 3],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+        chunks = [
+            chunk
+            async for chunk in handler.generate_locally(request, self._make_context())
+        ]
+
+        assert len(chunks) == 1
+        error_message = chunks[0]["finish_reason"]["error"]
+        assert "unexpected keyword argument 'cache_salt'" in error_message
+        assert chunks[0]["token_ids"] == []
+        handler._initiate_shutdown.assert_awaited_once()
+        shutdown_error = handler._initiate_shutdown.await_args.args[0]
+        assert isinstance(shutdown_error, TypeError)
+        assert str(shutdown_error) == error_message
+
+    @pytest.mark.asyncio
+    @pytest.mark.core
+    @pytest.mark.parametrize(
+        "error",
+        [ValueError("invalid executor result"), RequestError("request failed")],
+        ids=["fatal-error", "request-error"],
+    )
+    async def test_error_during_iteration_keeps_existing_handling(self, error):
+        """Only pre-submission RequestError is translated to InvalidArgument."""
+        handler = self._make_handler()
+        generation_result = MagicMock()
+        generation_result.abort = MagicMock()
+
+        async def raise_during_iteration(self_mock):
+            raise error
+            yield
+
+        generation_result.__aiter__ = raise_during_iteration
+        handler.engine.llm.generate_async = MagicMock(return_value=generation_result)
+        handler._initiate_shutdown = mock.AsyncMock()
+
+        request = {
+            "token_ids": [1, 2, 3],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+        chunks = [
+            chunk
+            async for chunk in handler.generate_locally(request, self._make_context())
+        ]
+
+        assert chunks == [
+            {
+                "finish_reason": {"error": str(error)},
+                "token_ids": [],
+            }
+        ]
+        if isinstance(error, RequestError):
+            handler._initiate_shutdown.assert_not_awaited()
+        else:
+            handler._initiate_shutdown.assert_awaited_once_with(error)
+
+    @pytest.mark.asyncio
+    @pytest.mark.timeout(10)
+    async def test_engine_dead_error_exits_without_engine_teardown(self, monkeypatch):
+        """After an MPI rank dies, TRT-LLM teardown can block forever on IPC to
+        the dead rank. The fatal path must skip it and exit promptly."""
+        from tensorrt_llm.executor.utils import EngineDeadError
+
+        from dynamo.trtllm import engine_monitor as engine_monitor_module
+
+        exit_calls = []
+        monkeypatch.setattr(os, "_exit", exit_calls.append)
+        monkeypatch.setattr(
+            engine_monitor_module, "_fatal_exit_lock", threading.Lock(), raising=False
+        )
+
+        handler = self._make_handler()
+        error = EngineDeadError(RuntimeError("MPI worker rank 0 exited unexpectedly"))
+        release = threading.Event()
+        engine = MagicMock()
+        engine.get_health_check_fatal_error.return_value = error
+        engine.shutdown.side_effect = lambda: release.wait()
+        engine.cleanup = mock.AsyncMock(side_effect=lambda: release.wait())
+        engine.llm.generate_async = MagicMock(side_effect=error)
+        handler.engine = engine
+        handler.runtime = MagicMock()
+
+        request = {
+            "token_ids": [1, 2, 3],
+            "stop_conditions": {"max_tokens": 10},
+            "sampling_options": {},
+        }
+        try:
+            chunks = [
+                chunk
+                async for chunk in handler.generate_locally(
+                    request, self._make_context()
+                )
+            ]
+        finally:
+            release.set()
+
+        assert chunks == [{"finish_reason": {"error": str(error)}, "token_ids": []}]
+        assert exit_calls == [1]
+        handler.runtime.shutdown.assert_called_once()
+        engine.shutdown.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_zero_prompt_logprobs_is_forwarded_and_returned(self):
@@ -1072,6 +1431,29 @@ class TestGenerateLocally:
         assert kwargs["cache_salt"] == "tenant-a"
 
     @pytest.mark.asyncio
+    async def test_health_check_gets_dedicated_cache_salt(self):
+        """Keep the default canary out of the attention-DP dummy's cache namespace."""
+        handler = self._make_handler()
+        generation_result = self._make_mock_generation_result()
+        handler.engine.llm.generate_async = MagicMock(return_value=generation_result)
+
+        # An unsalted canary of [1] collides with TRT-LLM's attention-DP dummy
+        # request prefix, so the canary must use its own salt.
+        request = TrtllmHealthCheckPayload(
+            disaggregation_mode=DisaggregationMode.AGGREGATED,
+        ).to_dict()
+        assert request["token_ids"] == [1]
+
+        chunks = [
+            c async for c in handler.generate_locally(request, self._make_context())
+        ]
+        assert len(chunks) > 0
+
+        handler.engine.llm.generate_async.assert_called_once()
+        _, kwargs = handler.engine.llm.generate_async.call_args
+        assert kwargs["cache_salt"] == HEALTH_CHECK_CACHE_SALT
+
+    @pytest.mark.asyncio
     async def test_prefill_applies_stop_conditions_matching_native_context_only(self):
         # PREFILL forces max_tokens=1 (asserted separately below) but must
         # otherwise apply the full stop conditions, matching native TRT-LLM
@@ -1122,11 +1504,8 @@ class TestGenerateLocally:
         assert kwargs["streaming"] is False
 
     @pytest.mark.asyncio
-    async def test_prefill_does_not_force_ignore_eos_when_not_requested(self):
-        # Negative case: a request that doesn't ask to ignore EOS or expose a
-        # visible stop token must not have ignore_eos forced on during
-        # prefill. min_tokens and the hidden stop token are still preserved,
-        # same as the positive case -- only ignore_eos differs here.
+    @pytest.mark.parametrize("no_stop_trim", [False, True])
+    async def test_prefill_stop_consumption_respects_no_stop_trim(self, no_stop_trim):
         handler = self._make_handler()
         handler.disaggregation_mode = DisaggregationMode.PREFILL
         handler.disagg_machine_id = 0
@@ -1149,6 +1528,7 @@ class TestGenerateLocally:
                 "stop_token_ids_hidden": [100],
             },
             "sampling_options": {},
+            "output_options": {"no_stop_trim": no_stop_trim},
         }
 
         chunks = [
@@ -1161,7 +1541,7 @@ class TestGenerateLocally:
         sampling_params = kwargs["sampling_params"]
         assert sampling_params.max_tokens == 1
         assert sampling_params.min_tokens == 8
-        assert sampling_params.ignore_eos is False
+        assert sampling_params.ignore_eos is no_stop_trim
         assert set(sampling_params.stop_token_ids) == {100, 300}
         assert kwargs["streaming"] is False
 
@@ -1277,7 +1657,6 @@ class TestRequestHasImages:
 
 
 class _FakeConversationParams:
-
     """Stand-in for tensorrt_llm.llmapi.ConversationParams. Only ``conversation_id``
     is read back by the assertions."""
 

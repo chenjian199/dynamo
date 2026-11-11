@@ -12,10 +12,12 @@ pub mod codec;
 pub mod egress;
 pub mod ingress;
 pub mod manager;
+pub mod quic_response;
 pub mod tcp;
 
 use crate::SystemHealth;
-use crate::error::DynamoError;
+use crate::error::{DynamoError, ErrorType};
+use crate::traits::DistributedRuntimeProvider;
 use std::sync::{Arc, OnceLock};
 
 use anyhow::Result;
@@ -35,24 +37,75 @@ use super::{
 use crate::metrics::MetricsHierarchy;
 use crate::metrics::prometheus_names::work_handler;
 use crate::protocols::maybe_error::MaybeError;
+use crate::telemetry::LifecycleOperationRole;
 use ingress::push_handler::WorkHandlerMetrics;
 use prometheus::{CounterVec, Histogram, IntCounter, IntCounterVec, IntGauge};
 
 /// Shared default maximum TCP message size across request-plane components.
 pub(crate) const DEFAULT_TCP_MAX_MESSAGE_SIZE: usize = 32 * 1024 * 1024;
 
-static TCP_MAX_MESSAGE_SIZE: OnceLock<usize> = OnceLock::new();
-static REQUEST_PLANE_PAYLOAD_CODEC: OnceLock<RequestPlanePayloadCodec> = OnceLock::new();
+/// Prefix a request-plane server writes on the request connection to reject a request it cannot
+/// serve. The client matches on it to classify the reply as a rejection rather than the success
+/// ACK; anything it does not recognise is read as the ACK and it waits for a response stream.
+/// Both ends must use this constant.
+pub(crate) const ACK_UNAVAILABLE_PREFIX: &str = "Server unavailable:";
 
-/// Read the configured TCP max message size once and share it across client,
-/// server, and zero-copy decoder code paths.
-pub(crate) fn get_tcp_max_message_size() -> usize {
-    *TCP_MAX_MESSAGE_SIZE.get_or_init(|| {
-        std::env::var("DYN_TCP_MAX_MESSAGE_SIZE")
-            .ok()
-            .and_then(|s| s.parse::<usize>().ok())
-            .unwrap_or(DEFAULT_TCP_MAX_MESSAGE_SIZE)
-    })
+static REQUEST_PLANE_PAYLOAD_CODEC: OnceLock<RequestPlanePayloadCodec> = OnceLock::new();
+static RESPONSE_PLANE_MODE: OnceLock<ResponsePlaneMode> = OnceLock::new();
+
+/// Process-wide response transport. Frontends and workers must use the same mode.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum ResponsePlaneMode {
+    #[default]
+    Tcp,
+    Quic,
+}
+
+impl ResponsePlaneMode {
+    pub fn configured() -> Result<Self> {
+        if let Some(mode) = RESPONSE_PLANE_MODE.get() {
+            return Ok(*mode);
+        }
+        let value =
+            std::env::var(crate::config::environment_names::response_plane::DYN_RESPONSE_PLANE)
+                .ok();
+        let mode = Self::from_config_value(value.as_deref())?;
+        Ok(*RESPONSE_PLANE_MODE.get_or_init(|| mode))
+    }
+
+    fn from_config_value(value: Option<&str>) -> Result<Self> {
+        match value {
+            None | Some("tcp") => Ok(Self::Tcp),
+            Some("quic") => Ok(Self::Quic),
+            Some(other) => anyhow::bail!(
+                "invalid {} value '{other}'; expected 'tcp' or 'quic'",
+                crate::config::environment_names::response_plane::DYN_RESPONSE_PLANE
+            ),
+        }
+    }
+
+    pub fn from_transport_name(transport: &str) -> Result<Self> {
+        match transport {
+            "tcp_server" => Ok(Self::Tcp),
+            quic_response::TRANSPORT_NAME => Ok(Self::Quic),
+            other => anyhow::bail!("unsupported response transport '{other}'"),
+        }
+    }
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Tcp => "tcp",
+            Self::Quic => "quic",
+        }
+    }
+}
+
+crate::env_config! {
+    /// Read the configured TCP max message size once and share it across client,
+    /// server, and zero-copy decoder code paths.
+    pub(crate) fn get_tcp_max_message_size() -> usize =
+        crate::config::environment_names::request_plane::DYN_TCP_MAX_MESSAGE_SIZE,
+        default = DEFAULT_TCP_MAX_MESSAGE_SIZE;
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -130,6 +183,12 @@ impl RequestPlanePayloadCodec {
         }
     }
 }
+
+/// Starting capacity for a buffer that one response frame is encoded into.
+///
+/// Matches `serde_json::to_vec`'s own default so msgpack — which otherwise
+/// starts at zero — stops regrowing its buffer on every streamed frame.
+pub const RESPONSE_ENCODE_CAPACITY_HINT: usize = 128;
 
 pub trait Codable: PipelineIO + Serialize + for<'de> Deserialize<'de> {}
 impl<T: PipelineIO + Serialize + for<'de> Deserialize<'de>> Codable for T {}
@@ -211,8 +270,9 @@ pub struct ResponseStreamPrologue {
     /// convenience: worker and frontend are deployed independently, so during a
     /// rolling upgrade an old worker sends a prologue without this field and a
     /// new worker sends one an old frontend does not know. A required field
-    /// would break the handshake in both directions; an absent or unrecognized
-    /// field decodes to `None` and the frontend falls back to the untyped behavior.
+    /// would break the handshake in both directions; an absent field or unrecognized legacy
+    /// `error_type` decodes to `None` and the frontend falls back to the untyped behavior.
+    /// A payload with the semantic `class` field uses `DynamoError`'s fail-closed policy.
     #[serde(
         default,
         deserialize_with = "deserialize_typed_error",
@@ -226,7 +286,21 @@ where
     D: serde::Deserializer<'de>,
 {
     let typed_error = Option::<serde_json::Value>::deserialize(deserializer)?;
-    Ok(typed_error.and_then(|typed_error| serde_json::from_value(typed_error).ok()))
+    Ok(typed_error.and_then(|typed_error| {
+        // The legacy enum decoder rejected future variants. ErrorClass is tolerant, so
+        // compare the raw value with its canonical round trip to preserve that fallback.
+        if typed_error.get("class").is_none()
+            && let Some(wire_error_type) = typed_error.get("error_type")
+        {
+            let round_trip = serde_json::from_value::<ErrorType>(wire_error_type.clone())
+                .ok()
+                .and_then(|error_type| serde_json::to_value(error_type).ok());
+            if round_trip.as_ref() != Some(wire_error_type) {
+                return None;
+            }
+        }
+        serde_json::from_value(typed_error).ok()
+    }))
 }
 
 /// A pre-stream failure as it reaches the requesting side of the transport.
@@ -312,12 +386,13 @@ impl Drop for Cleanup {
     }
 }
 
-/// Awaitable handle for a stream sender or receiver. Drop without calling
-/// `into_parts()` runs the optional cleanup closure, removing the
-/// registration from the stream server's maps.
+/// Awaitable handle for a stream sender or receiver. Dropping the handle without
+/// a successful `wait()` or a call to `into_parts()` runs the optional cleanup
+/// closure, removing the registration from the stream server's maps.
 pub struct RegisteredStream<T> {
     pub connection_info: ConnectionInfo,
     pub stream_provider: StreamProvider<T>,
+    registration_id: Option<uuid::Uuid>,
     cleanup: Cleanup,
 }
 
@@ -334,8 +409,18 @@ impl<T> RegisteredStream<T> {
         Self {
             connection_info,
             stream_provider,
+            registration_id: None,
             cleanup: Cleanup(None),
         }
+    }
+
+    pub(crate) fn with_registration_id(mut self, registration_id: uuid::Uuid) -> Self {
+        self.registration_id = Some(registration_id);
+        self
+    }
+
+    pub(crate) fn registration_id(&self) -> Option<uuid::Uuid> {
+        self.registration_id
     }
 
     pub(crate) fn with_cleanup<F>(mut self, cleanup: F) -> Self
@@ -352,10 +437,26 @@ impl<T> RegisteredStream<T> {
         let Self {
             connection_info,
             stream_provider,
+            registration_id: _,
             mut cleanup,
         } = self;
         cleanup.0.take();
         (connection_info, stream_provider)
+    }
+
+    /// Await the stream provider, keeping registration cleanup armed until success.
+    ///
+    /// An error or a dropped future removes the registration from the transport.
+    /// Once the stream is established, cleanup is disarmed and the transport owns
+    /// the stream's remaining lifecycle.
+    pub async fn wait(
+        mut self,
+    ) -> Result<Result<T, StreamPrologueError>, tokio::sync::oneshot::error::RecvError> {
+        let result = (&mut self.stream_provider).await;
+        if matches!(result, Ok(Ok(_))) {
+            self.cleanup.0.take();
+        }
+        result
     }
 }
 
@@ -434,6 +535,58 @@ mod registered_stream_tests {
         assert!(
             !flag.load(Ordering::SeqCst),
             "into_parts() must disarm the cleanup closure"
+        );
+    }
+
+    #[tokio::test]
+    async fn successful_wait_disarms_cleanup() {
+        let flag = Arc::new(AtomicBool::new(false));
+        let flag_clone = flag.clone();
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        let stream = RegisteredStream::new(dummy_conn_info(), rx).with_cleanup(move || {
+            flag_clone.store(true, Ordering::SeqCst);
+        });
+
+        tx.send(Ok(42)).unwrap();
+        assert_eq!(stream.wait().await.unwrap().unwrap(), 42);
+        assert!(
+            !flag.load(Ordering::SeqCst),
+            "successful wait must disarm cleanup"
+        );
+    }
+
+    #[tokio::test]
+    async fn failed_prologue_wait_runs_cleanup() {
+        let flag = Arc::new(AtomicBool::new(false));
+        let flag_clone = flag.clone();
+        let (tx, rx) = tokio::sync::oneshot::channel::<Result<(), StreamPrologueError>>();
+        let stream = RegisteredStream::new(dummy_conn_info(), rx).with_cleanup(move || {
+            flag_clone.store(true, Ordering::SeqCst);
+        });
+        let error = StreamPrologueError::from_message("worker rejected request");
+
+        tx.send(Err(error.clone())).unwrap();
+        assert_eq!(stream.wait().await.unwrap().unwrap_err(), error);
+        assert!(
+            flag.load(Ordering::SeqCst),
+            "failed prologue must run cleanup"
+        );
+    }
+
+    #[tokio::test]
+    async fn closed_provider_wait_runs_cleanup() {
+        let flag = Arc::new(AtomicBool::new(false));
+        let flag_clone = flag.clone();
+        let (tx, rx) = tokio::sync::oneshot::channel::<Result<(), StreamPrologueError>>();
+        let stream = RegisteredStream::new(dummy_conn_info(), rx).with_cleanup(move || {
+            flag_clone.store(true, Ordering::SeqCst);
+        });
+
+        drop(tx);
+        assert!(stream.wait().await.is_err());
+        assert!(
+            flag.load(Ordering::SeqCst),
+            "closed provider must run cleanup"
         );
     }
 
@@ -574,6 +727,10 @@ pub struct StreamOptions {
     /// that can be picked up by the Response/Reverse pipeline
     pub enable_response_stream: bool,
 
+    /// Preserve guarded dispatch setup until the worker sends its prologue.
+    #[builder(default)]
+    pub defer_cancellation_until_prologue: bool,
+
     /// The number of frames buffered between the data-plane socket task and the
     /// engine consumer/producer before backpressure kicks in. Drives the mpsc
     /// channel capacity for the per-stream buffer in the TCP transport.
@@ -598,14 +755,18 @@ pub struct Egress<Req: PipelineIO, Resp: PipelineIO> {
 #[cfg(test)]
 mod tests {
     use super::{
-        DEFAULT_SEND_BUFFER_COUNT, NetworkStreamWrapper, RequestControlMessage,
-        RequestPlanePayloadCodec, RequestType, ResponseStreamPrologue, ResponseType, StreamOptions,
+        DEFAULT_SEND_BUFFER_COUNT, Ingress, IngressResponseEncoder, ManyOut, NetworkStreamWrapper,
+        RequestControlMessage, RequestPlanePayloadCodec, RequestType, ResponsePlaneMode,
+        ResponseStreamPrologue, ResponseType, SerdeIngressPayloadAdapter, SingleIn, StreamOptions,
         StreamPrologueError,
     };
     use crate::engine::AsyncEngineContextProvider;
     use crate::error::{BackendError, DynamoError, ErrorType};
     use crate::pipeline::Context;
+    use crate::protocols::annotated::Annotated;
+    use crate::telemetry::LifecycleOperationRole;
     use serde::{Deserialize, Serialize};
+    use std::sync::{Arc, OnceLock};
 
     #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
     struct TestPayload {
@@ -675,6 +836,74 @@ mod tests {
     }
 
     #[test]
+    fn prologue_accepts_a_known_legacy_typed_error() {
+        let legacy = br#"{
+            "error":"Generate Error: unsupported input",
+            "typed_error":{"error_type":"InvalidArgument","message":"unsupported input"}
+        }"#;
+        let prologue: ResponseStreamPrologue =
+            serde_json::from_slice(legacy).expect("a known legacy typed error must decode");
+        let error = prologue
+            .typed_error
+            .expect("a known legacy typed error must remain typed");
+
+        assert_eq!(error.error_type(), ErrorType::InvalidArgument);
+        assert_eq!(error.class(), ErrorType::InvalidRequest);
+        assert_eq!(error.reason().as_str(), "request.invalid_argument");
+    }
+
+    #[test]
+    fn prologue_ignores_a_future_legacy_typed_error() {
+        let future = br#"{
+            "error":"Generate Error: future failure",
+            "typed_error":{"error_type":"VariantFromTheFuture","message":"future failure"}
+        }"#;
+        let prologue: ResponseStreamPrologue = serde_json::from_slice(future)
+            .expect("a future legacy typed error must not reject the prologue");
+
+        assert!(prologue.typed_error.is_none());
+    }
+
+    #[test]
+    fn prologue_fails_closed_for_a_future_semantic_class() {
+        let future = br#"{
+            "error":"Generate Error: future failure",
+            "typed_error":{
+                "class":"FutureErrorClass",
+                "reason":"runtime.internal",
+                "public":{"type":"message","message":"must not escape"}
+            }
+        }"#;
+        let prologue: ResponseStreamPrologue = serde_json::from_slice(future)
+            .expect("a future semantic class must not reject the prologue");
+        let error = prologue
+            .typed_error
+            .expect("semantic errors use the DynamoError fail-closed identity");
+
+        assert_eq!(error.class(), ErrorType::Internal);
+        assert_eq!(error.reason().as_str(), "runtime.invalid_error");
+        assert!(error.public_details().is_none());
+    }
+
+    #[test]
+    fn response_plane_mode_parses_supported_values() {
+        assert_eq!(
+            ResponsePlaneMode::from_config_value(None).unwrap(),
+            ResponsePlaneMode::Tcp
+        );
+        assert_eq!(
+            ResponsePlaneMode::from_config_value(Some("tcp")).unwrap(),
+            ResponsePlaneMode::Tcp
+        );
+        assert_eq!(
+            ResponsePlaneMode::from_config_value(Some("quic")).unwrap(),
+            ResponsePlaneMode::Quic
+        );
+        assert!(ResponsePlaneMode::from_config_value(Some("")).is_err());
+        assert!(ResponsePlaneMode::from_config_value(Some("invalid")).is_err());
+    }
+
+    #[test]
     fn encode_into_matches_encode_byte_for_byte() {
         let payload = NetworkStreamWrapper {
             data: Some(TestPayload {
@@ -724,6 +953,26 @@ mod tests {
             .expect("stream options should build");
 
         assert_eq!(options.send_buffer_count, 128);
+    }
+
+    #[test]
+    fn ingress_observes_lifecycle_role_set_after_binding() {
+        let ingress = Ingress::<SingleIn<String>, ManyOut<String>>::new();
+        let endpoint_role = Arc::new(OnceLock::new());
+
+        ingress
+            .lifecycle_operation_role
+            .set(endpoint_role.clone())
+            .expect("new ingress lifecycle role source must be empty");
+        assert_eq!(ingress.registered_lifecycle_role(), None);
+
+        endpoint_role
+            .set(LifecycleOperationRole::Prefill)
+            .expect("new endpoint lifecycle role cell must be empty");
+        assert_eq!(
+            ingress.registered_lifecycle_role(),
+            Some(LifecycleOperationRole::Prefill)
+        );
     }
 
     #[test]
@@ -831,6 +1080,53 @@ mod tests {
             let decoded: NetworkStreamWrapper<TestPayload> =
                 codec.decode(&encoded).expect("wrapper should decode");
             assert_eq!(decoded, wrapper);
+        }
+    }
+
+    /// `encode_into` must stay byte-compatible with `encode` for both codecs.
+    #[tokio::test]
+    async fn serde_ingress_encoder_matches_encode_byte_for_byte() {
+        let data = Annotated::from_data(serde_json::json!({
+            "token_ids": [128, 9001],
+            "index": 3,
+        }));
+        let error = Annotated::<serde_json::Value>::from_error("engine failed");
+
+        for codec in [
+            RequestPlanePayloadCodec::Json,
+            RequestPlanePayloadCodec::Msgpack,
+        ] {
+            for (case, response, complete_final, expect_error) in [
+                ("data frame", Some(data.clone()), false, false),
+                ("error frame", Some(error.clone()), false, true),
+                ("complete final", None, true, false),
+            ] {
+                let expected = codec
+                    .encode(&NetworkStreamWrapper {
+                        data: response.clone(),
+                        complete_final,
+                    })
+                    .expect("reference encode");
+
+                let frame = SerdeIngressPayloadAdapter
+                    .encode_response(codec, response, complete_final)
+                    .await
+                    .expect("adapter encode");
+
+                assert_eq!(
+                    frame.bytes.as_ref(),
+                    expected.as_slice(),
+                    "codec={} case={case}",
+                    codec.name()
+                );
+                assert_eq!(
+                    frame.is_error,
+                    expect_error,
+                    "codec={} case={case}",
+                    codec.name()
+                );
+                assert!(!frame.stop_stream, "codec={} case={case}", codec.name());
+            }
         }
     }
 }
@@ -942,13 +1238,17 @@ where
             data: response,
             complete_final,
         };
-        let encoded = payload_codec.encode(&wrapper).map_err(|err| {
-            PipelineError::SerializationError(format!(
-                "Failed serializing {} request-plane response: {}",
-                payload_codec.name(),
-                err
-            ))
-        });
+        let mut bytes = Vec::with_capacity(RESPONSE_ENCODE_CAPACITY_HINT);
+        let encoded = payload_codec
+            .encode_into(&wrapper, &mut bytes)
+            .map(|()| bytes)
+            .map_err(|err| {
+                PipelineError::SerializationError(format!(
+                    "Failed serializing {} request-plane response: {}",
+                    payload_codec.name(),
+                    err
+                ))
+            });
         std::future::ready(encoded.map(|bytes| EncodedResponseFrame {
             bytes: bytes.into(),
             is_error,
@@ -962,7 +1262,11 @@ pub struct Ingress<Req: PipelineIO, Resp: PipelineIO, Adapter = SerdeIngressPayl
     metrics: OnceLock<Arc<WorkHandlerMetrics>>,
     /// Endpoint-specific notifier for health check timer resets
     endpoint_health_check_notifier: OnceLock<Arc<tokio::sync::Notify>>,
+    /// Resolved response transport of the bound endpoint's runtime.
+    response_plane: OnceLock<ResponsePlaneMode>,
+    quic_response_client_pool: OnceLock<Arc<quic_response::QuicResponseClientPool>>,
     payload_adapter: Arc<Adapter>,
+    lifecycle_operation_role: OnceLock<Arc<OnceLock<LifecycleOperationRole>>>,
 }
 
 impl<Req: PipelineIO + Sync, Resp: PipelineIO> Ingress<Req, Resp> {
@@ -985,6 +1289,14 @@ impl<Req: PipelineIO + Sync, Resp: PipelineIO> Ingress<Req, Resp> {
     pub fn for_engine(engine: ServiceEngine<Req, Resp>) -> Result<Arc<Self>> {
         Self::for_engine_with_adapter(engine, SerdeIngressPayloadAdapter)
     }
+
+    /// Build a worker ingress with the role fixed by its startup configuration.
+    pub fn for_engine_with_lifecycle_role(
+        engine: ServiceEngine<Req, Resp>,
+        role: LifecycleOperationRole,
+    ) -> Result<Arc<Self>> {
+        Self::for_engine_with_adapter_and_lifecycle_role(engine, SerdeIngressPayloadAdapter, role)
+    }
 }
 
 impl<Req, Resp, Adapter> Ingress<Req, Resp, Adapter>
@@ -998,14 +1310,51 @@ where
             segment: OnceLock::new(),
             metrics: OnceLock::new(),
             endpoint_health_check_notifier: OnceLock::new(),
+            response_plane: OnceLock::new(),
+            quic_response_client_pool: OnceLock::new(),
             payload_adapter: Arc::new(payload_adapter),
+            lifecycle_operation_role: OnceLock::new(),
         })
+    }
+
+    fn new_with_adapter_and_lifecycle_role(
+        payload_adapter: Adapter,
+        lifecycle_operation_role: LifecycleOperationRole,
+    ) -> Arc<Self> {
+        let ingress = Self::new_with_adapter(payload_adapter);
+        let role = Arc::new(OnceLock::new());
+        role.set(lifecycle_operation_role)
+            .expect("new lifecycle role cell must be empty");
+        ingress
+            .lifecycle_operation_role
+            .set(role)
+            .expect("new ingress lifecycle role source must be empty");
+        ingress
     }
 
     pub fn attach(&self, segment: Arc<SegmentSource<Req, Resp>>) -> Result<()> {
         self.segment
             .set(segment)
             .map_err(|_| anyhow::anyhow!("Segment already set"))
+    }
+
+    pub(crate) fn set_quic_response_client_pool(
+        &self,
+        pool: Arc<quic_response::QuicResponseClientPool>,
+    ) -> Result<()> {
+        self.quic_response_client_pool
+            .set(pool)
+            .map_err(|_| anyhow::anyhow!("QUIC response client pool already set"))
+    }
+
+    pub(crate) fn quic_response_client_pool(
+        &self,
+    ) -> Result<Arc<quic_response::QuicResponseClientPool>, PipelineError> {
+        if let Some(pool) = self.quic_response_client_pool.get() {
+            return Ok(pool.clone());
+        }
+        let pool = quic_response::process_client_pool_from_env()?;
+        Ok(self.quic_response_client_pool.get_or_init(|| pool).clone())
     }
 
     pub fn add_metrics(
@@ -1039,11 +1388,23 @@ where
     ) -> Result<Arc<Self>> {
         let frontend = SegmentSource::<Req, Resp>::new();
         let backend = ServiceBackend::from_engine(engine);
+        let pipeline = frontend.link(backend)?.link_terminal(frontend)?;
+        let ingress = Ingress::new_with_adapter(payload_adapter);
+        ingress.attach(pipeline)?;
+        Ok(ingress)
+    }
 
-        // create the pipeline
+    pub fn for_engine_with_adapter_and_lifecycle_role(
+        engine: ServiceEngine<Req, Resp>,
+        payload_adapter: Adapter,
+        role: LifecycleOperationRole,
+    ) -> Result<Arc<Self>> {
+        let frontend = SegmentSource::<Req, Resp>::new();
+        let backend = ServiceBackend::from_engine(engine);
+
         let pipeline = frontend.link(backend)?.link_terminal(frontend)?;
 
-        let ingress = Ingress::new_with_adapter(payload_adapter);
+        let ingress = Ingress::new_with_adapter_and_lifecycle_role(payload_adapter, role);
         ingress.attach(pipeline)?;
 
         Ok(ingress)
@@ -1053,10 +1414,29 @@ where
     fn metrics(&self) -> Option<&Arc<WorkHandlerMetrics>> {
         self.metrics.get()
     }
+
+    fn registered_lifecycle_role(&self) -> Option<LifecycleOperationRole> {
+        self.lifecycle_operation_role
+            .get()
+            .and_then(|role| role.get())
+            .copied()
+    }
+
+    fn bind_endpoint_config(&self, endpoint: &crate::component::Endpoint) {
+        let _ = self.response_plane.set(endpoint.drt().response_plane());
+        // Keep an explicitly constructed ingress role; otherwise observe model
+        // registration even when it happens after the endpoint starts serving.
+        let _ = self
+            .lifecycle_operation_role
+            .set(endpoint.lifecycle_operation_role());
+    }
 }
 
 #[async_trait]
 pub trait PushWorkHandler: Send + Sync {
+    /// Bind endpoint identity independently of metrics registration.
+    fn bind_endpoint(&self, _endpoint: &crate::component::Endpoint) {}
+
     async fn handle_payload(
         &self,
         payload: Bytes,
