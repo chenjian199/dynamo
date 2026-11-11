@@ -5,7 +5,6 @@ import copy
 import json
 
 import pytest
-
 from dynamo.profiler.utils.dgd_platform import adapt_vllm_blueprint_platform
 from dynamo.vllm.kv_connector_protocols import ASCEND_MOONCAKE_MODULE
 
@@ -157,3 +156,84 @@ def test_metax_maps_resources_and_maca_transport():
         kv = json.loads(args[args.index("--kv-transfer-config") + 1])
         assert kv["kv_connector_extra_config"]["mooncake_protocol"] == "maca"
         assert "kv_connector_module_path" not in kv
+
+
+@pytest.mark.parametrize("role", ["kv_producer", "kv_consumer", "kv_both"])
+def test_new_generated_nixl_roles_are_removed_for_standalone_vendor(role):
+    source = {
+        "spec": {
+            "components": [
+                worker(
+                    "decode",
+                    2,
+                    connector={
+                        "kv_connector": "NixlConnector",
+                        "kv_role": role,
+                    },
+                )
+            ]
+        }
+    }
+    result = adapt_vllm_blueprint_platform(source, override(["decode"]))
+    assert "--kv-transfer-config" not in main(result)["args"]
+    assert main(result)["resources"]["limits"] == {"huawei.com/Ascend910": "2"}
+
+
+def test_custom_nixl_options_are_not_rewritten():
+    connector = {
+        "kv_connector": "NixlConnector",
+        "kv_role": "kv_producer",
+        "kv_connector_extra_config": {"backends": ["UCX"]},
+    }
+    source = {"spec": {"components": [worker("decode", 2, connector=connector)]}}
+    assert (
+        main(adapt_vllm_blueprint_platform(source, override(["decode"])))["args"]
+        == main(source)["args"]
+    )
+
+
+@pytest.mark.parametrize("legacy", [True, False])
+@pytest.mark.parametrize("phase", ["prefill", "decode"])
+def test_benchmark_override_selects_measured_role(legacy, phase):
+    from dynamo.profiler.utils.dgd_platform import project_vllm_benchmark_override
+
+    source = {"spec": {"components": [worker("decode", 2)]}}
+    names = (
+        ["VllmPrefillWorker", "VllmDecodeWorker"] if legacy else ["prefill", "decode"]
+    )
+    patch = override(["Frontend", *names, "typo"])
+    for entry in patch["spec"]["components"]:
+        entry["podTemplate"]["spec"]["nodeSelector"] = {"role": entry["name"]}
+    original = copy.deepcopy(patch)
+    result = project_vllm_benchmark_override(source, patch, phase)
+    entries = result["spec"]["components"]
+    assert [c["name"] for c in entries] == ["Frontend", "decode", "typo"]
+    assert entries[1]["podTemplate"]["spec"]["nodeSelector"] == {
+        "role": names[phase == "decode"]
+    }
+    assert patch == original  # The full override is still needed for final PD.
+
+
+def test_decode_only_override_keeps_aggregate_prefill_compatibility():
+    from dynamo.profiler.utils.dgd_platform import project_vllm_benchmark_override
+
+    source = {"spec": {"components": [worker("worker", 1)]}}
+    result = project_vllm_benchmark_override(
+        source, override(["VllmDecodeWorker"]), "prefill"
+    )
+    assert result["spec"]["components"][0]["name"] == "worker"
+
+
+def test_projection_rejects_duplicate_aliases_and_disaggregated_blueprints():
+    from dynamo.profiler.utils.dgd_platform import project_vllm_benchmark_override
+
+    source = {"spec": {"components": [worker("decode", 1)]}}
+    with pytest.raises(ValueError, match="Duplicate"):
+        project_vllm_benchmark_override(
+            source, override(["prefill", "VllmPrefillWorker"]), "prefill"
+        )
+    source["spec"]["components"].append(worker("prefill", 1, "prefill"))
+    with pytest.raises(ValueError, match="one aggregate"):
+        project_vllm_benchmark_override(
+            source, override(["prefill", "decode"]), "prefill"
+        )

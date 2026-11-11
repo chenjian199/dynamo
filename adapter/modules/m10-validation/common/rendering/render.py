@@ -86,7 +86,7 @@ def main():
     }.items():
         manifests[name] = json.loads(
             (
-                ROOT / f"adapter/modules/m08-kubernetes/{source}/manifests/{args.platform}/{name}.json"
+                ROOT / f"adapter/modules/m08-kubernetes/common/{source}/manifests/{args.platform}/{name}.json"
             ).read_text()
         )
     for name, script, extra in [
@@ -97,7 +97,7 @@ def main():
     ]:
         command = [
             sys.executable,
-            str(ROOT / "adapter/modules/m09-telemetry-planner" / script),
+            str(ROOT / "adapter/modules/m09-telemetry-planner/common/rendering" / script),
             "--platform",
             args.platform,
             "--workdir",

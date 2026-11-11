@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for profiler DGD materialization boundaries."""
 
@@ -256,3 +258,32 @@ def test_mocker_detection_matches_discrete_command_tokens(command, args) -> None
 def test_mocker_detection_rejects_substring_matches() -> None:
     args = ["-m", "dynamo.worker", "--model", "org/dynamo.mocker-model"]
     assert not dgd_materialization._invokes_mocker(["python3"], args)
+
+
+@pytest.mark.parametrize("backend", ["vllm", "sglang", "trtllm"])
+def test_generated_backend_identity_is_set_before_override(monkeypatch, backend):
+    source = {"spec": {"components": []}}
+    observed = []
+
+    def apply(config, override):
+        observed.append(config["spec"]["backendFramework"])
+        return config
+
+    monkeypatch.setattr(dgd_materialization, "apply_dgd_overrides", apply)
+    materialize_dgd(
+        source,
+        purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
+        runtime_backend=backend,
+        override={"spec": {}},
+    )
+    assert observed == [backend]
+    assert "backendFramework" not in source["spec"]
+
+
+def test_explicit_backend_mismatch_is_not_silently_rewritten():
+    with pytest.raises(ValueError, match="differs from runtime"):
+        materialize_dgd(
+            {"spec": {"backendFramework": "sglang"}},
+            purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
+            runtime_backend="vllm",
+        )

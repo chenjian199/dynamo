@@ -15,7 +15,10 @@ from typing import Any
 from dynamo.profiler.utils.config import break_arguments, get_main_container_dict
 from dynamo.profiler.utils.config_modifiers import CONFIG_MODIFIERS
 from dynamo.profiler.utils.dgd_override import apply_dgd_overrides
-from dynamo.profiler.utils.dgd_platform import adapt_vllm_blueprint_platform
+from dynamo.profiler.utils.dgd_platform import (
+    adapt_vllm_blueprint_platform,
+    has_vendor_platform,
+)
 from dynamo.profiler.utils.model_info import (
     model_has_auto_map,
     model_ref_allows_implicit_trust_remote_code,
@@ -96,8 +99,23 @@ def _materialize_dgd_document(
     materialized = blueprint
     applied_transforms: list[str] = []
 
-    if runtime_backend == "vllm":
-        materialized = adapt_vllm_blueprint_platform(materialized, override)
+    if runtime_backend in {"vllm", "sglang", "trtllm"}:
+        # AISimulate 0.13 omits this identity. The caller has selected the backend;
+        # the strict Go override resolver needs it before resolving legacy names.
+        declared = materialized.get("spec", {}).get("backendFramework")
+        if declared and declared != runtime_backend:
+            raise ValueError(
+                f"Generated backend {declared!r} differs from runtime {runtime_backend!r}"
+            )
+        if override:
+            materialized.setdefault("spec", {})["backendFramework"] = runtime_backend
+
+    if runtime_backend == "vllm" and has_vendor_platform(override):
+        # Resolve aliases and validate with the operator-owned merge engine.
+        # Use only its effective platform selection; discard its appended args.
+        # The real override is applied once to the adapted clean blueprint below.
+        selection = apply_dgd_overrides(materialized, override)
+        materialized = adapt_vllm_blueprint_platform(materialized, selection)
 
     if override:
         materialized = apply_dgd_overrides(materialized, override)
