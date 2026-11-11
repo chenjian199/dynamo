@@ -1,9 +1,13 @@
---- ascend-tp-config.py
-+++ ascend-tp-config.py
-@@ -0,0 +1,2 @@
+--- ascend_config.py
++++ ascend_config.py
+@@ -1,2 +1,4 @@
 +# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 +# Derived from vLLM Ascend. Modified by HEYI.
-@@ -883,2 +885,8 @@
+ #
+ # Copyright (c) 2025 Huawei Technologies Co., Ltd. All Rights Reserved.
+@@ -881,6 +883,12 @@
+             prefill_tp_size = vc.kv_transfer_config.get_from_extra_config("prefill", {"tp_size": 1})["tp_size"]
+             decode_tp_size = vc.kv_transfer_config.get_from_extra_config("decode", {"tp_size": 1})["tp_size"]
 -            assert prefill_tp_size % decode_tp_size == 0, "Prefill TP size must be divisible by Decode TP size."
 -            self.pd_tp_ratio = prefill_tp_size // decode_tp_size
 +            heyi_split = vc.kv_transfer_config.get_from_extra_config("heyi_tp_split", False)
@@ -14,3 +18,16 @@
 +            else:
 +                assert prefill_tp_size % decode_tp_size == 0, "Prefill TP size must be divisible by Decode TP size."
 +            self.pd_tp_ratio = max(1, prefill_tp_size // decode_tp_size)
+             if self.pd_tp_ratio > 1:
+                 num_kv_head = vc.model_config.get_total_num_kv_heads()
+@@ -1892,4 +1900,10 @@
+         "profiling_chunk_config",
+         "batch_job_sched_config",
++        # Dynamo owns these orchestration keys. Keep them in VllmConfig for
++        # its scheduler/connector; do not pass them to the Ascend dataclass.
++        # Other unknown vendor options must still fail validation.
++        "consolidator_endpoints",
++        "benchmark",
++        "dynamo_kv_event_block_size",
+     }
+     kwargs = {k: v for k, v in additional_config.items() if k not in _NON_USER_INPUT_KEYS}
