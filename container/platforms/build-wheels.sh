@@ -15,11 +15,6 @@ export CARGO_HOME=/build-cache/cargo RUSTUP_HOME=/build-cache/rustup
 export PATH=/opt/dynamo/build/bin:$CARGO_HOME/bin:$PATH
 python -m pip install -r container/requirements/platforms/build.txt
 python container/platforms/audit.py constraints "$platform" /out/protected.txt
-# Resolve runtime additions separately so build-only packages cannot satisfy runtime dependencies.
-python3 -m venv --clear --system-site-packages /opt/dynamo/resolve
-/opt/dynamo/resolve/bin/python -m pip install --report /out/dependencies.json \
-    -c /out/protected.txt -r container/requirements/platforms/runtime.txt
-python container/platforms/audit.py download /out/dependencies.json /out/wheels
 if [[ ${DYNAMO_RUST_MIRROR:-} == rsproxy ]]; then
     export RUSTUP_DIST_SERVER=https://rsproxy.cn RUSTUP_UPDATE_ROOT=https://rsproxy.cn/rustup
 fi
@@ -67,6 +62,14 @@ maturin build --manifest-path lib/bindings/kvbm/Cargo.toml --release --locked \
     --interpreter /opt/dynamo/build/bin/python --compatibility linux --auditwheel skip \
     "${features[@]}" -o /out/wheels
 python -m pip wheel --no-deps --no-build-isolation -w /out/wheels . lib/gpu_memory_service
+# Resolve the built distributions too: vendor images can satisfy the explicit
+# additions while violating a new Dynamo wheel's dependency bounds. Use a clean
+# resolver so build-only packages cannot hide missing runtime dependencies, and
+# retain protected vendor constraints throughout the complete resolution.
+python3 -m venv --clear --system-site-packages /opt/dynamo/resolve
+/opt/dynamo/resolve/bin/python -m pip install --report /out/dependencies.json \
+    -c /out/protected.txt -r container/requirements/platforms/runtime.txt /out/wheels/*.whl
+python container/platforms/audit.py download /out/dependencies.json /out/wheels
 # The independent engine/physical path is separate from the Python KVBM entrypoint.
 cargo build --release --locked -p kvbm-engine --example native_replicated \
     --no-default-features --features collectives --message-format=json > /out/native-build.jsonl

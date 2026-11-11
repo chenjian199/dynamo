@@ -58,6 +58,9 @@ if [[ -n ${BUILD_HTTP_PROXY:-} ]]; then
     export HTTP_PROXY="$BUILD_HTTP_PROXY" HTTPS_PROXY="$BUILD_HTTP_PROXY"
     args+=(--build-arg HTTP_PROXY --build-arg HTTPS_PROXY)
 fi
+if [[ -n ${BUILD_GOPROXY:-} ]]; then
+    args+=(--build-arg "GOPROXY=$BUILD_GOPROXY")
+fi
 if [[ -n ${BUILD_NETWORK:-} ]]; then
     args+=(--network "$BUILD_NETWORK")
 fi

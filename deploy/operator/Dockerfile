@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # Base stage - Common setup for all stages
 ARG DOCKER_PROXY
@@ -10,6 +12,8 @@ FROM ${DOCKER_PROXY}${BASE_IMAGE}:${BASE_IMAGE_TAG} AS base
 # Docker buildx automatically provides these
 ARG TARGETOS=linux
 ARG TARGETARCH
+# Allow an accessible module mirror without changing go.sum verification.
+ARG GOPROXY=https://proxy.golang.org,direct
 
 RUN echo "Building for ${TARGETOS}/${TARGETARCH}"
 
