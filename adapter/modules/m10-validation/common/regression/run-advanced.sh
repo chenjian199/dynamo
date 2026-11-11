@@ -6,7 +6,13 @@ set -euo pipefail
 platform=${1:?cuda or ascend}
 out=${2:?new output directory}
 export PLATFORM=$platform MODEL_PATH=/models/Qwen3-0.6B DEVICES=0,1
-export DYNAMO_RELEASE_SOURCE_COMMIT=4b1efe773c9af518dfe2050ff753e270a7e84b7b
+# Read identity from the immutable runtime artifact; never reuse a prior release SHA.
+observed_commit=$(python -c 'import json; print(json.load(open("/opt/dynamo/artifacts/SOURCE.json"))["commit"])')
+if [[ -n ${DYNAMO_RELEASE_SOURCE_COMMIT:-} && $DYNAMO_RELEASE_SOURCE_COMMIT != "$observed_commit" ]]; then
+    echo "Requested source commit differs from the installed runtime" >&2
+    exit 2
+fi
+export DYNAMO_RELEASE_SOURCE_COMMIT=$observed_commit
 export PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1
 export PYTHONPATH=/harness/test-deps${PYTHONPATH:+:$PYTHONPATH}
 cd /harness

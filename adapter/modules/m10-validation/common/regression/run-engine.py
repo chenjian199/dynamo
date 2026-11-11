@@ -41,6 +41,12 @@ def main():
     if extra[:1] == ["--"]:
         extra = extra[1:]
     command = ["bash", str(root / args.launch_script), *extra]
+    source_commit = json.loads(
+        Path("/opt/dynamo/artifacts/SOURCE.json").read_text()
+    )["commit"]
+    expected_commit = os.environ.get("DYNAMO_RELEASE_SOURCE_COMMIT")
+    if expected_commit and expected_commit != source_commit:
+        raise ValueError("Requested source commit differs from the installed runtime")
     report = dict(
         passed=False,
         started=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -49,7 +55,7 @@ def main():
             key: os.environ.get(key)
             for key in ("PLATFORM", "TP", "DP", "DEVICES", "MODEL_PATH")
         },
-        source_commit=os.environ["DYNAMO_RELEASE_SOURCE_COMMIT"],
+        source_commit=source_commit,
         packages={
             name: importlib.metadata.version(name)
             for name in ("vllm", "torch", "ai-dynamo")
