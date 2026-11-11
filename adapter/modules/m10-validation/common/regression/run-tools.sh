@@ -4,7 +4,7 @@
 set -euo pipefail
 output=${1:?output directory}
 mkdir -p "$output"
-/opt/dynamo/venv/bin/python /harness/check-installed.py --role runtime > "$output/installed.json"
+env DYN_PLATFORM="${DYNAMO_IMAGE_PLATFORM:?}" /opt/dynamo/bin/entrypoint.sh /opt/dynamo/venv/bin/python /harness/check-installed.py --role runtime > "$output/installed.json"
 python -m pip check > "$output/tools-pip-check.txt" || {
     # CUDA/MetaX inherit documented vendor conflicts; their image build rejects
     # additions. The isolated CPU environment must be completely consistent.
