@@ -144,7 +144,7 @@ def main():
                     capacities = [
                         int(value.replace(",", "")) // block
                         for value in re.findall(
-                            r"GPU KV cache size: ([\d,]+) tokens", log_path.read_text()
+                            r"(?:GPU|NPU) KV cache size: ([\d,]+) tokens", log_path.read_text()
                         )
                     ]
                     assert capacities and len(set(capacities)) == 1, capacities

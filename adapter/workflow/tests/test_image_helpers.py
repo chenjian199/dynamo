@@ -128,3 +128,15 @@ def test_installed_engine_rejects_other_platform_lock(installed_image_audit):
             "ascend",
             lambda _: "0.30.0",
         )
+
+
+def test_runtime_audit_retains_native_checks_without_optional_planner(
+    installed_image_audit,
+):
+    modules = installed_image_audit.modules_for_role("runtime")
+    assert "dynamo._core" in modules and "kvbm._core" in modules
+    assert "dynamo.vllm" in modules and "gpu_memory_service" in modules
+    assert "dynamo.planner" not in modules
+    assert set(modules) < set(installed_image_audit.modules_for_role("full"))
+    with pytest.raises(ValueError, match="Unknown image role"):
+        installed_image_audit.modules_for_role("unknown")

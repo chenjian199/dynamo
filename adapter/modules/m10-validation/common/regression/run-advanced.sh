@@ -17,7 +17,7 @@ export PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1
 export PYTHONPATH=/harness/test-deps${PYTHONPATH:+:$PYTHONPATH}
 cd /harness
 mkdir -p "$out"
-python check-installed.py > "$out/installed.json"
+python check-installed.py --role runtime > "$out/installed.json"
 python adapter/modules/m03-engine-integration/common/engine/create-lora.py --model "$MODEL_PATH" --output "/var/cache/dynamo-$platform/models/m03-lora"
 failures=0
 run_case() {

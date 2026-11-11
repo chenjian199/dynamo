@@ -20,3 +20,5 @@ SPDX-License-Identifier: Apache-2.0
 | [run-ascend-hybrid-tail.sh](run-ascend-hybrid-tail.sh) | 既有 Ascend r3 活动的后续回归脚本，依赖已准备的工作目录 |
 
 使用 [rendering](../rendering/README.md) 创建隔离测试环境，先核对安装身份，再运行所选 [M10 case](../../README.md)。shell 驱动可能含既有模型、路径和活动编号，应在新配方中确认；测试结果写入新的 campaign。原生引擎问题保留可比对照，不静默修改验收标准。
+
+`check-installed.py --role runtime` 验证推理镜像的版本锁和核心模块。默认 `--role full` 额外检查同一解释器中的 Planner/Profiler；Ascend 的 tools 使用独立解释器，先对 `/opt/dynamo/venv/bin/python` 执行 runtime 检查，再由 `run-tools.sh` 对 tools 解释器执行 Planner/Profiler 检查。不能把缺少可选工具依赖误报为推理引擎失败，也不能省略 tools 的独立验收。

@@ -2,6 +2,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Reject editable/source-shadowed imports and record the installed binaries."""
+
+import argparse
 import hashlib
 import importlib
 import importlib.metadata as metadata
@@ -19,7 +21,25 @@ def validate_versions(profile, platform, version=metadata.version):
         assert actual == expected, (package, actual, expected)
 
 
+def modules_for_role(role):
+    modules = (
+        "dynamo._core",
+        "dynamo.vllm",
+        "dynamo.common.platform",
+        "kvbm._core",
+        "gpu_memory_service",
+    )
+    if role == "full":
+        return modules + ("dynamo.planner", "dynamo.profiler")
+    if role != "runtime":
+        raise ValueError(f"Unknown image role: {role}")
+    return modules
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--role", choices=("runtime", "full"), default="full")
+    args = parser.parse_args()
     platform = os.environ["DYNAMO_IMAGE_PLATFORM"]
     profile_path = Path(
         os.environ.get("DYNAMO_EXPECTED_PROFILE", "/opt/dynamo/artifacts/profile.json")
@@ -41,15 +61,7 @@ def main():
             ), name
         packages[name] = distribution.version
     modules = {}
-    for name in (
-        "dynamo._core",
-        "dynamo.vllm",
-        "dynamo.common.platform",
-        "dynamo.planner",
-        "dynamo.profiler",
-        "kvbm._core",
-        "gpu_memory_service",
-    ):
+    for name in modules_for_role(args.role):
         module = importlib.import_module(name)
         path = Path(module.__file__).resolve()
         assert "site-packages" in path.parts, (name, str(path))
@@ -61,6 +73,7 @@ def main():
         json.dumps(
             {
                 "passed": True,
+                "image_role": args.role,
                 "platform": platform,
                 "source_commit": source["commit"],
                 "source_patch_sha256": source.get("patch_sha256"),

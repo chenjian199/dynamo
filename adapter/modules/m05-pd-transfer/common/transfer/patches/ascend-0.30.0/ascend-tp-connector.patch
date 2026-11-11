@@ -57,21 +57,29 @@
 @@ -2221 +2260 @@
 -            self.tp_num_need_pulls = num_d_block_heads // num_p_block_heads
 +            self.tp_num_need_pulls = max(1, num_d_block_heads // num_p_block_heads)
-@@ -2659,0 +2699,7 @@
+@@ -2659,0 +2699,15 @@
 +                if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
 +                    expected_heads = self.vllm_config.model_config.get_total_num_kv_heads() // self.tp_size
-+                    if (single_kv_cache.ndim != 4 or not single_kv_cache.is_contiguous()
++                    if (single_kv_cache.ndim != 4
 +                            or single_kv_cache.shape[1] != self.block_size
 +                            or single_kv_cache.shape[2] != expected_heads
-+                            or single_kv_cache.dtype != torch.bfloat16):
-+                        raise ValueError("Split TP requires contiguous BF16 NHD cache")
-@@ -3692 +3738 @@
++                            or single_kv_cache.dtype != torch.bfloat16
++                            or torch_npu.get_npu_format(single_kv_cache) != 2):
++                        raise ValueError("Split TP requires BF16 ND-format NHD cache")
++                    # 0.30 may expose K/V pages interleaved in shared storage.
++                    # The transfer loop already uses the advertised block stride.
++                    head_size = single_kv_cache.shape[3]
++                    page_elements = self.block_size * expected_heads * head_size
++                    if (single_kv_cache.stride()[1:] != (expected_heads * head_size, head_size, 1)
++                            or single_kv_cache.stride(0) not in (page_elements, 2 * page_elements)):
++                        raise ValueError("Split TP requires dense tokens with contiguous or interleaved pages")
+@@ -3692 +3746 @@
 -        return num_d_block_heads // num_p_block_heads
 +        return max(1, num_d_block_heads // num_p_block_heads)
-@@ -3956 +4002 @@
+@@ -3956 +4010 @@
 -            tp_num_need_pulls = num_d_block_heads // num_p_block_heads
 +            tp_num_need_pulls = max(1, num_d_block_heads // num_p_block_heads)
-@@ -4032,0 +4079,3 @@
+@@ -4032,0 +4087,3 @@
 +        if self.vllm_config.kv_transfer_config.get_from_extra_config("heyi_tp_split", False):
 +            assert prefill_tp_size == 1 and self._decode_tp_size == 2
 +            return [[int(tp_ori_data[0])], [int(tp_ori_data[0])]]
