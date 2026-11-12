@@ -115,6 +115,12 @@ def load(path):
     if fingerprint(frozen) != identity or state["identity"] != identity:
         raise ValueError("Upgrade lock changed; create a new session")
     frozen["identity"] = identity
+    parent = frozen.get("replanned_from")
+    if parent and (
+        digest(path / "parent-lock.json") != parent["lock_sha256"]
+        or digest(path / "parent-state.json") != parent["state_sha256"]
+    ):
+        raise ValueError("Replanned session parent snapshot changed")
     # Analysis is derived from immutable Git trees, never trust edited impact or ledger JSON.
     expected = analyze(frozen["repository"], frozen)
     if read(path / "analysis.json") != expected:
@@ -317,6 +323,7 @@ def handoff(session, platform, environment, chip):
             k: {"disposition": "required"} for k in analysis["required_features"]
         },
     }
+    scope["features"].update(analysis.get("deferred_features", {}))
     alternatives = {
         k: f["dependencies_any_of"]
         for k, f in frozen["features"].items()
@@ -398,6 +405,11 @@ def attach_campaign(session, platform, campaign):
             raise ValueError(
                 "Campaign omits impacted/mandatory features; explicit new scope plan is needed for deferral"
             )
+        for key, declaration in analysis.get("deferred_features", {}).items():
+            if cf.get("scope", {}).get("features", {}).get(key) != declaration:
+                raise ValueError(
+                    "Campaign must retain the exact accepted deferral: " + key
+                )
         # Do not allow feature-level coverage to conceal skipped individual cases or altered contracts.
         for key in analysis["required_features"]:
             expected = frozen["features"][key]
@@ -511,6 +523,7 @@ def status(session):
         "status": "ready_for_promotion_review" if not blockers else "pending",
         "blockers": blockers,
         "required_features": analysis["required_features"],
+        "deferred_features": analysis.get("deferred_features", {}),
         "ledger_items": len(analysis["ledger"]),
         "next": "Prepare images, candidate, reviews, checks, M01–M10 campaigns and paired comparisons; no automatic publish",
     }

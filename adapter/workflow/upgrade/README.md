@@ -15,8 +15,26 @@ SPDX-License-Identifier: Apache-2.0
 | `session.py` | 会话冻结、锁与事件、镜像绑定、隔离合并、审查、检查、M01–M10 handoff 与验收挂接 |
 | `images.py` | inspect 后以镜像 ID 读取真实包版本，要求官方 RepoDigest 和架构匹配 |
 | `gates.py` | 三方配对比较、七步离线交付复核、最终发布提案与回退记录 |
+| `replan.py` | 根据明确接受的暂缓范围新建会话；保留旧 lock/state 原文，不继承运行验收通过状态 |
 
 `status` 有未完成项时退出 2，完整状态仍输出 JSON；这是调度器可消费的 pending，不是异常成功。`prepare` 遇冲突也退出 2，保留合并现场。初始化、冻结、绑定镜像不接受覆盖式重试；已经存在的候选由 `prepare` 识别并保留。固定输入变化要新建 session，候选源码变化要重新审查、检查和冻结平台 campaign。
+
+## 显式范围重冻结
+
+计划可提供 `deferred_features`，每项必须包含 `disposition: deferred`、原因、接受人和接受依据。
+必测基础项不可暂缓；保留功能的必需依赖不可暂缓；不能排除全部备选依赖。
+其余被影响功能仍然必测，且其中每个 case 的断言和修订号保持不变。
+
+```bash
+python3 -m adapter.workflow upgrade replan-scope \
+  --session <旧会话> --plan <经确认的新计划> --name <新会话名> \
+  --reviewer <范围审核者> --reason <用户确认的范围依据>
+```
+
+此命令只允许变更计划名称和暂缓项；拒绝顺带修改版本、镜像、必测基础项、检查及性能阈值。
+新会话保留旧 lock/state 的带摘要快照，共用原候选 worktree。只保留绑定同一候选提交的源码审查；
+checks、comparison、campaign、delivery 均为空，必须重新执行或通过正常入口显式复核。
+暂缓项会出现在 handoff 和 status 中，挂接 campaign 时必须逐项保留相同例外说明，不能被标为已通过。
 
 ## 比较文件
 

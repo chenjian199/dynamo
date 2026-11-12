@@ -15,6 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 | [test_api_tools.py](test_api_tools.py) | API 文件工具的范围与 SHA 检查，模拟 Responses 多轮工具调用 |
 | [test_delivery_pipeline.py](test_delivery_pipeline.py) | 构建至封存的交付顺序、篡改检测和中断后不重复导入 |
 | [test_image_helpers.py](test_image_helpers.py) | 多架构镜像与单平台 ID 处理；不依赖 Docker daemon |
+| [test_platform_smoke.py](test_platform_smoke.py) | M01 发现脚本按版本锁精确比对，以及导出源码摘要漂移拒绝 |
 | [test_packaging_paths.py](test_packaging_paths.py) | 实际 M02 测试包复制、M10 补丁刷新与摘要完整性；替代 Docker 调用，不构建镜像 |
 | [pytest.ini](pytest.ini) | 此组测试独立的 pytest 配置 |
 

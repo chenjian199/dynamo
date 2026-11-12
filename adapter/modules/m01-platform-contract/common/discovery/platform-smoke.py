@@ -16,12 +16,51 @@ import tempfile
 import time
 from pathlib import Path
 
-from dynamo._core import backend
-from dynamo.common.platform import PlatformRegistry
-from dynamo.runtime import DistributedRuntime
+
+def validate_worker_stack(platform, profile, software):
+    if profile["id"] != platform:
+        raise AssertionError("Stack profile belongs to a different platform")
+    for package, expected in profile["versions"].items():
+        actual = software.get(package)
+        if actual != expected:
+            raise AssertionError(f"{package}: expected {expected}, observed {actual}")
+
+
+def source_identity(root, sources):
+    hashes = {
+        name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in sources
+    }
+    # Exported source has no Git metadata. Its manifest must cover every input
+    # read by this probe, including the probe and the canonical platform lock.
+    manifest = root / "SOURCE.json"
+    if manifest.is_file():
+        data = json.loads(manifest.read_text())
+        for name, value in hashes.items():
+            if data["files"].get(name) != value:
+                raise AssertionError(f"Source manifest mismatch: {name}")
+        commit = data["commit"]
+        if len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
+            raise ValueError("Invalid source commit")
+        return commit, hashes
+    commit = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=root, text=True
+    ).strip()
+    return commit, hashes
 
 
 async def run(args, report):
+    from dynamo._core import backend
+    from dynamo.common.platform import PlatformRegistry
+    from dynamo.common.platform.registry import PlatformError
+    from dynamo.runtime import DistributedRuntime
+
+    try:
+        PlatformRegistry().prepare("heyi-unregistered-negative-probe")
+    except PlatformError as error:
+        assert error.code == "unknown_platform"
+        report["unknown_platform_rejection"] = error.to_dict()
+    else:
+        raise AssertionError("Unknown platform was accepted")
     os.environ.update(
         DYN_PLATFORM="cpu", DYN_SYSTEM_PORT="0", DYN_FILE_KV=args.discovery_dir
     )
@@ -30,6 +69,7 @@ async def run(args, report):
     )
     try:
         cpu = PlatformRegistry().prepare("cpu")
+        report["explicit_cpu_selection"] = cpu
         runtime.configure_platform(cpu)
         runtime.configure_platform(cpu)
         assert runtime.platform["platform_id"] == "cpu"
@@ -39,7 +79,13 @@ async def run(args, report):
             invalid[key] = value
             try:
                 runtime.configure_platform(invalid)
-            except Exception as error:
+            except Exception as error:  # noqa: BLE001 -- Rust to_pyerr returns PyException; check its exact diagnostic below.
+                expected = (
+                    "unsupported_schema"
+                    if key == "schema_version"
+                    else "platform already frozen with a different configuration"
+                )
+                assert expected in str(error), str(error)
                 report.setdefault("configuration_rejections", {})[key] = str(error)
             else:
                 raise AssertionError(f"Accepted invalid configuration: {key}")
@@ -54,18 +100,15 @@ async def run(args, report):
         workers = []
         for instance in instances:
             platform = instance.platform
-            assert (
-                instance.device_type is None
-            ), "Non-CUDA platforms must not advertise legacy CUDA"
+            assert instance.device_type is None, (
+                "Non-CUDA platforms must not advertise legacy CUDA"
+            )
             assert (
                 platform["schema_version"] == 1
                 and platform["platform_id"] == args.platform
             )
             assert platform["device_kind"] == "accelerator"
-            assert (
-                platform["software"]["vllm"].split("+")[0]
-                == {"metax": "0.26.0", "ascend": "0.23.0"}[args.platform]
-            )
+            validate_worker_stack(args.platform, report["stack"], platform["software"])
             assert (
                 platform["software"]["driver"]
                 and platform["software"][
@@ -136,12 +179,12 @@ async def run(args, report):
             raise
         diagnostic = output.decode(errors="replace")
         assert process.returncode != 0, "Unknown required capability must fail startup"
-        assert (
-            "missing_capability" in diagnostic and "pd.transfer" in diagnostic
-        ), diagnostic[-4000:]
-        assert not any(
-            path.is_file() for path in Path(directory).rglob("*")
-        ), "Failed worker published discovery data"
+        assert "missing_capability" in diagnostic and "pd.transfer" in diagnostic, (
+            diagnostic[-4000:]
+        )
+        assert not any(path.is_file() for path in Path(directory).rglob("*")), (
+            "Failed worker published discovery data"
+        )
         report["required_capability_rejection"] = {
             "capability": "pd.transfer",
             "exit_code": process.returncode,
@@ -179,24 +222,24 @@ def main():
         "lib/bindings/python/rust/backend.rs",
         "lib/backend-common/src/worker.rs",
         "components/src/dynamo/vllm/main.py",
-        f"adapter/platforms/{args.platform}/{args.platform}-serve.sh",
-        f"adapter/platforms/{args.platform}/{args.platform}-kv-serve.sh",
+        f"adapter/platforms/{args.platform}/bringup/{args.platform}-serve.sh",
+        f"adapter/platforms/{args.platform}/bringup/{args.platform}-kv-serve.sh",
         "adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py",
+        f"container/platforms/{args.platform}.json",
     ]
     sources.extend(
         str(path.relative_to(root))
         for path in (root / "components/src/dynamo/common/platform").glob("*.py")
     )
+    commit, hashes = source_identity(root, sources)
     report = {
         "passed": False,
         "date_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "source_commit": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=root, text=True
-        ).strip(),
-        "source_sha256": {
-            name: hashlib.sha256((root / name).read_bytes()).hexdigest()
-            for name in sources
-        },
+        "source_commit": commit,
+        "source_sha256": hashes,
+        "stack": json.loads(
+            (root / f"container/platforms/{args.platform}.json").read_text()
+        ),
         "cuda_hardware_verified": False,
     }
     try:

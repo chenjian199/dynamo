@@ -15,6 +15,7 @@ from adapter.workflow.delivery import PHASES
 from adapter.workflow.upgrade import gates, gitops, images, session
 from adapter.workflow.upgrade.analysis import closure
 from adapter.workflow.upgrade.cli import main
+from adapter.workflow.upgrade.replan import replan_scope
 
 
 class UpgradeTest(unittest.TestCase):
@@ -180,6 +181,104 @@ class UpgradeTest(unittest.TestCase):
         self.write("engine.py", "uncommitted\n")
         with self.assertRaisesRegex(ValueError, "Commit workflow"):
             self.init()
+
+    def deferred(self):
+        return {
+            "disposition": "deferred",
+            "reason": "Fixture lacks delivery environment",
+            "accepted_by": "fixture operator",
+            "reference": "fixture explicit scope",
+        }
+
+    def test_replan_scope_preserves_parent_and_resets_runtime_gates(self):
+        self.merged()
+        item = read(self.s / "analysis.json")["ledger"][0]
+        session.review(self.s, item["id"], "retain", "fixture source review", "test")
+        session.check(self.s)
+        self.comparisons()
+        gates.compare(self.s, "cuda", self.comparison)
+        before = {p.name: p.read_bytes() for p in self.s.iterdir() if p.is_file()}
+        self.plan["id"] = "scoped"
+        self.plan["deferred_features"] = {"M10-F01": self.deferred()}
+        atomic(self.planfile, self.plan)
+        new = replan_scope(self.s, self.planfile, "scoped", "test", "explicit deferral")
+        _, frozen, state, analysis = session.load(new)
+        self.assertEqual(frozen["commits"]["heyi"], self.head)
+        self.assertEqual(analysis["required_features"], ["M01-F01", "M03-F01"])
+        self.assertEqual(state["reviews"][item["id"]]["commit"], self.candidate)
+        for gate in ["checks", "campaigns", "comparisons", "deliveries"]:
+            self.assertFalse(state[gate])
+        for name, data in before.items():
+            self.assertEqual((self.s / name).read_bytes(), data)
+        self.assertEqual(digest(new / "parent-lock.json"), digest(self.s / "lock.json"))
+        self.assertEqual(
+            digest(new / "parent-state.json"), digest(self.s / "state.json")
+        )
+        handoff = session.handoff(new, "cuda", self.root / "site.yaml", "fixture")
+        proposed = read(
+            new / "handoffs" / "cuda" / self.candidate / "scope.proposed.json"
+        )
+        self.assertEqual(proposed["features"]["M10-F01"], self.deferred())
+        self.assertEqual(handoff["candidate"], self.candidate)
+        self.assertIn(
+            "cuda:fresh_M01_M10_campaign_pending", session.status(new)["blockers"]
+        )
+        with self.assertRaisesRegex(ValueError, "Session exists"):
+            replan_scope(self.s, self.planfile, "scoped", "test", "retry")
+        (new / "parent-state.json").write_text("{}")
+        with self.assertRaisesRegex(ValueError, "parent snapshot changed"):
+            session.load(new)
+
+    def test_scope_replan_cannot_remove_mandatory_or_dependency(self):
+        self.merged()
+        for feature, message in [
+            ("M01-F01", "Mandatory"),
+            ("M03-F01", "deferred dependency"),
+        ]:
+            self.plan["deferred_features"] = {feature: self.deferred()}
+            atomic(self.planfile, self.plan)
+            with self.assertRaisesRegex(ValueError, message):
+                replan_scope(
+                    self.s, self.planfile, feature, "test", "fixture rejection"
+                )
+            self.assertFalse((self.root / "results" / feature).exists())
+        self.plan["deferred_features"] = {"M10-F01": self.deferred()}
+        self.plan["comparison_limits"]["min_throughput_ratio"] = 0.1
+        atomic(self.planfile, self.plan)
+        with self.assertRaisesRegex(ValueError, "cannot change"):
+            replan_scope(self.s, self.planfile, "weakened", "test", "fixture rejection")
+
+    def test_deferrals_require_acceptance_and_cannot_hide_skipped_cases(self):
+        self.plan["deferred_features"] = {"M10-F01": self.deferred()}
+        for field in ["reason", "accepted_by", "reference"]:
+            bad = copy.deepcopy(self.plan)
+            bad["deferred_features"]["M10-F01"][field] = " "
+            atomic(self.planfile, bad)
+            self.assertEqual(main(["validate-plan", "--plan", str(self.planfile)]), 2)
+        self.merged()
+        campaign = self.tree / "adapter/results/cuda/fixture/fake"
+        frozen = {
+            "platform": "cuda",
+            "source": {"head": self.candidate},
+            "required": ["M01-F01", "M03-F01"],
+            "stack": {
+                "versions": {"vllm": "0.2.0"},
+                "base_image": self.receipt["repo_digest"],
+            },
+            "features": copy.deepcopy(self.features),
+            "scope": {"features": {"M10-F01": self.deferred()}},
+        }
+        frozen["scope"]["features"]["M10-F01"]["reference"] = "unapproved replacement"
+        atomic(campaign / "lock.json", frozen)
+        with self.assertRaisesRegex(ValueError, "exact accepted deferral"):
+            session.attach_campaign(self.s, "cuda", campaign)
+        frozen["scope"]["features"]["M10-F01"] = self.deferred()
+        frozen["features"]["M03-F01"]["case_scope"] = {
+            "M03-F01-C01": {"disposition": "optional"}
+        }
+        atomic(campaign / "lock.json", frozen)
+        with self.assertRaisesRegex(ValueError, "weaken required cases"):
+            session.attach_campaign(self.s, "cuda", campaign)
 
     def test_wrong_official_commit_rejected(self):
         self.plan["target_commit"] = "a" * 40

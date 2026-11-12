@@ -79,14 +79,32 @@ def analyze(repo, frozen):
                 note="Review intent and target APIs, even when merge is clean",
             )
         )
-    return {
+    required = closure(features, affected)
+    deferred = frozen["plan"].get("deferred_features", {})
+    if set(deferred) - set(features):
+        raise ValueError("Unknown deferred upgrade feature")
+    if set(deferred) & set(frozen["plan"]["mandatory_features"]):
+        raise ValueError("Mandatory upgrade features cannot be deferred")
+    retained = set(required) - set(deferred)
+    for key in retained:
+        feature = features[key]
+        if set(feature["dependencies"]) & set(deferred):
+            raise ValueError(key + ": required feature has a deferred dependency")
+        for group in feature.get("dependencies_any_of", []):
+            if set(group) <= set(deferred):
+                raise ValueError(key + ": all alternative dependencies are deferred")
+    result = {
         "schema_version": 1,
         "commits": refs,
         "upstream": upstream,
         "ledger": ledger,
         "historical_paths": historical,
         "unclassified_paths": sorted(set(unknown)),
-        "required_features": closure(features, affected),
+        "required_features": sorted(retained),
         "new_upstream_review": "pending",
         "evidence_policy": "Old results remain historical; all selected features need fresh campaigns.",
     }
+    # Preserve the exact analysis shape for existing immutable, full-scope sessions.
+    if deferred:
+        result["deferred_features"] = deferred
+    return result

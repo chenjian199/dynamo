@@ -14,6 +14,7 @@ import jsonschema
 from adapter.workflow.core import ROOT, atomic, read
 from adapter.workflow.upgrade import gates, session
 from adapter.workflow.upgrade.images import probe
+from adapter.workflow.upgrade.replan import replan_scope
 
 
 def main(argv=None):
@@ -26,6 +27,12 @@ def main(argv=None):
     init.add_argument("--repo", type=Path, default=ROOT)
     validate = sub.add_parser("validate-plan")
     validate.add_argument("--plan", type=Path, required=True)
+    replan = sub.add_parser("replan-scope")
+    replan.add_argument("--session", type=Path, required=True)
+    replan.add_argument("--plan", type=Path, required=True)
+    replan.add_argument("--name", required=True)
+    replan.add_argument("--reviewer", required=True)
+    replan.add_argument("--reason", required=True)
     image = sub.add_parser("probe-image")
     image.add_argument("--plan", type=Path, required=True)
     image.add_argument("--platform", required=True)
@@ -111,6 +118,12 @@ def main(argv=None):
             atomic(a.output, result)
         elif a.command == "init":
             result = {"session": str(session.initialize(a.repo, a.plan, a.name))}
+        elif a.command == "replan-scope":
+            result = {
+                "session": str(
+                    replan_scope(a.session, a.plan, a.name, a.reviewer, a.reason)
+                )
+            }
         elif a.command == "bind-image":
             result = session.bind_image(a.session, a.platform, a.receipt)
         elif a.command == "review":

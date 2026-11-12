@@ -24,11 +24,14 @@ def test_pd_metadata_binds_each_child_once():
 
     connector = object.__new__(PdConnector)
     connector._connectors = [Mock(), Mock()]
-    connector._extra_async_saves = {}
+    connector._extra_async_saves = {"previous": 1}
     child_metadata = (Mock(), Mock())
-    metadata = PdConnectorMetadata(metadata=child_metadata)
+    metadata = PdConnectorMetadata(
+        metadata=child_metadata, extra_async_saves={"current": 2}
+    )
     connector.bind_connector_metadata(metadata)
     assert connector.has_connector_metadata()
+    assert connector._extra_async_saves == {"previous": 1, "current": 2}
     for child, value in zip(connector._connectors, child_metadata):
         child.bind_connector_metadata.assert_called_once_with(value)
     connector.clear_connector_metadata()
