@@ -51,8 +51,8 @@ ReplicatedDataWorker
 
 | 平台 | 通信库 | 卡号 | 结果 |
 | --- | --- | --- | --- |
-| MetaX C500 | MCCL | 2、3 | [6/6 通过](../../../../results/cuda/unspecified/imported-m06/features/M06-F02/artifacts/independent/summary.json) |
-| Ascend 910B3 | HCCL | 2、3 | [6/6 通过](../../../../results/cuda/unspecified/imported-m06/features/M06-F02/artifacts/independent/summary.json) |
+| MetaX C500 | MCCL | 2、3 | [6/6 通过](../../../../results/metax/unspecified/imported-m06/features/M06-F02/artifacts/independent/summary.json) |
+| Ascend 910B3 | HCCL | 2、3 | [6/6 通过](../../../../results/ascend/unspecified/imported-m06/features/M06-F02/artifacts/independent/summary.json) |
 | NVIDIA H800 | NCCL | 1、3 | [6/6 通过](../../../../results/cuda/unspecified/imported-m06/features/M06-F02/artifacts/independent/summary.json) |
 
 每例两个独立进程各自核对原始设备字节，并且全部 rank 成功退出才算通过：合计 18 例、36 个 rank 结果。
@@ -116,3 +116,7 @@ cargo test -p kvbm-engine --no-default-features --features collectives --no-run 
 构建日志中的 CUDA kernel stub 只用于链接保留的 CUDA 快路径符号；本例不调用这些符号。
 实际复制与广播调用 CUDA/MACA/ACL 及 NCCL/MCCL/HCCL 动态库。`native-build.sh` 根据 Cargo
 输出复制 C ABI 库，不能用 `debug/deps` 中同名的 Rust cdylib 替换。
+
+## 升级闭环的测量增强（2026-11-12）
+
+上述 2026-10-20 记录仍是历史验证。当前候选新增每 rank 不同数据的独立 host 往返，并在 replicated 阶段保留每个 rank 的 G2/G3 读回与参考字节文件；结束后观察真实 SDK 分配、注册、stream/event 的创建/释放计数。执行器核对布局、设备、字节和构建身份，不以 `passed=true` 文本认证。新增测量须在升级候选上重新执行，不追写到旧结果中。
