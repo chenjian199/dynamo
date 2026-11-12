@@ -23,7 +23,7 @@ COPY adapter/modules/m08-kubernetes/common/advanced/patch-aiperf.py ./patch-aipe
 RUN /opt/dynamo/venv/bin/python patch-aiperf.py && \
     ln -sf /bin/bash /bin/sh && \
     mkdir -p /opt/dynamo/platform-capacity && \
-    /opt/dynamo/venv/bin/python -c "from pathlib import Path; from aiconfigurator.sdk import perf_database; p=Path(perf_database.get_systems_paths()[0])/'metax_c500.yaml'; p.symlink_to('/opt/dynamo/platform-capacity/metax_c500.yaml')"
+    /opt/dynamo/venv/bin/python -c "from pathlib import Path; from aisimulate_core.sdk import perf_database; p=Path(perf_database.get_systems_paths()[0])/'metax_c500.yaml'; p.symlink_to('/opt/dynamo/platform-capacity/metax_c500.yaml')"
 ENV DYN_PLATFORM=cpu TORCH_DEVICE_BACKEND_AUTOLOAD=0 PYTHONPATH=/opt/dynamo/profiler-support
 # Capacity YAML is mounted per deployment, not guessed from a CUDA SKU.
 RUN /opt/dynamo/venv/bin/python -c "from dynamo.profiler.utils.dgdr_v1beta1_types import GPUSKUType; assert GPUSKUType.MetaXC500.value == 'metax_c500'; import dynamo.planner" && \
