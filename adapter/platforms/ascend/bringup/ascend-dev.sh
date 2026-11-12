@@ -7,7 +7,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 CONTAINER_NAME="${CONTAINER_NAME:-dynamo-ascend-dev}"
-IMAGE="${IMAGE:-quay.io/ascend/vllm-ascend@sha256:471744200c5d0c768c1f6c6a6816dcae0fd551de2487d4d129b6fb750024ce6a}"
+IMAGE="${IMAGE:-$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["base_image"])' "$REPO_DIR/container/platforms/ascend.json")}"
 CACHE_VOLUME="${CACHE_VOLUME:-dynamo-ascend-cache}"
 HTTP_PORT="${HTTP_PORT:-18000}"
 NATIVE_PORT="${NATIVE_PORT:-18001}"
@@ -17,7 +17,7 @@ MODEL_ROOT="${MODEL_ROOT:-/NFS_62}"
 case "${1:-help}" in
     create)
         test -d "$MODEL_ROOT/Models" || { echo "Model share missing: $MODEL_ROOT/Models" >&2; exit 1; }
-        # 对应官方 ARM64 tag：quay.io/ascend/vllm-ascend:v0.23.0
+        # 默认使用 canonical Ascend profile 中锁定的基础镜像。
         # 同名容器存在时 docker run 会报错，不会删除或覆盖它。
         docker run -d --name "$CONTAINER_NAME" --init \
             --device=/dev/davinci0 --device=/dev/davinci1 \
@@ -104,8 +104,9 @@ export CARGO_BUILD_JOBS=32 CARGO_PROFILE_DEV_DEBUG=0
 export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C target-cpu=generic -C force-frame-pointers=yes --cfg tokio_unstable'
 cd /workspace/dynamo
 python -m pip install --no-deps -e .
+runtime_features=$(python -c 'import json; print(",".join(json.load(open("container/platforms/ascend.json"))["runtime_features"]))')
 cd lib/bindings/python
-maturin develop --locked --uv
+maturin develop --locked --uv --features "$runtime_features"
 cd /workspace/dynamo
 python -c 'import dynamo._core; print("本地运行时：", dynamo._core.__file__)'
 echo 'Python editable 安装完成；Python 修改后重启服务，Rust 修改后重跑 build。'
