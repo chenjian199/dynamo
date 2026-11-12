@@ -33,6 +33,10 @@ def main(argv=None):
     replan.add_argument("--name", required=True)
     replan.add_argument("--reviewer", required=True)
     replan.add_argument("--reason", required=True)
+    batch = sub.add_parser("review-batch")
+    batch.add_argument("--session", type=Path, required=True)
+    batch.add_argument("--input", type=Path, required=True)
+    batch.add_argument("--reviewer", required=True)
     image = sub.add_parser("probe-image")
     image.add_argument("--plan", type=Path, required=True)
     image.add_argument("--platform", required=True)
@@ -126,6 +130,8 @@ def main(argv=None):
             }
         elif a.command == "bind-image":
             result = session.bind_image(a.session, a.platform, a.receipt)
+        elif a.command == "review-batch":
+            result = session.review_batch(a.session, a.input, a.reviewer)
         elif a.command == "review":
             result = session.review(
                 a.session, a.item, a.disposition, a.reason, a.reviewer

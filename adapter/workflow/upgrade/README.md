@@ -19,6 +19,14 @@ SPDX-License-Identifier: Apache-2.0
 
 `status` 有未完成项时退出 2，完整状态仍输出 JSON；这是调度器可消费的 pending，不是异常成功。`prepare` 遇冲突也退出 2，保留合并现场。初始化、冻结、绑定镜像不接受覆盖式重试；已经存在的候选由 `prepare` 识别并保留。固定输入变化要新建 session，候选源码变化要重新审查、检查和冻结平台 campaign。
 
+## 批量审查登记
+
+大量迁移项可用 `review-batch --session ... --input review.json --reviewer ...` 原子登记。
+输入包含完整 `candidate` 提交号和非空 `records`；每条要求 `id`、`path`、`sha256`、
+`disposition`、`reason`。必须先做逐文件语义审查，不能由“无合并冲突”批量生成通过结论。
+任一 ID、文件摘要、候选提交或理由无效时，整批不写入；缺失路径仅允许明确的删除/替代决定，
+摘要为 null。输入原文保存到会话 `reviews/`，后续 `status` 检查摘要；这只登记源码审查，不替代实机门禁。
+
 ## 显式范围重冻结
 
 计划可提供 `deferred_features`，每项必须包含 `disposition: deferred`、原因、接受人和接受依据。

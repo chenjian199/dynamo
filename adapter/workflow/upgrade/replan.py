@@ -54,6 +54,22 @@ def replan_scope(source, plan_file, name, reviewed_by, reason):
         }
         new["identity"] = fingerprint(new)
         analysis = analyze(frozen["repository"], new)
+        reviews = {
+            k: deepcopy(v)
+            for k, v in state["reviews"].items()
+            if v.get("commit") == head
+        }
+        batches = {}
+        for record in reviews.values():
+            if record.get("batch"):
+                receipt = Path(record["batch"]).resolve()
+                if (
+                    not receipt.is_relative_to(path / "reviews")
+                    or digest(receipt) != record["batch_sha256"]
+                ):
+                    raise ValueError("Parent review batch changed")
+                batches[receipt.name] = receipt.read_bytes()
+                record["batch"] = str(destination / "reviews" / receipt.name)
         # mkdir is exclusive even if two callers chose the same destination name.
         destination.mkdir(parents=True)
         atomic(destination / "parent-lock.json", parent_lock)
@@ -62,7 +78,10 @@ def replan_scope(source, plan_file, name, reviewed_by, reason):
         atomic(destination / "analysis.json", analysis)
         # Only same-candidate source reviews survive a scope-only change. Runtime
         # campaign, comparison, check and delivery gates must be attached again.
-        reviews = {k: v for k, v in state["reviews"].items() if v.get("commit") == head}
+        if batches:
+            (destination / "reviews").mkdir()
+            for receipt_name, data in batches.items():
+                (destination / "reviews" / receipt_name).write_bytes(data)
         upstream = state.get("upstream_review")
         atomic(
             destination / "state.json",

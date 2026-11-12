@@ -182,6 +182,42 @@ class UpgradeTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Commit workflow"):
             self.init()
 
+    def test_review_batch_is_hash_bound_and_atomic(self):
+        self.merged()
+        _, _, _, analysis = session.load(self.s)
+        item = next(i for i in analysis["ledger"] if i["path"] == "engine.py")
+        entry = {
+            "id": item["id"],
+            "path": item["path"],
+            "sha256": digest(self.tree / item["path"]),
+            "disposition": "retain",
+            "reason": "Fixture semantic review",
+        }
+        data = {"candidate": self.candidate, "records": [entry]}
+        file = self.root / "batch.json"
+        original = (self.s / "state.json").read_bytes()
+        for invalid in [
+            dict(data, candidate="0" * 40),
+            dict(data, records=[entry, dict(entry, sha256="0" * 64)]),
+            dict(data, records=[dict(entry, sha256="0" * 64)]),
+            dict(data, records=[dict(entry, reason=" ")]),
+            dict(data, records=[dict(entry, path="other.py")]),
+        ]:
+            atomic(file, invalid)
+            with self.assertRaises(ValueError):
+                session.review_batch(self.s, file, "fixture reviewer")
+            self.assertEqual((self.s / "state.json").read_bytes(), original)
+        atomic(file, data)
+        result = session.review_batch(self.s, file, "fixture reviewer")
+        self.assertEqual(result["reviewed_items"], 1)
+        record = read(self.s / "state.json")["reviews"][entry["id"]]
+        self.assertEqual(record["source_sha256"], entry["sha256"])
+        self.assertEqual(digest(Path(record["batch"])), record["batch_sha256"])
+        Path(record["batch"]).write_text("{}\n")
+        self.assertIn(
+            "review_batch_evidence_changed", session.status(self.s)["blockers"]
+        )
+
     def deferred(self):
         return {
             "disposition": "deferred",
@@ -193,7 +229,23 @@ class UpgradeTest(unittest.TestCase):
     def test_replan_scope_preserves_parent_and_resets_runtime_gates(self):
         self.merged()
         item = read(self.s / "analysis.json")["ledger"][0]
-        session.review(self.s, item["id"], "retain", "fixture source review", "test")
+        batch = self.root / "scope-review.json"
+        atomic(
+            batch,
+            {
+                "candidate": self.candidate,
+                "records": [
+                    {
+                        "id": item["id"],
+                        "path": item["path"],
+                        "sha256": digest(self.tree / item["path"]),
+                        "disposition": "retain",
+                        "reason": "fixture source review",
+                    }
+                ],
+            },
+        )
+        session.review_batch(self.s, batch, "test")
         session.check(self.s)
         self.comparisons()
         gates.compare(self.s, "cuda", self.comparison)
@@ -206,6 +258,11 @@ class UpgradeTest(unittest.TestCase):
         self.assertEqual(frozen["commits"]["heyi"], self.head)
         self.assertEqual(analysis["required_features"], ["M01-F01", "M03-F01"])
         self.assertEqual(state["reviews"][item["id"]]["commit"], self.candidate)
+        inherited_review = state["reviews"][item["id"]]
+        self.assertTrue(Path(inherited_review["batch"]).is_relative_to(new / "reviews"))
+        self.assertEqual(
+            digest(Path(inherited_review["batch"])), inherited_review["batch_sha256"]
+        )
         for gate in ["checks", "campaigns", "comparisons", "deliveries"]:
             self.assertFalse(state[gate])
         for name, data in before.items():

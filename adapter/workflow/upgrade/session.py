@@ -258,6 +258,78 @@ def review(session, item, disposition, reason, reviewer):
         return record
 
 
+def review_batch(session, input_file, reviewer):
+    """Record explicit per-file decisions atomically, after checking every source hash."""
+    if not reviewer.strip():
+        raise ValueError("Reviewer required")
+    with lock(Path(session) / ".lock"):
+        path, frozen, state, analysis = load(session)
+        tree, head = candidate(frozen, state)
+        data = read(input_file)
+        if data.get("candidate") != head:
+            raise ValueError("Review batch targets a different candidate")
+        entries = data.get("records")
+        if not isinstance(entries, list) or not entries:
+            raise ValueError("Review batch requires explicit per-file records")
+        ledger = {entry["id"]: entry["path"] for entry in analysis["ledger"]}
+        records = {}
+        for entry in entries:
+            key = entry["id"]
+            if key not in ledger or key in records or entry["path"] != ledger[key]:
+                raise ValueError("Unknown, duplicate or mismatched review path")
+            disposition, reason = entry["disposition"], entry["reason"]
+            if (
+                disposition
+                not in {"retain", "rewrite", "upstream_replaced", "remove", "blocked"}
+                or not isinstance(reason, str)
+                or not reason.strip()
+            ):
+                raise ValueError("Explicit disposition and semantic rationale required")
+            file = tree / ledger[key]
+            checksum = entry["sha256"]
+            if file.is_file():
+                if checksum != digest(file):
+                    raise ValueError("Reviewed source hash changed: " + ledger[key])
+            elif checksum is not None or disposition not in {
+                "remove",
+                "upstream_replaced",
+            }:
+                raise ValueError(
+                    "Missing source requires an explicit removal/replacement review"
+                )
+            records[key] = {
+                "disposition": disposition,
+                "reason": reason,
+                "reviewer": reviewer,
+                "commit": head,
+                "time": now(),
+                "source_sha256": checksum,
+            }
+        # No partial writes if any entry fails. Reject a concurrently moved HEAD.
+        if candidate(frozen, state)[1] != head:
+            raise ValueError("Candidate moved during batch review")
+        receipt = path / "reviews" / (fingerprint(data) + ".json")
+        if receipt.exists() and read(receipt) != data:
+            raise ValueError("Existing review receipt changed")
+        atomic(receipt, data)
+        for record in records.values():
+            record["batch"] = str(receipt)
+            record["batch_sha256"] = digest(receipt)
+        state["reviews"].update(records)
+        save(
+            path,
+            state,
+            "review_batch_recorded",
+            receipt=str(receipt),
+            items=sorted(records),
+        )
+        return {
+            "candidate": head,
+            "reviewed_items": len(records),
+            "receipt": str(receipt),
+        }
+
+
 def check(session):
     with lock(Path(session) / ".lock"):
         path, frozen, state, _ = load(session)
@@ -486,6 +558,18 @@ def status(session):
     ]
     if pending:
         blockers.append(f"migration_reviews_pending:{len(pending)}")
+    batch_receipts = {
+        (r["batch"], r["batch_sha256"])
+        for r in state["reviews"].values()
+        if r.get("commit") == head and r.get("batch")
+    }
+    if any(
+        not Path(file).resolve().is_relative_to((_path / "reviews").resolve())
+        or not Path(file).is_file()
+        or digest(file) != checksum
+        for file, checksum in batch_receipts
+    ):
+        blockers.append("review_batch_evidence_changed")
     if not head or (state.get("upstream_review") or {}).get("commit") != head:
         blockers.append("upstream_semantic_review_pending")
     current_checks = [c for c in state["checks"] if c["commit"] == head]
