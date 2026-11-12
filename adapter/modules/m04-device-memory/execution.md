@@ -49,7 +49,7 @@ Rust：公共契约 7 项生命周期测试 + 3 项 M01 身份测试；无 SDK �
 
 硬件释放占用检查比较预热后与第 64 轮的设备可用内存，阈值为 8 MiB：MetaX 相差 4 KiB，Ascend/CUDA 无减少。这是短周期功能检查，不宣称长时间零增长或驱动故障认证。人为提交/完成错误、延迟完成、在途上限、Runtime 提前销毁通过可控 fake provider 验证；未人为复位真机或注入硬件故障。
 
-原始 Rust/原生测试及源码哈希见 [results](../../m04/results)。引擎 case/API/KV 报告也保存在各平台目录；完整 server.log 留在对应容器 `/var/cache/dynamo-<platform>/m04-engine/`。引擎退出有上游 multiprocessing resource_tracker 的共享内存/信号量清理警告，三次 launcher 均记录 graceful，不将它视为已解决。
+原始 Rust/原生测试及源码哈希见 [cuda](../../results/cuda/unspecified/imported-m04) / [ascend](../../results/ascend/unspecified/imported-m04) / [metax](../../results/metax/unspecified/imported-m04)。引擎 case/API/KV 报告也保存在各平台目录；完整 server.log 留在对应容器 `/var/cache/dynamo-<platform>/m04-engine/`。引擎退出有上游 multiprocessing resource_tracker 的共享内存/信号量清理警告，三次 launcher 均记录 graceful，不将它视为已解决。
 
 引擎回归沿用已有 editable Python 与 runtime wheel，验证 M01/M03 没有回退；它并不调用新 M04 接口。M04 的硬件结论来自本轮源码编译的独立 Rust 测试程序。
 

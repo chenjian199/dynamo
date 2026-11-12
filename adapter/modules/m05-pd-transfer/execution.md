@@ -82,7 +82,7 @@ ssh dynamo-nvidia 'docker exec -w /workspace/dynamo dynamo-cuda-m03-nfs \
 
 ## 结果与未完成项
 
-原始结果及补丁前失败证据见 [results](../../m05/results)。每个 case 的 JSON 记录请求结果、KV/请求占用、取消或故障结果；同名文本文件摘录引擎完成通知。完整日志保存在各开发容器 `/var/cache/dynamo-{platform}/m05/`，JSON 中记录具体目录；执行命令位于对应目录的 `commands.json`。
+原始结果及补丁前失败证据见 [cuda](../../results/cuda/unspecified/imported-m05) / [ascend](../../results/ascend/unspecified/imported-m05) / [metax](../../results/metax/unspecified/imported-m05)。每个 case 的 JSON 记录请求结果、KV/请求占用、取消或故障结果；同名文本文件摘录引擎完成通知。完整日志保存在各开发容器 `/var/cache/dynamo-{platform}/m05/`，JSON 中记录具体目录；执行命令位于对应目录的 `commands.json`。
 
 三平台正常 PD、输出对照、取消及恢复、交接契约拒绝、交接后的 producer/consumer 退出已通过。空闲 KV 指标归零代表引擎块分配已回收，不代表整个预分配显存池被释放，也不能替代 native 注册句柄泄漏检测。
 

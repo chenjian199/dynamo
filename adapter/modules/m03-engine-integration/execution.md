@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## 当前结果
 
-| 能力/配置 | [MetaX C500 / 0.26.0](../../m03/results/metax) | [Ascend 910B3 / 0.23.0](../../m03/results/ascend) | [NVIDIA H800 / 0.24.0](../../m03/results/cuda) |
+| 能力/配置 | [MetaX C500 / 0.26.0](../../results/metax/unspecified/imported-m03) | [Ascend 910B3 / 0.23.0](../../results/ascend/unspecified/imported-m03) | [NVIDIA H800 / 0.24.0](../../results/cuda/unspecified/imported-m03) |
 | --- | --- | --- | --- |
 | Qwen3-0.6B，TP=2、DP=1 | 通过 | 通过 | 由下方四卡组合覆盖 |
 | Qwen3-0.6B，TP=1、DP=2 + LoRA | 通过 | 通过 | 通过 |
@@ -130,7 +130,7 @@ MODEL_PATH=/NFS_62/Models/Qwen_Series/Qwen3-VL-2B-Instruct \
 
 ## 回归与证据
 
-原始结果按平台/配置存放于 [results/](../../m03/results)；`case.json` 是实际运行的参数、版本、源码与结果，`api.json` / `kv.json` / `advanced.json` 是对应检查。`engine-excerpt.txt` 保存专家分布、容量或实际 kernel 的日志摘录。完整日志仍在容器缓存中，并由 case 的 SHA256 引用。
+原始结果按平台/配置存放于 [cuda](../../results/cuda/unspecified/imported-m03) / [ascend](../../results/ascend/unspecified/imported-m03) / [metax](../../results/metax/unspecified/imported-m03)；`case.json` 是实际运行的参数、版本、源码与结果，`api.json` / `kv.json` / `advanced.json` 是对应检查。`engine-excerpt.txt` 保存专家分布、容量或实际 kernel 的日志摘录。完整日志仍在容器缓存中，并由 case 的 SHA256 引用。
 
 本轮最终定向回归：MetaX **466 passed**，Ascend **465 passed / 1 skipped**，CUDA **465 passed / 1 skipped**。后两者跳过的是当前 vLLM 版本不存在的 `VLLMUnprocessableEntityError` 专项，其他错误映射仍执行。原始 pytest 输出见各平台 `unit.log`。最终生产代码与测试源码已核对三容器 SHA256 一致，见 [source-sync.json](../../results/shared/unspecified/imported-m03/features/M03-F01/artifacts/source-sync.json)。
 

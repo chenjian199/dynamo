@@ -94,5 +94,5 @@ PYTHONPATH="/opt/dynamo/omni-overlay:${PYTHONPATH:-}" python adapter/modules/m07
 模型均来自 NFS，使用 Qwen3-VL-2B-Instruct 和 Qwen2.5-Omni-7B，未下载权重。
 
 原始证据位于各开发容器的 `/var/cache/dynamo-{cuda,metax,ascend}/m07-followup/`。
-[results/followup](../../../../m07/results/followup) 保存测试结果和有限日志摘录；`manifest.json` 保存原始日志 SHA256。
+[cuda](../../../../results/cuda/unspecified/imported-m07) / [ascend](../../../../results/ascend/unspecified/imported-m07) / [metax](../../../../results/metax/unspecified/imported-m07) 保存测试结果和有限日志摘录；`manifest.json` 保存原始日志 SHA256。
 历史结果中的源码哈希保持原样，不把后来新增的 guard 或格式化倒填为此前已测试。

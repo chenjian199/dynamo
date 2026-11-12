@@ -102,7 +102,7 @@ NVIDIA 活跃容器已重建，挂载 `/home/inspur/CJ_workspace/dynamo` 到 `/w
 
 最终长稳的最大进程 RSS 增幅分别为 CUDA 71.81 MiB、MetaX 7.79 MiB、Ascend 42.41 MiB；FD 增幅均为 0，线程最大增幅分别为 0、3、1。native 活跃对象计数与预热后基线一致，空闲请求与 KV 占用归零。各轮独立测试，不将多轮时间相加充当 30 分钟。
 
-原始报告见 [completion 结果](../../../../m05/results/completion)，包括失败证据。每个 case 的 `collection.json` 指向完整容器日志目录；`commands.json` 保存具体启动参数。采集使用共享缓存卷，采集容器不一定是执行容器。
+原始报告见 [cuda](../../../../results/cuda/unspecified/imported-m05) / [ascend](../../../../results/ascend/unspecified/imported-m05) / [metax](../../../../results/metax/unspecified/imported-m05)，包括失败证据。每个 case 的 `collection.json` 指向完整容器日志目录；`commands.json` 保存具体启动参数。采集使用共享缓存卷，采集容器不一定是执行容器。
 
 ## Ascend 运行时诊断复现
 
