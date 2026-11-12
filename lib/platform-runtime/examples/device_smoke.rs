@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 //! Run in the corresponding vendor container: device_smoke metax|ascend|cuda.
+#[path = "device_smoke/audit.rs"]
+mod audit;
+
+use audit::AuditedBackend;
 use dynamo_memory::platform::PlatformStorage;
 use dynamo_memory::{ArenaAllocator, Buffer, MemoryDescriptor, OffsetBuffer, SystemStorage};
 use dynamo_platform::device::MemorySpace::{Device, Host};
 use dynamo_platform::memory::DeviceRuntime;
 use dynamo_platform_runtime::NativeBackend;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -50,7 +55,7 @@ fn check_context_restore(
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let platform = std::env::args().nth(1).ok_or("expected platform")?;
-    let backend = NativeBackend::open(&platform, 0)?;
+    let backend = AuditedBackend::new(NativeBackend::open(&platform, 0)?);
     let runtime = DeviceRuntime::new(backend.clone(), 32)?;
     println!(
         "identity={:?} count={}",
@@ -63,6 +68,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bytes = 1024 * 1024;
     let data: Vec<u8> = (0..bytes).map(|i| (i % 251) as u8).collect();
     let mut warm_free = 0;
+    let mut free_samples = Vec::new();
+    let mut actual_hashes = Vec::new();
+    let mut reference_hashes = Vec::new();
+    let mut event_ready = Vec::new();
+    let mut wrong_device_rejections = 0;
+    let checksum = |bytes: &[u8]| {
+        let mut hasher = DefaultHasher::new();
+        bytes.hash(&mut hasher);
+        hasher.finish()
+    };
     for iteration in 0..64 {
         let input = runtime.allocate(bytes, Host)?;
         let output = runtime.allocate(bytes, Host)?;
@@ -83,6 +98,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut actual = vec![0; bytes];
             output.read(0, &mut actual)?;
             assert_eq!(actual, data);
+            actual_hashes.push(checksum(&actual));
+            reference_hashes.push(checksum(&data));
+            event_ready.push(usize::from(last.query()?));
             assert!(
                 runtime
                     .copy_async(&stream, &b, bytes, &output, 0, 1)
@@ -111,7 +129,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         drop(view);
         drop(output);
         drop(stream);
-        let (free, _) = backend.memory_info()?;
+        let (free, _) = backend.native.memory_info()?;
+        free_samples.push(free);
         if iteration == 0 {
             warm_free = free;
         }
@@ -149,6 +168,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     drop(owned_device);
     drop(owned_stream);
+    let mut owner_liveness = vec![
+        usize::from(weak_device.upgrade().is_some()),
+        usize::from(weak_stream.upgrade().is_some()),
+    ];
     let receipt =
         unsafe { runtime.copy_async(&borrowed_stream, &borrowed_device, 0, &host, 0, 4096)? };
     drop(borrowed_device);
@@ -158,6 +181,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert!(runtime.drain(Duration::from_secs(30)));
     assert!(weak_device.upgrade().is_none());
     assert!(weak_stream.upgrade().is_none());
+    owner_liveness.extend([
+        usize::from(weak_device.upgrade().is_some()),
+        usize::from(weak_stream.upgrade().is_some()),
+    ]);
     println!("borrowed native device/stream owners: pass");
     // Transfer ownership across host threads and exercise context rebinding.
     let other = runtime.clone();
@@ -208,7 +235,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let a = other.allocate(4096, Device)?;
         let h = runtime.allocate(4096, Host)?;
         let s = runtime.create_stream()?;
-        assert!(unsafe { runtime.copy_async(&s, &a, 0, &h, 0, 4096) }.is_err());
+        let error = unsafe { runtime.copy_async(&s, &a, 0, &h, 0, 4096) }
+            .err()
+            .ok_or("foreign allocation was accepted")?;
+        assert_eq!(error.code, "wrong_context");
+        wrong_device_rejections += 1;
         println!("wrong-device rejection: pass");
     }
     assert!(runtime.drain(Duration::ZERO));
@@ -216,5 +247,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert!(runtime.close(Duration::ZERO));
     assert!(runtime.close(Duration::ZERO));
     println!("64 allocation/copy/release cycles, repeated drain/close: pass");
+    // Snapshot after all caller and transfer owners have retired. A failed SDK
+    // destroy does not increment its counter and therefore cannot look reclaimed.
+    let counts = backend.snapshot();
+    let live_allocations = counts[0]
+        .checked_sub(counts[1])
+        .ok_or("extra allocation release")?;
+    let owned_handles = (2..8)
+        .step_by(2)
+        .try_fold(0usize, |sum, i| {
+            counts[i].checked_sub(counts[i + 1]).map(|live| sum + live)
+        })
+        .ok_or("extra handle release")?;
+    assert_eq!(live_allocations, 0);
+    assert_eq!(owned_handles, 0);
+    let reference_events = vec![1usize; actual_hashes.len()];
+    let report = format!(
+        r#"{{"platform":"{platform}","device":0,"completed_operations":{},"metrics":{{"live_allocations":{live_allocations},"owned_handles_after_cleanup":{owned_handles},"wrong_device_rejections":{wrong_device_rejections}}},"sdk_create_release_counts":{counts:?},"free_device_bytes":{free_samples:?},"measurements":{{"host_device_roundtrip":{{"actual":{actual_hashes:?},"reference":{reference_hashes:?}}},"event_ordering":{{"actual":{event_ready:?},"reference":{reference_events:?}}},"stream_lifetime":{{"actual":{owner_liveness:?},"reference":[1,1,0,0]}}}},"checksum":"std_default_hasher; full byte equality asserted before hashing"}}"#,
+        backend.completed_submissions(),
+    );
+    if let Some(output) = std::env::args().nth(2) {
+        use std::io::Write;
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(output)?;
+        writeln!(file, "{report}")?;
+    }
+    println!("{report}");
     Ok(())
 }
