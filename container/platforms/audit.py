@@ -6,23 +6,26 @@
 
 import hashlib
 import importlib
-import importlib.metadata as metadata
 import json
 import shutil
 import subprocess
 import sys
 import tempfile
+from importlib import metadata
 from pathlib import Path
 
 
 def digest(path):
+    checksum = hashlib.sha256()
     with path.open("rb") as handle:
-        return hashlib.file_digest(handle, "sha256").hexdigest()
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            checksum.update(chunk)
+    return checksum.hexdigest()
 
 
 def snapshot():
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "check"], capture_output=True, text=True
+        [sys.executable, "-m", "pip", "check"], check=False, capture_output=True, text=True
     )
     return {
         "packages": {
