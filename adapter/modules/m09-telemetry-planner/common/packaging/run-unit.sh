@@ -12,13 +12,13 @@ python -m pytest -c adapter/modules/m09-telemetry-planner/common/packaging/pytes
   components/src/dynamo/planner/tests/unit/test_kube.py \
   components/src/dynamo/planner/tests/unit/test_environment.py \
   components/src/dynamo/planner/tests/unit/test_planner_config.py \
-  components/src/dynamo/planner/tests/unit/test_aic_perf_adapter.py \
+  components/src/dynamo/planner/tests/unit/test_ais_perf_adapter.py \
   components/src/dynamo/planner/tests/unit/test_perf_metrics_priority.py \
   components/src/dynamo/planner/tests/unit/test_offline_bootstrap.py \
   components/src/dynamo/profiler/tests/unit/test_platform_profile.py \
   components/src/dynamo/profiler/tests/unit/test_dgd_platform.py \
   components/src/dynamo/profiler/tests/unit/test_dgd_generation_planner_sla.py \
-  components/src/dynamo/profiler/tests/unit/test_dgd_generation_aic.py \
+  components/src/dynamo/profiler/tests/unit/test_dgd_generation_ais.py \
   components/src/dynamo/profiler/tests/unit/test_helpers_profile_sla.py \
   components/src/dynamo/profiler/tests/unit/test_profile_sla_auto_backend.py \
   components/src/dynamo/profiler/tests/unit/test_interpolation.py \
