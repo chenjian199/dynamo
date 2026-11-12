@@ -9,6 +9,7 @@ import subprocess
 from pathlib import Path
 
 from adapter.workflow.bindings import case_environment
+from adapter.workflow.config import valid_hardware_uuid
 from adapter.workflow.core import atomic, event, fingerprint, load_campaign, lock, now
 
 
@@ -68,7 +69,7 @@ def inspect_environment(env, requirements, runner=execute):
         checks.append(dict(node=node, requirement=requirement, command=argv, **outcome))
         return outcome
 
-    machine_ids = {}
+    machine_ids, hardware_ids = {}, {}
     for n in env["nodes"]:
         host = n.get("ssh")
         ident = n["id"]
@@ -92,6 +93,27 @@ def inspect_environment(env, requirements, runner=execute):
                 "ssh",
                 reason="SSH target identity differs from declared machine_id",
             )
+        if n.get("host_identity"):
+            # Cloned OS images can share machine-id. An explicit hardware UUID
+            # binding must be observed over SSH; a hostname/alias is insufficient.
+            observed = add(
+                ident, "inventory", ["cat", "/sys/class/dmi/id/product_uuid"], host
+            )
+            hardware_uuid = observed.get("stdout", "").strip().lower()
+            binding = n["host_identity"]
+            if (
+                binding.get("kind") == "dmi_product_uuid"
+                and observed.get("passed")
+                and valid_hardware_uuid(hardware_uuid)
+                and hardware_uuid == binding.get("value")
+            ):
+                hardware_ids[ident] = hardware_uuid
+            else:
+                add(
+                    ident,
+                    "ssh",
+                    reason="Observed hardware UUID differs from pinned host_identity",
+                )
         if "device" in requirements:
             add(
                 ident,
@@ -174,14 +196,18 @@ def inspect_environment(env, requirements, runner=execute):
                 reason="Declare network inventory command; transport correctness requires its own feature test",
             )
     if "multinode" in requirements:
+        use_hardware = any(n.get("host_identity") for n in env["nodes"])
+        identities = hardware_ids if use_hardware else machine_ids
         checks.append(
             {
                 "node": "environment",
                 "requirement": "multinode",
-                "passed": len(machine_ids) == len(env["nodes"])
-                and len(set(machine_ids.values())) == len(env["nodes"]) >= 2,
+                "passed": len(identities) == len(env["nodes"])
+                and len(set(identities.values())) == len(env["nodes"]) >= 2,
                 "machine_ids": machine_ids,
-                "reason": "Require distinct observed machines, not two SSH aliases",
+                "hardware_ids": hardware_ids,
+                "identity_kind": "dmi_product_uuid" if use_hardware else "machine_id",
+                "reason": "Require distinct observed identities of one kind on all nodes, not two SSH aliases",
             }
         )
     if "kubernetes" in requirements:

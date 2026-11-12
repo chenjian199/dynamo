@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 | [test_image_helpers.py](test_image_helpers.py) | 多架构镜像与单平台 ID 处理；不依赖 Docker daemon |
 | [test_native_measurements.py](test_native_measurements.py) | 拒绝只有 pass 文本、字节损坏、资源未回收或设备不匹配的独立 KVBM 证据；使用 CPU 夹具 |
 | [test_platform_smoke.py](test_platform_smoke.py) | M01 发现脚本按版本锁精确比对，以及导出源码摘要漂移拒绝 |
+| [test_host_identity.py](test_host_identity.py) | 克隆系统 machine-id 重复时使用显式硬件 UUID；拒绝别名、身份错配、缺失和混合身份来源 |
 | [test_packaging_paths.py](test_packaging_paths.py) | 实际 M02 测试包复制、M10 补丁刷新与摘要完整性；替代 Docker 调用，不构建镜像 |
 | [pytest.ini](pytest.ini) | 此组测试独立的 pytest 配置 |
 
