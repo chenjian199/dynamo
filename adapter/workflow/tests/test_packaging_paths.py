@@ -296,3 +296,36 @@ def test_final_services_rebind_nested_dgdr_versions(tmp_path, platform):
     assert components
     assert all(c["runtimeVersionOverride"] == "1.6.2" for c in components)
     assert "1.5.1" not in json.dumps(dgdr)
+
+
+@pytest.mark.parametrize(
+    "namespace,expected",
+    [("ascend-basic", "ascend_basic"), ("closure-ascend", "closure_ascend")],
+)
+def test_ascend_smoke_uses_normalized_runtime_metric_label(
+    tmp_path, namespace, expected
+):
+    venv = tmp_path / "venv"
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin/activate").write_text(":\n")
+    shell_env = tmp_path / "functions.sh"
+    shell_env.write_text('python() { printf "%s\\n" "$@"; }\n')
+    result = subprocess.run(
+        [
+            "bash",
+            str(ROOT / "adapter/platforms/ascend/bringup/ascend-smoke.sh"),
+            "basic",
+        ],
+        env=dict(
+            os.environ,
+            DYNAMO_VENV=str(venv),
+            DYN_NAMESPACE=namespace,
+            BASH_ENV=str(shell_env),
+        ),
+        text=True,
+        capture_output=True,
+        check=True,
+        timeout=10,
+    )
+    args = result.stdout.splitlines()
+    assert args[args.index("--namespace") + 1] == expected
