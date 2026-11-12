@@ -443,3 +443,80 @@ def test_operator_pd_requires_separated_ready_roles():
     dgd["status"]["observedGeneration"] = 1
     with pytest.raises(AssertionError):
         cross["placement"](dgd, pods, "pd")
+
+
+@pytest.mark.parametrize("platform", ["cuda", "ascend"])
+def test_online_profile_preserves_measured_runtime_version(tmp_path, platform):
+    """The offline-to-online transition must not reset the runtime protocol."""
+    import yaml
+
+    profile = tmp_path / "profile"
+    profile.mkdir()
+    components = []
+    for role in ("prefill", "decode", "planner"):
+        components.append(
+            {
+                "name": role,
+                "type": role,
+                "runtimeVersionOverride": "1.5.1",
+                "podTemplate": {
+                    "spec": {
+                        "nodeSelector": {"kubernetes.io/hostname": "fixture-node"},
+                        "containers": [
+                            {
+                                "name": "main",
+                                "image": "fixture-runtime@sha256:" + "1" * 64,
+                                "args": ["--config", "/config/planner.json"],
+                                "env": [{"name": "DYN_BENCHMARK_MODE", "value": "1"}],
+                            }
+                        ],
+                    }
+                },
+            }
+        )
+    dgd = {
+        "kind": "DynamoGraphDeployment",
+        "metadata": {"name": "sampled", "namespace": "sample-space"},
+        "spec": {"components": components},
+    }
+    (profile / "final_config-reused.yaml").write_text(yaml.safe_dump(dgd))
+    source = tmp_path / "input.json"
+    source.write_text(
+        json.dumps(
+            {
+                "dgd": dgd,
+                "identity": {"platform": platform},
+                "dgdr": {"image": "fixture-tools@sha256:" + "2" * 64},
+            }
+        )
+    )
+    output = tmp_path / "online.yaml"
+    argv = [
+        sys.executable,
+        str(ROOT / "adapter/modules/m10-validation/common/profiling/prepare-online.py"),
+        "--profile",
+        str(profile),
+        "--input",
+        str(source),
+        "--output",
+        str(output),
+    ]
+    missing = subprocess.run(argv, check=False, capture_output=True, text=True, timeout=10)
+    assert missing.returncode != 0 and "--runtime-version" in missing.stderr
+    subprocess.run(
+        argv + ["--runtime-version", "1.6.2"],
+        check=True,
+        capture_output=True,
+        timeout=10,
+    )
+    rendered = yaml.safe_load(output.read_text())
+    assert {c["runtimeVersionOverride"] for c in rendered["spec"]["components"]} == {
+        "1.6.2"
+    }
+    for comp in rendered["spec"]["components"]:
+        container = comp["podTemplate"]["spec"]["containers"][0]
+        assert not any(e["name"] == "DYN_BENCHMARK_MODE" for e in container["env"])
+        assert container["image"].startswith(
+            "fixture-tools" if comp["type"] == "planner" else "fixture-runtime"
+        )
+    assert yaml.safe_load((profile / "final_config-reused.yaml").read_text()) == dgd

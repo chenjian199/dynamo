@@ -2,8 +2,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Deploy measured final-image profiles without development source overlays."""
+
 import argparse
 import json
+import re
 from pathlib import Path
 
 import yaml
@@ -12,7 +14,10 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument("--profile", type=Path, required=True)
 p.add_argument("--input", type=Path, required=True)
 p.add_argument("--output", type=Path, required=True)
+p.add_argument("--runtime-version", required=True)
 a = p.parse_args()
+if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", a.runtime_version):
+    p.error("Supply the measured stable Dynamo runtime version")
 inputs = json.loads(a.input.read_text())
 namespace = inputs["dgd"]["metadata"]["namespace"]
 platform = inputs["identity"]["platform"]
@@ -44,12 +49,13 @@ for obj in objects:
         continue
     obj["metadata"]["name"] = inputs["dgd"]["metadata"]["name"]
     for comp in obj["spec"]["components"]:
+        comp["runtimeVersionOverride"] = a.runtime_version
         pod = comp["podTemplate"]["spec"]
         c = pod["containers"][0]
         c["env"] = [e for e in c.get("env", []) if e["name"] != "DYN_BENCHMARK_MODE"]
         if comp["type"] != "planner":
             continue
-        comp.update(name="planner", runtimeVersionOverride="1.5.1")
+        comp.update(name="planner")
         pod["nodeSelector"] = inputs["dgd"]["spec"]["components"][0]["podTemplate"][
             "spec"
         ]["nodeSelector"]
@@ -66,11 +72,11 @@ for obj in objects:
         c["args"] = ["python", "-m", "dynamo.planner", "--config", config_path]
         c["env"] = [
             {"name": k, "value": v}
-            for k, v in dict(
-                DYN_PLATFORM="cpu",
-                TORCH_DEVICE_BACKEND_AUTOLOAD="0",
-                PYTHONUNBUFFERED="1",
-            ).items()
+            for k, v in {
+                "DYN_PLATFORM": "cpu",
+                "TORCH_DEVICE_BACKEND_AUTOLOAD": "0",
+                "PYTHONUNBUFFERED": "1",
+            }.items()
         ]
         c["resources"] = {
             "requests": {"cpu": "1", "memory": "2Gi"},
