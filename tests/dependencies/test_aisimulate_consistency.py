@@ -51,15 +51,23 @@ def _root_configs() -> tuple[dict, dict]:
     return pyproject, cargo
 
 
-def _python_requirement(pyproject: dict) -> Requirement:
+def _python_requirement(
+    pyproject: dict, *, extra: str | None = "simulation"
+) -> Requirement:
+    project = pyproject["project"]
+    requirements = (
+        project["optional-dependencies"][extra]
+        if extra is not None
+        else project["dependencies"]
+    )
     matches = [
         Requirement(requirement)
-        for requirement in pyproject["project"]["optional-dependencies"]["simulation"]
+        for requirement in requirements
         if canonicalize_name(Requirement(requirement).name) == "aisimulate"
     ]
-    assert (
-        len(matches) == 1
-    ), "ai-dynamo[simulation] must declare one AISimulate dependency"
+    assert len(matches) == 1, (
+        "Selected dependency group must declare one AISimulate dependency"
+    )
     return matches[0]
 
 
@@ -80,9 +88,9 @@ def _python_version_range(requirement: Requirement) -> SpecifierSet:
     assert requirement.url is None, "AISimulate must resolve from PyPI"
     if len(requirement.specifier) == 1:
         (pin,) = requirement.specifier
-        assert (
-            pin.operator == "=="
-        ), "a single AISimulate specifier must be an exact pin"
+        assert pin.operator == "==", (
+            "a single AISimulate specifier must be an exact pin"
+        )
         Version(pin.version)
         return requirement.specifier
     bounds = {
@@ -106,9 +114,9 @@ def _locked_cargo_version(path: Path) -> Version:
     assert package.get("source") == (
         "registry+https://github.com/rust-lang/crates.io-index"
     ), f"aisimulate-core must resolve from crates.io in {path}"
-    assert re.fullmatch(
-        r"[0-9a-f]{64}", str(package.get("checksum", ""))
-    ), f"aisimulate-core must have a registry checksum in {path}"
+    assert re.fullmatch(r"[0-9a-f]{64}", str(package.get("checksum", ""))), (
+        f"aisimulate-core must have a registry checksum in {path}"
+    )
     return Version(str(package["version"]))
 
 
@@ -136,7 +144,10 @@ def test_dynamo_declares_matching_aisimulate_requirements() -> None:
     assert _python_version_range(container_requirement) == python_versions
     with (ROOT / "benchmarks/pyproject.toml").open("rb") as handle:
         benchmarks = tomllib.load(handle)
-    assert _python_version_range(_python_requirement(benchmarks)) == python_versions
+    assert (
+        _python_version_range(_python_requirement(benchmarks, extra=None))
+        == python_versions
+    )
     assert "aisimulate" not in pyproject.get("tool", {}).get("uv", {}).get(
         "sources", {}
     )
@@ -144,9 +155,9 @@ def test_dynamo_declares_matching_aisimulate_requirements() -> None:
     cargo_dependency = cargo["workspace"]["dependencies"]["aisimulate-core"]
     assert not {"path", "git", "rev", "branch", "tag"} & cargo_dependency.keys()
     cargo_requirement = str(cargo_dependency["version"])
-    assert cargo_requirement.startswith(
-        "="
-    ), "aisimulate-core must use one exact crates.io version"
+    assert cargo_requirement.startswith("="), (
+        "aisimulate-core must use one exact crates.io version"
+    )
     cargo_version = Version(cargo_requirement.removeprefix("="))
 
     assert cargo_version == Version("0.13.0")
