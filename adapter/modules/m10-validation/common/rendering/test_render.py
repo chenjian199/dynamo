@@ -29,6 +29,8 @@ def test_release_renderer_resolves_module_sources(platform, tmp_path):
             "release-test",
             "--runtime-image",
             "example.invalid/runtime:test",
+            "--runtime-version",
+            "1.6.2",
             "--tools-image",
             "example.invalid/tools:test",
             "--workdir",
@@ -56,6 +58,7 @@ def test_release_renderer_resolves_module_sources(platform, tmp_path):
         obj = json.loads((tmp_path / (name + ".json")).read_text())
         assert obj["metadata"]["namespace"] == "release-test"
         for component in obj["spec"]["components"]:
+            assert component["runtimeVersionOverride"] == "1.6.2"
             pod = component["podTemplate"]["spec"]
             assert not {"m09-source", "m09-deps"} & {
                 v["name"] for v in pod.get("volumes", [])

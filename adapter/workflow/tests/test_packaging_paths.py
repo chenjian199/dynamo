@@ -228,3 +228,71 @@ def test_build_cache_rejects_manifest_path_outside_source(tmp_path):
     )
     with pytest.raises(ValueError, match="Source snapshot mismatch"):
         audit["build_cache_key"](source, "ascend")
+
+
+@pytest.mark.parametrize("version", ["1.5.1", "1.6.2"])
+def test_release_render_replaces_old_runtime_routing_version(version):
+    render = runpy.run_path(
+        str(ROOT / "adapter/modules/m10-validation/common/rendering/render.py")
+    )
+    source = (
+        ROOT
+        / "adapter/modules/m08-kubernetes/common/cluster/manifests/ascend/aggregate.json"
+    )
+    original = json.loads(source.read_text())
+    before = json.dumps(original, sort_keys=True)
+    output = render["release_manifest"](
+        original,
+        "ascend",
+        "new-campaign",
+        "runtime@sha256:" + "1" * 64,
+        "tools@sha256:" + "2" * 64,
+        version,
+    )
+    assert {c["runtimeVersionOverride"] for c in output["spec"]["components"]} == {
+        version
+    }
+    assert json.dumps(original, sort_keys=True) == before
+    with pytest.raises(ValueError, match="stable Dynamo runtime version"):
+        render["release_manifest"](
+            original, "ascend", "new", "runtime", "tools", "latest"
+        )
+
+
+@pytest.mark.parametrize("platform", ["cuda", "ascend"])
+def test_final_services_rebind_nested_dgdr_versions(tmp_path, platform):
+    script = ROOT / "adapter/modules/m10-validation/common/profiling/render-services.py"
+    subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--platform",
+            platform,
+            "--namespace",
+            "version-regression",
+            "--runtime-image",
+            "runtime:fixture",
+            "--tools-image",
+            "tools:fixture",
+            "--runtime-version",
+            "1.6.2",
+            "--workdir",
+            "/fixture",
+            "--devices-per-node",
+            "8",
+            "--vram-mib",
+            "65536",
+            "--output",
+            str(tmp_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    dgdr = json.loads((tmp_path / "dgdr.json").read_text())
+    assert dgdr["spec"]["runtimeVersionOverride"] == "1.6.2"
+    components = dgdr["spec"]["overrides"]["dgd"]["spec"]["components"]
+    assert components
+    assert all(c["runtimeVersionOverride"] == "1.6.2" for c in components)
+    assert "1.5.1" not in json.dumps(dgdr)

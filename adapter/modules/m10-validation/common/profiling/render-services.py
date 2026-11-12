@@ -2,15 +2,17 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Render source-free DGDR, capacity, metrics and CPU load-generator manifests."""
+
 import sys
 from pathlib import Path
 
 # Resolve shared helpers from their functional groups for direct script execution.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rendering'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "rendering"))
 
 import argparse
 import importlib.util
 import json
+import re
 import subprocess
 
 from render import ROOT
@@ -25,12 +27,15 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument("--platform", choices=["cuda", "ascend"], required=True)
 p.add_argument("--namespace", default="dynamo-m10")
 p.add_argument("--runtime-image", required=True)
+p.add_argument("--runtime-version", required=True)
 p.add_argument("--tools-image", required=True)
 p.add_argument("--workdir", required=True)
 p.add_argument("--devices-per-node", type=int, required=True)
 p.add_argument("--vram-mib", type=int, required=True)
 p.add_argument("--output", type=Path, required=True)
 a = p.parse_args()
+if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", a.runtime_version):
+    p.error("Supply the measured stable Dynamo runtime version")
 if min(a.devices_per_node, a.vram_mib) <= 0:
     p.error("Use measured positive node capacities")
 a.output.mkdir(parents=True, exist_ok=True)
@@ -40,8 +45,7 @@ capacity = {
     "kind": "ConfigMap",
     "metadata": {"name": "m10-capacity", "namespace": a.namespace},
     "data": {
-        sku
-        + ".yaml": json.dumps(
+        sku + ".yaml": json.dumps(
             {
                 "node": {"num_gpus_per_node": a.devices_per_node},
                 "gpu": {"mem_capacity": a.vram_mib * 2**20},
@@ -50,9 +54,14 @@ capacity = {
     },
 }
 dgdr = json.loads(
-    (ROOT / f"adapter/modules/m08-kubernetes/common/advanced/manifests/{a.platform}/dgdr.json").read_text()
+    (
+        ROOT
+        / f"adapter/modules/m08-kubernetes/common/advanced/manifests/{a.platform}/dgdr.json"
+    ).read_text()
 )
-dgdr = offline.clean(dgdr, a.namespace, a.runtime_image, a.tools_image)
+dgdr = offline.clean(
+    dgdr, a.namespace, a.runtime_image, a.tools_image, a.runtime_version
+)
 dgdr["metadata"].update(
     name="m10-profile", namespace=a.namespace, labels={"heyi.io/campaign": a.namespace}
 )
@@ -88,7 +97,10 @@ tools = json.loads(
     subprocess.check_output(
         [
             sys.executable,
-            str(ROOT / "adapter/modules/m09-telemetry-planner/common/rendering/render.py"),
+            str(
+                ROOT
+                / "adapter/modules/m09-telemetry-planner/common/rendering/render.py"
+            ),
             "--platform",
             a.platform,
             "--workdir",
@@ -97,14 +109,19 @@ tools = json.loads(
         ]
     )
 )
-tools = offline.clean(tools, a.namespace, a.runtime_image, a.tools_image)
+tools = offline.clean(
+    tools, a.namespace, a.runtime_image, a.tools_image, a.runtime_version
+)
 tools["metadata"].update(name="m10-tools", labels={"heyi.io/campaign": a.namespace})
 tools["spec"]["containers"][0]["command"] = ["/bin/bash", "-c", "sleep 21600"]
 metrics = json.loads(
     subprocess.check_output(
         [
             sys.executable,
-            str(ROOT / "adapter/modules/m09-telemetry-planner/common/rendering/render_metrics.py"),
+            str(
+                ROOT
+                / "adapter/modules/m09-telemetry-planner/common/rendering/render_metrics.py"
+            ),
             "--platform",
             a.platform,
         ]
