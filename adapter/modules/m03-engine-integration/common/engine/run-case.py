@@ -20,18 +20,63 @@ import urllib.request
 from pathlib import Path
 
 
-def main():
+def source_identity(root, mode, manifest):
+    """Keep installed product provenance separate from the invoking test checkout."""
+    if mode == "installed":
+        raw = manifest.read_bytes()
+        commit = json.loads(raw)["commit"]
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise ValueError("Installed source manifest has no full commit SHA")
+        expected = os.environ.get("DYNAMO_RELEASE_SOURCE_COMMIT")
+        if expected and expected != commit:
+            raise ValueError(
+                "Requested source commit differs from the installed runtime"
+            )
+        return {
+            "source_mode": mode,
+            "source_commit": commit,
+            "installed_source_manifest_sha256": hashlib.sha256(raw).hexdigest(),
+        }
+    return {
+        "source_mode": mode,
+        "source_commit": subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
+        ).strip(),
+    }
+
+
+def shutdown_succeeded(returncode, forced, log):
+    """A wrapper exit alone cannot establish clean engine shutdown."""
+    fatal = re.search(
+        r"Fatal Python error:|FATAL: exception not rethrown|"
+        r"terminate called after throwing|Segmentation fault|core dumped",
+        log,
+    )
+    return returncode == 0 and not forced and fatal is None
+
+
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--startup-timeout", type=int, default=600)
     parser.add_argument(
-        "--launch-script", type=Path, default=Path("adapter/modules/m03-engine-integration/common/engine/serve.sh")
+        "--launch-script",
+        type=Path,
+        default=Path("adapter/modules/m03-engine-integration/common/engine/serve.sh"),
     )
     parser.add_argument(
         "--check", choices=("text", "lora", "vision", "spec"), default="text"
     )
+    parser.add_argument(
+        "--source-mode", choices=("checkout", "installed"), default="checkout"
+    )
+    parser.add_argument(
+        "--installed-source-manifest",
+        type=Path,
+        default=Path("/opt/dynamo/artifacts/SOURCE.json"),
+    )
     parser.add_argument("engine_args", nargs=argparse.REMAINDER)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     args.output.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[5]
     platform = os.environ["PLATFORM"]
@@ -49,19 +94,15 @@ def main():
             key: os.environ.get(key)
             for key in ("PLATFORM", "TP", "DP", "DEVICES", "MODEL_PATH")
         },
-        source_commit=subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
-        ).strip(),
+        **source_identity(root, args.source_mode, args.installed_source_manifest),
         packages={
             name: importlib.metadata.version(name)
             for name in ("vllm", "torch", "ai-dynamo")
             + (() if platform == "cuda" else (f"vllm-{platform}",))
         },
-        source_sha256={
+        harness_sha256={
             str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
             for base in (
-                "components/src/dynamo/vllm",
-                "components/src/dynamo/common/platform",
                 "adapter/modules/m03-engine-integration",
                 "adapter/modules/m07-gms-multimodal",
             )
@@ -144,7 +185,8 @@ def main():
                     capacities = [
                         int(value.replace(",", "")) // block
                         for value in re.findall(
-                            r"(?:GPU|NPU) KV cache size: ([\d,]+) tokens", log_path.read_text()
+                            r"(?:GPU|NPU) KV cache size: ([\d,]+) tokens",
+                            log_path.read_text(),
                         )
                     ]
                     assert capacities and len(set(capacities)) == 1, capacities
@@ -180,18 +222,30 @@ def main():
                 os.kill(process.pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
+            forced = False
             try:
                 process.wait(timeout=45)
-                report["shutdown"] = "graceful"
+                report["shutdown"] = "exited"
             except subprocess.TimeoutExpired:
+                forced = True
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
                 report["shutdown"] = "forced after 45 seconds"
+            report["server_returncode"] = process.returncode
+            report["shutdown_passed"] = shutdown_succeeded(
+                process.returncode, forced, log_path.read_text(errors="replace")
+            )
+            checks_passed = report["passed"]
+            report["passed"] = checks_passed and report["shutdown_passed"]
             report["server_log"] = dict(
                 path=str(log_path),
                 sha256=hashlib.sha256(log_path.read_bytes()).hexdigest(),
             )
             (args.output / "case.json").write_text(json.dumps(report, indent=2) + "\n")
+            if checks_passed and not report["shutdown_passed"]:
+                raise RuntimeError(
+                    "Engine shutdown failed; see case.json and server.log"
+                )
 
 
 if __name__ == "__main__":

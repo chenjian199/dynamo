@@ -34,7 +34,18 @@ cleanup() {
   for pid in "$WORKER_PID" "$FRONTEND_PID"; do
     if [[ -n "$pid" ]]; then kill -TERM "$pid" 2>/dev/null || true; fi
   done
-  wait 2>/dev/null || true
+  local status=0 child_status
+  for pid in "$WORKER_PID" "$FRONTEND_PID"; do
+    if [[ -n "$pid" ]]; then
+      child_status=0
+      wait "$pid" || child_status=$?
+      if [[ "$child_status" != 0 && "$child_status" != 143 ]]; then
+        echo "M03 child $pid exited with status $child_status" >&2
+        status="$child_status"
+      fi
+    fi
+  done
+  return "$status"
 }
 trap cleanup EXIT
 trap 'exit 0' TERM INT

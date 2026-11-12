@@ -329,3 +329,70 @@ def test_ascend_smoke_uses_normalized_runtime_metric_label(
     )
     args = result.stdout.splitlines()
     assert args[args.index("--namespace") + 1] == expected
+
+
+@pytest.mark.parametrize(
+    "fatal", ["Fatal Python error: PyGILState_Release", "FATAL: exception not rethrown"]
+)
+def test_engine_driver_rejects_fatal_exit_hidden_by_shell(fatal):
+    driver = runpy.run_path(
+        str(ROOT / "adapter/modules/m03-engine-integration/common/engine/run-case.py")
+    )
+    assert not driver["shutdown_succeeded"](0, False, fatal)
+    assert not driver["shutdown_succeeded"](134, False, "")
+    assert not driver["shutdown_succeeded"](0, True, "")
+    assert driver["shutdown_succeeded"](0, False, "engine stopped")
+
+
+def test_installed_engine_identity_is_not_harness_git_head(tmp_path, monkeypatch):
+    driver = runpy.run_path(
+        str(ROOT / "adapter/modules/m03-engine-integration/common/engine/run-case.py")
+    )
+    manifest = tmp_path / "SOURCE.json"
+    manifest.write_text(json.dumps({"commit": "a" * 40}))
+    monkeypatch.delenv("DYNAMO_RELEASE_SOURCE_COMMIT", raising=False)
+    result = driver["source_identity"](tmp_path, "installed", manifest)
+    assert result["source_commit"] == "a" * 40
+    assert result["installed_source_manifest_sha256"] == sha256(manifest)
+    monkeypatch.setenv("DYNAMO_RELEASE_SOURCE_COMMIT", "b" * 40)
+    with pytest.raises(ValueError, match="differs from the installed runtime"):
+        driver["source_identity"](tmp_path, "installed", manifest)
+    manifest.write_text(json.dumps({"commit": "unknown"}))
+    with pytest.raises(ValueError, match="full commit SHA"):
+        driver["source_identity"](tmp_path, "installed", manifest)
+
+
+def test_final_harness_preserves_shared_engine_entrypoint(tmp_path):
+    deps = tmp_path / "test-deps"
+    deps.mkdir()
+    output = tmp_path / "harness"
+    script = (
+        ROOT / "adapter/modules/m10-validation/common/regression/prepare-harness.py"
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--source",
+            str(ROOT),
+            "--output",
+            str(output),
+            "--test-deps",
+            str(deps),
+        ],
+        check=True,
+        capture_output=True,
+        timeout=30,
+    )
+    relative = "adapter/modules/m03-engine-integration/common/engine/run-case.py"
+    assert (output / relative).read_bytes() == (ROOT / relative).read_bytes()
+    wrapper = output / "adapter/modules/m10-validation/common/regression/run-engine.py"
+    result = subprocess.run(
+        [sys.executable, str(wrapper), "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert "--source-mode" in result.stdout
+    assert not (output / "components").exists()
