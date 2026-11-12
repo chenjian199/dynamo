@@ -82,6 +82,7 @@ impl HealthCheckManager {
     fn spawn_endpoint_health_check_task(self: &Arc<Self>, endpoint_subject: String) {
         let manager = self.clone();
         let canary_wait = self.config.canary_wait_time;
+        let shutdown = self.drt.runtime().shutdown_started_token();
         let endpoint_subject_clone = endpoint_subject.clone();
 
         // Get the endpoint-specific notifier
@@ -99,6 +100,8 @@ impl HealthCheckManager {
             loop {
                 // Wait for either timeout or activity notification
                 tokio::select! {
+                    biased;
+                    _ = shutdown.cancelled() => break,
                     _ = tokio::time::sleep(canary_wait) => {
                         // Timeout - send health check for this specific endpoint
                         debug!("Canary timer expired for {}, sending health check", endpoint_subject);
@@ -151,6 +154,7 @@ impl HealthCheckManager {
     /// Returns an error if duplicate endpoints are detected, indicating a bug in the system
     async fn spawn_new_endpoint_monitor(self: &Arc<Self>) -> anyhow::Result<()> {
         let manager = self.clone();
+        let shutdown = self.drt.runtime().shutdown_started_token();
 
         // Get the receiver (can only be taken once)
         let mut rx = manager
@@ -165,7 +169,15 @@ impl HealthCheckManager {
         tokio::spawn(async move {
             info!("Starting dynamic endpoint discovery monitor with channel-based notifications");
 
-            while let Some(endpoint_subject) = rx.recv().await {
+            loop {
+                let endpoint_subject = tokio::select! {
+                    biased;
+                    _ = shutdown.cancelled() => break,
+                    endpoint = rx.recv() => match endpoint {
+                        Some(endpoint) => endpoint,
+                        None => break,
+                    },
+                };
                 debug!(
                     "Received endpoint registration via channel: {}",
                     endpoint_subject
@@ -204,6 +216,10 @@ impl HealthCheckManager {
         endpoint_subject: &str,
         payload: &serde_json::Value,
     ) -> anyhow::Result<()> {
+        let shutdown = self.drt.runtime().shutdown_started_token();
+        if shutdown.is_cancelled() {
+            return Ok(());
+        }
         debug!(
             "Sending health check to {} via local registry",
             endpoint_subject
@@ -228,7 +244,8 @@ impl HealthCheckManager {
 
         // Spawn task to send health check and wait for response
         tokio::spawn(async move {
-            let result = tokio::time::timeout(timeout, async {
+            let request_shutdown = shutdown.clone();
+            let request = tokio::time::timeout(timeout, async {
                 let request = SingleIn::new(payload);
                 match engine.generate(request).await {
                     Ok(mut response_stream) => {
@@ -255,7 +272,11 @@ impl HealthCheckManager {
 
                         tokio::spawn(async move {
                             // We need to consume the rest of the stream to avoid warnings on the frontend.
-                            response_stream.for_each(|_| async {}).await;
+                            tokio::select! {
+                                biased;
+                                _ = request_shutdown.cancelled() => {},
+                                _ = response_stream.for_each(|_| async {}) => {},
+                            }
                         });
 
                         // Update health status based on response
@@ -279,8 +300,14 @@ impl HealthCheckManager {
                         );
                     }
                 }
-            })
-            .await;
+            });
+            // A health request must not outlive its endpoint and call back into
+            // Python after the engine/event loop has begun shutting down.
+            let result = tokio::select! {
+                biased;
+                _ = shutdown.cancelled() => return,
+                result = request => result,
+            };
 
             // Handle timeout
             if result.is_err() {
