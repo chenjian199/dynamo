@@ -49,6 +49,25 @@ class DeliveryTest(unittest.TestCase):
             "layer/layer.tar": layer,
         }
 
+    def test_empty_oci_index_rejected(self):
+        with self.assertRaisesRegex(ValueError, "no image manifests"):
+            verifier.verify(self.archive({"index.json": b'{"manifests": []}'}))
+
+    def test_config_blob_is_not_an_image(self):
+        raw = b'{"architecture": "arm64"}'
+        digest = sha(raw)
+        descriptor = {
+            "mediaType": "application/vnd.oci.image.config.v1+json",
+            "digest": "sha256:" + digest,
+            "size": len(raw),
+        }
+        entries = {
+            "index.json": json.dumps({"manifests": [descriptor]}).encode(),
+            "blobs/sha256/" + digest: raw,
+        }
+        with self.assertRaisesRegex(ValueError, "must identify a manifest"):
+            verifier.verify(self.archive(entries))
+
     def test_classic_complete(self):
         report = verifier.verify(self.archive(self.docker_entries()))
         self.assertTrue(report["passed"])
