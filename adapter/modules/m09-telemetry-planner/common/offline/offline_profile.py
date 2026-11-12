@@ -38,7 +38,7 @@ async def main():
     dgdr = DynamoGraphDeploymentRequestSpec.model_validate(data["dgdr"])
     ops = ProfilerOperationalConfig(
         output_dir=str(args.output),
-        k8s_namespace="dynamo-m08-1029",
+        k8s_namespace=data["dgd"]["metadata"]["namespace"],
         deployment_timeout=data.get("deployment_timeout", 900),
         prefill_interpolation_granularity=5,
         decode_interpolation_granularity=3,
