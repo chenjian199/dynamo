@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 # Ascend 910B3 开发环境与验收
 
+本文保留 2026-10-16 的历史验收范围与原始版本。当前开发脚本默认读取 [canonical Ascend 版本锁](../../../../container/platforms/ascend.json)，不能用下述历史结果认定升级后的镜像已通过；新版本需重新预检和验收。
+
 本次使用官方 `quay.io/ascend/vllm-ascend:v0.23.0`，在华为机器独立部署，不混用其他厂商设备。2026-10-16 完成基础文本推理、双 Worker KV 路由及 M01 平台身份/能力/发现验收，标记为有限支持。
 
 ## 环境与路径
@@ -32,7 +34,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ```bash
 cd /home/huawei/CJ_workspaces/dynamo
-bash adapter/platforms/ascend/bringup/ascend-dev.sh create
+IMAGE=quay.io/ascend/vllm-ascend@sha256:471744200c5d0c768c1f6c6a6816dcae0fd551de2487d4d129b6fb750024ce6a \
+  bash adapter/platforms/ascend/bringup/ascend-dev.sh create  # 仅重现本页历史镜像
 bash adapter/platforms/ascend/bringup/ascend-dev.sh setup
 bash adapter/platforms/ascend/bringup/ascend-dev.sh build
 bash adapter/platforms/ascend/bringup/ascend-dev.sh model  # 已有模型时跳过
@@ -86,7 +89,7 @@ vLLM 0.23.0 没有 `VLLMUnprocessableEntityError`，Dynamo 的异常适配因此
 ## 验收记录
 
 - [原生引擎参考](../../../results/ascend/unspecified/imported-m03/features/M03-F01/artifacts/ascend-native-results.json) 与 [Dynamo 基础推理](../../../results/ascend/unspecified/imported-m03/features/M03-F01/artifacts/ascend-basic-results.json)：模型注册、非流式、流式、四路并发通过；取消计数从 0 到 1，取消后请求成功。固定提示词的输出文本相同，prompt/completion/total tokens 均为 5/16/21；这不是完整精度评测。
-- [KV 路由](../../../results/metax/unspecified/imported-m03/features/M03-F03/artifacts/metax-regression-kv-results.json)：两个 Worker，各 73 个 KV block，block size=128、DP rank=0；真实数组格式事件经过 Rust 解码完成分叉前缀选择、淘汰、清空和清空后重建。两个 Worker 均观察到两次 AllBlocksCleared，填满的 Worker 观察到 37 次 BlockRemoved。
+- [KV 路由](../../../results/ascend/unspecified/imported-m03/features/M03-F03/artifacts/ascend-kv-results.json)：两个 Worker，各 73 个 KV block，block size=128、DP rank=0；真实数组格式事件经过 Rust 解码完成分叉前缀选择、淘汰、清空和清空后重建。两个 Worker 均观察到两次 AllBlocksCleared，填满的 Worker 观察到 37 次 BlockRemoved。
 - [M01 平台契约](../../../results/ascend/unspecified/imported-m01/features/M01-F02/artifacts/ascend-platform-results.json)：两个设备有不同的真实 die ID，`platform_id=ascend`，旧 `device_type=null`；重复配置幂等，未知 schema/冲突配置拒绝；要求未验证的 `pd.transfer` 时退出且不发布发现记录。
 - 沐曦加载本次共享代码后重新验收：[基础推理](../../../results/metax/unspecified/imported-m03/features/M03-F01/artifacts/metax-regression-basic-results.json)、[KV 路由](../../../results/metax/unspecified/imported-m03/features/M03-F03/artifacts/metax-regression-kv-results.json)、[平台契约](../../../results/ascend/unspecified/imported-m01/features/M01-F02/artifacts/metax-regression-platform-results.json) 均通过；原有历史证据未覆盖。
 - 单元测试覆盖 platform、WorkerFactory、异常映射、InstrumentedScheduler、KV reset 与事件 API：华为 314 项通过，沐曦 315 项通过。vLLM 0.23 缺少 422 异常类，测试只实例化实际存在的类型，同时用隔离的假模块验证三代异常 API。
