@@ -132,3 +132,7 @@ python3 adapter/modules/m08-kubernetes/common/cluster/cleanup.py --names m08-cro
 6. 缩零时 Pod 删除早于 DGD 状态计数更新。回归脚本现在同时等待 observedGeneration、滚动更新结束、各 component 的 replicas/readyReplicas 及实际 Pod 数一致。两平台完整重跑，未删除首轮失败记录。
 
 以上是清单/工具问题；没有为通过测试降低引擎版本、关闭 KV 命中断言或修改厂商引擎。
+
+## 升级后的跨节点 PD 检查
+
+`cross.py` 默认保留跨节点聚合检查；验证 PD 时显式传入 `--mode pd --namespace <活动命名空间> --name <DGD名> --model <served-model-name>`。清单的组件名使用 `prefill`、`decode`、`frontend`。工具按 Operator 的 DGD/组件标签选择实际 Pod，核对当前 generation、就绪副本和 runtime namespace，并要求 P、D 节点集合不相交，再运行真实 API 客户端。它只检查已部署资源，不创建或修改 DGD。测试输出必须使用新目录；同节点 PD 或仅跨节点聚合不能通过这一 PD 放置检查。

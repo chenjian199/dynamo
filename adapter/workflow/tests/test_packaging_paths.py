@@ -396,3 +396,50 @@ def test_final_harness_preserves_shared_engine_entrypoint(tmp_path):
     )
     assert "--source-mode" in result.stdout
     assert not (output / "components").exists()
+
+
+def test_operator_pd_requires_separated_ready_roles():
+    cross = runpy.run_path(
+        str(ROOT / "adapter/modules/m08-kubernetes/common/cluster/cross.py")
+    )
+    graph, component = cross["GRAPH_LABEL"], cross["COMPONENT_LABEL"]
+    dgd = {
+        "metadata": {"name": "probe", "generation": 2},
+        "spec": {
+            "components": [{"name": r, "replicas": 1} for r in ("prefill", "decode")]
+        },
+        "status": {
+            "observedGeneration": 2,
+            "conditions": [{"type": "Ready", "status": "True"}],
+            "components": {
+                r: {
+                    "runtimeNamespace": "probe-1-6-2",
+                    "replicas": 1,
+                    "readyReplicas": 1,
+                    "gpusPerReplica": 2,
+                }
+                for r in ("prefill", "decode")
+            },
+        },
+    }
+    pods = [
+        {
+            "metadata": {"labels": {graph: "probe", component: role}},
+            "spec": {"nodeName": node},
+            "status": {"conditions": [{"type": "Ready", "status": "True"}]},
+        }
+        for role, node in (("prefill", "node-a"), ("decode", "node-b"))
+    ]
+    namespace, roles = cross["placement"](dgd, pods, "pd")
+    assert namespace == "probe-1-6-2" and set(roles) == {"prefill", "decode"}
+    pods[1]["spec"]["nodeName"] = "node-a"
+    with pytest.raises(AssertionError, match="not separated"):
+        cross["placement"](dgd, pods, "pd")
+    pods[1]["spec"]["nodeName"] = "node-b"
+    pods[1]["metadata"]["deletionTimestamp"] = "now"
+    with pytest.raises(AssertionError):
+        cross["placement"](dgd, pods, "pd")
+    pods[1]["metadata"].pop("deletionTimestamp")
+    dgd["status"]["observedGeneration"] = 1
+    with pytest.raises(AssertionError):
+        cross["placement"](dgd, pods, "pd")
