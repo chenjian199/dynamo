@@ -4,12 +4,13 @@
 set -euo pipefail
 cd /src
 platform=${1:?platform}
+build_key=$(python3 container/platforms/audit.py build-key /src "$platform")
 export DEBIAN_FRONTEND=noninteractive
 mkdir -p /out/wheels /out/native
 python3 container/platforms/audit.py snapshot /out/base.json
 apt-get update
 apt-get install -y --no-install-recommends build-essential pkg-config cmake protobuf-compiler \
-    libprotobuf-dev libssl-dev libclang-dev libudev-dev libnuma-dev libzmq3-dev git curl ca-certificates patch
+    libprotobuf-dev libssl-dev libclang-dev libudev-dev libnuma-dev libzmq3-dev git curl ca-certificates patch util-linux
 python3 -m venv --system-site-packages /opt/dynamo/build
 export CARGO_HOME=/build-cache/cargo RUSTUP_HOME=/build-cache/rustup
 export PATH=/opt/dynamo/build/bin:$CARGO_HOME/bin:$PATH
@@ -24,7 +25,13 @@ if ! command -v rustup >/dev/null; then
 fi
 rust_version=$(python -c 'import tomllib; print(tomllib.load(open("rust-toolchain.toml", "rb"))["toolchain"]["channel"])')
 rustup toolchain install "$rust_version" --profile minimal
-export CARGO_TARGET_DIR=/build-cache/target CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-12}
+# Isolate outputs from other source snapshots; serialize same-input builds until
+# all artifacts have been copied, not just until Cargo releases its own lock.
+mkdir -p /build-cache/build-locks
+exec 9>"/build-cache/build-locks/$build_key.lock"
+flock 9
+export CARGO_TARGET_DIR="/build-cache/targets/$platform/$build_key"
+export CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-12}
 export CARGO_PROFILE_RELEASE_DEBUG=0 CUDARC_CUDA_VERSION=13000
 unset CONDA_PREFIX
 # Ubuntu 22.04 vendor images ship protoc 3.12: proto3 optional is opt-in there.

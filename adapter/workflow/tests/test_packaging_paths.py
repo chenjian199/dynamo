@@ -193,3 +193,38 @@ def test_m10_rebuild_vendor_patch_context(tmp_path, monkeypatch, refresh):
         for p in original.rglob("*")
         if p.is_file()
     } == original_hashes
+
+
+def test_build_cache_separates_snapshots_with_preserved_timestamps(tmp_path):
+    audit = runpy.run_path(str(ROOT / "container/platforms/audit.py"))
+    source = tmp_path / "worker.rs"
+    manifest = tmp_path / "SOURCE.json"
+    source.write_text("old implementation")
+    stamp = source.stat()
+    manifest.write_text(
+        json.dumps({"commit": "first", "files": {"worker.rs": sha256(source)}})
+    )
+    first = audit["build_cache_key"](tmp_path, "ascend")
+    assert first == audit["build_cache_key"](tmp_path, "ascend")
+    assert first != audit["build_cache_key"](tmp_path, "metax")
+    source.write_text("new implementation")
+    os.utime(source, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+    with pytest.raises(ValueError, match="Source snapshot mismatch"):
+        audit["build_cache_key"](tmp_path, "ascend")
+    manifest.write_text(
+        json.dumps({"commit": "second", "files": {"worker.rs": sha256(source)}})
+    )
+    assert first != audit["build_cache_key"](tmp_path, "ascend")
+
+
+def test_build_cache_rejects_manifest_path_outside_source(tmp_path):
+    audit = runpy.run_path(str(ROOT / "container/platforms/audit.py"))
+    source = tmp_path / "source"
+    source.mkdir()
+    foreign = tmp_path / "foreign"
+    foreign.write_bytes(b"external")
+    (source / "SOURCE.json").write_text(
+        json.dumps({"commit": "fixture", "files": {"../foreign": sha256(foreign)}})
+    )
+    with pytest.raises(ValueError, match="Source snapshot mismatch"):
+        audit["build_cache_key"](source, "ascend")

@@ -23,9 +23,35 @@ def digest(path):
     return checksum.hexdigest()
 
 
+def build_cache_key(root, platform):
+    """Validate the snapshot before selecting a content-addressed Cargo output tree."""
+    root = root.resolve()
+    if platform not in {"cuda", "ascend", "metax"}:
+        raise ValueError("Unknown build platform")
+    manifest = json.loads((root / "SOURCE.json").read_text())
+    if not manifest.get("commit") or not manifest.get("files"):
+        raise ValueError("Build requires a nonempty source manifest")
+    for name, expected in manifest["files"].items():
+        file = (root / name).resolve()
+        if (
+            not file.is_relative_to(root)
+            or not file.is_file()
+            or digest(file) != expected
+        ):
+            raise ValueError("Source snapshot mismatch: " + name)
+    # Every container mounts its checkout at /src. Cargo's mtime-based freshness
+    # is insufficient across snapshots that preserve older timestamps. A shared
+    # registry cache is safe; compiler outputs must belong to one exact snapshot.
+    payload = json.dumps({"platform": platform, "source": manifest}, sort_keys=True)
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
 def snapshot():
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "check"], check=False, capture_output=True, text=True
+        [sys.executable, "-m", "pip", "check"],
+        check=False,
+        capture_output=True,
+        text=True,
     )
     return {
         "packages": {
@@ -50,7 +76,9 @@ def dump(path, value):
 def main():
     action, *arguments = sys.argv[1:]
     path = Path(arguments[0])
-    if action == "snapshot":
+    if action == "build-key":
+        print(build_cache_key(path, arguments[1]))
+    elif action == "snapshot":
         dump(path, snapshot())
     elif action == "constraints":
         profile = json.loads(Path(f"container/platforms/{path}.json").read_text())
