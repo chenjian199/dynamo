@@ -5,6 +5,7 @@
 """Real Mooncake device registration/copy cycles and optional pending-peer fault."""
 
 import argparse
+import hashlib
 import json
 import multiprocessing as mp
 import os
@@ -114,6 +115,17 @@ def worker(rank, pipe, args):
         else:
             assert recv(pipe) == "verified"
         device.synchronize()
+        if iteration == 0 and not args.fault:
+            # Persist independently read back source/target bytes. An assertion
+            # inside this process alone cannot satisfy the external parity gate.
+            data = tensor.cpu().numpy().tobytes()
+            capture = args.output / f"rank-{rank}.device-readback.bin"
+            capture.write_bytes(data)
+            result["byte_capture"] = {
+                "path": capture.name,
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
         assert engine.unregister_memory(pointer) == 0
         del tensor
         device.synchronize()
