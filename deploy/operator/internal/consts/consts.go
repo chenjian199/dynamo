@@ -53,7 +53,7 @@ const (
 
 	// KubeAnnotationGroveUpdateStrategy temporarily exposes the Grove
 	// PodCliqueSet update strategy while the long-term DGD API is settled.
-	// Supported values match Grove exactly: "RollingRecreate" and "OnDelete".
+	// Accepted values are defined by dynamo.ParseGroveUpdateStrategy.
 	KubeAnnotationGroveUpdateStrategy = "nvidia.com/grove-update-strategy"
 
 	// KubeAnnotationIstioSidecarInject is the standard Istio annotation that
@@ -179,9 +179,16 @@ const (
 	DynamoDeploymentConfigEnvVar      = "DYN_DEPLOYMENT_CONFIG"
 	DynamoNamespaceEnvVar             = "DYN_NAMESPACE"
 	DynamoNamespacePrefixEnvVar       = "DYN_NAMESPACE_PREFIX"
+	DynamoNamespacePrefixStrictEnvVar = "DYN_NAMESPACE_PREFIX_STRICT"
 	DynamoNamespaceWorkerSuffixEnvVar = "DYN_NAMESPACE_WORKER_SUFFIX"
 	DynamoComponentEnvVar             = "DYN_COMPONENT"
 	DynamoDiscoveryBackendEnvVar      = "DYN_DISCOVERY_BACKEND"
+
+	// Multinode topology aliases are operator-owned and independent of the deployment provider.
+	DynamoRankEnvVar                   = "DYNAMO_RANK"
+	DynamoLeaderAddressEnvVar          = "DYNAMO_LEADER_ADDRESS"
+	DynamoRankEnvVarReference          = "$(" + DynamoRankEnvVar + ")"
+	DynamoLeaderAddressEnvVarReference = "$(" + DynamoLeaderAddressEnvVar + ")"
 
 	GlobalDynamoNamespace = "dynamo"
 
@@ -261,6 +268,7 @@ const (
 
 	DiscoveryBackendKubernetes   = "kubernetes" // label value for KubeLabelDynamoDiscoveryBackend
 	MainContainerName            = "main"
+	RuntimeContainerName         = "runtime"
 	FrontendSidecarContainerName = "sidecar-frontend"
 
 	RestartAnnotation = "nvidia.com/restartAt"

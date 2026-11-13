@@ -193,3 +193,330 @@ def test_m10_rebuild_vendor_patch_context(tmp_path, monkeypatch, refresh):
         for p in original.rglob("*")
         if p.is_file()
     } == original_hashes
+
+
+def test_build_cache_separates_snapshots_with_preserved_timestamps(tmp_path):
+    audit = runpy.run_path(str(ROOT / "container/platforms/audit.py"))
+    source = tmp_path / "worker.rs"
+    manifest = tmp_path / "SOURCE.json"
+    source.write_text("old implementation")
+    stamp = source.stat()
+    manifest.write_text(
+        json.dumps({"commit": "first", "files": {"worker.rs": sha256(source)}})
+    )
+    first = audit["build_cache_key"](tmp_path, "ascend")
+    assert first == audit["build_cache_key"](tmp_path, "ascend")
+    assert first != audit["build_cache_key"](tmp_path, "metax")
+    source.write_text("new implementation")
+    os.utime(source, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+    with pytest.raises(ValueError, match="Source snapshot mismatch"):
+        audit["build_cache_key"](tmp_path, "ascend")
+    manifest.write_text(
+        json.dumps({"commit": "second", "files": {"worker.rs": sha256(source)}})
+    )
+    assert first != audit["build_cache_key"](tmp_path, "ascend")
+
+
+def test_build_cache_rejects_manifest_path_outside_source(tmp_path):
+    audit = runpy.run_path(str(ROOT / "container/platforms/audit.py"))
+    source = tmp_path / "source"
+    source.mkdir()
+    foreign = tmp_path / "foreign"
+    foreign.write_bytes(b"external")
+    (source / "SOURCE.json").write_text(
+        json.dumps({"commit": "fixture", "files": {"../foreign": sha256(foreign)}})
+    )
+    with pytest.raises(ValueError, match="Source snapshot mismatch"):
+        audit["build_cache_key"](source, "ascend")
+
+
+@pytest.mark.parametrize("version", ["1.5.1", "1.6.2"])
+def test_release_render_replaces_old_runtime_routing_version(version):
+    render = runpy.run_path(
+        str(ROOT / "adapter/modules/m10-validation/common/rendering/render.py")
+    )
+    source = (
+        ROOT
+        / "adapter/modules/m08-kubernetes/common/cluster/manifests/ascend/aggregate.json"
+    )
+    original = json.loads(source.read_text())
+    before = json.dumps(original, sort_keys=True)
+    output = render["release_manifest"](
+        original,
+        "ascend",
+        "new-campaign",
+        "runtime@sha256:" + "1" * 64,
+        "tools@sha256:" + "2" * 64,
+        version,
+    )
+    assert {c["runtimeVersionOverride"] for c in output["spec"]["components"]} == {
+        version
+    }
+    assert json.dumps(original, sort_keys=True) == before
+    with pytest.raises(ValueError, match="stable Dynamo runtime version"):
+        render["release_manifest"](
+            original, "ascend", "new", "runtime", "tools", "latest"
+        )
+
+
+@pytest.mark.parametrize("platform", ["cuda", "ascend"])
+def test_final_services_rebind_nested_dgdr_versions(tmp_path, platform):
+    script = ROOT / "adapter/modules/m10-validation/common/profiling/render-services.py"
+    subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--platform",
+            platform,
+            "--namespace",
+            "version-regression",
+            "--runtime-image",
+            "runtime:fixture",
+            "--tools-image",
+            "tools:fixture",
+            "--runtime-version",
+            "1.6.2",
+            "--workdir",
+            "/fixture",
+            "--devices-per-node",
+            "8",
+            "--vram-mib",
+            "65536",
+            "--output",
+            str(tmp_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    dgdr = json.loads((tmp_path / "dgdr.json").read_text())
+    assert dgdr["spec"]["runtimeVersionOverride"] == "1.6.2"
+    components = dgdr["spec"]["overrides"]["dgd"]["spec"]["components"]
+    assert components
+    assert all(c["runtimeVersionOverride"] == "1.6.2" for c in components)
+    assert "1.5.1" not in json.dumps(dgdr)
+
+
+@pytest.mark.parametrize(
+    "namespace,expected",
+    [("ascend-basic", "ascend_basic"), ("closure-ascend", "closure_ascend")],
+)
+def test_ascend_smoke_uses_normalized_runtime_metric_label(
+    tmp_path, namespace, expected
+):
+    venv = tmp_path / "venv"
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin/activate").write_text(":\n")
+    shell_env = tmp_path / "functions.sh"
+    shell_env.write_text('python() { printf "%s\\n" "$@"; }\n')
+    result = subprocess.run(
+        [
+            "bash",
+            str(ROOT / "adapter/platforms/ascend/bringup/ascend-smoke.sh"),
+            "basic",
+        ],
+        env=dict(
+            os.environ,
+            DYNAMO_VENV=str(venv),
+            DYN_NAMESPACE=namespace,
+            BASH_ENV=str(shell_env),
+        ),
+        text=True,
+        capture_output=True,
+        check=True,
+        timeout=10,
+    )
+    args = result.stdout.splitlines()
+    assert args[args.index("--namespace") + 1] == expected
+
+
+@pytest.mark.parametrize(
+    "fatal", ["Fatal Python error: PyGILState_Release", "FATAL: exception not rethrown"]
+)
+def test_engine_driver_rejects_fatal_exit_hidden_by_shell(fatal):
+    driver = runpy.run_path(
+        str(ROOT / "adapter/modules/m03-engine-integration/common/engine/run-case.py")
+    )
+    assert not driver["shutdown_succeeded"](0, False, fatal)
+    assert not driver["shutdown_succeeded"](134, False, "")
+    assert not driver["shutdown_succeeded"](0, True, "")
+    assert driver["shutdown_succeeded"](0, False, "engine stopped")
+
+
+def test_installed_engine_identity_is_not_harness_git_head(tmp_path, monkeypatch):
+    driver = runpy.run_path(
+        str(ROOT / "adapter/modules/m03-engine-integration/common/engine/run-case.py")
+    )
+    manifest = tmp_path / "SOURCE.json"
+    manifest.write_text(json.dumps({"commit": "a" * 40}))
+    monkeypatch.delenv("DYNAMO_RELEASE_SOURCE_COMMIT", raising=False)
+    result = driver["source_identity"](tmp_path, "installed", manifest)
+    assert result["source_commit"] == "a" * 40
+    assert result["installed_source_manifest_sha256"] == sha256(manifest)
+    monkeypatch.setenv("DYNAMO_RELEASE_SOURCE_COMMIT", "b" * 40)
+    with pytest.raises(ValueError, match="differs from the installed runtime"):
+        driver["source_identity"](tmp_path, "installed", manifest)
+    manifest.write_text(json.dumps({"commit": "unknown"}))
+    with pytest.raises(ValueError, match="full commit SHA"):
+        driver["source_identity"](tmp_path, "installed", manifest)
+
+
+def test_final_harness_preserves_shared_engine_entrypoint(tmp_path):
+    deps = tmp_path / "test-deps"
+    deps.mkdir()
+    output = tmp_path / "harness"
+    script = (
+        ROOT / "adapter/modules/m10-validation/common/regression/prepare-harness.py"
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--source",
+            str(ROOT),
+            "--output",
+            str(output),
+            "--test-deps",
+            str(deps),
+        ],
+        check=True,
+        capture_output=True,
+        timeout=30,
+    )
+    relative = "adapter/modules/m03-engine-integration/common/engine/run-case.py"
+    assert (output / relative).read_bytes() == (ROOT / relative).read_bytes()
+    wrapper = output / "adapter/modules/m10-validation/common/regression/run-engine.py"
+    result = subprocess.run(
+        [sys.executable, str(wrapper), "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert "--source-mode" in result.stdout
+    assert not (output / "components").exists()
+
+
+def test_operator_pd_requires_separated_ready_roles():
+    cross = runpy.run_path(
+        str(ROOT / "adapter/modules/m08-kubernetes/common/cluster/cross.py")
+    )
+    graph, component = cross["GRAPH_LABEL"], cross["COMPONENT_LABEL"]
+    dgd = {
+        "metadata": {"name": "probe", "generation": 2},
+        "spec": {
+            "components": [{"name": r, "replicas": 1} for r in ("prefill", "decode")]
+        },
+        "status": {
+            "observedGeneration": 2,
+            "conditions": [{"type": "Ready", "status": "True"}],
+            "components": {
+                r: {
+                    "runtimeNamespace": "probe-1-6-2",
+                    "replicas": 1,
+                    "readyReplicas": 1,
+                    "gpusPerReplica": 2,
+                }
+                for r in ("prefill", "decode")
+            },
+        },
+    }
+    pods = [
+        {
+            "metadata": {"labels": {graph: "probe", component: role}},
+            "spec": {"nodeName": node},
+            "status": {"conditions": [{"type": "Ready", "status": "True"}]},
+        }
+        for role, node in (("prefill", "node-a"), ("decode", "node-b"))
+    ]
+    namespace, roles = cross["placement"](dgd, pods, "pd")
+    assert namespace == "probe-1-6-2" and set(roles) == {"prefill", "decode"}
+    pods[1]["spec"]["nodeName"] = "node-a"
+    with pytest.raises(AssertionError, match="not separated"):
+        cross["placement"](dgd, pods, "pd")
+    pods[1]["spec"]["nodeName"] = "node-b"
+    pods[1]["metadata"]["deletionTimestamp"] = "now"
+    with pytest.raises(AssertionError):
+        cross["placement"](dgd, pods, "pd")
+    pods[1]["metadata"].pop("deletionTimestamp")
+    dgd["status"]["observedGeneration"] = 1
+    with pytest.raises(AssertionError):
+        cross["placement"](dgd, pods, "pd")
+
+
+@pytest.mark.parametrize("platform", ["cuda", "ascend"])
+def test_online_profile_preserves_measured_runtime_version(tmp_path, platform):
+    """The offline-to-online transition must not reset the runtime protocol."""
+    import yaml
+
+    profile = tmp_path / "profile"
+    profile.mkdir()
+    components = []
+    for role in ("prefill", "decode", "planner"):
+        components.append(
+            {
+                "name": role,
+                "type": role,
+                "runtimeVersionOverride": "1.5.1",
+                "podTemplate": {
+                    "spec": {
+                        "nodeSelector": {"kubernetes.io/hostname": "fixture-node"},
+                        "containers": [
+                            {
+                                "name": "main",
+                                "image": "fixture-runtime@sha256:" + "1" * 64,
+                                "args": ["--config", "/config/planner.json"],
+                                "env": [{"name": "DYN_BENCHMARK_MODE", "value": "1"}],
+                            }
+                        ],
+                    }
+                },
+            }
+        )
+    dgd = {
+        "kind": "DynamoGraphDeployment",
+        "metadata": {"name": "sampled", "namespace": "sample-space"},
+        "spec": {"components": components},
+    }
+    (profile / "final_config-reused.yaml").write_text(yaml.safe_dump(dgd))
+    source = tmp_path / "input.json"
+    source.write_text(
+        json.dumps(
+            {
+                "dgd": dgd,
+                "identity": {"platform": platform},
+                "dgdr": {"image": "fixture-tools@sha256:" + "2" * 64},
+            }
+        )
+    )
+    output = tmp_path / "online.yaml"
+    argv = [
+        sys.executable,
+        str(ROOT / "adapter/modules/m10-validation/common/profiling/prepare-online.py"),
+        "--profile",
+        str(profile),
+        "--input",
+        str(source),
+        "--output",
+        str(output),
+    ]
+    missing = subprocess.run(argv, check=False, capture_output=True, text=True, timeout=10)
+    assert missing.returncode != 0 and "--runtime-version" in missing.stderr
+    subprocess.run(
+        argv + ["--runtime-version", "1.6.2"],
+        check=True,
+        capture_output=True,
+        timeout=10,
+    )
+    rendered = yaml.safe_load(output.read_text())
+    assert {c["runtimeVersionOverride"] for c in rendered["spec"]["components"]} == {
+        "1.6.2"
+    }
+    for comp in rendered["spec"]["components"]:
+        container = comp["podTemplate"]["spec"]["containers"][0]
+        assert not any(e["name"] == "DYN_BENCHMARK_MODE" for e in container["env"])
+        assert container["image"].startswith(
+            "fixture-tools" if comp["type"] == "planner" else "fixture-runtime"
+        )
+    assert yaml.safe_load((profile / "final_config-reused.yaml").read_text()) == dgd

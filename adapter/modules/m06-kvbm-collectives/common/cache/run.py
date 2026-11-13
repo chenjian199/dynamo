@@ -107,7 +107,11 @@ def main():
     out = args.output.resolve()
     (out / "disk").mkdir()
     root = Path(__file__).resolve().parents[5]
-    sources = (root / "adapter/modules/m06-kvbm-collectives/common/cache/sources.txt").read_text().splitlines()
+    sources = (
+        (root / "adapter/modules/m06-kvbm-collectives/common/cache/sources.txt")
+        .read_text()
+        .splitlines()
+    )
     source = {
         "files": {
             name: hashlib.sha256((root / name).read_bytes()).hexdigest()
@@ -204,7 +208,9 @@ def main():
         "--block-size",
         str(block_size),
         "--num-gpu-blocks-override",
-        str(2048 // block_size),
+        # vLLM reserves a null block; retain 2048 usable tokens while
+        # four distinct 640-token prefixes still force cache eviction.
+        str(2048 // block_size + 1),
         "--gpu-memory-utilization",
         "0.15",
     ]
@@ -333,9 +339,9 @@ def main():
                     summary["responses"][:6], references, strict=True
                 ):
                     expected_text = completion_text(reference)
-                    assert (
-                        completion_text(observed) == expected_text
-                    ), "baseline output mismatch"
+                    assert completion_text(observed) == expected_text, (
+                        "baseline output mismatch"
+                    )
                 summary["baseline_output_parity"] = True
             if args.cancel:
                 for index in range(3):
@@ -377,12 +383,12 @@ def main():
                 final = {p["pid"]: p for p in summary["resources"][-1]["processes"]}
                 assert initial.keys() == final.keys(), "engine process set changed"
                 for pid, last_sample in final.items():
-                    assert (
-                        last_sample["fds"] - initial[pid]["fds"] <= 16
-                    ), "unbounded file descriptor growth"
-                    assert (
-                        last_sample["rss"] - initial[pid]["rss"] <= 128 * 1024**2
-                    ), "RSS growth exceeds 128 MiB after warmup"
+                    assert last_sample["fds"] - initial[pid]["fds"] <= 16, (
+                        "unbounded file descriptor growth"
+                    )
+                    assert last_sample["rss"] - initial[pid]["rss"] <= 128 * 1024**2, (
+                        "RSS growth exceeds 128 MiB after warmup"
+                    )
                 summary["bounded_resources"] = True
             summary["status"] = "passed"
     finally:

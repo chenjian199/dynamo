@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Copy test drivers only; never copy Dynamo implementation into test Pods."""
+
 import argparse
 import hashlib
 import json
@@ -24,6 +25,8 @@ if any(not child.name.startswith(allowed) for child in a.test_deps.iterdir()):
     p.error("Test dependency directory contains an unexpected package")
 shutil.copytree(a.test_deps, a.output / "test-deps")
 files = [
+    "adapter/modules/m03-engine-integration/common/engine/run-case.py",
+    "adapter/modules/m10-validation/common/regression/run-engine.py",
     "adapter/modules/m03-engine-integration/common/engine/serve.sh",
     "adapter/modules/m03-engine-integration/common/engine/rank-smoke.py",
     "adapter/modules/m03-engine-integration/common/engine/advanced-smoke.py",
@@ -51,6 +54,7 @@ files = [
     "container/platforms/native-smoke.py",
     "tests/__init__.py",
     "tests/utils/managed_process.py",
+    "tests/utils/http_checks.py",
     "tests/utils/port_utils.py",
     "tests/utils/constants.py",
     "tests/utils/test_output.py",
@@ -59,10 +63,10 @@ for name in files:
     target = a.output / name
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(a.source / name, target)
-shutil.copy2(
-    Path(__file__).with_name("run-engine.py"), a.output / "adapter/modules/m03-engine-integration/common/engine/run-case.py"
+shutil.copytree(
+    a.source / "adapter/modules/m05-pd-transfer/common/transfer/patches",
+    a.output / "adapter/modules/m05-pd-transfer/common/transfer/patches",
 )
-shutil.copytree(a.source / "adapter/modules/m05-pd-transfer/common/transfer/patches", a.output / "adapter/modules/m05-pd-transfer/common/transfer/patches")
 for name in (
     "check-installed.py",
     "run-hardware.sh",

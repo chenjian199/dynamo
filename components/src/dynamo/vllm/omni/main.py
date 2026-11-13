@@ -231,6 +231,7 @@ async def worker():
         discovery_backend=config.discovery_backend,
         request_plane=config.request_plane,
         event_plane=config.event_plane,
+        response_plane=config.response_plane,
     )
 
     if platform_id := os.environ.get("DYN_PLATFORM"):

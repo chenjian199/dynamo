@@ -58,6 +58,60 @@ def _without(args, key):
     return result
 
 
+def has_vendor_platform(override):
+    """Whether a beta override explicitly selects a supported vendor."""
+    return bool(
+        override
+        and override.get("apiVersion") == "nvidia.com/v1beta1"
+        and any(
+            _platform(_main(c)) in {"ascend", "metax"}
+            for c in override.get("spec", {}).get("components", [])
+        )
+    )
+
+
+def project_vllm_benchmark_override(blueprint, override, phase):
+    """Select the measured role's overrides for a standalone vLLM candidate.
+
+    AISimulate profiles prefill and decode separately using one aggregate worker
+    named ``decode``. A final PD override may describe both roles. Project only
+    these known role targets; leave unrelated names to the strict Go validator.
+    Decode-only overrides retain their historical aggregate-worker meaning.
+    Final-output overrides are never projected.
+    """
+    if phase not in {"prefill", "decode"}:
+        raise ValueError(f"Unknown benchmark phase: {phase}")
+    if not override or override.get("apiVersion") != "nvidia.com/v1beta1":
+        return override
+    prefill_names = {"prefill", "VllmPrefillWorker"}
+    decode_names = {"decode", "VllmDecodeWorker"}
+    result = copy.deepcopy(override)
+    entries = result.get("spec", {}).get("components", [])
+    prefills = [c for c in entries if c.get("name") in prefill_names]
+    decodes = [c for c in entries if c.get("name") in decode_names]
+    if not prefills and not decodes:
+        return override
+    if len(prefills) > 1 or len(decodes) > 1:
+        raise ValueError("Duplicate benchmark role override targets")
+    components = blueprint.get("spec", {}).get("components", [])
+    workers = [
+        c for c in components if c.get("type") in {"worker", "prefill", "decode"}
+    ]
+    if len(workers) != 1 or _value(_args(_main(workers[0])), "--disaggregation-mode"):
+        raise ValueError("Benchmark override projection requires one aggregate worker")
+    selected_names = prefill_names if phase == "prefill" and prefills else decode_names
+    projected = []
+    for entry in entries:
+        name = entry.get("name")
+        if name in prefill_names | decode_names:
+            if name not in selected_names:
+                continue
+            entry["name"] = workers[0]["name"]
+        projected.append(entry)
+    result.setdefault("spec", {})["components"] = projected
+    return result
+
+
 def adapt_vllm_blueprint_platform(blueprint, override):
     """Translate default resources/transport before merging v1beta1 overrides.
 
@@ -103,9 +157,15 @@ def adapt_vllm_blueprint_platform(blueprint, override):
                 resources[resource_key] = resources.pop("nvidia.com/gpu")
         args = _args(container)
         raw = _value(args, "--kv-transfer-config")
-        default = {"kv_connector": "NixlConnector", "kv_role": "kv_both"}
-        if raw is not None and json.loads(raw) != default:
-            continue  # Preserve a custom connector; do not silently rewrite it.
+        if raw is not None:
+            connector = json.loads(raw)
+            is_default = (
+                set(connector) == {"kv_connector", "kv_role"}
+                and connector["kv_connector"] == "NixlConnector"
+                and connector["kv_role"] in {"kv_both", "kv_producer", "kv_consumer"}
+            )
+            if not is_default:
+                continue  # Preserve custom connectors, including extra NIXL options.
         role = _value(args, "--disaggregation-mode")
         args = _without(args, "--kv-transfer-config")
         if role in {"prefill", "decode"}:

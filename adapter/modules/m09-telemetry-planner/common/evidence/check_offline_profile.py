@@ -14,7 +14,7 @@ import yaml
 from dynamo.common.platform.profile import ProfileIdentity, validate_profile_manifest
 from dynamo.planner.config.defaults import SubComponentType
 from dynamo.planner.config.planner_config import PlannerConfig
-from dynamo.planner.core.perf_model.aic_adapter import PlannerEnginePerfModel
+from dynamo.planner.core.perf_model.ais_adapter import PlannerEnginePerfModel
 from dynamo.planner.core.types import EngineCapabilities
 from dynamo.planner.monitoring.perf_metrics import fetch_pre_deployment_metrics
 from dynamo.profiler.utils.profile_decode import get_num_request_range

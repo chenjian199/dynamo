@@ -18,3 +18,7 @@ SPDX-License-Identifier: Apache-2.0
 | [verify-offline-budget.py](verify-offline-budget.py) | 核对并修正继承的 GPU 预算元数据，不改变已测量引擎输入 |
 
 流程是渲染采样 → 实测与审计 → 加载画像 → 在线决策/重启检查。仅画像文件存在或 API 可用，不能证明预测器持续正常。新采样配置使用新的身份和输出目录；完整流程见 [M10 公共工具](../README.md)。
+
+渲染时必须提供 `--runtime-version`（例如 `--runtime-version 1.6.2`），取值为实际安装镜像中的 Dynamo 版本。该参数同时替换历史 DGD 组件及 DGDR 的 `runtimeVersionOverride`，不能只更新镜像引用而保留旧运行时协议版本。
+
+`prepare-online.py` 也要求显式 `--runtime-version`，避免生成在线 Planner 时重新写入旧协议版本。两个历史集群复查 shell 通过必填 `M10_RUNTIME_VERSION` 传递该值；这些脚本的节点、目录和 namespace 仍须按实际 campaign 绑定。

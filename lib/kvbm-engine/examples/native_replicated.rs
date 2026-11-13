@@ -4,7 +4,11 @@
 //! Hardware acceptance for the independent engine/physical/kernel path.
 //! Run each rank as a separate process with a shared fresh bootstrap directory.
 
+#[path = "../../platform-runtime/examples/device_smoke/audit.rs"]
+mod audit;
+
 use anyhow::{Context, Result, ensure};
+use audit::AuditedBackend;
 use dynamo_memory::{MemoryDescriptor, platform::PlatformStorage};
 use dynamo_platform::device::MemorySpace;
 use dynamo_platform::memory::DeviceRuntime;
@@ -125,7 +129,8 @@ async fn main() -> Result<()> {
     let outer: usize = args[6].parse()?;
     let width: usize = args[7].parse()?;
     let backend = NativeBackend::open(platform, device)?;
-    let runtime = DeviceRuntime::new(backend.clone(), 32)?;
+    let audited = AuditedBackend::new(backend.clone());
+    let runtime = DeviceRuntime::new(audited.clone(), 32)?;
     let root_path = directory.join("root.bin");
     if rank == 0 {
         let root = NativeCommunicator::root_info(&backend)?;
@@ -243,6 +248,58 @@ async fn main() -> Result<()> {
         .map(|i| ((i * 37 + i / 11 + 17) % 251) as u8)
         .collect();
     let zero = vec![0; bytes];
+    // Independent per-rank host roundtrip before the replicated phase. Each rank
+    // has distinct bytes, so broadcasting rank zero cannot satisfy this check.
+    let shard_reference: Vec<u8> = expected
+        .iter()
+        .map(|b| b.wrapping_add(rank as u8 + 1))
+        .collect();
+    let shard_host =
+        manager.register_layout(PhysicalLayout::from_native(NativeLayout::allocate(
+            &runtime,
+            config.clone(),
+            KvBlockLayout::UniversalTP,
+            MemorySpace::Host,
+        )?))?;
+    write(&g1_data, &mut copies, 0, &shard_reference)?;
+    manager
+        .execute_transfer(
+            g1_handle,
+            &[0],
+            shard_host,
+            &[0],
+            TransferOptions::default(),
+        )?
+        .await?;
+    write(&g1_data, &mut copies, 0, &zero)?;
+    manager
+        .execute_transfer(
+            shard_host,
+            &[0],
+            g1_handle,
+            &[0],
+            TransferOptions::default(),
+        )?
+        .await?;
+    let shard_actual = read(&g1_data, &mut copies, 0)?;
+    ensure!(
+        shard_actual == shard_reference,
+        "rank {rank}: independent shard mismatch"
+    );
+    raw_parity(&g1_data, &runtime, 0, rank, &shard_reference)?;
+    std::fs::write(
+        directory.join(format!("rank-{rank}.shard-reference.bin")),
+        &shard_reference,
+    )?;
+    std::fs::write(
+        directory.join(format!("rank-{rank}.shard-actual.bin")),
+        &shard_actual,
+    )?;
+    std::fs::write(
+        directory.join(format!("rank-{rank}.reference.bin")),
+        &expected,
+    )?;
+    let mut tier_bytes = Vec::new();
     for block in 0..4 {
         write(&g1_data, &mut copies, block, &zero)?;
     }
@@ -272,10 +329,14 @@ async fn main() -> Result<()> {
                 TransferOptions::default(),
             )?
             .await?;
+        let actual = read(&g1_data, &mut copies, 0)?;
         ensure!(
-            read(&g1_data, &mut copies, 0)? == expected,
+            actual == expected,
             "rank {rank}: {tier:?} broadcast parity failed"
         );
+        let filename = format!("rank-{rank}.{tier:?}.actual.bin");
+        std::fs::write(directory.join(&filename), &actual)?;
+        tier_bytes.push(actual.len());
         raw_parity(&g1_data, &runtime, 0, rank, &expected)?;
     }
     replicated
@@ -425,5 +486,48 @@ async fn main() -> Result<()> {
         ensure!(Instant::now() < deadline, "peer completion timeout");
         tokio::time::sleep(Duration::from_millis(20)).await;
     }
+    drop(copies);
+    drop(g1_data);
+    drop(replicated);
+    drop(manager);
+    ensure!(
+        runtime.close(Duration::from_secs(30)),
+        "runtime did not close"
+    );
+    // Event notification may wake the caller just before the worker releases
+    // its final local references. Observe actual retirement with a bounded wait.
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let counts = loop {
+        let counts = audited.snapshot();
+        if (0..8).step_by(2).all(|i| counts[i] == counts[i + 1]) {
+            break counts;
+        }
+        ensure!(
+            Instant::now() < deadline,
+            "SDK resources remain after cleanup: {counts:?}"
+        );
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    };
+    let live_allocations = counts[0]
+        .checked_sub(counts[1])
+        .context("extra allocation release")?;
+    let report = format!(
+        r#"{{"platform":"{platform}","rank":{rank},"world":{world},"device":{device},"outer":{outer},"width":{width},"completed_operations":{},"sdk_create_release_counts":{counts:?},"metrics":{{"live_allocations":{live_allocations}}},"shard_bytes":{},"tier_readback_bytes":{tier_bytes:?},"layout":{{"num_layers":{},"num_blocks":{},"page_size":{},"num_heads":{},"inner_dim":{},"dtype_width_bytes":{}}}}}"#,
+        audited.completed_submissions(),
+        shard_actual.len(),
+        config.num_layers,
+        config.num_blocks,
+        config.page_size,
+        config.num_heads.context("missing heads")?,
+        config.inner_dim,
+        config.dtype_width_bytes,
+    );
+    use std::io::Write;
+    let mut output = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(directory.join(format!("rank-{rank}.measurements.json")))?;
+    writeln!(output, "{report}")?;
+    println!("{report}");
     Ok(())
 }

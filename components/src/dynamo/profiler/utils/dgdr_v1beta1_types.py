@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,8 +60,11 @@ class SearchStrategy(str, Enum):
 
 
 class GPUSKUType(str, Enum):
+    VRNVL72 = "vr_nvl72"
+    GB200 = "gb200"
     GB200SXM = "gb200_sxm"
     GB10 = "gb10"
+    B300SXM = "b300_sxm"
     B200SXM = "b200_sxm"
     H200SXM = "h200_sxm"
     H100SXM = "h100_sxm"
@@ -178,7 +183,11 @@ class OverridesSpec(BaseModel):
 
     profilingJob: Optional[Dict[str, Any]] = Field(
         default=None,
-        description="ProfilingJob allows overriding the profiling Job specification. Fields set here are merged into the controller-generated Job spec.",
+        description="ProfilingJob allows overriding the profiling Job specification. Fields set here are merged into the controller-generated Job spec.  Security: creating a DGDR is workload-creation authority in its namespace — these overrides carry the same blast radius as creating a Job or Pod directly there, by design. Pod security is enforced centrally by Kubernetes Pod Security Admission on the resulting Pods once the namespace is labeled (see pod-security.kubernetes.io/enforce): it applies the full Pod Security Standards — covering privileged, host namespaces, and hostPath, not only securityContext — not this API. ServiceAccount identity is a separate layer: these overrides can set serviceAccountName and automountServiceAccountToken, which are bounded by RBAC and namespace membership rather than PSA — the same authority any Pod author in the namespace already holds. Grant create/update on DGDRs only to principals trusted to create Pods in the namespace. The profiling Job always runs in the DGDR's own namespace and overrides cannot change that — but namespace containment is not node or cross-tenant isolation. Dynamo's workloads, including this Job, satisfy the baseline standard, so enforce baseline (non-exempt) on every resulting Pod to close the privileged, host-namespace, host-device, and hostPath paths.",
+    )
+    trustRemoteCode: bool = Field(
+        default=False,
+        description="TrustRemoteCode explicitly permits generated vLLM and SGLang workers to execute custom code from the configured model repository. When enabled, the profiler adds --trust-remote-code to every generated worker component after the deployment topology has been generated. Enable this setting only for model repositories you trust.",
     )
     dgd: Optional[Dict[str, Any]] = Field(
         default=None,
@@ -226,7 +235,7 @@ class HardwareSpec(BaseModel):
 
     gpuSku: Optional[GPUSKUType] = Field(
         default=None,
-        description="GPUSKU selects the GPU type to target. When omitted, auto-detected by selecting the GPU with the highest node count, then highest VRAM. In mixed-GPU clusters, set this to choose which GPU type to use. Discovery and totalGpus are then restricted to nodes matching this SKU.",
+        description="GPUSKU selects the GPU type to target. When omitted, auto-detected by selecting the GPU with the highest node count, then highest VRAM. In mixed-GPU clusters, set this to choose which GPU type to use. Discovery and totalGpus are then restricted to nodes matching this SKU. The legacy value gb200_sxm is deprecated; use gb200 instead.",
     )
     vramMb: Optional[float] = Field(
         default=None,

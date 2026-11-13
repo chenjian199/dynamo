@@ -82,6 +82,7 @@ impl HealthCheckManager {
     fn spawn_endpoint_health_check_task(self: &Arc<Self>, endpoint_subject: String) {
         let manager = self.clone();
         let canary_wait = self.config.canary_wait_time;
+        let shutdown = self.drt.runtime().shutdown_started_token();
         let endpoint_subject_clone = endpoint_subject.clone();
 
         // Get the endpoint-specific notifier
@@ -99,6 +100,8 @@ impl HealthCheckManager {
             loop {
                 // Wait for either timeout or activity notification
                 tokio::select! {
+                    biased;
+                    _ = shutdown.cancelled() => break,
                     _ = tokio::time::sleep(canary_wait) => {
                         // Timeout - send health check for this specific endpoint
                         debug!("Canary timer expired for {}, sending health check", endpoint_subject);
@@ -151,6 +154,7 @@ impl HealthCheckManager {
     /// Returns an error if duplicate endpoints are detected, indicating a bug in the system
     async fn spawn_new_endpoint_monitor(self: &Arc<Self>) -> anyhow::Result<()> {
         let manager = self.clone();
+        let shutdown = self.drt.runtime().shutdown_started_token();
 
         // Get the receiver (can only be taken once)
         let mut rx = manager
@@ -165,7 +169,15 @@ impl HealthCheckManager {
         tokio::spawn(async move {
             info!("Starting dynamic endpoint discovery monitor with channel-based notifications");
 
-            while let Some(endpoint_subject) = rx.recv().await {
+            loop {
+                let endpoint_subject = tokio::select! {
+                    biased;
+                    _ = shutdown.cancelled() => break,
+                    endpoint = rx.recv() => match endpoint {
+                        Some(endpoint) => endpoint,
+                        None => break,
+                    },
+                };
                 debug!(
                     "Received endpoint registration via channel: {}",
                     endpoint_subject
@@ -204,6 +216,10 @@ impl HealthCheckManager {
         endpoint_subject: &str,
         payload: &serde_json::Value,
     ) -> anyhow::Result<()> {
+        let shutdown = self.drt.runtime().shutdown_started_token();
+        if shutdown.is_cancelled() {
+            return Ok(());
+        }
         debug!(
             "Sending health check to {} via local registry",
             endpoint_subject
@@ -228,7 +244,8 @@ impl HealthCheckManager {
 
         // Spawn task to send health check and wait for response
         tokio::spawn(async move {
-            let result = tokio::time::timeout(timeout, async {
+            let request_shutdown = shutdown.clone();
+            let request = tokio::time::timeout(timeout, async {
                 let request = SingleIn::new(payload);
                 match engine.generate(request).await {
                     Ok(mut response_stream) => {
@@ -255,7 +272,11 @@ impl HealthCheckManager {
 
                         tokio::spawn(async move {
                             // We need to consume the rest of the stream to avoid warnings on the frontend.
-                            response_stream.for_each(|_| async {}).await;
+                            tokio::select! {
+                                biased;
+                                _ = request_shutdown.cancelled() => {},
+                                _ = response_stream.for_each(|_| async {}) => {},
+                            }
                         });
 
                         // Update health status based on response
@@ -279,8 +300,14 @@ impl HealthCheckManager {
                         );
                     }
                 }
-            })
-            .await;
+            });
+            // A health request must not outlive its endpoint and call back into
+            // Python after the engine/event loop has begun shutting down.
+            let result = tokio::select! {
+                biased;
+                _ = shutdown.cancelled() => return,
+                result = request => result,
+            };
 
             // Handle timeout
             if result.is_err() {
@@ -366,9 +393,8 @@ mod push_handler_notify_tests {
     use crate::engine::{AsyncEngine, AsyncEngineContextProvider};
     use crate::local_endpoint_registry::LocalAsyncEngine;
     use crate::pipeline::network::codec::{TwoPartCodec, TwoPartMessage};
-    use crate::pipeline::network::tcp::server::{ServerOptions, TcpStreamServer};
     use crate::pipeline::network::{
-        ConnectionInfo, Ingress, PushWorkHandler, ResponseService, StreamOptions,
+        ConnectionInfo, Ingress, PushWorkHandler, quic_response::QuicResponseServer,
     };
     use crate::pipeline::{ManyOut, ResponseStream, SingleIn};
     use crate::protocols::annotated::Annotated;
@@ -456,33 +482,27 @@ mod push_handler_notify_tests {
         TwoPartCodec::default().encode_message(msg).unwrap()
     }
 
-    /// Sets up a TCP server and registers a response stream for push_handler
+    /// Sets up a QUIC server and registers a response stream for push_handler
     /// to connect back to.
-    async fn setup_tcp_receiver(request_id: &str) -> (Arc<TcpStreamServer>, ConnectionInfo) {
-        let options = ServerOptions::builder().port(0).build().unwrap();
-        let server = TcpStreamServer::new(options).await.unwrap();
-
+    async fn setup_quic_receiver(
+        request_id: &str,
+    ) -> (
+        Arc<QuicResponseServer>,
+        ConnectionInfo,
+        crate::pipeline::network::StreamProvider<crate::pipeline::network::StreamReceiver>,
+    ) {
+        let shutdown = crate::CancellationToken::new();
+        let address = "127.0.0.1:0".parse().unwrap();
+        let server = QuicResponseServer::new(address, address, shutdown).unwrap();
         let context = crate::pipeline::Context::with_id_and_metadata(
             (),
             request_id.to_string(),
             Default::default(),
         );
-        let stream_options = StreamOptions::builder()
-            .context(context.context())
-            .enable_request_stream(false)
-            .enable_response_stream(true)
-            .build()
-            .unwrap();
+        let registered = server.register_response(context.context());
+        let (connection_info, provider) = registered.into_parts();
 
-        let pending = server.register(stream_options).await;
-        let connection_info = pending
-            .recv_stream
-            .as_ref()
-            .unwrap()
-            .connection_info
-            .clone();
-
-        (server, connection_info)
+        (server, connection_info, provider)
     }
 
     /// Registers an endpoint in the DRT with the given engine in local registry.
@@ -523,7 +543,7 @@ mod push_handler_notify_tests {
     /// Helper: send a request through the ingress pipeline.
     async fn send_request(ingress: &Ingress<SingleIn<TestRequest>, ManyOut<TestResponse>>) {
         let request_id = uuid::Uuid::new_v4().to_string();
-        let (_server, connection_info) = setup_tcp_receiver(&request_id).await;
+        let (_server, connection_info, _provider) = setup_quic_receiver(&request_id).await;
         let payload = encode_request(
             &request_id,
             connection_info,
@@ -549,6 +569,7 @@ mod push_handler_notify_tests {
 
     /// Helper: create ingress pipeline with given engine and notifier.
     fn create_ingress(
+        _drt: &crate::DistributedRuntime,
         engine: Arc<MockStreamingEngine>,
         notifier: Arc<tokio::sync::Notify>,
     ) -> Arc<Ingress<SingleIn<TestRequest>, ManyOut<TestResponse>>> {
@@ -556,6 +577,11 @@ mod push_handler_notify_tests {
             Ingress::<SingleIn<TestRequest>, ManyOut<TestResponse>>::for_engine(engine).unwrap();
         ingress
             .set_endpoint_health_check_notifier(notifier)
+            .unwrap();
+        ingress
+            .set_quic_response_client_pool(
+                crate::pipeline::network::quic_response::process_client_pool_from_env().unwrap(),
+            )
             .unwrap();
         ingress
     }
@@ -582,7 +608,7 @@ mod push_handler_notify_tests {
         let notifier = register_endpoint(&drt, endpoint, MockStreamingEngine::all_errors(1));
         assert_status(&drt, endpoint, HealthStatus::NotReady, "initial");
 
-        let ingress = create_ingress(MockStreamingEngine::success(5), notifier);
+        let ingress = create_ingress(&drt, MockStreamingEngine::success(5), notifier);
         start_manager(&drt, 500).await;
 
         send_request(&ingress).await;
@@ -632,7 +658,7 @@ mod push_handler_notify_tests {
         assert_status(&drt, endpoint, HealthStatus::NotReady, "initial");
 
         // Pipeline streams only errors — no notifications sent
-        let ingress = create_ingress(MockStreamingEngine::all_errors(3), notifier);
+        let ingress = create_ingress(&drt, MockStreamingEngine::all_errors(3), notifier);
         start_manager(&drt, 50).await;
 
         send_request(&ingress).await;
@@ -685,7 +711,11 @@ mod push_handler_notify_tests {
         assert_status(&drt, endpoint, HealthStatus::NotReady, "initial");
 
         // 5 chunks: 4 success + error at index 4
-        let ingress = create_ingress(MockStreamingEngine::with_error_at(5, vec![4]), notifier);
+        let ingress = create_ingress(
+            &drt,
+            MockStreamingEngine::with_error_at(5, vec![4]),
+            notifier,
+        );
         start_manager(&drt, 500).await;
 
         send_request(&ingress).await;

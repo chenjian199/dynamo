@@ -1,15 +1,19 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 # Base stage - Common setup for all stages
 ARG DOCKER_PROXY
 ARG BASE_IMAGE="library/golang"
-ARG BASE_IMAGE_TAG="1.26.6"
+ARG BASE_IMAGE_TAG="1.27.3"
 FROM ${DOCKER_PROXY}${BASE_IMAGE}:${BASE_IMAGE_TAG} AS base
 
 # Docker buildx automatically provides these
 ARG TARGETOS=linux
 ARG TARGETARCH
+# Allow an accessible module mirror without changing go.sum verification.
+ARG GOPROXY=https://proxy.golang.org,direct
 
 RUN echo "Building for ${TARGETOS}/${TARGETARCH}"
 
@@ -30,7 +34,7 @@ COPY . .
 FROM base AS linter
 
 # Install golangci-lint using go install (builds with current Go version)
-RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.2
+RUN go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
 
 # Run linting
 RUN golangci-lint run --timeout=5m
@@ -204,7 +208,7 @@ COPY --from=sources_collect /sources.zip /sources.zip
 
 
 # Runtime stage
-FROM nvcr.io/nvidia/distroless/go:v4.0.9
+FROM nvcr.io/nvidia/distroless/go:v4.1.7
 WORKDIR /
 COPY --from=builder /workspace/manager .
 COPY --from=builder /workspace/crd-apply .

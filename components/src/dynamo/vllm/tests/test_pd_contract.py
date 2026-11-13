@@ -441,7 +441,10 @@ def test_ascend_native_tp_pairs_pass_through_without_split_extension(
             validate_pd_configuration(cfg, "ascend")
 
 
-def test_ascend_mooncake_libraries_are_loaded_globally_once(monkeypatch):
+@pytest.mark.parametrize("cann_version", ["9.1.0", "9.2.1"])
+def test_ascend_mooncake_libraries_are_loaded_globally_once(
+    monkeypatch, tmp_path, cann_version
+):
     import ctypes
 
     from dynamo.common.platform import ascend_mooncake
@@ -453,13 +456,16 @@ def test_ascend_mooncake_libraries_are_loaded_globally_once(monkeypatch):
         calls.append((path, mode))
         return marker
 
+    root = tmp_path / f"cann-{cann_version}"
+    library = root / "lib64/libllm_datadist.so"
+    library.parent.mkdir(parents=True)
+    library.touch()
+    monkeypatch.setenv("ASCEND_HOME_PATH", str(root))
     monkeypatch.setattr(ascend_mooncake, "_cann_datadist", None)
     monkeypatch.setattr(ascend_mooncake.ctypes, "CDLL", load)
     ascend_mooncake.prepare_mooncake_libraries()
     ascend_mooncake.prepare_mooncake_libraries()
-    assert calls == [
-        ("/usr/local/Ascend/cann-9.1.0/lib64/libllm_datadist.so", ctypes.RTLD_GLOBAL)
-    ]
+    assert calls == [(str(library), ctypes.RTLD_GLOBAL)]
     assert ascend_mooncake._cann_datadist is marker
 
 

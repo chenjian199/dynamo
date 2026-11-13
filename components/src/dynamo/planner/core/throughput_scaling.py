@@ -34,6 +34,24 @@ class ThroughputScalingMixin:
     _diag_throughput_reason_prefill: Optional[str]
     _diag_throughput_reason_decode: Optional[str]
 
+    def _cap_throughput_replicas(
+        self, desired: int, current: int, component: str
+    ) -> int:
+        """Bound one throughput observation's replica change for a component."""
+        limit = self._config.max_throughput_scaling_replicas
+        bounded = min(max(desired, max(0, current - limit)), current + limit)
+        if bounded != desired:
+            logger.warning(
+                "Throughput target capped for %s: raw=%s, current=%s, "
+                "max_delta=%s, bounded=%s",
+                component,
+                desired,
+                current,
+                limit,
+                bounded,
+            )
+        return bounded
+
     def _throughput_single(
         self,
         demand_rps: float,
@@ -48,28 +66,56 @@ class ThroughputScalingMixin:
             else self._compute_decode_replicas(demand_rps, isl, osl)
         )
         current = self._num_p_workers if component == "prefill" else self._num_d_workers
-        # A missing capacity estimate must not bypass the configured endpoint
-        # floor. Hold at the current count, then let the floor and GPU budget
-        # logic below decide whether recovery is required.
+        # ``_compute_*`` returns None when the perf model cannot size this
+        # tick; hold at the current count so the endpoint floor still applies.
         model_not_ready = desired is None
         if desired is None:
             desired = current
+        desired = self._cap_throughput_replicas(desired, current, component)
+        # Endpoint recovery is a hard invariant, not an ordinary throughput
+        # movement, so it may exceed the per-observation delta cap.
         desired = max(desired, resolve_min_endpoint(self._config, component))
+        requested = desired
+        desired, _ceiling_reason = self._fit_single_throughput_ceiling(
+            desired,
+            component,
+        )
 
         if self._config.enable_load_scaling:
             if component == "prefill":
                 self._throughput_lower_bound_p = desired
             else:
                 self._throughput_lower_bound_d = desired
-            logger.info(f"Throughput lower bound set to {desired} for {component}")
+            logger.info(
+                "Throughput lower bound set to %s for %s",
+                desired,
+                component,
+            )
             self._diag_throughput_reason = (
-                "model_not_ready" if model_not_ready else "set_lower_bound"
+                "model_not_ready"
+                if model_not_ready
+                else "gpu_budget_guard_hold"
+                if _ceiling_reason == "gpu_budget_guard_hold"
+                else "set_lower_bound"
             )
             return None
 
-        desired = self._apply_single_budget(desired, component)
-        if model_not_ready and desired == current:
-            self._diag_throughput_reason = "model_not_ready"
+        if (self._pending_num_p or self._pending_num_d) and (
+            model_not_ready or requested > current
+        ):
+            if model_not_ready:
+                self._diag_throughput_reason = "model_not_ready"
+            return None
+        desired, _budget_reason = self._apply_single_scaling_budget(
+            desired,
+            component,
+        )
+        if desired == current and not self._pending_startup(component):
+            self._diag_throughput_reason = (
+                "model_not_ready"
+                if model_not_ready
+                else _budget_reason or _ceiling_reason or "no_change"
+            )
             return None
         self._diag_throughput_reason = "model_not_ready" if model_not_ready else "scale"
         return (
@@ -100,13 +146,32 @@ class ThroughputScalingMixin:
             self._diag_throughput_reason_decode = (
                 "model_not_ready" if num_d is None else "partner_not_ready"
             )
-            # Do not move either side from a partial estimate. Hold both at
-            # their current counts so only endpoint-floor recovery can act.
+            # Hold both components at their current counts: acting on the ready
+            # side's own estimate would move a tick the perf model cannot size.
             num_p = self._num_p_workers
             num_d = self._num_d_workers
 
+        num_p = self._cap_throughput_replicas(num_p, self._num_p_workers, "prefill")
+        num_d = self._cap_throughput_replicas(num_d, self._num_d_workers, "decode")
+        # A runtime endpoint increase must recover immediately even when the
+        # gap is larger than the throughput delta cap.
         num_p = max(num_p, resolve_min_endpoint(self._config, "prefill"))
         num_d = max(num_d, resolve_min_endpoint(self._config, "decode"))
+        bounded_p, bounded_d = num_p, num_d
+        if (
+            self._pending_num_p or self._pending_num_d
+        ) and not self._config.enable_load_scaling:
+            if model_not_ready:
+                # A current-count fallback repairs floors after settlement; it
+                # is not demand evidence for cancelling pending capacity.
+                self._diag_throughput_reason = "model_not_ready"
+                return None
+            return self._startup_disagg_decision(num_p, num_d, source="throughput")
+        num_p, num_d = self._fit_disagg_throughput_ceiling(num_p, num_d)
+        budget_held = (num_p, num_d) == (self._num_p_workers, self._num_d_workers) and (
+            bounded_p,
+            bounded_d,
+        ) != (self._num_p_workers, self._num_d_workers)
 
         if not model_not_ready:
             reason = "set_lower_bound" if self._config.enable_load_scaling else "scale"
@@ -117,18 +182,33 @@ class ThroughputScalingMixin:
             self._throughput_lower_bound_p = num_p
             self._throughput_lower_bound_d = num_d
             logger.info(f"Throughput lower bounds set: prefill={num_p}, decode={num_d}")
-            self._diag_throughput_reason = (
-                "model_not_ready" if model_not_ready else "set_lower_bound"
-            )
+            if model_not_ready:
+                self._diag_throughput_reason = "model_not_ready"
+            elif budget_held:
+                self._diag_throughput_reason = "gpu_budget_guard_hold"
+                self._diag_throughput_reason_prefill = "gpu_budget_guard_hold"
+                self._diag_throughput_reason_decode = "gpu_budget_guard_hold"
+            else:
+                self._diag_throughput_reason = "set_lower_bound"
             return None
 
-        num_p, num_d = self._apply_global_budget(num_p, num_d)
-        if model_not_ready and (
-            num_p,
-            num_d,
-        ) == (self._num_p_workers, self._num_d_workers):
-            self._diag_throughput_reason = "model_not_ready"
+        num_p, num_d, budget_reason = self._apply_disagg_scaling_budget(
+            num_p, num_d, source="throughput"
+        )
+        if num_p == self._num_p_workers and num_d == self._num_d_workers:
+            if model_not_ready:
+                # Leave the per-component reasons the not-ready branch already
+                # recorded; relabelling them would hide why the tick held.
+                self._diag_throughput_reason = "model_not_ready"
+                return None
+            hold_reason = budget_reason or (
+                "gpu_budget_guard_hold" if budget_held else "no_change"
+            )
+            self._diag_throughput_reason = hold_reason
+            self._diag_throughput_reason_prefill = hold_reason
+            self._diag_throughput_reason_decode = hold_reason
             return None
+
         self._diag_throughput_reason = "model_not_ready" if model_not_ready else "scale"
         return ScalingDecision(num_prefill=num_p, num_decode=num_d)
 
@@ -159,6 +239,8 @@ class ThroughputScalingMixin:
         engine_rps = capacity.rps if capacity is not None else 0.0
         model_not_ready = capacity is None or engine_rps <= 0
         if capacity is None or engine_rps <= 0:
+            # No capacity estimate, so the demand division below cannot run;
+            # hold at the current count so the endpoint floor still applies.
             logger.warning(
                 "Agg perf model not ready, holding at the current replica count "
                 "and enforcing the endpoint floor"
@@ -174,30 +256,60 @@ class ThroughputScalingMixin:
                 or actual_itl > self._config.itl_ms
             ):
                 logger.warning(
-                    f"Agg SLA not fully met: TTFT={actual_ttft:.1f}ms, ITL={actual_itl:.1f}ms"
+                    "Agg SLA not fully met: TTFT=%.1fms, ITL=%.1fms",
+                    actual_ttft,
+                    actual_itl,
                 )
 
             self._diag_engine_rps_prefill = engine_rps
             self._diag_engine_rps_decode = engine_rps
 
-            desired = math.ceil(demand_rps / engine_rps)
-            logger.info(
-                f"Agg: {demand_rps:.2f} rps / {engine_rps:.2f} engine_rps = {desired} replicas"
+            desired = max(
+                math.ceil(demand_rps / engine_rps),
+                resolve_min_endpoint(self._config, "decode"),
             )
-
+            logger.info(
+                "Agg: %.2f rps / %.2f engine_rps = %s replicas",
+                demand_rps,
+                engine_rps,
+                desired,
+            )
+        desired = self._cap_throughput_replicas(
+            desired, self._num_d_workers, "aggregated"
+        )
         desired = max(desired, resolve_min_endpoint(self._config, "decode"))
+        requested = desired
+        desired, _ceiling_reason = self._fit_single_throughput_ceiling(
+            desired,
+            "decode",
+        )
 
         if self._config.enable_load_scaling:
             self._throughput_lower_bound_d = desired
-            logger.info(f"Agg throughput lower bound set to {desired}")
+            logger.info("Agg throughput lower bound set to %s", desired)
             self._diag_throughput_reason = (
-                "model_not_ready" if model_not_ready else "set_lower_bound"
+                "model_not_ready"
+                if model_not_ready
+                else "gpu_budget_guard_hold"
+                if _ceiling_reason == "gpu_budget_guard_hold"
+                else "set_lower_bound"
             )
             return None
 
-        desired = self._apply_single_budget(desired, "decode")
-        if model_not_ready and desired == self._num_d_workers:
-            self._diag_throughput_reason = "model_not_ready"
+        if self._pending_num_d and (model_not_ready or requested > self._num_d_workers):
+            if model_not_ready:
+                self._diag_throughput_reason = "model_not_ready"
+            return None
+        desired, _budget_reason = self._apply_single_scaling_budget(
+            desired,
+            "decode",
+        )
+        if desired == self._num_d_workers and not self._pending_num_d:
+            self._diag_throughput_reason = (
+                "model_not_ready"
+                if model_not_ready
+                else _budget_reason or _ceiling_reason or "no_change"
+            )
             return None
         self._diag_throughput_reason = "model_not_ready" if model_not_ready else "scale"
         return ScalingDecision(num_decode=desired)

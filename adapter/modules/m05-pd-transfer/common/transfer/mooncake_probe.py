@@ -5,6 +5,7 @@
 """Real Mooncake device registration/copy cycles and optional pending-peer fault."""
 
 import argparse
+import hashlib
 import json
 import multiprocessing as mp
 import os
@@ -43,7 +44,7 @@ def worker(rank, pipe, args):
     hostname = socket.gethostbyname(socket.gethostname())
     protocol = "ascend" if args.platform == "ascend" else "maca"
     assert engine.initialize(hostname, "P2PHANDSHAKE", protocol, "") == 0
-    result = dict(status="failed", rank=rank, cycles=[])
+    result = {"status": "failed", "rank": rank, "cycles": []}
     process = psutil.Process()
     for iteration in range(args.iterations if not args.fault else 1):
         size = 64 * 1024**2 if args.fault else 4 * 1024**2
@@ -56,7 +57,9 @@ def worker(rank, pipe, args):
         device.synchronize()
         pointer = tensor.data_ptr()
         assert engine.register_memory(pointer, size) == 0
-        pipe.send(dict(session=f"{hostname}:{engine.get_rpc_port()}", pointer=pointer))
+        pipe.send(
+            {"session": f"{hostname}:{engine.get_rpc_port()}", "pointer": pointer}
+        )
         remote = recv(pipe)
         if rank == 1:
             assert (
@@ -81,27 +84,27 @@ def worker(rank, pipe, args):
                 state = engine.transfer_check_status(batch)
                 if state != 0:
                     raise RuntimeError(f"Injection missed pending state: {state}")
-                pipe.send(dict(event="pending", batch=batch, state=state))
+                pipe.send({"event": "pending", "batch": batch, "state": state})
                 assert recv(pipe) == "peer-killed"
                 start = time.monotonic()
                 while (state := engine.transfer_check_status(batch)) == 0:
                     if time.monotonic() - start > 45:
                         raise TimeoutError("Native operation did not terminate")
                     time.sleep(0.01)
-                result["fault"] = dict(
-                    pending_state=0,
-                    terminal_state=state,
-                    seconds=time.monotonic() - start,
-                )
+                result["fault"] = {
+                    "pending_state": 0,
+                    "terminal_state": state,
+                    "seconds": time.monotonic() - start,
+                }
                 if state == 1:
                     device.synchronize()
                     if not bool(torch.all(tensor == 42 + iteration)):
                         raise RuntimeError(
                             "Completed transfer returned corrupt device data"
                         )
-                    result["fault"][
-                        "outcome"
-                    ] = "completed_with_byte_parity_after_peer_exit"
+                    result["fault"]["outcome"] = (
+                        "completed_with_byte_parity_after_peer_exit"
+                    )
                 elif state == -1:
                     result["fault"]["outcome"] = "terminal_native_error"
                 else:
@@ -114,16 +117,27 @@ def worker(rank, pipe, args):
         else:
             assert recv(pipe) == "verified"
         device.synchronize()
+        if iteration == 0 and not args.fault:
+            # Persist independently read back source/target bytes. An assertion
+            # inside this process alone cannot satisfy the external parity gate.
+            data = tensor.cpu().numpy().tobytes()
+            capture = args.output / f"rank-{rank}.device-readback.bin"
+            capture.write_bytes(data)
+            result["byte_capture"] = {
+                "path": capture.name,
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
         assert engine.unregister_memory(pointer) == 0
         del tensor
         device.synchronize()
         result["cycles"].append(
-            dict(
-                iteration=iteration,
-                rss=process.memory_info().rss,
-                fds=process.num_fds(),
-                allocated=device.memory_allocated(),
-            )
+            {
+                "iteration": iteration,
+                "rss": process.memory_info().rss,
+                "fds": process.num_fds(),
+                "allocated": device.memory_allocated(),
+            }
         )
         pipe.send("released")
         assert recv(pipe) == "released"
@@ -154,13 +168,13 @@ def main():
     children = [
         context.Process(target=worker, args=(i, pipes[i][1], args)) for i in range(2)
     ]
-    result = dict(
-        status="failed",
-        platform=args.platform,
-        fault=args.fault,
-        iterations=args.iterations,
-        events=[],
-    )
+    result = {
+        "status": "failed",
+        "platform": args.platform,
+        "fault": args.fault,
+        "iterations": args.iterations,
+        "events": [],
+    }
     try:
         for child in children:
             child.start()

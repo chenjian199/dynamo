@@ -20,6 +20,7 @@ ARG ENABLE_KVBM
 ARG ENABLE_GPU_MEMORY_SERVICE
 ARG VLLM_OMNI_REF
 ARG TRANSFORMERS_VERSION
+ARG TOKENIZERS_VERSION
 ARG NIXL_REF
 {% if device == "cuda" %}
 ARG CUDA_MAJOR
@@ -78,6 +79,13 @@ COPY --from=dynamo_base /usr/local/bin/etcd/ /usr/local/bin/etcd/
 COPY --from=dynamo_base /opt/uv/bin/uv /opt/uv/bin/uvx /opt/uv/bin/
 ENV PATH=/opt/uv/bin:${PATH}
 
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+{% include "templates/verify_ca_certificates.Dockerfile" %}
+
+ENV GRPC_DEFAULT_SSL_ROOTS_FILE_PATH=/etc/ssl/certs/ca-certificates.crt
+
 {% if device == "cuda" %}
 # Bring base-image OS packages up to the current patch releases published in
 # the distro archives. --only-upgrade skips anything not already installed, so
@@ -95,6 +103,8 @@ RUN apt-get update && \
         gpgsm \
         gpgv \
         keyboxd \
+        libbrotli1 \
+        libgnutls30t64 \
         libssl3t64 \
         openssl && \
     rm -rf /var/lib/apt/lists/*
@@ -176,25 +186,18 @@ COPY --chmod=775 --chown=dynamo:0 --from=wheel_builder /opt/dynamo/dist/*.whl /o
 
 {% set pip_target = "--system" if device == "cuda" else "--python /opt/venv/bin/python" %}
 {% set python_executable = "python3" if device == "cuda" else "/opt/venv/bin/python" %}
-{# cuda installs into the system interpreter (/usr/local/bin); xpu and cpu run out
-   of ${VIRTUAL_ENV} and prepend ${VIRTUAL_ENV}/bin to PATH. #}
-{% set vllm_rs_link = "/usr/local/bin/vllm-rs" if device == "cuda" else "${VIRTUAL_ENV}/bin/vllm-rs" %}
-{# Inline expression, not a block tag: render.py leaves trim_blocks off, so a tag
-   on its own line inside the RUN breaks the backslash continuation. #}
-{% set vllm_rs_required = "1" if device == "cuda" else "0" %}
-{# TODO: Remove this workaround once bundled vllm-rs accepts extra output fields. #}
+{% if device != "cuda" %}
+{% set vllm_rs_link = "${VIRTUAL_ENV}/bin/vllm-rs" %}
+{# vLLM <0.31 rejects the extra output fields added by Omni. #}
 {% set vllm_rs_allowlist = "1" if target not in ("dev", "local-dev") else "0" %}
-{% set vllm_rs_plugins = "modelexpress" if context.vllm.enable_modelexpress == "true" else "" %}
+{% set vllm_rs_plugins = "modelexpress,dynamo_nixl_telemetry" if context.vllm.enable_modelexpress == "true" else "dynamo_nixl_telemetry" %}
+{% endif %}
 
-# The vLLM 0.28.0 release images resolve the unbounded `transformers>=5.5.3`
-# requirement to 5.15.1, but vLLM-Omni 0.28.0rc1 caps Transformers below 5.15.
-# Omni is layered against the installed Transformers version, so install the
-# compatible release first and its dependency solve sees the final Transformers
-# invariant instead of resolving against 5.15.1.
+# Align Transformers and tokenizers before freezing Omni's protected dependencies.
 RUN --mount=type=cache,id=uv-root-{{ context.dynamo.uv_version }},target=/root/.cache/uv,sharing=locked \
     export UV_CACHE_DIR=/root/.cache/uv && \
     uv pip install {{ pip_target }} --no-deps \
-        "transformers==${TRANSFORMERS_VERSION}"
+        "transformers==${TRANSFORMERS_VERSION}" "tokenizers==${TOKENIZERS_VERSION}"
 
 {% if device != "cuda" %}
 # NIXL meta package always tries to find a cuda-backend
@@ -251,11 +254,14 @@ RUN --mount=type=cache,id=uv-root-{{ context.dynamo.uv_version }},target=/root/.
 # libao*, libmad0, libid3tag0, libltdl7) we'd then be redistributing. SoX is
 # inherently GPL (no LGPL replacement), so the compliant fix is to not ship it.
 # (sglang_runtime.Dockerfile is the reference codec-compliance pattern.)
+# libjemalloc2 lets Dynamo processes opt into jemalloc via
+# LD_PRELOAD or DYN_FRONTEND_JEMALLOC; it is not preloaded by default.
 RUN set -eux; \
     apt-get update; \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         jq \
-        libturbojpeg; \
+        libturbojpeg \
+        libjemalloc2; \
     ldconfig; \
     ldconfig -p | grep -q 'libturbojpeg.so.0'; \
     rm -rf /var/lib/apt/lists/*
@@ -362,10 +368,10 @@ RUN --mount=type=bind,source=./container/deps/vllm/validate_torch_compile_smoke.
 
 # Copy the LGPL ffmpeg from wheel_builder: versioned shared libs (libav*.so*,
 # libsw*.so*) + libvpx + the LGPL CLI binary that imageio/diffusers target via
-# IMAGEIO_FFMPEG_EXE. This remains ungated by enable_media_ffmpeg so the
+# IMAGEIO_FFMPEG_EXE, plus the LGPL ffprobe that `vllm-rs` video decode needs (the
+# codec purge removed the distro one). This remains ungated by enable_media_ffmpeg so the
 # media-enabled runtime wheel and the omni video-export path always have their
 # required shared libraries and CLI available.
-{% if device == "cuda" or device == "xpu" %}
 RUN --mount=type=bind,from=wheel_builder,source=/usr/local/,target=/tmp/usr/local/ \
     mkdir -p /usr/local/lib/pkgconfig && \
     cp -rnL /tmp/usr/local/include/libav* /tmp/usr/local/include/libsw* /usr/local/include/ && \
@@ -373,6 +379,7 @@ RUN --mount=type=bind,from=wheel_builder,source=/usr/local/,target=/tmp/usr/loca
     cp -nL /tmp/usr/local/lib/lib*vpx*.so* /usr/local/lib/ 2>/dev/null || true && \
     cp -nL /tmp/usr/local/lib/pkgconfig/libav*.pc /tmp/usr/local/lib/pkgconfig/libsw*.pc /usr/local/lib/pkgconfig/ && \
     cp -nL /tmp/usr/local/bin/ffmpeg /usr/local/bin/ffmpeg && \
+    cp -nL /tmp/usr/local/bin/ffprobe /usr/local/bin/ffprobe && \
     cp -r /tmp/usr/local/src/ffmpeg /usr/local/src/ && \
     ldconfig
 ENV IMAGEIO_FFMPEG_EXE=/usr/local/bin/ffmpeg
@@ -389,8 +396,14 @@ RUN set -eu; \
          | grep -iE 'h\.?264|h\.?265|hevc|(^| )aac|nvenc|cuvid|nvdec'; then \
         echo "ERROR: shipped ffmpeg ($ff) exposes an H.264/H.265/AAC/NVENC encoder" >&2; \
         exit 1; \
-    fi
-{% endif %}
+    fi; \
+    # vllm-rs decodes video with `ffprobe` plus `ffmpeg -f image2pipe -vcodec ppm`.
+    "$ff" -hide_banner -muxers 2>/dev/null | grep -qE '^ *E +image2pipe ' \
+      || { echo "ERROR: shipped ffmpeg ($ff) has no image2pipe muxer" >&2; exit 1; }; \
+    "$ff" -hide_banner -encoders 2>/dev/null | grep -qE '^ *V[^ ]* +ppm ' \
+      || { echo "ERROR: shipped ffmpeg ($ff) has no ppm encoder" >&2; exit 1; }; \
+    /usr/local/bin/ffprobe -hide_banner -version >/dev/null \
+      || { echo "ERROR: shipped ffprobe is missing or cannot start" >&2; exit 1; }
 
 {% if device == "cuda" %}
 # Delete the base image's PyNvVideoCodec before the install below replaces it.
@@ -442,7 +455,7 @@ RUN set -eu; \
 # The vllm-openai base sets UV_CACHE_DIR=/opt/uv/cache and used to bake a uv
 # cache there (v0.27.1 carried archived wheel copies, including mooncake, that
 # duplicated installed packages and kept stale versions on disk after floors
-# refreshed them). The pinned v0.28.0 base mounts a cache over that path in
+# refreshed them). Recent upstream bases mount a cache over that path in
 # every uv RUN and ships only the empty directory, so the rm below is a no-op
 # today. It stays as a guard against a base that bakes the cache again: the
 # cache would sit in an inherited layer, so removing it here does not shrink
@@ -458,95 +471,10 @@ RUN --mount=type=bind,source=./container/deps/requirements.vllm.txt,target=/tmp/
         --no-deps --requirement /tmp/requirements.vllm.txt && \
     rm -rf /opt/uv/cache
 
-# Assert what the removal and install left. A requirements specifier constrains
-# what pip installs; it cannot say "exactly one copy on disk" or "no libavcodec",
-# and those are the properties the codec gate depends on. Checked beside the
-# install so a regression names its cause instead of surfacing as a scan
-# violation later.
-# PINNED is duplicated from the requirements file deliberately -- this stage
-# must not parse the file it is checking; a test asserts the two agree.
-RUN python3 - <<'PYEOF'
-import csv
-import glob
-import os
-import re
-import sys
-from importlib.metadata import distributions
-
-PINNED = "2.2.3"
-NAME = "pynvvideocodec"
-# Mirrors the deny globs in container/compliance/policy/codec_policy.yaml. Kept as
-# families rather than the four this package happens to have shed, so a future
-# release vendoring libpostproc or libx264 is caught here -- beside the install
-# that introduced it -- instead of as an unattributed scan violation later.
-DENIED = (
-    "libavcodec",
-    "libavdevice",
-    "libavfilter",
-    "libswscale",
-    "libswresample",
-    "libpostproc",
-    "libx264",
-    "libx265",
-    "libfdk-aac",
-)
-
-
-def canonical(name):
-    return re.sub(r"[-_.]+", "-", name or "").lower()
-
-
-# Enumerated over sys.path rather than one scheme directory: these images carry
-# both /usr/local/lib/python3.12/dist-packages and /usr/lib/python3/dist-packages,
-# and the wheel declares Root-Is-Purelib: false, so neither purelib nor platlib
-# alone is guaranteed to be the install target or the only place a copy can hide.
-# A surviving base copy beside the new one is the failure being looked for, which
-# is also why this counts distributions instead of asking for one version.
-installed = [d for d in distributions() if canonical(d.metadata["Name"]) == NAME]
-versions = sorted(d.version for d in installed)
-print("PyNvVideoCodec distributions on sys.path:", versions)
-if len(installed) != 1:
-    sys.exit(f"ERROR: expected exactly one PyNvVideoCodec, found {versions}")
-if versions[0] != PINNED:
-    sys.exit(f"ERROR: PyNvVideoCodec is {versions[0]}, but the requirements file "
-             f"pins {PINNED}")
-
-site = os.path.normpath(str(installed[0].locate_file("")))
-pkg = os.path.join(site, "PyNvVideoCodec")
-bundled = sorted(
-    os.path.relpath(p, pkg)
-    for p in glob.glob(os.path.join(pkg, "**", "lib*.so*"), recursive=True)
-)
-print("PyNvVideoCodec bundles:", bundled)
-# Positive first, and on both libraries: an empty package directory satisfies
-# every negative check below while shipping no demuxer at all.
-for required in ("libavformat", "libavutil"):
-    if not any(os.path.basename(n).startswith(required) for n in bundled):
-        sys.exit(
-            f"ERROR: PyNvVideoCodec bundles no {required}, so the checks below "
-            f"would pass vacuously; found {bundled}"
-        )
-denied = [n for n in bundled if os.path.basename(n).startswith(DENIED)]
-if denied:
-    sys.exit(f"ERROR: PyNvVideoCodec bundles libraries the codec gate denies: {denied}")
-
-# The FFmpeg source tarball lands outside site-packages, so its directory is read
-# from the wheel's own RECORD rather than guessed from a sysconfig path -- the
-# RECORD is what the installer actually wrote, and it moves if the layout does.
-record = installed[0].read_text("RECORD") or ""
-declared = [
-    row[0]
-    for row in csv.reader(record.splitlines())
-    if row and row[0].endswith((".tar.xz", ".tar.gz", ".tar.bz2"))
-]
-if len(declared) != 1:
-    sys.exit(f"ERROR: expected one source tarball in the RECORD, found {declared}")
-external = os.path.dirname(os.path.normpath(os.path.join(site, declared[0])))
-tarballs = sorted(os.path.basename(p) for p in glob.glob(os.path.join(external, "ffmpeg-*.tar.*")))
-print("bundled FFmpeg source tarballs in", external, "->", tarballs)
-if len(tarballs) != 1:
-    sys.exit(f"ERROR: expected exactly one bundled FFmpeg source tarball, found {tarballs}")
-PYEOF
+# Assert what the removal and install left. The pin is repeated from the
+# requirements file on purpose; a test asserts the two agree.
+RUN --mount=type=bind,source=./container/compliance,target=/tmp/compliance/compliance \
+    PYTHONPATH=/tmp/compliance python3 -m compliance.check_pynvvideocodec --pinned 2.2.4
 {% else %}
 # PyNvVideoCodec decodes on NVDEC through libnvcuvid, so it is inert on a
 # non-NVIDIA device. Drop it from the shared requirements rather than ship an
@@ -562,6 +490,8 @@ PYEOF
 # mooncake goes the same way, for two reasons. The floor names the CUDA 13
 # distribution, and the XPU and CPU bases carry no mooncake at all, so under
 # --no-deps it would arrive here without msgpack, which vLLM does not pull in.
+# lmcache is filtered too: its floor refreshes the CUDA base's bundled copy,
+# and installing it --no-deps on a base without it would ship it unresolved.
 # The check asserts the distribution is absent rather than the `mooncake` module,
 # so it tests the filter without assuming what a future base may ship. It is
 # written as a positive test with no `!` and no stderr redirect: a broken
@@ -574,7 +504,7 @@ PYEOF
 RUN --mount=type=bind,source=./container/deps/requirements.vllm.txt,target=/tmp/requirements.vllm.txt \
     --mount=type=cache,id=uv-root-{{ context.dynamo.uv_version }},target=/root/.cache/uv,sharing=locked \
     export UV_CACHE_DIR=/root/.cache/uv && \
-    grep -v -e '^PyNvVideoCodec' -e '^mooncake-transfer-engine-cuda13' \
+    grep -v -e '^PyNvVideoCodec' -e '^mooncake-transfer-engine-cuda13' -e '^lmcache' \
         /tmp/requirements.vllm.txt > /tmp/requirements.vllm.nonvidia.txt && \
     uv pip install {{ pip_target }} --reinstall-package imageio-ffmpeg --no-deps \
         --requirement /tmp/requirements.vllm.nonvidia.txt && \
@@ -636,9 +566,9 @@ RUN set -eux; \
     ! ls -d "${SITE_PACKAGES}"/opencv_python*.libs 2>/dev/null; \
     python3 -c "import cv2,re,sys; enabled=[name for name,value in re.findall(r'^\s*(FFMPEG|GSTREAMER):\s*(\S+)', cv2.getBuildInformation(), re.M|re.I) if value.upper()=='YES']; sys.exit('ERROR: cv2 was built with video backends: '+', '.join(enabled) if enabled else 0)"
 
-# PyNvVideoCodec is KEPT (removed from the purge above) but REPLACED with 2.2.3 by
+# PyNvVideoCodec is KEPT (removed from the purge above) but REPLACED with 2.2.4 by
 # the removal and requirements install above: the base image's 2.0.4 bundles a
-# full FFmpeg 8.1.1 (incl. libavcodec) that the codec gate rejects, while 2.2.3
+# full FFmpeg 8.1.1 (incl. libavcodec) that the codec gate rejects, while 2.2.4
 # bundles only libavutil.so.61 + libavformat.so.63 (FFmpeg 9.0.1, container
 # demux, no software codec). It provides the built-in H.264/H.265 video-input
 # path (NVDEC hardware decode via libnvcuvid;
@@ -647,18 +577,17 @@ RUN set -eux; \
 # pod/runtimeClass does not drop it.
 #
 # This deliberately overrides a dependency of vLLM's: `importlib.metadata.requires
-# ("vllm")` lists `PyNvVideoCodec==2.0.4`, an exact pin, and the image ships 2.2.3
-# against it. Unlike the equivalent override in trtllm_runtime.Dockerfile, do not
-# expect a resolver complaint in the build log to confirm it -- that stage runs
-# real `pip`, which prints one; this one runs `uv pip install --no-deps`, which
-# does not. `uv pip check` on the finished image is what surfaces it.
+# ("vllm")` lists `PyNvVideoCodec==2.0.4`, an exact pin, and the image ships 2.2.4
+# against it. Do not expect a resolver complaint in the build log to confirm it:
+# this stage runs `uv pip install --no-deps`, which prints none. `uv pip check`
+# on the finished image is what surfaces it.
 #
 # The override is deliberate: 2.0.4 is the version whose bundled libavcodec the
 # codec gate rejects, so the override is the point. vLLM's own consumer is
-# vllm/multimodal/video.py
+# vllm/multimodal/video_decoders/pynvvideocodec.py
 # (PyNvVideoCodecVideoBackendMixin), and everything it touches -- SimpleDecoder,
 # OutputColorType, get_batch_frames_by_index, get_stream_metadata,
-# reconfigure_decoder -- still exists in 2.2.3. The one API 2.2.3 drops is
+# reconfigure_decoder -- still exists in 2.2.4. The one API 2.2.x drops is
 # SimpleDecoder.stop(), which neither vLLM nor Dynamo calls. Re-check that list
 # when the base image moves.
 ENV NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
@@ -677,22 +606,23 @@ assert eps, 'modelexpress vllm.general_plugins entry point not found'; \
 [ep.load()() for ep in eps]"
 {% endif %}
 
-# vLLM-Omni is installed with the current Transformers version in its protected
-# constraints file, so an incompatible Omni requirement fails during dependency
-# resolution. Check the completed image as well so a later package layer cannot
-# silently replace the vLLM-Omni-compatible Transformers release. A global
-# `uv pip check` is not appropriate here: the upstream runtime and Dynamo's
-# deliberate --no-deps layers contain unrelated package-metadata conflicts.
-RUN {{ python_executable }} - "${TRANSFORMERS_VERSION}" <<'PY'
+# Check that later package layers preserve the Omni-compatible versions.
+RUN {{ python_executable }} - "${TRANSFORMERS_VERSION}" "${TOKENIZERS_VERSION}" <<'PY'
 import importlib.metadata as md
 import sys
 
-actual = md.version("transformers")
-expected = sys.argv[1]
-if actual != expected:
-    raise RuntimeError(f"expected transformers {expected}, found {actual}")
+for package, expected in zip(("transformers", "tokenizers"), sys.argv[1:]):
+    actual = md.version(package)
+    if actual != expected:
+        raise RuntimeError(f"expected {package} {expected}, found {actual}")
 PY
 
+{% if device == "cuda" %}
+# Omni's soxr dependency is only needed for unsupported Breeze voice cloning.
+RUN python3 -m pip uninstall --yes soxr
+
+RUN vllm-rs --help >/dev/null
+{% else %}
 # Use the packaged binary to match the installed vLLM version.
 RUN set -eu; \
     pkg="$({{ python_executable }} -c 'import os, vllm; print(os.path.dirname(vllm.__file__))')"; \
@@ -710,12 +640,10 @@ RUN set -eu; \
             ln -sf "${pkg}/vllm-rs" {{ vllm_rs_link }}; \
         fi; \
         vllm-rs --help >/dev/null; \
-    elif [ "{{ vllm_rs_required }}" = "1" ]; then \
-        echo "ERROR: installed vllm package (${pkg}) ships no executable vllm-rs" >&2; \
-        exit 1; \
     else \
         echo "WARNING: installed vllm package (${pkg}) ships no executable vllm-rs; not putting it onto PATH" >&2; \
     fi
+{% endif %}
 
 USER dynamo
 
@@ -749,13 +677,14 @@ ENTRYPOINT []
 
 {# Compliance is skipped for dev/local-dev: those images are not shipped (release
    ships runtime/frontend/operator/planner/snapshot-agent), compliance-extract
-   already skips them, and their pre_runtime carries no dynamo venv to scan. #}
-{% if target not in ("dev", "local-dev") %}
+   already skips them, and their pre_runtime carries no dynamo venv to scan.
+   cpu likewise: unshipped, and no baseline_sbom to subtract. #}
+{% if target not in ("dev", "local-dev") and device != "cpu" %}
 {% include "templates/compliance.Dockerfile" %}
 {% endif %}
 
 
 FROM pre_runtime AS runtime
-{% if target not in ("dev", "local-dev") %}
+{% if target not in ("dev", "local-dev") and device != "cpu" %}
 COPY --from=licenses /legal /legal
 {% endif %}

@@ -14,11 +14,17 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 import torch
-from kvbm.platform_events import PlatformEvent, block_axis, tensor_platform
-from kvbm.utils import is_dyn_runtime_enabled
 from vllm.distributed.kv_transfer.kv_connector.v1.base import KVConnectorMetadata
 from vllm.model_executor.models.utils import extract_layer_index
 from vllm.utils.torch_utils import STR_DTYPE_TO_TORCH_DTYPE
+
+from kvbm.platform_events import (
+    PlatformEvent,
+    block_axis,
+    coalesce_interleaved_kv,
+    tensor_platform,
+)
+from kvbm.utils import is_dyn_runtime_enabled
 
 if TYPE_CHECKING:
     from vllm.attention.backends.abstract import AttentionMetadata
@@ -116,8 +122,10 @@ class KvConnectorWorker:
 
         if not ordered_kv_caches:
             raise ValueError("KVBM requires at least one KV tensor")
-        # Ascend exposes a (K, V) tensor pair per layer. Register each tensor
-        # separately, but record one producing event after the full layer.
+        # Ascend exposes K/V pairs: retain separate dense allocations or
+        # reconstruct their shared interleaved allocation without a copy.
+        # Record one producing event after the full layer.
+        source_tensor = None
         self.layer_parts = {}
         self.events = {}
         flattened = []
@@ -132,6 +140,12 @@ class KvConnectorWorker:
                 raise ValueError(
                     "Separate K/V registration is only supported for Ascend"
                 )
+            if source_tensor is None:
+                source_tensor = parts[0]
+            if len(parts) == 2:
+                combined = coalesce_interleaved_kv(*parts)
+                if combined is not None:
+                    parts = [combined]
             names = [layer] if len(parts) == 1 else [f"{layer}.key", f"{layer}.value"]
             event = PlatformEvent(parts[0])
             self.events[layer] = event
@@ -160,11 +174,12 @@ class KvConnectorWorker:
         # [blocks, block_size, kv_heads, head_size] layout. Use that named axis,
         # not a max(shape) heuristic. Remove when the worker config carries it.
         if num_device_blocks is None and tensor_platform(first_tensor) == "ascend":
-            if len(shape) != 4 or shape[1] != page_size:
+            source_shape = source_tensor.shape
+            if len(source_shape) != 4 or source_shape[1] != page_size:
                 raise ValueError(
                     "Ascend KVBM needs explicit block count for this layout"
                 )
-            num_device_blocks = shape[0]
+            num_device_blocks = source_shape[0]
         if not isinstance(num_device_blocks, int) or num_device_blocks <= 0:
             raise ValueError("Engine must provide its actual KV block count")
         device_id = first_tensor.device.index

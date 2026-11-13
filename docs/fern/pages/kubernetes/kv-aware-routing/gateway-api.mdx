@@ -76,7 +76,7 @@ spec:
       spec:
         containers:
         - name: main
-          image: nvcr.io/nvidia/ai-dynamo/dynamo-frontend:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/dynamo-frontend:1.5.0
           envFrom:
           - secretRef:
               name: hf-token-secret
@@ -107,7 +107,7 @@ selection.
 ```yaml
 spec:
   components:
-  - name: VllmDecodeWorker
+  - name: worker
     type: decode
     frontendSidecar: sidecar-frontend
     podTemplate:
@@ -116,7 +116,7 @@ spec:
         - name: main
           # Keep the existing worker configuration.
         - name: sidecar-frontend
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.0
           args:
           - -m
           - dynamo.frontend
@@ -334,7 +334,7 @@ spec:
       spec:
         containers:
         - name: main
-          image: nvcr.io/nvidia/ai-dynamo/dynamo-frontend:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/dynamo-frontend:1.5.0
           envFrom:
           - secretRef:
               name: hf-token-secret

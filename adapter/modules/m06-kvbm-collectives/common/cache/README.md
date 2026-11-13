@@ -17,3 +17,5 @@ SPDX-License-Identifier: Apache-2.0
 | [independent.md](independent.md)、[cuda-isolation.md](cuda-isolation.md) | 独立调用链说明与 CUDA 环境隔离定位记录 |
 
 先按 [M06 执行说明](../../execution.md) 选择调用链，再构建、运行并采集。脚本依赖现有厂商容器和明确设备；输入版本、模型与测试输出须绑定到 [campaign](../../../../results/README.md)。
+
+独立验收先执行每个 rank 数据不同的分片往返，再执行 G2/G3 replicated 广播；两者分开保存字节文件。每个 case 产出 `rank-N.measurements.json`、分片及 G2/G3 实际读回文件和参考文件。`native-run.py` 重新比较字节、布局、设备/rank 身份及 SDK 创建/释放计数，不再仅凭日志 `passed=true` 判定成功。该证据覆盖底层调用链，不等同于完整 MLA 模型或 G4 验收。

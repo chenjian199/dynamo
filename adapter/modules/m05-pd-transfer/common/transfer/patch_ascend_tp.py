@@ -31,10 +31,13 @@ def main():
     group.add_argument("--apply", action="store_true")
     group.add_argument("--restore", action="store_true")
     args = parser.parse_args()
-    if importlib.metadata.version("vllm-ascend").split("+")[0] != "0.23.0":
-        raise RuntimeError("Only the validated Ascend 0.23.0 source is supported")
+    version = importlib.metadata.version("vllm-ascend").split("+")[0]
+    if version not in ("0.23.0", "0.30.0"):
+        raise RuntimeError(f"Unsupported Ascend source version: {version}")
     root = Path(importlib.util.find_spec("vllm_ascend").origin).parent
     patches = Path(__file__).with_name("patches")
+    if version == "0.30.0":
+        patches = patches / "ascend-0.30.0"
     manifest = json.loads((patches / "ascend-tp-manifest.json").read_text())
     before, staged, result = {}, {}, {}
     with tempfile.TemporaryDirectory(prefix="m05-tp-", dir=root) as tmp:

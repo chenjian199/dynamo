@@ -74,3 +74,106 @@ def test_mixed_architecture_bundle_rejected():
         pytest.raises(ValueError, match="one OS"),
     ):
         helpers.inspect_images(["image1", "image2"])
+
+
+@pytest.fixture
+def installed_image_audit():
+    spec = importlib.util.spec_from_file_location(
+        "installed_image_audit",
+        ROOT / "adapter/modules/m10-validation/common/regression/check-installed.py",
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_installed_engine_matches_frozen_ascend_stack(installed_image_audit):
+    profile = {
+        "id": "ascend",
+        "versions": {
+            "vllm": "0.30.0+empty",
+            "vllm-ascend": "0.30.0",
+            "torch-npu": "2.10.0.post7",
+        },
+    }
+    observed = {
+        "vllm": "0.30.0+empty",
+        "vllm-ascend": "0.30.0",
+        "torch-npu": "2.10.0.post7",
+    }
+    installed_image_audit.validate_versions(profile, "ascend", observed.__getitem__)
+
+
+@pytest.mark.parametrize("changed", ["vllm", "vllm-ascend", "torch-npu"])
+def test_installed_engine_rejects_individual_vendor_drift(
+    installed_image_audit, changed
+):
+    profile = {
+        "id": "ascend",
+        "versions": {
+            "vllm": "0.30.0+empty",
+            "vllm-ascend": "0.30.0",
+            "torch-npu": "2.10.0.post7",
+        },
+    }
+    observed = dict(profile["versions"], **{changed: "0.23.0"})
+    with pytest.raises(AssertionError):
+        installed_image_audit.validate_versions(profile, "ascend", observed.__getitem__)
+
+
+def test_installed_engine_rejects_other_platform_lock(installed_image_audit):
+    with pytest.raises(AssertionError):
+        installed_image_audit.validate_versions(
+            {"id": "cuda", "versions": {"vllm": "0.30.0"}},
+            "ascend",
+            lambda _: "0.30.0",
+        )
+
+
+def test_runtime_audit_retains_native_checks_without_optional_planner(
+    installed_image_audit,
+):
+    modules = installed_image_audit.modules_for_role("runtime")
+    assert "dynamo._core" in modules and "kvbm._core" in modules
+    assert "dynamo.vllm" in modules and "gpu_memory_service" in modules
+    assert "dynamo.planner" not in modules
+    assert set(modules) < set(installed_image_audit.modules_for_role("full"))
+    with pytest.raises(ValueError, match="Unknown image role"):
+        installed_image_audit.modules_for_role("unknown")
+
+
+def test_packaged_harness_contains_transitive_test_utilities(tmp_path):
+    import ast
+    import subprocess
+    import sys
+
+    deps = tmp_path / "deps"
+    deps.mkdir()
+    output = tmp_path / "harness"
+    subprocess.run(
+        [
+            sys.executable,
+            str(
+                ROOT
+                / "adapter/modules/m10-validation/common/regression/prepare-harness.py"
+            ),
+            "--source",
+            str(ROOT),
+            "--output",
+            str(output),
+            "--test-deps",
+            str(deps),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    for path in output.rglob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if isinstance(node, ast.ImportFrom) and (node.module or "").startswith(
+                "tests.utils."
+            ):
+                target = output.joinpath(*node.module.split(".")).with_suffix(".py")
+                assert target.is_file(), (path, node.module)
+    assert not (output / "components/src").exists()
+    assert not (output / "lib/bindings").exists()

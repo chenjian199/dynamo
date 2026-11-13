@@ -4,22 +4,18 @@
 set -euo pipefail
 cd /src
 platform=${1:?platform}
+build_key=$(python3 container/platforms/audit.py build-key /src "$platform")
 export DEBIAN_FRONTEND=noninteractive
 mkdir -p /out/wheels /out/native
 python3 container/platforms/audit.py snapshot /out/base.json
 apt-get update
 apt-get install -y --no-install-recommends build-essential pkg-config cmake protobuf-compiler \
-    libprotobuf-dev libssl-dev libclang-dev libudev-dev libnuma-dev libzmq3-dev git curl ca-certificates patch
+    libprotobuf-dev libssl-dev libclang-dev libudev-dev libnuma-dev libzmq3-dev git curl ca-certificates patch util-linux
 python3 -m venv --system-site-packages /opt/dynamo/build
 export CARGO_HOME=/build-cache/cargo RUSTUP_HOME=/build-cache/rustup
 export PATH=/opt/dynamo/build/bin:$CARGO_HOME/bin:$PATH
 python -m pip install -r container/requirements/platforms/build.txt
 python container/platforms/audit.py constraints "$platform" /out/protected.txt
-# Resolve runtime additions separately so build-only packages cannot satisfy runtime dependencies.
-python3 -m venv --clear --system-site-packages /opt/dynamo/resolve
-/opt/dynamo/resolve/bin/python -m pip install --report /out/dependencies.json \
-    -c /out/protected.txt -r container/requirements/platforms/runtime.txt
-python container/platforms/audit.py download /out/dependencies.json /out/wheels
 if [[ ${DYNAMO_RUST_MIRROR:-} == rsproxy ]]; then
     export RUSTUP_DIST_SERVER=https://rsproxy.cn RUSTUP_UPDATE_ROOT=https://rsproxy.cn/rustup
 fi
@@ -29,9 +25,23 @@ if ! command -v rustup >/dev/null; then
 fi
 rust_version=$(python -c 'import tomllib; print(tomllib.load(open("rust-toolchain.toml", "rb"))["toolchain"]["channel"])')
 rustup toolchain install "$rust_version" --profile minimal
-export CARGO_TARGET_DIR=/build-cache/target CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-12}
+# Isolate outputs from other source snapshots; serialize same-input builds until
+# all artifacts have been copied, not just until Cargo releases its own lock.
+mkdir -p /build-cache/build-locks
+exec 9>"/build-cache/build-locks/$build_key.lock"
+flock 9
+export CARGO_TARGET_DIR="/build-cache/targets/$platform/$build_key"
+export CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-12}
 export CARGO_PROFILE_RELEASE_DEBUG=0 CUDARC_CUDA_VERSION=13000
 unset CONDA_PREFIX
+# Ubuntu 22.04 vendor images ship protoc 3.12: proto3 optional is opt-in there.
+# Keep the upstream protobuf schema unchanged; scope the flag to this tool version.
+if [[ $(protoc --version) == "libprotoc 3.12."* ]]; then
+    mkdir -p /build-cache/tools
+    printf '#!/bin/sh\nexec /usr/bin/protoc --experimental_allow_proto3_optional "$@"\n' > /build-cache/tools/protoc
+    chmod +x /build-cache/tools/protoc
+    export PROTOC=/build-cache/tools/protoc
+fi
 if [[ $(uname -m) == aarch64 ]]; then
     export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C target-cpu=generic -C force-frame-pointers=yes --cfg tokio_unstable'
 fi
@@ -59,6 +69,14 @@ maturin build --manifest-path lib/bindings/kvbm/Cargo.toml --release --locked \
     --interpreter /opt/dynamo/build/bin/python --compatibility linux --auditwheel skip \
     "${features[@]}" -o /out/wheels
 python -m pip wheel --no-deps --no-build-isolation -w /out/wheels . lib/gpu_memory_service
+# Resolve the built distributions too: vendor images can satisfy the explicit
+# additions while violating a new Dynamo wheel's dependency bounds. Use a clean
+# resolver so build-only packages cannot hide missing runtime dependencies, and
+# retain protected vendor constraints throughout the complete resolution.
+python3 -m venv --clear --system-site-packages /opt/dynamo/resolve
+/opt/dynamo/resolve/bin/python -m pip install --report /out/dependencies.json \
+    -c /out/protected.txt -r container/requirements/platforms/runtime.txt /out/wheels/*.whl
+python container/platforms/audit.py download /out/dependencies.json /out/wheels
 # The independent engine/physical path is separate from the Python KVBM entrypoint.
 cargo build --release --locked -p kvbm-engine --example native_replicated \
     --no-default-features --features collectives --message-format=json > /out/native-build.jsonl

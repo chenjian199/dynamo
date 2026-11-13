@@ -6,23 +6,52 @@
 
 import hashlib
 import importlib
-import importlib.metadata as metadata
 import json
 import shutil
 import subprocess
 import sys
-import urllib.request
+import tempfile
+from importlib import metadata
 from pathlib import Path
 
 
 def digest(path):
+    checksum = hashlib.sha256()
     with path.open("rb") as handle:
-        return hashlib.file_digest(handle, "sha256").hexdigest()
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            checksum.update(chunk)
+    return checksum.hexdigest()
+
+
+def build_cache_key(root, platform):
+    """Validate the snapshot before selecting a content-addressed Cargo output tree."""
+    root = root.resolve()
+    if platform not in {"cuda", "ascend", "metax"}:
+        raise ValueError("Unknown build platform")
+    manifest = json.loads((root / "SOURCE.json").read_text())
+    if not manifest.get("commit") or not manifest.get("files"):
+        raise ValueError("Build requires a nonempty source manifest")
+    for name, expected in manifest["files"].items():
+        file = (root / name).resolve()
+        if (
+            not file.is_relative_to(root)
+            or not file.is_file()
+            or digest(file) != expected
+        ):
+            raise ValueError("Source snapshot mismatch: " + name)
+    # Every container mounts its checkout at /src. Cargo's mtime-based freshness
+    # is insufficient across snapshots that preserve older timestamps. A shared
+    # registry cache is safe; compiler outputs must belong to one exact snapshot.
+    payload = json.dumps({"platform": platform, "source": manifest}, sort_keys=True)
+    return hashlib.sha256(payload.encode()).hexdigest()
 
 
 def snapshot():
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "check"], capture_output=True, text=True
+        [sys.executable, "-m", "pip", "check"],
+        check=False,
+        capture_output=True,
+        text=True,
     )
     return {
         "packages": {
@@ -33,9 +62,9 @@ def snapshot():
             }
         },
         "pip_check_exit": result.returncode,
-        "pip_check": sorted(set(result.stdout.splitlines()))
-        if result.returncode
-        else [],
+        "pip_check": (
+            sorted(set(result.stdout.splitlines())) if result.returncode else []
+        ),
         "pip_check_stderr": result.stderr,
     }
 
@@ -47,7 +76,9 @@ def dump(path, value):
 def main():
     action, *arguments = sys.argv[1:]
     path = Path(arguments[0])
-    if action == "snapshot":
+    if action == "build-key":
+        print(build_cache_key(path, arguments[1]))
+    elif action == "snapshot":
         dump(path, snapshot())
     elif action == "constraints":
         profile = json.loads(Path(f"container/platforms/{path}.json").read_text())
@@ -74,10 +105,37 @@ def main():
             if not name.endswith(".whl"):
                 raise RuntimeError(f"Runtime dependency is not a binary wheel: {name}")
             target = destination / name
-            urllib.request.urlretrieve(url, target)
             expected = info["archive_info"]["hashes"]["sha256"]
-            if digest(target) != expected:
-                raise RuntimeError(f"Dependency hash mismatch: {name}")
+            if target.is_file() and digest(target) == expected:
+                continue
+            # Use pip's already-populated download cache and proxy handling.
+            # A bounded retry cannot hang image construction indefinitely, and
+            # incomplete or corrupt downloads never replace a published wheel.
+            with tempfile.TemporaryDirectory(
+                prefix=".download-", dir=destination
+            ) as tmp:
+                subprocess.run(
+                    [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "download",
+                        "--no-deps",
+                        "--timeout",
+                        "60",
+                        "--retries",
+                        "3",
+                        "--dest",
+                        tmp,
+                        url,
+                    ],
+                    check=True,
+                    timeout=300,
+                )
+                staged = Path(tmp) / name
+                if not staged.is_file() or digest(staged) != expected:
+                    raise RuntimeError(f"Dependency hash mismatch: {name}")
+                staged.replace(target)
     elif action == "native":
         destination = Path(arguments[1])
         libraries, binaries = [], []

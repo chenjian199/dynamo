@@ -2,12 +2,12 @@
   "id": "ascend",
   "architecture": "arm64",
   "python": "python3",
-  "base_image": "quay.io/ascend/vllm-ascend@sha256:471744200c5d0c768c1f6c6a6816dcae0fd551de2487d4d129b6fb750024ce6a",
+  "base_image": "quay.io/ascend/vllm-ascend@sha256:28351d337b7f9367073344240fa4e28d99794d549d577eaf317689950064150a",
   "versions": {
-    "vllm": "0.23.0+empty",
+    "vllm": "0.30.0+empty",
     "torch": "2.10.0+cpu",
-    "vllm-ascend": "0.23.0",
-    "torch-npu": "2.10.0.post4"
+    "vllm-ascend": "0.30.0",
+    "torch-npu": "2.10.0.post7"
   },
   "protected_packages": [
     "vllm",
@@ -17,12 +17,17 @@
     "torchvision",
     "torchaudio",
     "triton-ascend",
+    "mooncake-transfer-engine",
     "mooncake-transfer-engine-npu",
     "triton"
   ],
   "runtime_features": [
     "mm-routing",
-    "request-trace-s3"
+    "request-trace-s3",
+    "kv-indexer",
+    "slot-tracker",
+    "select-service",
+    "ais-forward-pass"
   ],
   "kvbm_features": [],
   "gms": false,

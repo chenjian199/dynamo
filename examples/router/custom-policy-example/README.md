@@ -20,17 +20,24 @@ policy crate -> catalog crate -> router-policy YAML -> frontend or EPP binary
 
 Dynamo owns discovery, eligibility, queueing, validation, reservations, accounting, and metrics. A policy sees only eligible workers and returns one candidate row.
 
-Preferred routing taints are optional candidate metadata. A filter, scorer, or picker must request `WorkerInputs::PREFERRED_TAINT` before reading `preferred_taint_multiplier()` from a candidate; otherwise, Dynamo does not materialize the multiplier. Exact hard-pinned requests also do not materialize it. Required routing taints remain Dynamo eligibility rules.
+Declare `WorkerInputs::CACHE` to read cache data through `candidate.cache()` (filter/scorer) or `input.cache()` (picker); otherwise these return `None`. Each cache row includes worker overlaps, `has_tier_matches()`, and `shared_hits()`.
+
+Preferred routing taints are optional candidate metadata. A filter, scorer, or picker must request `WorkerInputs::PREFERRED_TAINT` before reading `preferred_taint_multiplier()` from a candidate; otherwise, that component receives `None`, even if another component requested it. Exact hard-pinned requests also do not materialize it. Required routing taints remain Dynamo eligibility rules.
 
 ## Pick a Starting Point
 
 | Crate | Use it for |
 |---|---|
+| [`soft-pin-repin`](soft-pin-repin/README.md) | Retain a soft session-affinity target until its active-request load exceeds a threshold, then repin |
 | `simple-filter-score-pick` | One filter, one scorer, and one picker show the complete policy flow |
 | `disagg-filter-score-pick` | Prefill and decode workers each need the complete policy flow |
 | `simple-stacked-score-pick` | Multiple scorer costs compose before one picker runs |
 
-The `simple-filter-score-pick` policy shows the complete pipeline. It filters on minimum device overlap and scores active requests. Its picker normally selects the lowest cost. Tool-result turns select the worker with the most device overlap through `session_context().input_trigger()`.
+The `simple-filter-score-pick` policy filters on minimum device overlap and scores active requests above the least-loaded worker. Its picker normally selects the lowest cost. Tool-result turns select the worker with the most device overlap through `session_context().input_trigger()`.
+
+Custom filters, scorers, and pickers can also read opaque agent headers through `session_context().agent_headers()`, without an additional `WorkerInputs` group. Header values are untrusted observations for the current request. A missing key means no observation was captured. The map preserves unknown names within supported header families and repeated values; plugins own any parsing and cross-agent normalization. See [Agent Harnesses](https://github.com/ai-dynamo/dynamo/blob/main/docs/fern/pages/use-cases/agents/agent-harnesses.mdx#agent-headers) for capture rules and limits.
+
+The [`soft-pin-repin` policy](soft-pin-repin/README.md) documents its load threshold, soft-binding behavior, and two-Mocker `A -> B -> B` walkthrough.
 
 The `disagg-filter-score-pick` policy applies the overlap filter to both worker types. Its factory matches the routing stage and calls separate prefill and decode policy builders. Each builder shows the complete filter, scorer, and picker composition for that stage.
 
@@ -171,6 +178,10 @@ worker_selection:
     - name: simple-stacked-score-pick
       type: simple-stacked-score-pick
       parameters: {}
+    - name: soft-pin-repin
+      type: soft-pin-repin
+      parameters:
+        max_active_requests: 0
 ```
 
 - `type` selects a registered provider.
@@ -192,6 +203,7 @@ Run these commands from the Dynamo repository root:
 
 ```bash
 cargo test \
+  -p dynamo-custom-policy-example-soft-pin-repin \
   -p dynamo-custom-policy-example-simple-filter-score-pick \
   -p dynamo-custom-policy-example-disagg-filter-score-pick \
   -p dynamo-custom-policy-example-simple-stacked-score-pick \
@@ -272,6 +284,8 @@ Use the embedded Python frontend for this local test. The standalone EPP uses Ku
 Create `/tmp/worker-selection.yaml` with the policy instances from [Configure a Policy Instance](#5-configure-a-policy-instance).
 
 Use `min_device_overlap_blocks: 0` for this test. A positive threshold can reject every worker on a cold request or a replay path without raw tier data.
+
+For overload-aware soft affinity, follow the [`soft-pin-repin` two-Mocker walkthrough](soft-pin-repin/README.md#run-with-two-mockers).
 
 ### Aggregated Policy
 

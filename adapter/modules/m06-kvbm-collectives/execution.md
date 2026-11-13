@@ -122,7 +122,7 @@ Device→Disk 和 Disk→Device。仅配置了磁盘、仅生成文本或仅观�
 
 ## 证据
 
-结果位于 [results](../../m06/results)，每例保留 summary、源码 SHA256、有限日志摘录及原始
+结果位于 [cuda](../../results/cuda/unspecified/imported-m06) / [ascend](../../results/ascend/unspecified/imported-m06) / [metax](../../results/metax/unspecified/imported-m06)，每例保留 summary、源码 SHA256、有限日志摘录及原始
 日志路径/SHA256。使用 `python adapter/modules/m06-kvbm-collectives/common/cache/collect.py 原始目录 结果目录` 收集；不手工
 修改生成结果。测试失败的调查日志仍保留在各容器缓存卷，不作为通过证据。
 

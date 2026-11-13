@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Unit tests for profiler DGD materialization boundaries."""
 
@@ -25,6 +27,71 @@ try:
     )
 except ImportError as exc:
     pytest.skip(f"Skip (missing dependency): {exc}", allow_module_level=True)
+
+
+def _component(name: str, component_type: str) -> dict:
+    return {
+        "name": name,
+        "type": component_type,
+        "podTemplate": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "main",
+                        "args": ["--model", "Qwen/Qwen3-0.6B"],
+                    }
+                ]
+            }
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    ("backend", "topology", "workers"),
+    [
+        ("vllm", "aggregate", [("worker", "worker")]),
+        ("vllm", "disaggregated", [("decode", "decode"), ("prefill", "prefill")]),
+        ("sglang", "aggregate", [("decode", "worker")]),
+        (
+            "sglang",
+            "disaggregated",
+            [("decode", "decode"), ("prefill", "prefill")],
+        ),
+    ],
+)
+def test_explicit_trust_remote_code_targets_selected_worker_roles(
+    backend: str,
+    topology: str,
+    workers: list[tuple[str, str]],
+) -> None:
+    blueprint = {
+        "apiVersion": "nvidia.com/v1beta1",
+        "kind": "DynamoGraphDeployment",
+        "spec": {
+            "components": [
+                _component("Frontend", "frontend"),
+                *(_component(name, component_type) for name, component_type in workers),
+            ]
+        },
+    }
+
+    materialized = materialize_dgd(
+        blueprint,
+        purpose=DGDMaterializationPurpose.FINAL_OUTPUT,
+        runtime_backend=backend,
+        trust_remote_code=True,
+    )
+
+    components = {
+        component["name"]: component for component in materialized["spec"]["components"]
+    }
+    for name, _ in workers:
+        args = components[name]["podTemplate"]["spec"]["containers"][0]["args"]
+        assert args.count("--trust-remote-code") == 1, topology
+    frontend_args = components["Frontend"]["podTemplate"]["spec"]["containers"][0][
+        "args"
+    ]
+    assert "--trust-remote-code" not in frontend_args
 
 
 def test_materialize_dgd_applies_transforms_once_in_fixed_order(monkeypatch) -> None:
@@ -182,7 +249,6 @@ def test_materialize_dgd_rejects_non_object_dgd() -> None:
     [
         (["python3", "-m", "dynamo.mocker"], []),
         (["sh", "-c"], ["python3 -m dynamo.mocker --model-path test/model"]),
-        (["python3", "-m", "dynamo.mocker._worker"], []),
     ],
 )
 def test_mocker_detection_matches_discrete_command_tokens(command, args) -> None:
@@ -192,3 +258,32 @@ def test_mocker_detection_matches_discrete_command_tokens(command, args) -> None
 def test_mocker_detection_rejects_substring_matches() -> None:
     args = ["-m", "dynamo.worker", "--model", "org/dynamo.mocker-model"]
     assert not dgd_materialization._invokes_mocker(["python3"], args)
+
+
+@pytest.mark.parametrize("backend", ["vllm", "sglang", "trtllm"])
+def test_generated_backend_identity_is_set_before_override(monkeypatch, backend):
+    source = {"spec": {"components": []}}
+    observed = []
+
+    def apply(config, override):
+        observed.append(config["spec"]["backendFramework"])
+        return config
+
+    monkeypatch.setattr(dgd_materialization, "apply_dgd_overrides", apply)
+    materialize_dgd(
+        source,
+        purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
+        runtime_backend=backend,
+        override={"spec": {}},
+    )
+    assert observed == [backend]
+    assert "backendFramework" not in source["spec"]
+
+
+def test_explicit_backend_mismatch_is_not_silently_rewritten():
+    with pytest.raises(ValueError, match="differs from runtime"):
+        materialize_dgd(
+            {"spec": {"backendFramework": "sglang"}},
+            purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
+            runtime_backend="vllm",
+        )

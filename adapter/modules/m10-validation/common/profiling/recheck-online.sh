@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Run from a prepared M10 cluster work directory, after fixing metrics selectors.
 set -euo pipefail
+runtime_version=${M10_RUNTIME_VERSION:?set to the measured installed Dynamo version}
 platform=${1:?cuda or ascend}
 model=${2:?small, qwen32 or deepseek}
 case "$platform" in cuda) ;; ascend) export KUBECONFIG=/etc/rancher/k3s/k3s.yaml ;; *) exit 2 ;; esac
@@ -14,7 +15,7 @@ esac
 out="evidence/r1/metrics-recheck-$model-20261104"
 mkdir "$out"
 trap 'echo $? > "$out/case.exit"' EXIT
-python3 prepare-online.py --profile "$profile" --input "$input" --output "$out/online.yaml"
+python3 prepare-online.py --runtime-version "$runtime_version" --profile "$profile" --input "$input" --output "$out/online.yaml"
 kubectl apply -f "$out/online.yaml"
 extra=()
 [[ $model == deepseek ]] && extra=(--token-id-metrics)

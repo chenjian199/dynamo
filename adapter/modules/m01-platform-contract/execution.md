@@ -15,8 +15,8 @@ M01 负责平台身份、设备描述、能力探测、启动前校验，以及 
 | --- | --- |
 | [platform-smoke.py](common/discovery/platform-smoke.py) | MetaX / Ascend 历史平台契约验证：发现身份、幂等配置、能力拒绝；需要正在运行的开发环境与服务 |
 | [metax-platform.md](common/discovery/metax-platform.md) | MetaX M01 实现与复现说明 |
-| [results/metax](../../m01/results/metax) | MetaX 平台契约及基础推理、KV 路由回归结果 |
-| [results/ascend](../../m01/results/ascend) | Ascend 平台契约及同期 MetaX 回归结果 |
+| [results/metax](../../results/metax/unspecified/imported-m01) | MetaX 平台契约及基础推理、KV 路由回归结果 |
+| [results/ascend](../../results/ascend/unspecified/imported-m01) | Ascend 平台契约及同期 MetaX 回归结果 |
 | [M03 三平台验收](../m03-engine-integration/execution.md) | 包括 CUDA 平台接入与引擎回归；原始证据保留在所属模块 |
 | [集群回归方案与结果](../m02-build-packaging/common/images/cluster-regression-plan.md) | 后续 CUDA 0.28.0 / Ascend 0.23.0 集群复验与限制 |
 

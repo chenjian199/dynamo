@@ -73,3 +73,55 @@ def test_layout_accepts_dense_permutations_and_rejects_aliases(events):
     tensor.shape = (2, 2, 16, 4, 32)
     with pytest.raises(ValueError, match="Ambiguous"):
         module.block_axis(tensor, 2)
+
+
+@pytest.fixture
+def real_events():
+    path = (
+        Path(__file__).parents[2] / "lib/bindings/kvbm/python/kvbm/platform_events.py"
+    )
+    spec = importlib.util.spec_from_file_location("kvbm_real_layout_test", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_interleaved_pair_retains_storage_and_both_directions(real_events):
+    import torch
+
+    # Include a nonzero storage offset to test the retained allocation boundary.
+    backing = torch.arange(3 + 7 * 2 * 16 * 4 * 8, dtype=torch.float32)
+    dense = backing[3:].view(7, 2, 16, 4, 8)
+    key, value = dense[:, 0], dense[:, 1]
+    combined = real_events.coalesce_interleaved_kv(key, value)
+    assert combined.data_ptr() == key.data_ptr()
+    assert real_events.block_axis(combined, 7) == 0
+    assert torch.equal(combined, dense)
+    combined[2, 1].fill_(-7)
+    assert torch.all(value[2] == -7)
+    key[3].fill_(19)
+    assert torch.all(combined[3, 0] == 19)
+
+
+def test_dense_independent_permutations_keep_existing_path(real_events):
+    import torch
+
+    key = torch.empty(7, 16, 4, 8).transpose(1, 2)
+    value = torch.empty_like(key)
+    assert real_events.coalesce_interleaved_kv(key, value) is None
+
+
+@pytest.mark.parametrize("invalid", ["overlap", "different_storage", "wrong_stride"])
+def test_interleaved_pair_rejects_unproven_storage(real_events, invalid):
+    import torch
+
+    dense = torch.empty(7, 2, 16, 4, 8)
+    key, value = dense[:, 0], dense[:, 1]
+    if invalid == "overlap":
+        value = key
+    elif invalid == "different_storage":
+        value = torch.empty_like(dense)[:, 1]
+    else:
+        value = value.transpose(1, 2)
+    with pytest.raises(ValueError):
+        real_events.coalesce_interleaved_kv(key, value)

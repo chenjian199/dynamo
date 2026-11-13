@@ -18,7 +18,7 @@ spec:
           - python3
           - -m
           - dynamo.frontend
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           name: main
           workingDir: /workspace/examples/backends/vllm
     replicas: 1
@@ -37,7 +37,7 @@ spec:
           - --disaggregation-mode
           - decode
           - --kv-transfer-config
-          - '{"kv_connector": "NixlConnector", "kv_role": "kv_both", "engine_id":
+          - '{"kv_connector": "NixlConnector", "kv_role": "kv_consumer", "engine_id":
             "vllm-disagg-decode-engine-0abc123"}'
           command:
           - python3
@@ -46,7 +46,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           name: main
           resources:
             limits:
@@ -68,7 +68,7 @@ spec:
           - --disaggregation-mode
           - prefill
           - --kv-transfer-config
-          - '{"kv_connector": "NixlConnector", "kv_role": "kv_both", "engine_id":
+          - '{"kv_connector": "NixlConnector", "kv_role": "kv_producer", "engine_id":
             "vllm-disagg-prefill-engine-0abc123"}'
           command:
           - python3
@@ -77,7 +77,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           name: main
           resources:
             limits:

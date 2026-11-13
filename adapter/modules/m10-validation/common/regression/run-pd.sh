@@ -11,7 +11,7 @@ IFS=, read -r -a cards <<< "$devices"
 mkdir "$output"
 cd /harness
 export PYTHONUNBUFFERED=1 HF_HUB_OFFLINE=1
-python check-installed.py > "$output/installed.json"
+python check-installed.py --role runtime > "$output/installed.json"
 run_case() {
     local name=$1
     shift

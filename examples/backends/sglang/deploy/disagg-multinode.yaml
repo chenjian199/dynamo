@@ -12,7 +12,7 @@ spec:
     podTemplate:
       spec:
         containers:
-        - image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.5.1
+        - image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.6.2
           name: main
     replicas: 1
     type: frontend
@@ -30,7 +30,6 @@ spec:
           - --tp-size
           - "8"
           - --trust-remote-code
-          - --skip-tokenizer-init
           - --disaggregation-mode
           - decode
           - --disaggregation-transfer-backend
@@ -48,7 +47,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.6.2
           name: main
           resources:
             limits:
@@ -70,7 +69,6 @@ spec:
           - --tp-size
           - "8"
           - --trust-remote-code
-          - --skip-tokenizer-init
           - --disaggregation-mode
           - prefill
           - --disaggregation-transfer-backend
@@ -88,7 +86,7 @@ spec:
           envFrom:
           - secretRef:
               name: hf-token-secret
-          image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.6.2
           name: main
           resources:
             limits:

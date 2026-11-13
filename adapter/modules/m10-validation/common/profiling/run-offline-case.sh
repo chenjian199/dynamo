@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Run from the prepared remote work directory. Only test drivers are mounted.
 set -euo pipefail
+runtime_version=${M10_RUNTIME_VERSION:?set to the measured installed Dynamo version}
 platform=${1:?cuda or ascend}
 model=${2:?qwen32 or deepseek}
 case "$platform" in
@@ -41,7 +42,7 @@ kubectl -n dynamo-m10 exec "$pod" -- "$py" /offline/check_offline_profile.py \
 # An unavailable native model is a failed predictive check, never forced ready.
 kubectl -n dynamo-m10 exec "$pod" -- "$py" "/offline/offline-$revision/offline-profile.py" \
   --input "/offline/$input/input.json" --output "/offline/$out/profile" --reuse-profile
-python3 prepare-online.py --profile "$out/profile" --input "$input/input.json" --output "$out/online.yaml"
+python3 prepare-online.py --runtime-version "$runtime_version" --profile "$out/profile" --input "$input/input.json" --output "$out/online.yaml"
 kubectl apply -f "$out/online.yaml"
 extra=()
 if [[ $model == deepseek ]]; then extra=(--token-id-metrics); fi

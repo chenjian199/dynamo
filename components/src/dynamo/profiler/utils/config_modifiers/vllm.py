@@ -45,7 +45,10 @@ formatter = logging.Formatter(
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-DEFAULT_VLLM_KV_TRANSFER_CONFIG = '{"kv_connector":"NixlConnector","kv_role":"kv_both"}'
+DEFAULT_VLLM_KV_TRANSFER_CONFIG = {
+    SubComponentType.PREFILL: '{"kv_connector":"NixlConnector","kv_role":"kv_producer"}',
+    SubComponentType.DECODE: '{"kv_connector":"NixlConnector","kv_role":"kv_consumer"}',
+}
 
 
 def _get_valued_arg(args: list[str], key: str) -> str | None:
@@ -107,7 +110,7 @@ def _finalize_disagg_cli_args(args: list[str], role: SubComponentType) -> list[s
         finalized = set_unique_argument_value(
             finalized,
             "--kv-transfer-config",
-            DEFAULT_VLLM_KV_TRANSFER_CONFIG,
+            DEFAULT_VLLM_KV_TRANSFER_CONFIG[role],
         )
     return finalized
 

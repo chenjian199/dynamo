@@ -2,11 +2,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Bind the bounded M09 offline sweep to final M10 images and fresh identity."""
+
 import sys
 from pathlib import Path
 
 # Resolve shared helpers from their functional groups for direct script execution.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'rendering'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "rendering"))
 
 import argparse
 import json
@@ -28,9 +29,9 @@ OVERLAYS = {
 }
 
 
-def clean(value, namespace, runtime, tools):
+def clean(value, namespace, runtime, tools, runtime_version):
     if isinstance(value, list):
-        return [clean(v, namespace, runtime, tools) for v in value]
+        return [clean(v, namespace, runtime, tools, runtime_version) for v in value]
     if not isinstance(value, dict):
         return value
     result = {}
@@ -41,9 +42,11 @@ def clean(value, namespace, runtime, tools):
             item = [v for v in item if v["name"] != "PYTHONPATH"]
         if key == "image":
             item = runtime if "-runtime:" in item else tools
+        if key == "runtimeVersionOverride":
+            item = runtime_version
         if key == "namespace":
             item = namespace
-        result[key] = clean(item, namespace, runtime, tools)
+        result[key] = clean(item, namespace, runtime, tools, runtime_version)
     return result
 
 
@@ -52,6 +55,7 @@ def main():
     p.add_argument("--platform", choices=["cuda", "ascend"], required=True)
     p.add_argument("--model", choices=["small", "qwen32", "deepseek"], default="small")
     p.add_argument("--runtime-image", required=True)
+    p.add_argument("--runtime-version", required=True)
     p.add_argument("--runtime-id", required=True)
     p.add_argument("--tools-image", required=True)
     p.add_argument("--driver", required=True, help="Current measured driver identity")
@@ -70,14 +74,18 @@ def main():
         subprocess.run(
             [
                 sys.executable,
-                str(ROOT / "adapter/modules/m09-telemetry-planner/common/rendering/render_offline.py"),
+                str(
+                    ROOT
+                    / "adapter/modules/m09-telemetry-planner/common/rendering/render_offline.py"
+                ),
                 "--platform",
                 a.platform,
                 "--workdir",
                 a.workdir,
                 "--output",
                 str(small),
-                "--profile-identity", str(a.profile_identity),
+                "--profile-identity",
+                str(a.profile_identity),
             ],
             check=True,
         )
@@ -87,12 +95,16 @@ def main():
             subprocess.run(
                 [
                     sys.executable,
-                    str(ROOT / "adapter/modules/m09-telemetry-planner/common/rendering/render_offline_large.py"),
+                    str(
+                        ROOT
+                        / "adapter/modules/m09-telemetry-planner/common/rendering/render_offline_large.py"
+                    ),
                     "--platform",
                     a.platform,
                     "--model",
                     a.model,
-                    "--provenance", str(a.large_provenance),
+                    "--provenance",
+                    str(a.large_provenance),
                     "--small-input",
                     str(small / "input.json"),
                     "--small-tools",
@@ -109,9 +121,15 @@ def main():
             a.namespace,
             a.runtime_image,
             a.tools_image,
+            a.runtime_version,
         )
         data["dgd"] = release_manifest(
-            data["dgd"], a.platform, a.namespace, a.runtime_image, a.tools_image
+            data["dgd"],
+            a.platform,
+            a.namespace,
+            a.runtime_image,
+            a.tools_image,
+            a.runtime_version,
         )
         # The measured DGD is passed directly to interpolation. Historical DGDR
         # profiling Job/source overrides do not participate in this test.
@@ -136,6 +154,7 @@ def main():
             a.namespace,
             a.runtime_image,
             a.tools_image,
+            a.runtime_version,
         )
         tools["metadata"]["labels"] = {"heyi.io/campaign": a.namespace}
         tools["spec"]["volumes"].append(

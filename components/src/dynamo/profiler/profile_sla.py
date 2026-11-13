@@ -23,8 +23,9 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from aiconfigurator.generator.enumerate import check_model_hardware_support
-from aiconfigurator_core.sdk.utils import get_model_config_from_model_path
+from aisimulate.generator.enumerate import check_model_hardware_support
+from aisimulate_core.sdk.utils import get_model_config_from_model_path
+
 from dynamo.common.platform.profile import ProfileIdentity, write_profile_manifest
 from dynamo.profiler.interpolation import run_interpolation
 from dynamo.profiler.rapid import run_rapid
@@ -37,7 +38,7 @@ from dynamo.profiler.utils.defaults import SearchStrategy
 from dynamo.profiler.utils.dgd_generation import (
     assemble_final_config,
     build_aic_interpolation_spec,
-    build_aic_perf_model_spec,
+    build_ais_perf_model_spec,
 )
 from dynamo.profiler.utils.dgd_materialization import (
     DGDMaterializationPurpose,
@@ -461,6 +462,7 @@ async def run_profile(
         resolved_backend = pick_result.get("resolved_backend", backend)
 
         dgd_override = dgdr.overrides.dgd if dgdr.overrides else None
+        trust_remote_code = bool(dgdr.overrides and dgdr.overrides.trustRemoteCode)
         job_tolerations = get_profiling_job_tolerations(dgdr)
 
         # ---------------------------------------------------------------
@@ -529,6 +531,7 @@ async def run_profile(
                     tolerations=job_tolerations,
                     runtime_backend=resolved_backend,
                     model_name_or_path=resolve_model_path(dgdr),
+                    trust_remote_code=trust_remote_code,
                 )
                 if resolved_backend == "trtllm":
                     enable_trtllm_chunked_prefill(interpolation_dgd_config)
@@ -570,8 +573,8 @@ async def run_profile(
             if is_disagg_config and not ops.dry_run
             else None
         )
-        aic_perf_model = (
-            build_aic_perf_model_spec(
+        ais_perf_model = (
+            build_ais_perf_model_spec(
                 dgdr,
                 best_prefill_pick=best_prefill_config,
                 best_decode_pick=best_decode_config,
@@ -617,7 +620,7 @@ async def run_profile(
             best_prefill_config,
             best_decode_config,
             aic_spec=aic_spec,
-            aic_perf_model=aic_perf_model,
+            ais_perf_model=ais_perf_model,
             resolved_backend=resolved_backend,
         )
 
@@ -628,6 +631,7 @@ async def run_profile(
             tolerations=job_tolerations,
             runtime_backend=resolved_backend,
             model_name_or_path=resolve_model_path(dgdr),
+            trust_remote_code=trust_remote_code,
         )
 
         if final_config:

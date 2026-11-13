@@ -9,6 +9,7 @@
 #   deploy   -> deploy tests
 #   dgdr     -> DGDR deploy tests
 #   planner  -> dynamo build-test
+#   planner_gym -> Planner Gym CPU tests and packaging
 #   vllm     -> vllm build and test
 #   sglang   -> sglang build and test
 #   trtllm   -> trtllm build and test
@@ -90,11 +91,11 @@ examples:
   - 'deploy/pre-deployment/**'
   - 'scripts/generate_kustomize_openapi.py'
   - 'scripts/kustomize-matrix.py'
+  - 'scripts/validate-recipe-kustomization.py'
   - 'tests/test_generate_kustomize_openapi.py'
   - 'tests/test_kustomize_matrix.py'
   - 'docs/tests/**'
-  - 'deploy/operator/config/crd/bases/nvidia.com_dynamographdeployment.yaml'
-  - 'deploy/operator/config/crd/bases/nvidia.com_dynamographdeploymentrequests.yaml'
+  - 'deploy/operator/config/crd/bases/**'
 
 ignore:
   # Classification-only, moved out of `docs`: these match files anywhere in the
@@ -152,6 +153,7 @@ ignore:
   - 'lib/sidecar/**/*.rst'
 
 ci: &ci
+  - '.github/ci/**'
   - '.github/workflows/**'
   - '.github/filters.yaml'
   - '.github/actions/**'
@@ -168,6 +170,7 @@ core:
   - 'container/templates/dynamo_*'
   - 'container/templates/wheel_builder.Dockerfile'
   - 'container/templates/compliance.Dockerfile'
+  - 'container/templates/verify_ca_certificates.Dockerfile'
   - '.dockerignore'
   - 'container/deps/*'
   - 'container/compliance/**'
@@ -182,10 +185,12 @@ core:
   - 'components/src/dynamo/replay/**'
   - 'components/src/dynamo/frontend/**'
   - 'components/src/dynamo/common/**'
+  - 'components/src/dynamo/experimental/**'
   - 'components/src/dynamo/gpu_memory_service/**'
   # TODO(will): Move TokenSpeed to a dedicated framework filter once CI has
   # TokenSpeed Docker images and backend-specific build/test jobs.
   - 'components/src/dynamo/tokenspeed/**'
+  - 'examples/backends/tokenspeed/**'
   - 'components/src/dynamo/squeeze_evolve/**'
   - '*.toml'
   - '*.lock'
@@ -264,7 +269,7 @@ snapshot:
   - 'deploy/operator/api/v1beta1/dynamographdeployment_conversion.go'
   - 'deploy/operator/config/crd/bases/nvidia.com_dynamocomponentdeployments.yaml'
   - 'deploy/operator/config/crd/bases/nvidia.com_dynamographdeployments.yaml'
-  - 'deploy/operator/config/rbac/role.yaml'
+  - 'deploy/helm/charts/platform/components/operator/files/role.yaml'
   - 'deploy/operator/go.mod'
   - 'deploy/operator/go.sum'
   - 'deploy/helm/charts/platform/components/operator/**'
@@ -288,7 +293,11 @@ snapshot_vllm:
   - 'deploy/operator/internal/dynamo/backend_vllm.go'
 
 snapshot_sglang:
+  - 'components/src/dynamo/sglang/args.py'
   - 'components/src/dynamo/sglang/snapshot.py'
+  # The SGLang runtime tag controls the engine version exercised by this suite,
+  # so engine bumps must trigger it. Deliberately omit broad pyproject.toml.
+  - 'container/context.yaml'
   - 'deploy/operator/internal/dynamo/backend_sglang.go'
 
 snapshot_trtllm:
@@ -327,6 +336,12 @@ dgdr:
   - 'tests/deploy/dgd_utils.py'
 
 
+planner_gym:
+  - 'gyms/planner-gym/**'
+  - '.github/workflows/pre-merge.yml'
+  - '.github/actions/changed-files/**'
+  - '.github/filters.yaml'
+
 planner:
   - 'container/templates/planner.Dockerfile'
   - 'components/src/dynamo/planner/**'
@@ -347,6 +362,18 @@ sidecar:
   # acceptable CI fan-out is agreed. Keep the remaining scope narrow for now.
   - 'lib/sidecar/**'
   - '.github/workflows/shared-build-sidecar.yml'
+  - 'tests/serve/test_sidecar.py'
+  - 'tests/router/common.py'
+  - 'tests/router/helper.py'
+  - 'tests/router/router_process.py'
+  - 'tests/utils/gpu_args.py'
+  - 'tests/utils/payloads.py'
+  - 'tests/utils/prometheus.py'
+  - 'tests/utils/router_logs.py'
+  - 'tests/utils/router_nvext.py'
+  - 'tests/utils/payloads.py'
+  - 'Cargo.toml'
+  - 'Cargo.lock'
   # Compliance policy and baseline changes can fail the sidecar image build.
   - 'container/compliance/**'
   - '!**/*.md'
@@ -410,9 +437,10 @@ frontend:
   - 'components/src/dynamo/replay/**'
   - 'components/src/dynamo/frontend/**'
   - 'components/src/dynamo/common/**'
-  - 'tests/frontend/router_aic_image_smoke.py'
+  - 'tests/frontend/router_ais_image_smoke.py'
   - 'deploy/inference-gateway/**'
   - 'container/templates/frontend.Dockerfile'
+  - 'container/templates/verify_ca_certificates.Dockerfile'
   # The frontend image is rendered from these two: render.py generates its
   # Dockerfile, and context.yaml supplies EPP_IMAGE -- the `FROM` that the
   # compliance stages read /sbom-rust-epp.cdx.json and /rust-licenses out of.

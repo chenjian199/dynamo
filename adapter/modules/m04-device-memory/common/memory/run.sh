@@ -17,16 +17,28 @@ fi
 "$cargo_bin" test --locked -p dynamo-memory --no-default-features --lib 2>&1 | tee "$output/cpu-memory.log"
 "$cargo_bin" tree --locked -p dynamo-memory --no-default-features | tee "$output/cpu-dependencies.log"
 "$cargo_bin" clippy --locked -p dynamo-platform -p dynamo-platform-runtime --all-targets -- -D warnings 2>&1 | tee "$output/clippy.log"
-"$cargo_bin" run --locked -p dynamo-platform-runtime --example device_smoke -- "$platform" 2>&1 | tee "$output/native.log"
+"$cargo_bin" run --locked -p dynamo-platform-runtime --example device_smoke -- "$platform" "$output/native-measurements.json" 2>&1 | tee "$output/native.log"
 python3 - "$platform" "$output" <<'PY'
-import hashlib, json, platform, subprocess, sys
+import hashlib, json, platform, re, subprocess, sys
 from pathlib import Path
 root = Path.cwd()
-files = [Path('Cargo.toml'), Path('Cargo.lock')]
+files = [Path('Cargo.toml'), Path('Cargo.lock'), Path('adapter/modules/m04-device-memory/common/memory/run.sh')]
 for base in ('lib/platform', 'lib/platform-runtime', 'lib/memory'):
     files.extend(p for p in Path(base).rglob('*') if p.suffix in ('.rs', '.toml'))
+hashes = {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
+if (root / '.git').exists():
+    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+else:
+    # The builder's immutable source export has no Git database. Verify every
+    # relevant source byte against its manifest instead of inventing a revision.
+    exported = json.loads((root / 'SOURCE.json').read_text())
+    commit = exported['commit']
+    if not re.fullmatch(r'[0-9a-f]{40}', commit):
+        raise ValueError('Invalid exported source commit')
+    for name, actual in hashes.items():
+        if exported['files'].get(name) != actual:
+            raise ValueError('Exported source mismatch: ' + name)
 report = dict(platform=sys.argv[1], machine=platform.machine(), passed=True,
-              source_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
-              source_sha256={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)})
+              source_commit=commit, source_sha256=hashes)
 Path(sys.argv[2], 'source.json').write_text(json.dumps(report, indent=2)+'\n')
 PY

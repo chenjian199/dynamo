@@ -10,9 +10,10 @@ MODE="${1:-help}"
 if [[ $# -gt 0 ]]; then shift; fi
 case "$MODE" in
     basic)
+        metric_namespace="${DYN_NAMESPACE:-ascend-basic}"
         python "$REPO_DIR/adapter/platforms/metax/bringup/metax-smoke.py" \
             --url http://127.0.0.1:8000 --worker-url http://127.0.0.1:8081 \
-            --namespace ascend_basic "$@"
+            --namespace "${metric_namespace//-/_}" "$@"
         ;;
     kv)
         python "$REPO_DIR/adapter/platforms/metax/bringup/metax-kv-smoke.py" --platform ascend \

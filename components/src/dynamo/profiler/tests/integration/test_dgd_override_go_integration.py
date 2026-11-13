@@ -1,5 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
 
 """Integration coverage for the Python-to-Go DGD override protocol."""
 
@@ -13,7 +15,6 @@ import subprocess
 from pathlib import Path
 
 import pytest
-
 from dynamo.profiler.utils.dgd_override import apply_dgd_overrides
 
 _RUN_INTEGRATION_ENV = "DYNAMO_RUN_DGD_OVERRIDE_GO_INTEGRATION"
@@ -174,3 +175,121 @@ def test_python_adapter_invokes_real_go_override_engine(
     assert blueprint == original_blueprint
     assert legacy_override == original_override
     assert "treating it as nvidia.com/v1alpha1" in caplog.text
+
+
+def _vendor_override(platform):
+    return {
+        "apiVersion": "nvidia.com/v1beta1",
+        "kind": "DynamoGraphDeployment",
+        "spec": {
+            "components": [
+                {
+                    "name": name,
+                    "podTemplate": {
+                        "spec": {
+                            "containers": [
+                                {
+                                    "name": "main",
+                                    "env": [
+                                        {"name": "DYN_PLATFORM", "value": platform}
+                                    ],
+                                    "args": ["--enforce-eager"],
+                                    "$patch": {"args": "append"},
+                                }
+                            ]
+                        }
+                    },
+                }
+                for name in ("VllmPrefillWorker", "VllmDecodeWorker")
+            ]
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    "platform,resource",
+    [
+        ("ascend", "huawei.com/Ascend910"),
+        ("metax", "metax-tech.com/gpu"),
+        ("cuda", "nvidia.com/gpu"),
+    ],
+)
+def test_ais013_actual_candidates_materialize_with_real_go(
+    go_override_binary,
+    monkeypatch,
+    platform,
+    resource,
+):
+    """AISimulate 0.13 live capture: missing backend, canonical single-worker names."""
+    import json
+
+    from dynamo.profiler.utils.dgd_materialization import (
+        DGDMaterializationPurpose,
+        materialize_dgd,
+    )
+    from dynamo.profiler.utils.dgd_platform import project_vllm_benchmark_override
+
+    monkeypatch.setenv("DYNAMO_DGD_APPLY_OVERRIDES_BIN", str(go_override_binary))
+    path = Path(__file__).parents[1] / "fixtures/ais013_vllm_candidates.json"
+    blueprints = json.loads(path.read_text())
+    patch = _vendor_override(platform)
+    saved = copy.deepcopy((blueprints, patch))
+    for index, blueprint in enumerate(blueprints):
+        phase = "prefill" if index < 2 else "decode"
+        projected = project_vllm_benchmark_override(blueprint, patch, phase)
+        result = materialize_dgd(
+            blueprint,
+            purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
+            override=projected,
+            runtime_backend="vllm",
+        )
+        assert result["spec"]["backendFramework"] == "vllm"
+        worker = _named(result["spec"]["components"], "decode")
+        main = _named(worker["podTemplate"]["spec"]["containers"], "main")
+        assert main["args"].count("--enforce-eager") == 1
+        for field in ("limits", "requests"):
+            assert main["resources"][field][resource] == str(1 + index % 2)
+            if platform != "cuda":
+                assert "nvidia.com/gpu" not in main["resources"][field]
+        assert ("--kv-transfer-config" in main["args"]) == (platform == "cuda")
+    assert (blueprints, patch) == saved
+
+
+def test_vendor_final_pd_aliases_and_unknown_names_still_use_strict_go(
+    go_override_binary,
+    monkeypatch,
+):
+    import json
+
+    from dynamo.profiler.utils.dgd_materialization import (
+        DGDMaterializationPurpose,
+        materialize_dgd,
+    )
+    from dynamo.profiler.utils.dgd_override import DGDOverrideError
+    from dynamo.profiler.utils.dgd_template import load_dgd_template
+
+    monkeypatch.setenv("DYNAMO_DGD_APPLY_OVERRIDES_BIN", str(go_override_binary))
+    blueprint = load_dgd_template("vllm", "disagg")
+    patch = _vendor_override("ascend")
+    result = materialize_dgd(
+        blueprint,
+        purpose=DGDMaterializationPurpose.FINAL_OUTPUT,
+        override=patch,
+        runtime_backend="vllm",
+    )
+    for name, role in [("prefill", "kv_producer"), ("decode", "kv_consumer")]:
+        component = _named(result["spec"]["components"], name)
+        main = _named(component["podTemplate"]["spec"]["containers"], "main")
+        args = main["args"]
+        assert args.count("--enforce-eager") == 1
+        kv = json.loads(args[args.index("--kv-transfer-config") + 1])
+        assert kv["kv_connector"] == "MooncakeConnector"
+        assert kv["kv_role"] == role
+    patch["spec"]["components"].append({"name": "typo"})
+    with pytest.raises(DGDOverrideError, match="typo"):
+        materialize_dgd(
+            blueprint,
+            purpose=DGDMaterializationPurpose.FINAL_OUTPUT,
+            override=patch,
+            runtime_backend="vllm",
+        )

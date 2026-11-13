@@ -10,9 +10,9 @@ mkdir -p "$output"
 cd /harness
 export HF_HUB_OFFLINE=1 M07_DEVICE=0 PYTHONUNBUFFERED=1
 export M07_MODEL=$model
-python check-installed.py > "$output/installed.json"
+python check-installed.py --role runtime > "$output/installed.json"
 export PYTHONPATH=/harness/test-deps${PYTHONPATH:+:$PYTHONPATH}
-python check-installed.py > "$output/installed-with-test-plugins.json"
+python check-installed.py --role runtime > "$output/installed-with-test-plugins.json"
 DYN_PLATFORM=cpu TORCH_DEVICE_BACKEND_AUTOLOAD=0 python container/platforms/cpu-smoke.py > "$output/cpu.json"
 export DYN_PLATFORM=$platform
 failures=0

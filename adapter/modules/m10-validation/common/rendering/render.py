@@ -2,9 +2,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 """Render final-image regression manifests, rejecting development overlays."""
+
 import argparse
 import copy
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -14,8 +16,10 @@ ROOT = Path(__file__).resolve().parents[5]
 OVERLAYS = {"m09-source", "m09-deps"}
 
 
-def release_manifest(obj, platform, namespace, runtime, tools):
+def release_manifest(obj, platform, namespace, runtime, tools, runtime_version):
     """Retain measured engine parameters, replacing only delivery bindings."""
+    if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", runtime_version):
+        raise ValueError("Supply the measured stable Dynamo runtime version")
     obj = json.loads(
         json.dumps(obj)
         .replace("dynamo-m08-1029", namespace)
@@ -27,6 +31,7 @@ def release_manifest(obj, platform, namespace, runtime, tools):
     obj["metadata"]["namespace"] = namespace
     obj["metadata"].setdefault("labels", {})["heyi.io/campaign"] = namespace
     for component in obj["spec"]["components"]:
+        component["runtimeVersionOverride"] = runtime_version
         pod = component["podTemplate"]["spec"]
         pod["volumes"] = [
             v for v in pod.get("volumes", []) if v["name"] not in OVERLAYS
@@ -67,6 +72,11 @@ def main():
     parser.add_argument("--platform", choices=["cuda", "ascend"], required=True)
     parser.add_argument("--namespace", default="dynamo-m10")
     parser.add_argument("--runtime-image", required=True)
+    parser.add_argument(
+        "--runtime-version",
+        required=True,
+        help="Installed Dynamo version of both delivery images",
+    )
     parser.add_argument("--tools-image", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument(
@@ -86,7 +96,8 @@ def main():
     }.items():
         manifests[name] = json.loads(
             (
-                ROOT / f"adapter/modules/m08-kubernetes/{source}/manifests/{args.platform}/{name}.json"
+                ROOT
+                / f"adapter/modules/m08-kubernetes/common/{source}/manifests/{args.platform}/{name}.json"
             ).read_text()
         )
     for name, script, extra in [
@@ -97,7 +108,9 @@ def main():
     ]:
         command = [
             sys.executable,
-            str(ROOT / "adapter/modules/m09-telemetry-planner" / script),
+            str(
+                ROOT / "adapter/modules/m09-telemetry-planner/common/rendering" / script
+            ),
             "--platform",
             args.platform,
             "--workdir",
@@ -121,7 +134,12 @@ def main():
         manifests["pd-rdma"] = json.loads(output.read_text())
     for name, obj in manifests.items():
         result = release_manifest(
-            obj, args.platform, args.namespace, args.runtime_image, args.tools_image
+            obj,
+            args.platform,
+            args.namespace,
+            args.runtime_image,
+            args.tools_image,
+            args.runtime_version,
         )
         (args.output / (name + ".json")).write_text(json.dumps(result, indent=2) + "\n")
     aggregate = release_manifest(
@@ -130,6 +148,7 @@ def main():
         args.namespace,
         args.runtime_image,
         args.tools_image,
+        args.runtime_version,
     )
     pod = copy.deepcopy(
         next(c for c in aggregate["spec"]["components"] if c["type"] == "worker")[

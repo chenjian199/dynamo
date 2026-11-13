@@ -25,11 +25,11 @@ spec:
       replicas: 1
       extraPodSpec:
         mainContainer:
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
       envs:
         - name: DYN_ROUTER_MODE
           value: kv
-    VllmDecodeWorker:
+    decode:
       envFromSecret: hf-token-secret
       componentType: worker
       replicas: 2
@@ -42,7 +42,7 @@ spec:
             ephemeral-storage: "2Gi"
       extraPodSpec:
         mainContainer:
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           workingDir: /workspace/examples/backends/vllm
           command:
           - python3
@@ -53,7 +53,7 @@ spec:
             - Qwen/Qwen3-0.6B
             - --disaggregation-mode
             - decode
-    VllmPrefillWorker:
+    prefill:
       envFromSecret: hf-token-secret
       componentType: worker
       replicas: 2
@@ -66,7 +66,7 @@ spec:
             ephemeral-storage: "2Gi"
       extraPodSpec:
         mainContainer:
-          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.5.1
+          image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2
           workingDir: /workspace/examples/backends/vllm
           command:
           - python3
@@ -78,6 +78,6 @@ spec:
             - --disaggregation-mode
             - prefill
             - --kv-transfer-config
-            - '{"kv_connector":"NixlConnector","kv_role":"kv_both"}'
+            - '{"kv_connector":"NixlConnector","kv_role":"kv_producer"}'
             - --kv-events-config
             - '{"publisher":"zmq","topic":"kv-events","endpoint":"tcp://*:20080","enable_kv_cache_events":true}'

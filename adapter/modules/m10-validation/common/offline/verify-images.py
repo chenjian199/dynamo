@@ -27,6 +27,7 @@ class HashReader:
 def verify(path):
     checked = set()
     total = 0
+    image_count = 0
     sizes, metadata = {}, {}
     index = None
     docker_manifest = None
@@ -93,8 +94,13 @@ def verify(path):
             if small is not None:
                 metadata[digest] = small
 
-    def visit(descriptor):
-        nonlocal total
+    def visit(descriptor, *, image_reference=False):
+        nonlocal total, image_count
+        kind = descriptor["mediaType"]
+        is_index = "index" in kind or "manifest.list" in kind
+        is_manifest = "manifest" in kind and not is_index
+        if image_reference and not (is_index or is_manifest):
+            raise ValueError("OCI image reference must identify a manifest or index")
         digest = descriptor["digest"]
         if digest not in sizes:
             raise ValueError(
@@ -106,11 +112,11 @@ def verify(path):
             return
         checked.add(digest)
         total += sizes[digest]
-        kind = descriptor["mediaType"]
-        if "index" in kind or "manifest.list" in kind:
+        if is_index:
             for child in json.loads(metadata[digest])["manifests"]:
-                visit(child)
-        elif "manifest" in kind:
+                visit(child, image_reference=True)
+        elif is_manifest:
+            image_count += 1
             manifest = json.loads(metadata[digest])
             for child in [manifest["config"], *manifest["layers"]]:
                 visit(child)
@@ -152,8 +158,16 @@ def verify(path):
             "bytes": sum(files[n][1] for n in used),
         }
     for descriptor in index["manifests"]:
-        visit(descriptor)
-    return {"passed": True, "format": "oci", "blobs": len(checked), "bytes": total}
+        visit(descriptor, image_reference=True)
+    if not image_count:
+        raise ValueError("OCI archive contains no image manifests")
+    return {
+        "passed": True,
+        "format": "oci",
+        "images": image_count,
+        "blobs": len(checked),
+        "bytes": total,
+    }
 
 
 if __name__ == "__main__":

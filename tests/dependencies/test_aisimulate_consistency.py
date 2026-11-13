@@ -3,7 +3,7 @@
 # Derived from NVIDIA Dynamo. Modified by HEYI.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Keep Dynamo on one published AISimulate release."""
+"""Keep AISimulate release requirements and published artifacts consistent."""
 
 from __future__ import annotations
 
@@ -15,8 +15,11 @@ from pathlib import Path
 import pytest
 from packaging.markers import default_environment
 from packaging.requirements import Requirement
+from packaging.specifiers import SpecifierSet
 from packaging.utils import canonicalize_name
 from packaging.version import Version
+
+from tests.wheels.smoke_install import AISIMULATE_FIND_LINKS
 
 try:
     import tomllib
@@ -48,15 +51,23 @@ def _root_configs() -> tuple[dict, dict]:
     return pyproject, cargo
 
 
-def _python_requirement(pyproject: dict) -> Requirement:
+def _python_requirement(
+    pyproject: dict, *, extra: str | None = "simulation"
+) -> Requirement:
+    project = pyproject["project"]
+    requirements = (
+        project["optional-dependencies"][extra]
+        if extra is not None
+        else project["dependencies"]
+    )
     matches = [
         Requirement(requirement)
-        for requirement in pyproject["project"]["optional-dependencies"]["simulation"]
+        for requirement in requirements
         if canonicalize_name(Requirement(requirement).name) == "aisimulate"
     ]
-    assert (
-        len(matches) == 1
-    ), "ai-dynamo[simulation] must declare one AISimulate dependency"
+    assert len(matches) == 1, (
+        "Selected dependency group must declare one AISimulate dependency"
+    )
     return matches[0]
 
 
@@ -73,13 +84,24 @@ def _requirements_file_aisimulate_requirement(path: Path) -> Requirement:
     return matches[0]
 
 
-def _exact_version(requirement: Requirement) -> Version:
+def _python_version_range(requirement: Requirement) -> SpecifierSet:
     assert requirement.url is None, "AISimulate must resolve from PyPI"
-    specifiers = list(requirement.specifier)
-    assert (
-        len(specifiers) == 1 and specifiers[0].operator == "=="
-    ), "AISimulate must use one exact PyPI version"
-    return Version(specifiers[0].version)
+    if len(requirement.specifier) == 1:
+        (pin,) = requirement.specifier
+        assert pin.operator == "==", (
+            "a single AISimulate specifier must be an exact pin"
+        )
+        Version(pin.version)
+        return requirement.specifier
+    bounds = {
+        specifier.operator: Version(specifier.version)
+        for specifier in requirement.specifier
+    }
+    assert len(requirement.specifier) == 2 and set(bounds) == {">", "<"}
+    assert bounds[">"] < bounds["<"]
+    assert not requirement.specifier.contains(bounds[">"])
+    assert not requirement.specifier.contains(bounds["<"])
+    return requirement.specifier
 
 
 def _locked_cargo_version(path: Path) -> Version:
@@ -92,16 +114,16 @@ def _locked_cargo_version(path: Path) -> Version:
     assert package.get("source") == (
         "registry+https://github.com/rust-lang/crates.io-index"
     ), f"aisimulate-core must resolve from crates.io in {path}"
-    assert re.fullmatch(
-        r"[0-9a-f]{64}", str(package.get("checksum", ""))
-    ), f"aisimulate-core must have a registry checksum in {path}"
+    assert re.fullmatch(r"[0-9a-f]{64}", str(package.get("checksum", ""))), (
+        f"aisimulate-core must have a registry checksum in {path}"
+    )
     return Version(str(package["version"]))
 
 
-def test_dynamo_pins_matching_published_aisimulate_releases() -> None:
+def test_dynamo_declares_matching_aisimulate_requirements() -> None:
     pyproject, cargo = _root_configs()
     python_requirement = _python_requirement(pyproject)
-    python_version = _exact_version(python_requirement)
+    python_versions = _python_version_range(python_requirement)
     container_requirement = _requirements_file_aisimulate_requirement(
         AISIMULATE_REQUIREMENTS
     )
@@ -119,31 +141,51 @@ def test_dynamo_pins_matching_published_aisimulate_releases() -> None:
     environment["python_version"] = "3.14"
     assert not python_requirement.marker.evaluate(environment)
     assert container_requirement.marker is None
-    assert _exact_version(container_requirement) == python_version
+    assert _python_version_range(container_requirement) == python_versions
+    with (ROOT / "benchmarks/pyproject.toml").open("rb") as handle:
+        benchmarks = tomllib.load(handle)
+    assert (
+        _python_version_range(_python_requirement(benchmarks, extra=None))
+        == python_versions
+    )
+    assert "aisimulate" not in pyproject.get("tool", {}).get("uv", {}).get(
+        "sources", {}
+    )
 
     cargo_dependency = cargo["workspace"]["dependencies"]["aisimulate-core"]
     assert not {"path", "git", "rev", "branch", "tag"} & cargo_dependency.keys()
     cargo_requirement = str(cargo_dependency["version"])
-    assert cargo_requirement.startswith(
-        "="
-    ), "aisimulate-core must use one exact crates.io version"
+    assert cargo_requirement.startswith("="), (
+        "aisimulate-core must use one exact crates.io version"
+    )
     cargo_version = Version(cargo_requirement.removeprefix("="))
 
-    assert cargo_version == python_version
+    assert cargo_version == Version("0.13.0")
+    assert python_versions == SpecifierSet("==0.13.0")
+    assert python_versions.contains(cargo_version)
+    for version in ("0.13.0.dev1", "0.13.0.dev202610200000000077", "0.13.1", "0.14.0"):
+        assert not python_versions.contains(version, prereleases=True)
+    for path in (
+        ROOT / "Cargo.toml",
+        *(p.with_name("Cargo.toml") for p in LOCKFILES[1:]),
+    ):
+        with path.open("rb") as handle:
+            manifest = tomllib.load(handle)
+        assert "aisimulate-core" not in manifest.get("patch", {}).get("crates-io", {})
     assert all(_locked_cargo_version(path) == cargo_version for path in LOCKFILES)
 
 
 def test_container_stages_the_published_aisimulate_wheel() -> None:
     pyproject, _ = _root_configs()
-    python_version = _exact_version(_python_requirement(pyproject))
-    container_version = _exact_version(
+    python_versions = _python_version_range(_python_requirement(pyproject))
+    container_versions = _python_version_range(
         _requirements_file_aisimulate_requirement(AISIMULATE_REQUIREMENTS)
     )
     wheel_builder = (ROOT / "container/templates/wheel_builder.Dockerfile").read_text(
         encoding="utf-8"
     )
 
-    assert container_version == python_version
+    assert container_versions == python_versions
     assert "requirements.aisimulate.txt" in wheel_builder
     assert (
         "--requirement /opt/dynamo/container/deps/requirements.aisimulate.txt"
@@ -152,9 +194,10 @@ def test_container_stages_the_published_aisimulate_wheel() -> None:
     assert "--only-binary=:all:" in wheel_builder
     assert "--no-deps" in wheel_builder
     assert "--no-index" in wheel_builder
-    assert "--find-links https://pypi.nvidia.com/aisimulate/" in wheel_builder
-    assert "COPY aisimulate" not in wheel_builder
-    assert "/opt/dynamo/aisimulate" not in wheel_builder
+    assert AISIMULATE_FIND_LINKS == "https://pypi.nvidia.com/aisimulate/"
+    assert f"--find-links {AISIMULATE_FIND_LINKS}" in wheel_builder
+    assert "build_aisimulate.py" not in wheel_builder
+    assert not (ROOT / "container/deps/build_aisimulate.py").exists()
     assert not (ROOT / "aisimulate").exists()
 
 
@@ -168,11 +211,11 @@ def test_planner_ci_image_collects_unified_cli_e2e_tests() -> None:
     assert "components/src/dynamo/replay/tests/test_main.py" not in planner_template
 
 
-def test_installed_aisimulate_matches_the_declared_release() -> None:
+def test_installed_aisimulate_satisfies_the_declared_range() -> None:
     if sys.version_info < (3, 11) or sys.version_info >= (3, 14):
         pytest.skip("AISimulate supports Python 3.11 through 3.13")
     pyproject, _ = _root_configs()
-    expected = _exact_version(_python_requirement(pyproject))
+    requirement = _python_requirement(pyproject)
 
     try:
         installed = metadata.version("aisimulate")
@@ -180,7 +223,7 @@ def test_installed_aisimulate_matches_the_declared_release() -> None:
         pytest.skip(
             "AISimulate is optional; install ai-dynamo[simulation] for this check"
         )
-    assert Version(installed) == expected
+    assert requirement.specifier.contains(Version(installed))
 
 
 def test_ai_dynamo_registers_only_its_aisimulate_providers() -> None:

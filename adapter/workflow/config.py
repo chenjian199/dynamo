@@ -5,6 +5,15 @@
 import re
 
 
+def valid_hardware_uuid(value):
+    return (
+        isinstance(value, str)
+        and re.fullmatch(r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", value)
+        is not None
+        and value.replace("-", "") not in ("0" * 32, "f" * 32)
+    )
+
+
 def validate_environment(env):
     if not isinstance(env.get("nodes"), list) or not env["nodes"]:
         raise ValueError("Environment must list nodes")
@@ -37,6 +46,14 @@ def validate_environment(env):
     ):
         raise ValueError("Positive asset_probe_timeout_seconds required")
     for node in env["nodes"]:
+        identity = node.get("host_identity")
+        if identity is not None and (
+            not isinstance(identity, dict)
+            or set(identity) != {"kind", "value"}
+            or identity.get("kind") != "dmi_product_uuid"
+            or not valid_hardware_uuid(identity.get("value"))
+        ):
+            raise ValueError("host_identity requires a pinned non-placeholder DMI UUID")
         if node.get("machine_id") and not re.fullmatch(
             r"[0-9a-f]{32}", node["machine_id"]
         ):

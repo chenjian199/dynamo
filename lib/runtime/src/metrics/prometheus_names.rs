@@ -180,6 +180,9 @@ pub mod frontend_service {
     /// Total number of LLM requests accepted by the frontend handler
     pub const REQUESTS_STARTED_TOTAL: &str = "requests_started_total";
 
+    /// Total number of terminal semantic request failures.
+    pub const FAILURES_TOTAL: &str = "failures_total";
+
     /// Number of requests waiting in HTTP queue before receiving the first response (gauge)
     pub const QUEUED_REQUESTS: &str = "queued_requests";
 
@@ -205,6 +208,17 @@ pub mod frontend_service {
 
     /// Predicted KV cache hit rate at routing time (0.0-1.0)
     pub const KV_HIT_RATE: &str = "kv_hit_rate";
+
+    /// Raw cached prefix tokens on the best eligible worker at selection (per routing attempt)
+    pub const KV_BEST_ELIGIBLE_CACHED_PREFIX_TOKENS_TOTAL: &str =
+        "kv_best_eligible_cached_prefix_tokens_total";
+
+    /// Raw cached prefix tokens on the selected worker and DP rank at selection
+    pub const KV_SELECTED_CACHED_PREFIX_TOKENS_TOTAL: &str =
+        "kv_selected_cached_prefix_tokens_total";
+
+    /// Backend-reported cache-hit tokens
+    pub const KV_WORKER_REUSED_TOKENS_TOTAL: &str = "kv_worker_reused_tokens_total";
 
     /// Upper-bound estimation of KV cache transfer latency in disaggregated serving (seconds)
     pub const KV_TRANSFER_ESTIMATED_LATENCY_SECONDS: &str = "kv_transfer_estimated_latency_seconds";
@@ -664,6 +678,17 @@ pub mod router {
     /// Predicted KV cache hit rate at routing time (0.0-1.0)
     pub const KV_HIT_RATE: &str = "router_kv_hit_rate";
 
+    /// Raw cached prefix tokens on the best eligible worker (counter, per routing attempt)
+    pub const KV_BEST_ELIGIBLE_CACHED_PREFIX_TOKENS_TOTAL: &str =
+        "router_kv_best_eligible_cached_prefix_tokens_total";
+
+    /// Raw cached prefix tokens on the selected worker and DP rank (counter)
+    pub const KV_SELECTED_CACHED_PREFIX_TOKENS_TOTAL: &str =
+        "router_kv_selected_cached_prefix_tokens_total";
+
+    /// Backend-reported cache-hit tokens (counter)
+    pub const KV_WORKER_REUSED_TOKENS_TOTAL: &str = "router_kv_worker_reused_tokens_total";
+
     /// Shared cache hit rate (0.0-1.0): fraction of request blocks found in shared cache
     pub const SHARED_CACHE_HIT_RATE: &str = "router_shared_cache_hit_rate";
 
@@ -725,6 +750,7 @@ pub mod tokio_perf {
     pub const WORKER_LOCAL_QUEUE_DEPTH: &str = "worker_local_queue_depth";
     pub const WORKER_STEAL_COUNT_TOTAL: &str = "worker_steal_count_total";
     pub const WORKER_OVERFLOW_COUNT_TOTAL: &str = "worker_overflow_count_total";
+    pub const QUEUE_OVERLOAD_WARNINGS_TOTAL: &str = "queue_overload_warnings_total";
     pub const BLOCKING_THREADS: &str = "blocking_threads";
     pub const BLOCKING_IDLE_THREADS: &str = "blocking_idle_threads";
     pub const BLOCKING_QUEUE_DEPTH: &str = "blocking_queue_depth";

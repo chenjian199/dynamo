@@ -20,14 +20,13 @@
 import json
 import logging
 import os
-from itertools import chain
 
 import pandas as pd
 import yaml
-from aiconfigurator.generator.enumerate import enumerate_profiling_configs
-from aiconfigurator.sdk import perf_database
-from aiconfigurator.sdk.picking import pick_autoscale, pick_default, pick_load_match
-from aiconfigurator.sdk.task_v2 import Task
+from aisimulate.generator.enumerate import enumerate_profiling_configs
+from aisimulate.sdk.picking import pick_autoscale, pick_default, pick_load_match
+from aisimulate.sdk.task_v2 import Task
+from aisimulate_core.sdk import perf_database
 from dynamo.profiler.rapid import _generate_dgd_from_pick
 from dynamo.profiler.utils.aic_dataframe import (
     build_decode_row,
@@ -45,6 +44,7 @@ from dynamo.profiler.utils.dgd_materialization import (
     DGDMaterializationPurpose,
     materialize_dgd,
 )
+from dynamo.profiler.utils.dgd_platform import project_vllm_benchmark_override
 from dynamo.profiler.utils.dgdr_v1beta1_types import (
     DynamoGraphDeploymentRequestSpec,
     ModelCacheSpec,
@@ -447,16 +447,27 @@ async def run_thorough(
 
     config_modifier = CONFIG_MODIFIERS[backend]
     dgd_override = dgdr.overrides.dgd if dgdr.overrides else None
+    trust_remote_code = bool(dgdr.overrides and dgdr.overrides.trustRemoteCode)
     job_tolerations = get_profiling_job_tolerations(dgdr)
-    for candidate in chain(prefill_candidates, decode_candidates):
-        candidate.dgd_config = materialize_dgd(
-            candidate.dgd_config,
-            purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
-            override=dgd_override,
-            tolerations=job_tolerations,
-            runtime_backend=backend,
-            model_name_or_path=local_or_hf_model,
-        )
+    for phase, candidates in (
+        ("prefill", prefill_candidates),
+        ("decode", decode_candidates),
+    ):
+        for candidate in candidates:
+            candidate_override = dgd_override
+            if backend == "vllm":
+                candidate_override = project_vllm_benchmark_override(
+                    candidate.dgd_config, dgd_override, phase
+                )
+            candidate.dgd_config = materialize_dgd(
+                candidate.dgd_config,
+                purpose=DGDMaterializationPurpose.BENCHMARK_CANDIDATE,
+                override=candidate_override,
+                tolerations=job_tolerations,
+                runtime_backend=backend,
+                model_name_or_path=local_or_hf_model,
+                trust_remote_code=trust_remote_code,
+            )
 
     if backend == "trtllm":
         _enable_chunked_prefill_for_trtllm_candidates(

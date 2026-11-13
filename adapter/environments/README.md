@@ -13,4 +13,6 @@ SPDX-License-Identifier: Apache-2.0
 
 免密 SSH、镜像、模型和集群能力是执行前置条件，缺少哪项就记录相应阻塞；模板不会自动安装它们。私钥、密码、API key、完整 kubeconfig 留在系统凭据配置中。现场日志、预检报告和任务结果存入 [results](../results/README.md)，不要写回模板目录。
 
+克隆操作系统可能导致不同物理节点拥有相同 `/etc/machine-id`。先通过 SSH 读取每台节点的 `/sys/class/dmi/id/product_uuid`，并与 Kubernetes `status.nodeInfo.systemUUID` 核对；随后可在各节点声明 `host_identity: {kind: dmi_product_uuid, value: <实际的小写 UUID>}`。预检仍记录原 machine-id，并重新读取、匹配硬件 UUID；跨节点用例必须所有节点都绑定该身份且观测值互不相同。缺失、占位、错配或重复 UUID 均不能通过；不使用主机名或 SSH 别名代替实际身份，也不需要修改宿主机文件。
+
 完整命令顺序见 [执行与恢复手册](../workflow/README.md)。

@@ -16,6 +16,62 @@ import time
 from pathlib import Path
 
 
+def verify_rank(case, rank, world, device, outer, width):
+    """Verify SDK counters and actual readback bytes, not the binary's pass text."""
+    observation = json.loads((case / f"rank-{rank}.measurements.json").read_text())
+    expected = {
+        "rank": rank,
+        "world": world,
+        "device": int(device),
+        "outer": outer,
+        "width": width,
+    }
+    if any(observation.get(key) != value for key, value in expected.items()):
+        raise ValueError("Native rank identity differs from launched topology")
+    counts = observation["sdk_create_release_counts"]
+    if (
+        len(counts) != 8
+        or any(type(value) is not int or value < 0 for value in counts)
+        or any(counts[i] != counts[i + 1] for i in range(0, 8, 2))
+        or counts[0] == 0
+        or observation["metrics"]["live_allocations"] != 0
+    ):
+        raise ValueError("Native SDK allocation/handle reclamation mismatch")
+    if observation["completed_operations"] <= 0:
+        raise ValueError("No native transfer was submitted")
+    expected_layout = {
+        "num_layers": 3,
+        "num_blocks": 4,
+        "page_size": 4,
+        "num_heads": 2,
+        "inner_dim": 16,
+        "dtype_width_bytes": width,
+    }
+    if observation["layout"] != expected_layout:
+        raise ValueError("Native rank layout differs from the exercised layout")
+    bytes_per_block = 3 * outer * 4 * 16 * width
+    files = {}
+    for actual, reference in [
+        (f"rank-{rank}.shard-actual.bin", f"rank-{rank}.shard-reference.bin"),
+        (f"rank-{rank}.G2.actual.bin", f"rank-{rank}.reference.bin"),
+        (f"rank-{rank}.G3.actual.bin", f"rank-{rank}.reference.bin"),
+    ]:
+        data, expected_data = (
+            (case / actual).read_bytes(),
+            (case / reference).read_bytes(),
+        )
+        if len(data) != bytes_per_block or data != expected_data:
+            raise ValueError("Native readback parity failed: " + actual)
+        for name, content in [(actual, data), (reference, expected_data)]:
+            files[name] = hashlib.sha256(content).hexdigest()
+    if (
+        observation["shard_bytes"] != bytes_per_block
+        or observation["tier_readback_bytes"] != [bytes_per_block] * 2
+    ):
+        raise ValueError("Native measured transfer sizes differ")
+    return {"observation": observation, "sha256": files}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -35,7 +91,11 @@ def main():
         parser.error("supply at least two distinct physical device ordinals")
     args.output.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[5]
-    files = (root / "adapter/modules/m06-kvbm-collectives/common/cache/sources.txt").read_text().splitlines()
+    files = (
+        (root / "adapter/modules/m06-kvbm-collectives/common/cache/sources.txt")
+        .read_text()
+        .splitlines()
+    )
     source = {
         "platform": args.platform,
         "architecture": platform.machine(),
@@ -50,6 +110,36 @@ def main():
         source["build"] = json.loads(build_source.read_text())
         if source["build"]["artifacts"][args.binary.name] != source["binary_sha256"]:
             raise RuntimeError("binary differs from build provenance")
+        if source["build"]["files"] != source["files"]:
+            raise RuntimeError("sources differ from native build provenance")
+        library = args.library_dir / "libkvbm_kernels.so"
+        if (
+            hashlib.sha256(library.read_bytes()).hexdigest()
+            != source["build"]["artifacts"][library.name]
+        ):
+            raise RuntimeError("library differs from build provenance")
+    else:
+        # Installed runtime images use the enclosing immutable artifact manifest.
+        artifacts = args.binary.parent.parent / "artifacts"
+        manifest = json.loads((artifacts / "SHA256.json").read_text())
+        exported = json.loads((artifacts / "SOURCE.json").read_text())
+        for name, actual in source["files"].items():
+            if exported["files"].get(name) != actual:
+                raise RuntimeError("packaged native source mismatch: " + name)
+        for artifact in (args.binary, args.library_dir / "libkvbm_kernels.so"):
+            if (
+                hashlib.sha256(artifact.read_bytes()).hexdigest()
+                != manifest["native/" + artifact.name]
+            ):
+                raise RuntimeError(
+                    "packaged native artifact mismatch: " + artifact.name
+                )
+        source["build"] = {
+            "source_commit": exported["commit"],
+            "manifest_sha256": hashlib.sha256(
+                (artifacts / "SHA256.json").read_bytes()
+            ).hexdigest(),
+        }
     (args.output / "source.json").write_text(json.dumps(source, indent=2) + "\n")
     env = dict(os.environ)
     env["LD_LIBRARY_PATH"] = (
@@ -109,20 +199,32 @@ def main():
                     time.sleep(0.2)
                 if any(p.returncode != 0 for p in children):
                     raise RuntimeError(f"outer={outer}: failed rank")
-                for rank in range(len(devices)):
-                    text = (
-                        args.output / f"outer-{outer}-width-{width}-rank-{rank}.log.txt"
-                    ).read_text()
-                    if "passed=true" not in text:
-                        raise RuntimeError(
-                            f"outer={outer}: missing rank {rank} evidence"
-                        )
+                measured = [
+                    verify_rank(case, rank, len(devices), device, outer, width)
+                    for rank, device in enumerate(devices)
+                ]
+                # Distinct shard references prove this phase was rank-local;
+                # replicated tier readbacks must instead agree across ranks.
+                shard_hashes = [
+                    m["sha256"][f"rank-{rank}.shard-actual.bin"]
+                    for rank, m in enumerate(measured)
+                ]
+                replicated_hashes = [
+                    m["sha256"][f"rank-{rank}.G3.actual.bin"]
+                    for rank, m in enumerate(measured)
+                ]
+                if (
+                    len(set(shard_hashes)) != len(devices)
+                    or len(set(replicated_hashes)) != 1
+                ):
+                    raise ValueError("Sharded/replicated rank data semantics differ")
                 summary["cases"].append(
                     {
                         "outer": outer,
                         "width": width,
                         "status": "passed",
                         "ranks": len(devices),
+                        "measurements": measured,
                     }
                 )
             finally:

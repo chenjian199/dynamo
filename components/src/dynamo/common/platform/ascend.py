@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-"""Ascend discovery provider for the vLLM Ascend 0.23.0 / CANN 9.1 image.
+"""Ascend discovery provider for the vLLM Ascend 0.30.0 / CANN 9.2.1 image.
 
 The 910B torch-npu UUID is all zero. DCMI's silicon die ID supplies a stable
 opaque identity; ACL maps visible ordinals to physical IDs before DCMI queries.
