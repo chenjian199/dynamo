@@ -1,0 +1,309 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "monitoring.coreos.com/v1",
+      "kind": "PodMonitor",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "heyi-upgrade162",
+          "meta.helm.sh/release-namespace": "heyi-upgrade162"
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "dynamo-epp",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298329040",
+        "uid": "e2fdfebd-e58d-4666-95a9-ab90c79ad1fa"
+      },
+      "spec": {
+        "namespaceSelector": {
+          "any": true
+        },
+        "podMetricsEndpoints": [
+          {
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "metrics"
+          }
+        ],
+        "selector": {
+          "matchLabels": {
+            "nvidia.com/dynamo-component-type": "epp",
+            "nvidia.com/metrics-enabled": "true"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "monitoring.coreos.com/v1",
+      "kind": "PodMonitor",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "heyi-upgrade162",
+          "meta.helm.sh/release-namespace": "heyi-upgrade162"
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "dynamo-frontend",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298329042",
+        "uid": "b206638a-e414-42ee-b88d-44cc61eb85dc"
+      },
+      "spec": {
+        "namespaceSelector": {
+          "any": true
+        },
+        "podMetricsEndpoints": [
+          {
+            "honorLabels": true,
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "http",
+            "relabelings": [
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+                ],
+                "targetLabel": "dynamo_namespace"
+              }
+            ]
+          }
+        ],
+        "selector": {
+          "matchLabels": {
+            "nvidia.com/dynamo-component-type": "frontend",
+            "nvidia.com/metrics-enabled": "true"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "monitoring.coreos.com/v1",
+      "kind": "PodMonitor",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "heyi-upgrade162",
+          "meta.helm.sh/release-namespace": "heyi-upgrade162"
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "dynamo-planner",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298329041",
+        "uid": "478b921a-1476-4b71-8357-7555c674e5d2"
+      },
+      "spec": {
+        "namespaceSelector": {
+          "any": true
+        },
+        "podMetricsEndpoints": [
+          {
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "metrics"
+          }
+        ],
+        "selector": {
+          "matchLabels": {
+            "nvidia.com/dynamo-component-type": "planner",
+            "nvidia.com/metrics-enabled": "true"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "monitoring.coreos.com/v1",
+      "kind": "PodMonitor",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "heyi-upgrade162",
+          "meta.helm.sh/release-namespace": "heyi-upgrade162"
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "dynamo-router",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298329043",
+        "uid": "aff25b87-8b1e-42a6-a520-f0b93aefd098"
+      },
+      "spec": {
+        "namespaceSelector": {
+          "any": true
+        },
+        "podMetricsEndpoints": [
+          {
+            "honorLabels": true,
+            "interval": "5s",
+            "path": "/metrics",
+            "relabelings": [
+              {
+                "action": "replace",
+                "regex": "([^:]+)(?::\\d+)?",
+                "replacement": "${1}:9090",
+                "sourceLabels": [
+                  "__address__"
+                ],
+                "targetLabel": "__address__"
+              },
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+                ],
+                "targetLabel": "dynamo_namespace"
+              }
+            ]
+          }
+        ],
+        "selector": {
+          "matchLabels": {
+            "nvidia.com/dynamo-component-type": "default",
+            "nvidia.com/metrics-enabled": "true"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "monitoring.coreos.com/v1",
+      "kind": "PodMonitor",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "heyi-upgrade162",
+          "meta.helm.sh/release-namespace": "heyi-upgrade162"
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "generation": 1,
+        "labels": {
+          "app.kubernetes.io/managed-by": "Helm"
+        },
+        "name": "dynamo-worker",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298329044",
+        "uid": "23520bb7-bd87-4d1a-88fc-1ab84de1b5a0"
+      },
+      "spec": {
+        "namespaceSelector": {
+          "any": true
+        },
+        "podMetricsEndpoints": [
+          {
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "system",
+            "relabelings": [
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_component_type"
+                ],
+                "targetLabel": "dynamo_component_type"
+              }
+            ]
+          },
+          {
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "system-0",
+            "relabelings": [
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_component_type"
+                ],
+                "targetLabel": "dynamo_component_type"
+              },
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_graph_deployment_name"
+                ],
+                "targetLabel": "dynamo_graph_deployment"
+              }
+            ]
+          },
+          {
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "system-1",
+            "relabelings": [
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_component_type"
+                ],
+                "targetLabel": "dynamo_component_type"
+              },
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_graph_deployment_name"
+                ],
+                "targetLabel": "dynamo_graph_deployment"
+              }
+            ]
+          },
+          {
+            "honorLabels": true,
+            "interval": "5s",
+            "path": "/metrics",
+            "port": "http",
+            "relabelings": [
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+                ],
+                "targetLabel": "dynamo_namespace"
+              },
+              {
+                "action": "replace",
+                "sourceLabels": [
+                  "__meta_kubernetes_pod_label_nvidia_com_dynamo_component_type"
+                ],
+                "targetLabel": "dynamo_component_type"
+              }
+            ]
+          }
+        ],
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "nvidia.com/dynamo-component-type",
+              "operator": "In",
+              "values": [
+                "worker",
+                "decode",
+                "prefill"
+              ]
+            },
+            {
+              "key": "nvidia.com/metrics-enabled",
+              "operator": "In",
+              "values": [
+                "true"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

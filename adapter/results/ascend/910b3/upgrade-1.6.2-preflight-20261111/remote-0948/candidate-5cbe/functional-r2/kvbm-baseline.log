@@ -1,0 +1,52 @@
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+Main server process died with exit code 1 while waiting for health check
+=== Last 20 lines from /evidence/kvbm-baseline/engine.log.txt ===
+[ENGINE] (APIServer pid=417)     return AsyncMPClient(
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (APIServer pid=417)     return func(*args, **kwargs)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 1060, in __init__
+[ENGINE] (APIServer pid=417)     super().__init__(
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 656, in __init__
+[ENGINE] (APIServer pid=417)     with launch_core_engines(
+[ENGINE] (APIServer pid=417)          ^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 144, in __exit__
+[ENGINE] (APIServer pid=417)     next(self.gen)
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+[ENGINE] (APIServer pid=417)     wait_for_engine_startup(
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+[ENGINE] (APIServer pid=417)     raise RuntimeError(
+[ENGINE] (APIServer pid=417) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[ENGINE] (APIServer pid=417) [ERROR] 2026-11-11-09:06:01 (PID:417, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 2 leaked shared_memory objects to clean up at shutdown
+[ENGINE]   warnings.warn('resource_tracker: There appear to be %d '
+=== End of log tail ===
+Traceback (most recent call last):
+  File "/harness/adapter/modules/m06-kvbm-collectives/common/cache/run.py", line 429, in <module>
+    main()
+  File "/harness/adapter/modules/m06-kvbm-collectives/common/cache/run.py", line 252, in main
+    with tracked_process(
+         ^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/harness/adapter/modules/m06-kvbm-collectives/common/cache/run.py", line 53, in tracked_process
+    with process:
+         ^^^^^^^
+  File "/harness/tests/utils/managed_process.py", line 240, in __enter__
+    self._check_urls(self.timeout - elapsed)
+  File "/harness/tests/utils/managed_process.py", line 707, in _check_urls
+    elapsed += self._check_url(url, timeout - elapsed)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/harness/tests/utils/managed_process.py", line 723, in _check_url
+    self._check_process_alive("while waiting for health check")
+  File "/harness/tests/utils/managed_process.py", line 675, in _check_process_alive
+    raise RuntimeError(
+RuntimeError: Main server process exited with code 1 while waiting for health check
+[ERROR] 2026-11-11-09:06:05 (PID:410, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception

@@ -1,0 +1,142 @@
+................EEEE..................................                   [100%]
+==================================== ERRORS ====================================
+___ ERROR at setup of test_decode_video_bytes_missing_decoder_is_actionable ____
+file /audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py, line 328
+  @pytest.mark.asyncio
+  async def test_decode_video_bytes_missing_decoder_is_actionable(
+      monkeypatch, carrier_imports
+  ):
+      """A bare `No module named 'cv2'` must become the actionable codec error.
+
+      Reproduced on a real runtime image before this existed: the user-visible
+      text was `Failed to load video from ...: No module named 'cv2'` -- no
+      codec, no remedy.
+      """
+      loader = VideoLoader()
+      monkeypatch.setattr(video_loader_module, "probe_video_codec", lambda b: "vp9")
+      monkeypatch.setattr(video_loader_module, "should_use_nvdec", lambda c: False)
+      # cv2 genuinely absent, independent of what the test machine has installed.
+      carrier_imports()
+
+      with pytest.raises(MissingMediaDecoderError) as exc_info:
+          await loader._decode_video_bytes(b"vp9-bytes", _ImportErrorMediaIO())
+
+      msg = str(exc_info.value)
+      assert "'vp9'" in msg  # names the codec
+      assert VALIDATED_SPECS["opencv-python-headless"] in msg  # bounded spec
+      assert "pip install" in msg
+      assert "cv2" in msg
+E       fixture 'carrier_imports' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, event_loop_policy, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py:328
+___ ERROR at setup of test_decode_video_bytes_backendless_cv2_is_actionable ____
+file /audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py, line 363
+  @pytest.mark.asyncio
+  async def test_decode_video_bytes_backendless_cv2_is_actionable(
+      monkeypatch, carrier_imports
+  ):
+      """Translate codec-free OpenCV failures into actionable decoder guidance."""
+      loader = VideoLoader()
+      monkeypatch.setattr(video_loader_module, "probe_video_codec", lambda b: "vp9")
+      monkeypatch.setattr(video_loader_module, "should_use_nvdec", lambda c: False)
+      monkeypatch.setattr(video_loader_module, "_cv2_lacks_video_backend", lambda: True)
+
+      carrier_imports(present=("cv2",))
+      monkeypatch.setattr(
+          codec_errors.importlib.metadata, "version", lambda p: "5.0.0.93"
+      )
+
+      with pytest.raises(MissingMediaDecoderError) as exc_info:
+          await loader._decode_video_bytes(b"vp9-bytes", _SystemErrorMediaIO())
+
+      msg = str(exc_info.value)
+      assert "'vp9'" in msg
+      assert "opencv-python-headless==5.0.0.93" in msg
+      assert "--force-reinstall" in msg
+      assert "video backend" in msg
+E       fixture 'carrier_imports' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, event_loop_policy, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py:363
+_ ERROR at setup of test_decode_video_bytes_failed_open_value_error_is_actionable _
+file /audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py, line 395
+  @pytest.mark.asyncio
+  async def test_decode_video_bytes_failed_open_value_error_is_actionable(
+      monkeypatch, carrier_imports
+  ):
+      """Translate OpenCV failed-open errors when its video backend is absent."""
+      loader = VideoLoader()
+      monkeypatch.setattr(video_loader_module, "probe_video_codec", lambda b: "vp9")
+      monkeypatch.setattr(video_loader_module, "should_use_nvdec", lambda c: False)
+      monkeypatch.setattr(video_loader_module, "_cv2_lacks_video_backend", lambda: True)
+
+      carrier_imports(present=("cv2",))
+      monkeypatch.setattr(
+          codec_errors.importlib.metadata, "version", lambda p: "5.0.0.93"
+      )
+
+      with pytest.raises(MissingMediaDecoderError) as exc_info:
+          await loader._decode_video_bytes(b"vp9-bytes", _FailedOpenMediaIO())
+
+      msg = str(exc_info.value)
+      assert "'vp9'" in msg
+      assert "opencv-python-headless==5.0.0.93" in msg
+      assert "--force-reinstall" in msg
+      assert "video backend" in msg
+E       fixture 'carrier_imports' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, event_loop_policy, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py:395
+_____ ERROR at setup of test_decode_video_bytes_cv2_os_error_is_actionable _____
+file /audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py, line 427
+  @pytest.mark.asyncio
+  async def test_decode_video_bytes_cv2_os_error_is_actionable(
+      monkeypatch, carrier_imports
+  ):
+      """Keep the remedy visible when cv2 initialisation fails inside the decode."""
+      loader = VideoLoader()
+      monkeypatch.setattr(video_loader_module, "probe_video_codec", lambda b: "vp9")
+      monkeypatch.setattr(video_loader_module, "should_use_nvdec", lambda c: False)
+      monkeypatch.setattr(video_loader_module, "_cv2_lacks_video_backend", lambda: True)
+
+      carrier_imports(present=("cv2",))
+      monkeypatch.setattr(
+          codec_errors.importlib.metadata, "version", lambda p: "5.0.0.93"
+      )
+
+      with pytest.raises(MissingMediaDecoderError) as exc_info:
+          await loader._decode_video_bytes(b"vp9-bytes", _InitErrorMediaIO())
+
+      msg = str(exc_info.value)
+      assert "'vp9'" in msg
+      assert "opencv-python-headless==5.0.0.93" in msg
+      assert "--force-reinstall" in msg
+E       fixture 'carrier_imports' not found
+>       available fixtures: _class_scoped_runner, _function_scoped_runner, _module_scoped_runner, _package_scoped_runner, _session_scoped_runner, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, doctest_namespace, event_loop_policy, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/audit/components/src/dynamo/common/tests/multimodal/test_video_loader.py:427
+=============================== warnings summary ===============================
+../usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13
+  /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+    @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+
+../usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35
+  /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+    @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+
+../usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49
+  /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+    @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR components/src/dynamo/common/tests/multimodal/test_video_loader.py::test_decode_video_bytes_missing_decoder_is_actionable
+ERROR components/src/dynamo/common/tests/multimodal/test_video_loader.py::test_decode_video_bytes_backendless_cv2_is_actionable
+ERROR components/src/dynamo/common/tests/multimodal/test_video_loader.py::test_decode_video_bytes_failed_open_value_error_is_actionable
+ERROR components/src/dynamo/common/tests/multimodal/test_video_loader.py::test_decode_video_bytes_cv2_os_error_is_actionable
+50 passed, 3 warnings, 4 errors in 5.69s

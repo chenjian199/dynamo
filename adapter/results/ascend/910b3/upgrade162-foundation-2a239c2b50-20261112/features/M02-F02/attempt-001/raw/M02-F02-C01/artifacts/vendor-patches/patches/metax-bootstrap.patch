@@ -1,0 +1,35 @@
+--- a/mooncake_connector.py
++++ b/mooncake_connector.py
+@@ -1,0 +2,2 @@
++# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
++# Derived from vLLM. Modified by HEYI.
+@@ -570,0 +573,4 @@
++    def get_block_ids_with_load_errors(self) -> set[int]:
++        assert self.connector_worker is not None
++        return self.connector_worker.get_block_ids_with_load_errors()
++
+@@ -1013,0 +1020 @@
++        self.failed_recving_block_ids: set[int] = set()
+@@ -1745,0 +1753,12 @@
++    async def fetch_failed_recving_blocks(self) -> set[int]:
++        blocks = self.failed_recving_block_ids
++        self.failed_recving_block_ids = set()
++        return blocks
++
++    def get_block_ids_with_load_errors(self) -> set[int]:
++        if self.is_kv_producer:
++            return set()
++        return asyncio.run_coroutine_threadsafe(
++            self.fetch_failed_recving_blocks(), self.receiver_loop
++        ).result()
++
+@@ -1984,0 +2004,9 @@
++            # HEYI: no receive_kv call or device transfer was submitted for
++            # these requests. Report both failure and completion so the
++            # scheduler can fail them and safely reclaim their allocations.
++            # Do not apply this to timed-out device transfers still in flight.
++            for meta in pull_metas.values():
++                for group in meta.local_block_ids:
++                    self.failed_recving_block_ids.update(group)
++                self.finished_recving_reqs.add(meta.d_req_id)
++            self.xfer_stats.record_failed_recv()

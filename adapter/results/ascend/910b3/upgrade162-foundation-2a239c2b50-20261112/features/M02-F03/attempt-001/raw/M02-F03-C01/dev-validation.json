@@ -1,0 +1,177 @@
+{
+  "imports": {
+    "dynamo._core": "/workspace/dynamo/lib/bindings/python/src/dynamo/_core.abi3.so",
+    "dynamo.common.platform": "/workspace/dynamo/components/src/dynamo/common/platform/__init__.py",
+    "kvbm._core": "/workspace/dynamo/lib/bindings/kvbm/python/kvbm/_core.abi3.so",
+    "gpu_memory_service": "/workspace/dynamo/lib/gpu_memory_service/__init__.py"
+  },
+  "module_sha256": {
+    "dynamo._core": "3e16ced49254e84eb0e3765927cda009b9f962df052393b9d2952fd183802a55",
+    "dynamo.common.platform": "1f74067e85424e14d3b74c4da00eb4f29c7918e52f27245f7bdc0360866d6f81",
+    "kvbm._core": "8ea3fe4fb8f8bb1741c368ed9d5a01e38c5e8b8a59970412a031930acba9647b",
+    "gpu_memory_service": "39b67a3543de12fbe919327958818a53222b223688ef8ece33a12bc1e46d1f14"
+  },
+  "editable": {
+    "ai-dynamo-runtime": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo/lib/bindings/python"
+    },
+    "ai-dynamo": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo"
+    },
+    "kvbm": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo/lib/bindings/kvbm"
+    },
+    "gpu-memory-service": {
+      "dir_info": {
+        "editable": true
+      },
+      "url": "file:///workspace/dynamo/lib/gpu_memory_service"
+    }
+  },
+  "tools": {
+    "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+    "cargo": "cargo 1.96.1 (356927216 2026-06-26)",
+    "maturin": "maturin 1.15.0",
+    "gdb": "GNU gdb (Ubuntu 12.1-0ubuntu1~22.04.2) 12.1",
+    "strace": "strace -- version 5.16"
+  },
+  "source_manifest_sha256": "d3addf9a8a004a91c4aaf5a5ff7aa3e8f7603a37c8a0c96495c11054e738e77a",
+  "status": "passed",
+  "image": {
+    "id": "sha256:a287d189026db25571d0703ebd0b0c4599bc04e6d4403091ed536c62c6692daa",
+    "tag": "heyi/dynamo:1.6.2-ascend0.30-2a239c2b50-dev",
+    "target": "dev",
+    "runtime_id": "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+    "profile": {
+      "id": "ascend",
+      "architecture": "arm64",
+      "python": "python3",
+      "base_image": "quay.io/ascend/vllm-ascend@sha256:28351d337b7f9367073344240fa4e28d99794d549d577eaf317689950064150a",
+      "versions": {
+        "vllm": "0.30.0+empty",
+        "torch": "2.10.0+cpu",
+        "vllm-ascend": "0.30.0",
+        "torch-npu": "2.10.0.post7"
+      },
+      "protected_packages": [
+        "vllm",
+        "vllm-ascend",
+        "torch",
+        "torch-npu",
+        "torchvision",
+        "torchaudio",
+        "triton-ascend",
+        "mooncake-transfer-engine",
+        "mooncake-transfer-engine-npu",
+        "triton"
+      ],
+      "runtime_features": [
+        "mm-routing",
+        "request-trace-s3",
+        "kv-indexer",
+        "slot-tracker",
+        "select-service",
+        "ais-forward-pass"
+      ],
+      "kvbm_features": [],
+      "gms": false,
+      "omni": "deferred",
+      "kernel_mode": "vendor-host-staging",
+      "nixl_link_mode": "runtime-capi"
+    },
+    "inputs": {
+      "runtime_id": "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+      "profile": {
+        "id": "ascend",
+        "architecture": "arm64",
+        "python": "python3",
+        "base_image": "quay.io/ascend/vllm-ascend@sha256:28351d337b7f9367073344240fa4e28d99794d549d577eaf317689950064150a",
+        "versions": {
+          "vllm": "0.30.0+empty",
+          "torch": "2.10.0+cpu",
+          "vllm-ascend": "0.30.0",
+          "torch-npu": "2.10.0.post7"
+        },
+        "protected_packages": [
+          "vllm",
+          "vllm-ascend",
+          "torch",
+          "torch-npu",
+          "torchvision",
+          "torchaudio",
+          "triton-ascend",
+          "mooncake-transfer-engine",
+          "mooncake-transfer-engine-npu",
+          "triton"
+        ],
+        "runtime_features": [
+          "mm-routing",
+          "request-trace-s3",
+          "kv-indexer",
+          "slot-tracker",
+          "select-service",
+          "ais-forward-pass"
+        ],
+        "kvbm_features": [],
+        "gms": false,
+        "omni": "deferred",
+        "kernel_mode": "vendor-host-staging",
+        "nixl_link_mode": "runtime-capi"
+      },
+      "files": {
+        "dev.Dockerfile": "42eab5ab1106e63fbc34d4dcb50b67b6c83a4c082733077abc331dbfcd6617ba",
+        "dev-setup.sh": "4bef3470e8345f14bcddd6250ebabea02b9a940e43b51c211bd7eccfedcd9219",
+        "dev-editable.sh": "b8c6445f11c4190830163110f025e9b0047732a799e134a86d5b52983affb54f",
+        "dev-check.py": "33fea34e65691b5b96709d1fc6107768d1f1667539181511a594fd38df5f3455",
+        "dev.txt": "729d04f7bb048d8d9b386f55f2e04fbf22ad227a3a9e7bcb52c3b37f20c89dcb",
+        "rust-toolchain.toml": "6791dcb04edcb490caaf08590dbe1dd9d9954b46dab2095df12dc984f704f1a8"
+      }
+    }
+  },
+  "mounts": [
+    {
+      "Type": "bind",
+      "Source": "/data/dynamo-upgrade-1.6.2-20261111/cache",
+      "Destination": "/build-cache",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/data/dynamo-upgrade-1.6.2-20261111/editable-cases/heyi-close-fe6dfd18-m02-f03-c01-attempt-001/source",
+      "Destination": "/workspace/dynamo",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001",
+      "Destination": "/evidence",
+      "Mode": "",
+      "RW": true,
+      "Propagation": "rprivate"
+    },
+    {
+      "Type": "bind",
+      "Source": "/usr/local/Ascend/driver",
+      "Destination": "/usr/local/Ascend/driver",
+      "Mode": "",
+      "RW": false,
+      "Propagation": "rprivate"
+    }
+  ],
+  "runtime_layers_preserved": true,
+  "runtime_versions_preserved": true,
+  "frontend_help": true
+}

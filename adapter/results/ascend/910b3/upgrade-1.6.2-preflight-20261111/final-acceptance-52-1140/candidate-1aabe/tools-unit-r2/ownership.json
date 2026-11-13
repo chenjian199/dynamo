@@ -1,0 +1,28 @@
+{
+  "image": {
+    "exit_code": 0,
+    "tag": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-tools",
+    "id": "sha256:d363e7c13df7983e9c9963d9ba2826011ad0d3488405d4b3c6af659369ead5bf"
+  },
+  "argv": [
+    "docker",
+    "run",
+    "--name",
+    "heyi-upgrade162-1aabe-tools-unit-r2",
+    "--network",
+    "none",
+    "--user",
+    "0",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-1aabe/tools-unit-r2/unit,dst=/unit,readonly",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-49ef/full-harness-r2,dst=/harness,readonly",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-1aabe/tools-unit-r2,dst=/evidence",
+    "sha256:d363e7c13df7983e9c9963d9ba2826011ad0d3488405d4b3c6af659369ead5bf",
+    "bash",
+    "/harness/run-tools.sh",
+    "/evidence/results"
+  ],
+  "started": 1794395482.262748
+}

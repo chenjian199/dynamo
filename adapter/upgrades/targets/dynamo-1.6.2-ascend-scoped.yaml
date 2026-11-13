@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+schema_version: 1
+id: dynamo-1.6.2-ascend-scoped
+upstream_url: https://github.com/ai-dynamo/dynamo.git
+refs:
+  base: v1.5.1
+  heyi: HEAD
+  target: v1.6.2
+target_commit: 28f9765d98ded77149a94d0defee6d54e97f6741
+platforms:
+  ascend:
+    architecture: arm64
+    vllm: 0.30.0
+    repository: quay.io/ascend/vllm-ascend
+    image: quay.io/ascend/vllm-ascend:v0.30.0
+    python: python3
+    plugin: vllm-ascend
+    sources:
+    - https://docs.vllm.ai/projects/ascend/en/v0.30.0/getting_started/installation.html
+    - https://github.com/vllm-project/vllm-ascend/releases/tag/v0.30.0
+mandatory_features:
+- M01-F01
+- M01-F02
+- M02-F01
+- M03-F01
+- M10-F01
+- M10-F02
+- M10-F03
+- M10-F04
+checks:
+- - git
+  - diff
+  - --check
+  - HEAD^
+  - HEAD
+- - python3
+  - -m
+  - pytest
+  - -c
+  - adapter/workflow/tests/pytest.ini
+  - -q
+  - adapter/workflow/tests
+- - python3
+  - adapter/tools/check-workflow.py
+  - --require-ready
+- - python3
+  - scripts/validate_skills.py
+check_timeout_seconds: 600
+comparison_limits:
+  min_throughput_ratio: 0.9
+  max_latency_ratio: 1.1
+deferred_features:
+  M06-F05:
+    disposition: deferred
+    reason: G4 remote cache remains deferred under the prior accepted scope.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md
+  M07-F01:
+    disposition: deferred
+    reason: Ascend GMS/VMM sharing remains deferred; no working provider is claimed.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md
+  M07-F02:
+    disposition: deferred
+    reason: Complete image/video model validation remains deferred; local media checks
+      are not model certification.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md
+  M07-F03:
+    disposition: deferred
+    reason: Independent multimodal encoder transfer is part of the deferred full VL
+      path.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md
+  M07-F04:
+    disposition: deferred
+    reason: Complete Omni stage hidden-state channel and its lifecycle remain deferred.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md
+  M08-F05:
+    disposition: deferred
+    reason: Vendor DRA requires the separately promised Kubernetes >=1.34 test environment.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md
+  M09-F05:
+    disposition: deferred
+    reason: Power-control writes remain deferred; read-only telemetry is still required
+      by M09-F01.
+    accepted_by: 'User, 2026-11-12: 按已确认的暂缓范围闭环，其余功能必须通过'
+    reference: adapter/upgrades/ascend-1.6.2-scope-20261112.md

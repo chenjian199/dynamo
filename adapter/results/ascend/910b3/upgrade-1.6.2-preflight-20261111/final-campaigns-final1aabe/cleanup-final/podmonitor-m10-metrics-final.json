@@ -1,0 +1,96 @@
+{
+  "apiVersion": "monitoring.coreos.com/v1",
+  "kind": "PodMonitor",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"monitoring.coreos.com/v1\",\"kind\":\"PodMonitor\",\"metadata\":{\"annotations\":{},\"labels\":{\"heyi.io/campaign\":\"m10-1029\",\"release\":\"kube-prometheus-stack\"},\"name\":\"m10-metrics-final\",\"namespace\":\"heyi-upgrade162\"},\"spec\":{\"namespaceSelector\":{\"matchNames\":[\"heyi-upgrade162\"]},\"podMetricsEndpoints\":[{\"honorLabels\":true,\"interval\":\"2s\",\"path\":\"/metrics\",\"port\":\"http\",\"relabelings\":[{\"sourceLabels\":[\"__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace\"],\"targetLabel\":\"dynamo_namespace\"}]},{\"honorLabels\":true,\"interval\":\"2s\",\"path\":\"/metrics\",\"port\":\"system\",\"relabelings\":[{\"sourceLabels\":[\"__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace\"],\"targetLabel\":\"dynamo_namespace\"}]},{\"honorLabels\":true,\"interval\":\"2s\",\"path\":\"/metrics\",\"port\":\"metrics\",\"relabelings\":[{\"sourceLabels\":[\"__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace\"],\"targetLabel\":\"dynamo_namespace\"}]}],\"selector\":{\"matchExpressions\":[{\"key\":\"nvidia.com/dynamo-graph-deployment-name\",\"operator\":\"In\",\"values\":[\"m10-sla\",\"m10-qwen32\",\"m10-deepseek\",\"m10-offline-final\",\"m10-offline-final-qwen32\",\"m10-offline-final-deepseek\",\"m10-small\",\"m10-offline-final-r1\",\"m10-offline-final-r1-qwen32\",\"m10-offline-final-r1-deepseek\",\"m10-offline-final-r3-deepseek\",\"m10-offline-final-r3-deepseek-expanded\",\"m10-hybrid-r3\"]}]}}}\n"
+    },
+    "creationTimestamp": "2026-11-11T11:59:20Z",
+    "generation": 1,
+    "labels": {
+      "heyi.io/campaign": "m10-1029",
+      "release": "kube-prometheus-stack"
+    },
+    "name": "m10-metrics-final",
+    "namespace": "heyi-upgrade162",
+    "resourceVersion": "298406373",
+    "uid": "ae330ec5-f47e-4407-a5b5-1b7431a9b6df"
+  },
+  "spec": {
+    "namespaceSelector": {
+      "matchNames": [
+        "heyi-upgrade162"
+      ]
+    },
+    "podMetricsEndpoints": [
+      {
+        "honorLabels": true,
+        "interval": "2s",
+        "path": "/metrics",
+        "port": "http",
+        "relabelings": [
+          {
+            "action": "replace",
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      },
+      {
+        "honorLabels": true,
+        "interval": "2s",
+        "path": "/metrics",
+        "port": "system",
+        "relabelings": [
+          {
+            "action": "replace",
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      },
+      {
+        "honorLabels": true,
+        "interval": "2s",
+        "path": "/metrics",
+        "port": "metrics",
+        "relabelings": [
+          {
+            "action": "replace",
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      }
+    ],
+    "selector": {
+      "matchExpressions": [
+        {
+          "key": "nvidia.com/dynamo-graph-deployment-name",
+          "operator": "In",
+          "values": [
+            "m10-sla",
+            "m10-qwen32",
+            "m10-deepseek",
+            "m10-offline-final",
+            "m10-offline-final-qwen32",
+            "m10-offline-final-deepseek",
+            "m10-small",
+            "m10-offline-final-r1",
+            "m10-offline-final-r1-qwen32",
+            "m10-offline-final-r1-deepseek",
+            "m10-offline-final-r3-deepseek",
+            "m10-offline-final-r3-deepseek-expanded",
+            "m10-hybrid-r3"
+          ]
+        }
+      ]
+    }
+  }
+}

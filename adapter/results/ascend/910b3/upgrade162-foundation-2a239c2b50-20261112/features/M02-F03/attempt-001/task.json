@@ -1,0 +1,77 @@
+{
+  "feature_id": "M02-F03",
+  "prepare": [],
+  "run": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/images-case-controller.py",
+        "run",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F03-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m02-build-packaging/common/images/dev-validate.py"
+      ],
+      "case_id": "M02-F03-C01",
+      "optional": false
+    }
+  ],
+  "observe": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/images-case-controller.py",
+        "observe",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F03-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m02-build-packaging/common/images/dev-validate.py"
+      ],
+      "case_id": "M02-F03-C01",
+      "optional": false
+    }
+  ],
+  "cleanup": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/images-case-controller.py",
+        "cleanup",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F03-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m02-build-packaging/common/images/dev-validate.py"
+      ],
+      "case_id": "M02-F03-C01",
+      "optional": false
+    }
+  ],
+  "resources": [],
+  "case_ids": [
+    "M02-F03-C01"
+  ],
+  "recipe_sources": {
+    "adapter/modules/m02-build-packaging/common/images/collect.py": "0febc62a9b581b1548e36e6abb421b2285a997839fc7c87b2267d98253167001",
+    "adapter/modules/m02-build-packaging/common/images/dev-validate.py": "bf067c8e89729d1ee85886a3a5a47e7961f98f352bdf65934af60cd7fb1d32c0"
+  },
+  "bindings_sha256": {
+    "M02-F03-C01": "900b57e4d91db67eb753204445cfb6614a3acb49d5162fc76cbbf4224c6dbbab"
+  },
+  "verify": [
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python3",
+        "-m",
+        "adapter.workflow.evidence.verify",
+        "--envelope",
+        "{attempt}/envelope.json"
+      ]
+    }
+  ]
+}

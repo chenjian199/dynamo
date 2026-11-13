@@ -1,0 +1,54 @@
+{
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "reviewer": "Codex; code review distinct from live qualification",
+  "records": [
+    {
+      "path": "components/src/dynamo/planner/config/planner_config.py",
+      "disposition": "retain",
+      "reason": "Preserve upstream defaults and configuration normalization; add explicit platform/profile identity and reject unvalidated non-CUDA AIC database/power writes. Real 54-export persisted profile bootstrapping and restart verified; autoscaling qualification tracked separately.",
+      "target_diff_sha256": "b705c4752454aa421fddf11dae437df917f66d920c4c188400a100df583d097f"
+    },
+    {
+      "path": "components/src/dynamo/planner/connectors/kubernetes.py",
+      "disposition": "retain",
+      "reason": "Validate platform of main worker containers after loading current v1beta1 DGD, keeping upstream scaling/async lifecycle. Actual final Ascend online Planner and DGDR demonstrate vendor resources accepted; contradictory declarations rejected by platform parser.",
+      "target_diff_sha256": "3fce50ce5e7ebb091f9d5b86011c8a6ec601c7ff8a625ca98bbd3a89b6131226"
+    },
+    {
+      "path": "components/src/dynamo/planner/connectors/mdc.py",
+      "disposition": "retain",
+      "reason": "Preserve upstream ModelDeploymentCard conversion; read optional per_engine positive integer KV capacity, reject bool/malformed values, and retain legacy total block capacity fallback. Final offline audit checks actual runtime capacity.",
+      "target_diff_sha256": "1e56ab4581617bd11c305b1b97460e0252f48c74bfab4e3716b7ebf1f74529da"
+    },
+    {
+      "path": "components/src/dynamo/planner/core/perf_model/aic_adapter.py",
+      "disposition": "upstream_replaced",
+      "reason": "Candidate bytes equal target1.6.2; old AIC adapter fork delta is replaced by upstream behavior. Non-CUDA database use is separately guarded in PlannerConfig and perf_metrics.",
+      "target_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "components/src/dynamo/planner/environment/base.py",
+      "disposition": "retain",
+      "reason": "Add optional platform validation after async_init without replacing upstream deployment validation or controller lifecycle. Connectors without the method retain their lifecycle.",
+      "target_diff_sha256": "47c205f9cd06e2a5f86a4b3403d505f0ba91a189165f65fd1d125fa86019eec8"
+    },
+    {
+      "path": "components/src/dynamo/planner/monitoring/dgd_services.py",
+      "disposition": "retain",
+      "reason": "Preserve upstream operator status gpusPerEngine projection rather than infer TP width from allocation; only validate main-container platform and prevent unsupported vendor power actuation. Final Ascend online scaling uses DGDSA metadata.",
+      "target_diff_sha256": "6aa6d78a39d8a9156be9bd3984616639cfb9a2f0e05010f0d4b1b1a6c1da6b8d"
+    },
+    {
+      "path": "components/src/dynamo/planner/monitoring/perf_metrics.py",
+      "disposition": "retain",
+      "reason": "Default auto mode retains endpoint/AIC/files order; explicit files mode validates identity/age and forbids silent fallback. Flat persisted profiles reject attention DP>1 without restricting engine DP startup. Validate positive finite sample vectors and real per-engine KV capacity. Final files bootstrap and restart fingerprints match.",
+      "target_diff_sha256": "6caa81a74aacd23e3d1e10e88c856b7457e3cc7198792efa41692bb10b1ae794"
+    },
+    {
+      "path": "components/src/dynamo/planner/monitoring/worker_info.py",
+      "disposition": "retain",
+      "reason": "Use optional measured kv_capacity_tokens ahead of total_kv_blocks times block_size; when absent preserve upstream fallback. This avoids using a homogeneous-block estimate for hybrid layouts. Final metadata/profile audit exercises measured capacity.",
+      "target_diff_sha256": "efc8f9396eb74e0001f567a4a7126559acd8de9e9f050c816720a01d1a312996"
+    }
+  ]
+}

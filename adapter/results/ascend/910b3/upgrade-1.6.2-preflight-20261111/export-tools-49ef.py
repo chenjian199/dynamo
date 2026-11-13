@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+import pathlib,json,subprocess,os,time,hashlib
+r=pathlib.Path('/data/dynamo-upgrade-1.6.2-20261111');w=r/'distribution';out=w/'tools-49ef.tar';assert not out.exists()
+record=json.loads((r/'candidate-49ef/images.json').read_text());image=record['tools'];env={**os.environ,'DOCKER_HOST':'unix:///run/dynamo-m10-docker.sock','PATH':'/data/dynamo-m10/docker-bin:'+os.environ['PATH']}
+assert json.loads(subprocess.check_output(['docker','image','inspect',image['tag']],env=env))[0]['Id']==image['id']
+a=['docker','save','-o',str(out),image['tag']];record.update(argv=a,started=time.time())
+(w/'tools-49ef-start.json').write_text(json.dumps(record,indent=2))
+with (w/'tools-49ef-export.log').open('x') as f:subprocess.run(a,env=env,stdout=f,stderr=subprocess.STDOUT,check=True,timeout=1200)
+h=hashlib.sha256()
+with out.open('rb') as f:
+ for b in iter(lambda:f.read(16*1024*1024),b''):h.update(b)
+(w/'tools-49ef.sha256').write_text(h.hexdigest()+'  '+out.name+'\n');record.update(sha256=h.hexdigest(),bytes=out.stat().st_size,finished=time.time());(w/'tools-49ef.json').write_text(json.dumps(record,indent=2))
+with (w/'tools-49ef-import-52.log').open('x') as f:subprocess.run(['k3s','ctr','-n','k8s.io','images','import','--platform','linux/arm64',str(out)],stdout=f,stderr=subprocess.STDOUT,check=True,timeout=900)
+(w/'tools-49ef-import-52.json').write_text(json.dumps({'passed':True,'image':image,'sha256':h.hexdigest(),'finished':time.time()},indent=2))

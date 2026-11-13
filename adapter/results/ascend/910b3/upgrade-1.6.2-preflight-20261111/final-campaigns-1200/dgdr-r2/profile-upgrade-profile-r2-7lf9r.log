@@ -1,0 +1,207 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+[2m2026-11-11T11:16:58.857981Z[0m [32m INFO[0m [2mprofile_sla._extract_profiler_params[0m[2m:[0m Profiler config: model=/models/Qwen3-0.6B, backend=vllm, system=ascend_910b3, total_gpus=2, isl=128, osl=16, ttft=10000.0, itl=1000.0, e2e_latency=None, strategy=thorough, picking=load_match
+[2m2026-11-11T11:16:58.858809Z[0m [32m INFO[0m [2mutils._infer_quantization_fields[0m[2m:[0m Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+[2m2026-11-11T11:16:58.858990Z[0m [32m INFO[0m [2mutils.get_model_config_from_model_path[0m[2m:[0m Loaded model config for /models/Qwen3-0.6B: architecture=Qwen3ForCausalLM, layers=28, n=16, n_kv=8, d=128, hidden_size=1024, inter_size=3072, vocab=151936, context=40960, topk=0, num_experts=0, moe_inter_size=3072, extra_params={'architecture': 'Qwen3ForCausalLM', 'use_qk_norm': True}, encoder_config=None
+[2m2026-11-11T11:16:58.940458Z[0m [33m WARN[0m [2mthorough.run_thorough[0m[2m:[0m THOROUGH mode: only disagg configurations are supported.
+[2m2026-11-11T11:16:58.943044Z[0m [32m INFO[0m [2mnaive._estimate_weight_bytes_from_config[0m[2m:[0m Estimated model weight size for /models/Qwen3-0.6B: 1.00 GiB (0.54B params)
+[2m2026-11-11T11:16:58.948239Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m AIC disagg support for /models/Qwen3-0.6B on ascend_910b3/vllm: False
+[2m2026-11-11T11:16:58.948451Z[0m [32m INFO[0m [2mnaive._calculate_min_tp[0m[2m:[0m TP calculation: model=1.00GiB, vram=64.00GiB, required=1.50GiB (1.5x), min_tp=1, selected_tp=1, fit=True, required_tp=1
+[2m2026-11-11T11:16:58.948914Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Minimum GPUs per engine (memory fit): 1
+[2m2026-11-11T11:16:58.949050Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Parallel lists: is_moe=False, enable_wideep=False, min_gpus=1, prefill_max_gpus=2, decode_max_gpus=2, prefill_num_gpu_list=[1, 2, 4, 8], prefill_dp_list=[1], prefill_moe_ep_list=[1]
+[2m2026-11-11T11:16:58.949199Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumerated 2 prefill configs, 2 decode configs
+[2m2026-11-11T11:16:58.949298Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T11:16:59.183933Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T11:16:59.229294Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T11:16:59.274031Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T11:16:59.317996Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumeration complete: 2 prefill DGDs, 2 decode DGDs
+[2m2026-11-11T11:16:59.318234Z[0m [32m INFO[0m [2mthorough.run_thorough[0m[2m:[0m Enumerated 2 prefill candidates, 2 decode candidates
+[2m2026-11-11T11:17:02.177316Z[0m [32m INFO[0m [2mthorough.run_thorough[0m[2m:[0m Materialized 2 prefill + 2 decode benchmark candidates.
+2026-11-11 11:17:02 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:17:02.191066Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:17:02.191204Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Profiling prefill candidate tp1 with 1 GPUs...
+[2m2026-11-11T11:17:02.253992Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Waiting for prefill deployment to be ready...
+Added ownerReference to DGDR upgrade-profile-r2 for auto-cleanup
+Successfully created deployment vllm-agg-9405c9cf-3f74
+⏳ Waiting for deployment 'vllm-agg-9405c9cf-3f74'...
+[2m2026-11-11T11:19:42.525357Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Prefill deployment ready
+2026-11-11 11:19:42 - dynamo.profiler.utils.aiperf - INFO - Running aiperf with isl 128
+[2m2026-11-11T11:19:42.577632Z[0m [32m INFO[0m [2maiperf.benchmark_prefill[0m[2m:[0m Running aiperf with isl 128
+2026-11-11 11:20:44 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:20:44.301343Z[0m [32m INFO[0m [2maiperf.benchmark_prefill[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:20:44 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:20:44.333300Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:20:44.333459Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Profiling prefill candidate tp2 with 2 GPUs...
+[2m2026-11-11T11:20:44.394114Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Waiting for prefill deployment to be ready...
+
+[K⠋ [0s] State: unknown
+[K⠙ [20s] State: pending
+[K⠹ [40s] State: pending
+[K⠸ [60s] State: pending
+[K⠼ [80s] State: pending
+[K⠴ [100s] State: pending
+[K⠦ [120s] State: pending
+[K⠧ [140s] State: pending
+[K⠇ [160s] State: successful
+[K✅ Deployment 'vllm-agg-9405c9cf-3f74' ready after 160.3s
+Using service URL: http://vllm-agg-9405c9cf-3f74-frontend.heyi-upgrade162.svc:8000
+Added ownerReference to DGDR upgrade-profile-r2 for auto-cleanup
+Successfully created deployment vllm-agg-5c2ddc57-b3ab
+⏳ Waiting for deployment 'vllm-agg-5c2ddc57-b3ab'...
+[2m2026-11-11T11:23:44.773655Z[0m [32m INFO[0m [2mthorough._benchmark_prefill_candidates[0m[2m:[0m Prefill deployment ready
+2026-11-11 11:23:44 - dynamo.profiler.utils.aiperf - INFO - Running aiperf with isl 128
+[2m2026-11-11T11:23:44.825853Z[0m [32m INFO[0m [2maiperf.benchmark_prefill[0m[2m:[0m Running aiperf with isl 128
+2026-11-11 11:24:13 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:24:13.940567Z[0m [32m INFO[0m [2maiperf.benchmark_prefill[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:24:13 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:24:13.978695Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:24:13.978886Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Profiling decode candidate tp1 with 1 GPUs...
+[2m2026-11-11T11:24:14.038667Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Waiting for decode deployment to be ready...
+
+[K⠋ [0s] State: unknown
+[K⠙ [20s] State: pending
+[K⠹ [40s] State: pending
+[K⠸ [60s] State: pending
+[K⠼ [80s] State: pending
+[K⠴ [100s] State: pending
+[K⠦ [120s] State: pending
+[K⠧ [140s] State: pending
+[K⠇ [160s] State: pending
+[K⠏ [180s] State: successful
+[K✅ Deployment 'vllm-agg-5c2ddc57-b3ab' ready after 180.4s
+Using service URL: http://vllm-agg-5c2ddc57-b3ab-frontend.heyi-upgrade162.svc:8000
+Added ownerReference to DGDR upgrade-profile-r2 for auto-cleanup
+Successfully created deployment vllm-agg-c67d49a7-098f
+⏳ Waiting for deployment 'vllm-agg-c67d49a7-098f'...
+[2m2026-11-11T11:26:54.289813Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Decode deployment ready
+2026-11-11 11:26:54 - dynamo.profiler.utils.config_modifiers.vllm - INFO - Found KV cache: 158842 per rank x 1 = 158842 total
+[2m2026-11-11T11:26:54.327777Z[0m [32m INFO[0m [2mvllm.get_kv_cache_size_from_dynamo_log[0m[2m:[0m Found KV cache: 158842 per rank x 1 = 158842 total
+[2m2026-11-11T11:26:54.328186Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Sweeping num_request: [1, 221, 441, 662, 882, 1103]
+2026-11-11 11:26:54 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1...
+[2m2026-11-11T11:26:54.328407Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 1...
+2026-11-11 11:28:00 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:28:00.981482Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:28:00 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 221...
+[2m2026-11-11T11:28:00.983050Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 221...
+2026-11-11 11:29:12 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:29:12.631681Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:29:12 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 441...
+[2m2026-11-11T11:29:12.633521Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 441...
+2026-11-11 11:30:31 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:30:31.388363Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:30:31 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 662...
+[2m2026-11-11T11:30:31.390107Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 662...
+2026-11-11 11:31:56 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:31:56.546455Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:31:56 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 882...
+[2m2026-11-11T11:31:56.548222Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 882...
+2026-11-11 11:33:33 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:33:33.478367Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:33:33 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1103...
+[2m2026-11-11T11:33:33.480113Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 1103...
+2026-11-11 11:35:45 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:35:45.676696Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:35:45 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:35:45.709776Z[0m [33m WARN[0m [2mvllm.get_port[0m[2m:[0m Port not found in configuration args, using default port: 8000
+[2m2026-11-11T11:35:45.709928Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Profiling decode candidate tp2 with 2 GPUs...
+[2m2026-11-11T11:35:45.795034Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Waiting for decode deployment to be ready...
+
+[K⠋ [0s] State: unknown
+[K⠙ [20s] State: pending
+[K⠹ [40s] State: pending
+[K⠸ [60s] State: pending
+[K⠼ [80s] State: pending
+[K⠴ [100s] State: pending
+[K⠦ [120s] State: pending
+[K⠧ [140s] State: pending
+[K⠇ [160s] State: successful
+[K✅ Deployment 'vllm-agg-c67d49a7-098f' ready after 160.3s
+Using service URL: http://vllm-agg-c67d49a7-098f-frontend.heyi-upgrade162.svc:8000
+Added ownerReference to DGDR upgrade-profile-r2 for auto-cleanup
+Successfully created deployment vllm-agg-b21e7653-c3c5
+⏳ Waiting for deployment 'vllm-agg-b21e7653-c3c5'...
+[2m2026-11-11T11:39:06.108700Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Decode deployment ready
+2026-11-11 11:39:06 - dynamo.profiler.utils.config_modifiers.vllm - INFO - Found KV cache: 316672 per rank x 1 = 316672 total
+[2m2026-11-11T11:39:06.158533Z[0m [32m INFO[0m [2mvllm.get_kv_cache_size_from_dynamo_log[0m[2m:[0m Found KV cache: 316672 per rank x 1 = 316672 total
+[2m2026-11-11T11:39:06.158712Z[0m [32m INFO[0m [2mthorough._benchmark_decode_candidates[0m[2m:[0m Sweeping num_request: [1, 400, 800, 1200, 1600, 2000]
+2026-11-11 11:39:06 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1...
+[2m2026-11-11T11:39:06.158865Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 1...
+2026-11-11 11:40:08 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:40:08.828822Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:40:08 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 400...
+[2m2026-11-11T11:40:08.830366Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 400...
+2026-11-11 11:41:29 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:41:29.260029Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:41:29 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 800...
+[2m2026-11-11T11:41:29.261805Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 800...
+2026-11-11 11:43:02 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:43:02.557005Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:43:02 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1200...
+[2m2026-11-11T11:43:02.558817Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 1200...
+2026-11-11 11:44:47 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:44:47.475524Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:44:47 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1600...
+[2m2026-11-11T11:44:47.477342Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 1600...
+2026-11-11 11:46:49 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:46:49.608341Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+2026-11-11 11:46:49 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 2000...
+[2m2026-11-11T11:46:49.609940Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m Profiling decode with num_request 2000...
+2026-11-11 11:49:16 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+[2m2026-11-11T11:49:16.948965Z[0m [32m INFO[0m [2maiperf.benchmark_decode[0m[2m:[0m AIperf profiling completed successfully
+[2m2026-11-11T11:49:19.424583Z[0m [32m INFO[0m [2mperf_database.get_latest_database_version[0m[2m:[0m database not found for ascend_910b3, vllm
+[2m2026-11-11T11:49:20.336739Z[0m [32m INFO[0m [2mperf_database.get_latest_database_version[0m[2m:[0m database not found for ascend_910b3, vllm
+[2m2026-11-11T11:49:20.339666Z[0m [31mERROR[0m [2mperf_database.get_database[0m[2m:[0m No database version available for system='ascend_910b3', backend='vllm'
+[2m2026-11-11T11:49:20.485341Z[0m [33m WARN[0m [2mengine.render_backend_templates[0m[2m:[0m Fact self-resolution failed; continuing without facts.
+Traceback (most recent call last):
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/aisimulate/generator/rendering/engine.py", line 359, in render_backend_templates
+    resolved_facts = resolve_facts_for_request(_raw_param_values, backend, version)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/aisimulate/generator/facts/request_resolution.py", line 165, in resolve_facts_for_request
+    facts = resolve_facts(
+            ^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/aisimulate/generator/facts/resolve.py", line 104, in resolve_facts
+    raise KeyError(f"Unknown hardware profile {hardware!r}. Available profiles: {sorted(profiles)}")
+KeyError: "Unknown hardware profile 'ascend_910b3'. Available profiles: ['b200', 'b60', 'gb200', 'h100', 'h20', 'h200']"
+[2m2026-11-11T11:49:20.519713Z[0m [32m INFO[0m [2mprofile_sla._execute_strategy[0m[2m:[0m Selected prefill: tp1 (1 GPUs, tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1), decode: tp1 (1 GPUs, tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1)
+[2m2026-11-11T11:49:20.876261Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmDecodeWorker]: deprecated override target "VllmDecodeWorker" translated to "decode"; use "decode" directly. Legacy-name translation will be removed in a future release
+[2m2026-11-11T11:49:20.876515Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmPrefillWorker]: deprecated override target "VllmPrefillWorker" translated to "prefill"; use "prefill" directly. Legacy-name translation will be removed in a future release
+[2m2026-11-11T11:49:21.239240Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmDecodeWorker]: deprecated override target "VllmDecodeWorker" translated to "decode"; use "decode" directly. Legacy-name translation will be removed in a future release
+[2m2026-11-11T11:49:21.239465Z[0m [33m WARN[0m [2mdgd_override.apply_dgd_overrides[0m[2m:[0m DGD override: spec.components[name=VllmPrefillWorker]: deprecated override target "VllmPrefillWorker" translated to "prefill"; use "prefill" directly. Legacy-name translation will be removed in a future release
+[2m2026-11-11T11:49:21.262286Z[0m [32m INFO[0m [2mprofile_sla._write_final_output[0m[2m:[0m Final DGD config saved to /data/final_config.yaml
+[2m2026-11-11T11:49:21.263344Z[0m [32m INFO[0m [2mprofile_sla.run_profile[0m[2m:[0m Performing final cleanup of any remaining deployments...
+[2m2026-11-11T11:49:21.263508Z[0m [32m INFO[0m [2mdynamo_deployment.cleanup_remaining_deployments[0m[2m:[0m No deployments to clean up
+[2m2026-11-11T11:49:21.263608Z[0m [32m INFO[0m [2mprofile_sla.run_profile[0m[2m:[0m Final cleanup completed.
+
+[K⠋ [0s] State: unknown
+[K⠙ [20s] State: pending
+[K⠹ [40s] State: pending
+[K⠸ [60s] State: pending
+[K⠼ [80s] State: pending
+[K⠴ [100s] State: pending
+[K⠦ [120s] State: pending
+[K⠧ [140s] State: pending
+[K⠇ [160s] State: pending
+[K⠏ [180s] State: pending
+[K⠋ [200s] State: successful
+[K✅ Deployment 'vllm-agg-b21e7653-c3c5' ready after 200.3s
+Using service URL: http://vllm-agg-b21e7653-c3c5-frontend.heyi-upgrade162.svc:8000
+Waiting for profiler to complete...
+Phase update: SweepingPrefill - Sweeping parallelization strategies
+configmap/dgdr-output-upgrade-profile-r2 created
+Still waiting... (5 minutes elapsed)
+Phase update: SweepingDecode - Benchmarking decode candidate 1/2: tp1 (1 GPUs)
+configmap/dgdr-output-upgrade-profile-r2 configured
+Still waiting... (10 minutes elapsed)
+Still waiting... (15 minutes elapsed)
+Still waiting... (20 minutes elapsed)
+Still waiting... (25 minutes elapsed)
+Still waiting... (30 minutes elapsed)
+Phase update: GeneratingDGD - Packaging data and generating final DGD YAML
+configmap/dgdr-output-upgrade-profile-r2 configured
+Phase update: Done - Profiler completed successfully
+configmap/dgdr-output-upgrade-profile-r2 configured
+Profiler terminated (ran for 32 minutes)
+Checking profiler status...
+Profiler succeeded: Profiler completed successfully
+Writing profiling output to ConfigMap...
+configmap/dgdr-output-upgrade-profile-r2 configured
+Saved profiling output to ConfigMap dgdr-output-upgrade-profile-r2

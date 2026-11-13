@@ -1,0 +1,376 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "annotations": {
+      "nvidia.com/dynamo-discovery-backend": "kubernetes"
+    },
+    "creationTimestamp": "2026-11-11T10:07:56Z",
+    "generateName": "upgrade-deepseek-55-frontend-85ff89cb68-",
+    "labels": {
+      "nvidia.com/dynamo-component": "frontend",
+      "nvidia.com/dynamo-component-type": "frontend",
+      "nvidia.com/dynamo-discovery-backend": "kubernetes",
+      "nvidia.com/dynamo-discovery-enabled": "true",
+      "nvidia.com/dynamo-graph-deployment-name": "upgrade-deepseek-55",
+      "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-deepseek-55",
+      "nvidia.com/metrics-enabled": "true",
+      "nvidia.com/selector": "upgrade-deepseek-55-frontend",
+      "pod-template-hash": "85ff89cb68"
+    },
+    "name": "upgrade-deepseek-55-frontend-85ff89cb68-phm2q",
+    "namespace": "heyi-upgrade162",
+    "ownerReferences": [
+      {
+        "apiVersion": "apps/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "ReplicaSet",
+        "name": "upgrade-deepseek-55-frontend-85ff89cb68",
+        "uid": "4c14a2b0-09de-4a6a-b973-8975ca357b32"
+      }
+    ],
+    "resourceVersion": "298353050",
+    "uid": "69cfb7c9-0243-47d0-b409-dd418db9a5dd"
+  },
+  "spec": {
+    "containers": [
+      {
+        "args": [
+          "python",
+          "-m",
+          "dynamo.frontend",
+          "--router-mode",
+          "kv"
+        ],
+        "command": [
+          "/opt/dynamo/bin/entrypoint.sh"
+        ],
+        "env": [
+          {
+            "name": "DYNAMO_PORT",
+            "value": "8000"
+          },
+          {
+            "name": "DYN_COMPONENT",
+            "value": "frontend"
+          },
+          {
+            "name": "DYN_DISCOVERY_BACKEND",
+            "value": "kubernetes"
+          },
+          {
+            "name": "DYN_EVENT_PLANE",
+            "value": "zmq"
+          },
+          {
+            "name": "DYN_HTTP_PORT",
+            "value": "8000"
+          },
+          {
+            "name": "DYN_NAMESPACE",
+            "value": "heyi-upgrade162-upgrade-deepseek-55"
+          },
+          {
+            "name": "DYN_NAMESPACE_PREFIX",
+            "value": "heyi-upgrade162-upgrade-deepseek-55"
+          },
+          {
+            "name": "DYN_NAMESPACE_PREFIX_STRICT",
+            "value": "true"
+          },
+          {
+            "name": "DYN_PARENT_DGD_K8S_NAME",
+            "value": "upgrade-deepseek-55"
+          },
+          {
+            "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+            "value": "heyi-upgrade162"
+          },
+          {
+            "name": "DYN_PLATFORM",
+            "value": "cpu"
+          },
+          {
+            "name": "DYN_REQUEST_PLANE",
+            "value": "tcp"
+          },
+          {
+            "name": "DYN_ROUTER_USE_KV_EVENTS",
+            "value": "true"
+          },
+          {
+            "name": "HF_HUB_OFFLINE",
+            "value": "1"
+          },
+          {
+            "name": "OMP_NUM_THREADS",
+            "value": "4"
+          },
+          {
+            "name": "POD_NAME",
+            "valueFrom": {
+              "fieldRef": {
+                "apiVersion": "v1",
+                "fieldPath": "metadata.name"
+              }
+            }
+          },
+          {
+            "name": "POD_NAMESPACE",
+            "valueFrom": {
+              "fieldRef": {
+                "apiVersion": "v1",
+                "fieldPath": "metadata.namespace"
+              }
+            }
+          },
+          {
+            "name": "POD_UID",
+            "valueFrom": {
+              "fieldRef": {
+                "apiVersion": "v1",
+                "fieldPath": "metadata.uid"
+              }
+            }
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          }
+        ],
+        "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+        "imagePullPolicy": "Never",
+        "livenessProbe": {
+          "failureThreshold": 3,
+          "httpGet": {
+            "path": "/live",
+            "port": "http",
+            "scheme": "HTTP"
+          },
+          "initialDelaySeconds": 15,
+          "periodSeconds": 10,
+          "successThreshold": 1,
+          "timeoutSeconds": 1
+        },
+        "name": "main",
+        "ports": [
+          {
+            "containerPort": 8000,
+            "name": "http",
+            "protocol": "TCP"
+          }
+        ],
+        "readinessProbe": {
+          "failureThreshold": 3,
+          "httpGet": {
+            "path": "/health",
+            "port": "http",
+            "scheme": "HTTP"
+          },
+          "initialDelaySeconds": 10,
+          "periodSeconds": 10,
+          "successThreshold": 1,
+          "timeoutSeconds": 3
+        },
+        "resources": {
+          "limits": {
+            "cpu": "8",
+            "memory": "32Gi"
+          },
+          "requests": {
+            "cpu": "1",
+            "memory": "2Gi"
+          }
+        },
+        "terminationMessagePath": "/dev/termination-log",
+        "terminationMessagePolicy": "File",
+        "volumeMounts": [
+          {
+            "mountPath": "/models/DeepSeek-V4-Flash-w8a8-mtp",
+            "name": "models",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/dev/shm",
+            "name": "shared-memory"
+          },
+          {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+            "name": "kube-api-access-kzpzp",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "dnsPolicy": "ClusterFirst",
+    "enableServiceLinks": true,
+    "nodeName": "master",
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master"
+    },
+    "preemptionPolicy": "PreemptLowerPriority",
+    "priority": 0,
+    "restartPolicy": "Always",
+    "schedulerName": "default-scheduler",
+    "securityContext": {
+      "fsGroup": 1000
+    },
+    "serviceAccount": "upgrade-deepseek-55-k8s-service-discovery",
+    "serviceAccountName": "upgrade-deepseek-55-k8s-service-discovery",
+    "terminationGracePeriodSeconds": 60,
+    "tolerations": [
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/not-ready",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/unreachable",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      }
+    ],
+    "volumes": [
+      {
+        "hostPath": {
+          "path": "/data/DeepSeek-V4-Flash-w8a8-mtp",
+          "type": "Directory"
+        },
+        "name": "models"
+      },
+      {
+        "emptyDir": {
+          "medium": "Memory",
+          "sizeLimit": "8Gi"
+        },
+        "name": "shared-memory"
+      },
+      {
+        "name": "kube-api-access-kzpzp",
+        "projected": {
+          "defaultMode": 420,
+          "sources": [
+            {
+              "serviceAccountToken": {
+                "expirationSeconds": 3607,
+                "path": "token"
+              }
+            },
+            {
+              "configMap": {
+                "items": [
+                  {
+                    "key": "ca.crt",
+                    "path": "ca.crt"
+                  }
+                ],
+                "name": "kube-root-ca.crt"
+              }
+            },
+            {
+              "downwardAPI": {
+                "items": [
+                  {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.namespace"
+                    },
+                    "path": "namespace"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T10:07:58Z",
+        "status": "True",
+        "type": "PodReadyToStartContainers"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T10:07:56Z",
+        "status": "True",
+        "type": "Initialized"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T10:08:09Z",
+        "status": "True",
+        "type": "Ready"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T10:08:09Z",
+        "status": "True",
+        "type": "ContainersReady"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T10:07:56Z",
+        "status": "True",
+        "type": "PodScheduled"
+      }
+    ],
+    "containerStatuses": [
+      {
+        "containerID": "containerd://7360c1af93c3483c3e949f68e0b3f1ef8aa9b494ea19a87af6fbb2872cd016fd",
+        "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+        "imageID": "sha256:56d56ea7e5df953c613fb327c4aea88d2b8405c50ab42c408ed5c69996b3d169",
+        "lastState": {},
+        "name": "main",
+        "ready": true,
+        "restartCount": 0,
+        "started": true,
+        "state": {
+          "running": {
+            "startedAt": "2026-11-11T10:07:57Z"
+          }
+        },
+        "volumeMounts": [
+          {
+            "mountPath": "/models/DeepSeek-V4-Flash-w8a8-mtp",
+            "name": "models",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/dev/shm",
+            "name": "shared-memory"
+          },
+          {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+            "name": "kube-api-access-kzpzp",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          }
+        ]
+      }
+    ],
+    "hostIP": "192.168.7.5",
+    "hostIPs": [
+      {
+        "ip": "192.168.7.5"
+      }
+    ],
+    "phase": "Running",
+    "podIP": "10.42.0.23",
+    "podIPs": [
+      {
+        "ip": "10.42.0.23"
+      }
+    ],
+    "qosClass": "Burstable",
+    "startTime": "2026-11-11T10:07:56Z"
+  }
+}

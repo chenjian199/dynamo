@@ -1,0 +1,174 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_________ test_health_callbacks_stop_before_interpreter_exit[asyncio] __________
+
+event_loop = 'asyncio'
+
+    @pytest.mark.parametrize("event_loop", ["asyncio", "uvloop"])
+    def test_health_callbacks_stop_before_interpreter_exit(event_loop):
+        if event_loop == "uvloop" and importlib.util.find_spec("uvloop") is None:
+            pytest.skip("uvloop is not installed")
+        env = dict(os.environ)
+        # An isolated interpreter is necessary to also verify normal CPython teardown.
+        env.update(
+            DYN_PLATFORM="cpu",
+            DYN_SYSTEM_PORT="0",
+            DYN_HEALTH_CHECK_ENABLED="true",
+            DYN_CANARY_WAIT_TIME="1",
+            DYN_HEALTH_CHECK_REQUEST_TIMEOUT="2",
+            DYN_RUNTIME_NUM_WORKER_THREADS="2",
+            DYN_RUNTIME_MAX_BLOCKING_THREADS="2",
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", CHILD, event_loop],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        report = json.loads(
+            next(
+                line.removeprefix("HEALTH_SHUTDOWN=")
+                for line in result.stdout.splitlines()
+                if line.startswith("HEALTH_SHUTDOWN=")
+            )
+        )
+        assert report["before"] > 0
+>       assert report["after"] == 0, result.stdout + result.stderr
+E       AssertionError: HEALTH_SHUTDOWN={"before": 1, "after": 3}
+E         [2m2026-11-12T04:50:26.372913Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=2, max_blocking_threads=2, system_host=0.0.0.0, system_port=0, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=true, canary_wait_time_secs=1, health_check_request_timeout_secs=2
+E         [2m2026-11-12T04:50:26.374997Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Memory
+E         [2m2026-11-12T04:50:26.375806Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+E         [2m2026-11-12T04:50:26.377216Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Starting health check tasks for 0 endpoints with canary_wait_time: 1s
+E         [2m2026-11-12T04:50:26.377266Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Dynamic endpoint discovery monitor started
+E         [2m2026-11-12T04:50:26.377273Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m HealthCheckManager started successfully with channel-based endpoint discovery
+E         [2m2026-11-12T04:50:26.377279Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Health check manager started (canary_wait_time: 1s, request_timeout: 2s)
+E         [2m2026-11-12T04:50:26.377323Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Starting dynamic endpoint discovery monitor with channel-based notifications
+E         [2m2026-11-12T04:50:26.377385Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:0
+E         [2m2026-11-12T04:50:26.377439Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:36265
+E         [2m2026-11-12T04:50:26.377472Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:36265 [3mpolicy[0m[2m=[0mWorker
+E         [2m2026-11-12T04:50:26.379465Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m127.0.0.1:0 [3mport_source[0m[2m=[0m"OS-assigned"
+E         [2m2026-11-12T04:50:26.379499Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+E         [2m2026-11-12T04:50:26.379521Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+E         [2m2026-11-12T04:50:26.379611Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 127.0.0.1:0
+E         [2m2026-11-12T04:50:26.379641Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m127.0.0.1:0 [3mactual[0m[2m=[0m127.0.0.1:34075
+E         [2m2026-11-12T04:50:26.379658Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m127.0.0.1:34075 [3madvertised_addr[0m[2m=[0m127.0.0.1:34075
+E         [2m2026-11-12T04:50:26.379762Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'shutdown-probe.backend.generate' with shared TCP server on 127.0.0.1:34075
+E         [2m2026-11-12T04:50:26.379857Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Spawning health check task for new endpoint: generate
+E         [2m2026-11-12T04:50:26.379894Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Spawned health check task for endpoint: generate
+E         [2m2026-11-12T04:50:26.379916Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Health check task started for: generate
+E         [2m2026-11-12T04:50:27.381903Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime readiness withdrawn for shutdown
+E         [2m2026-11-12T04:50:27.381942Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+E         [2m2026-11-12T04:50:27.381979Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+E         [2m2026-11-12T04:50:27.382001Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+E         [2m2026-11-12T04:50:27.382007Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 1
+E         [2m2026-11-12T04:50:27.382070Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mgenerate [3mendpoint_path[0m[2m=[0m3d5f2bf44890ff68/shutdown-probe/backend/generate
+E         [2m2026-11-12T04:50:27.382112Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+E         [2m2026-11-12T04:50:27.382329Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+E         [2m2026-11-12T04:50:30.633764Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+E         [2m2026-11-12T04:50:30.633840Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+E         [2m2026-11-12T04:50:30.633884Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+E         [2m2026-11-12T04:50:30.633889Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+E         [2m2026-11-12T04:50:30.633894Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+E         [2m2026-11-12T04:50:30.884808Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m4 [3mruntimes[0m[2m=[0m1
+E         
+E       assert 3 == 0
+
+/test_health_check_shutdown.py:94: AssertionError
+__________ test_health_callbacks_stop_before_interpreter_exit[uvloop] __________
+
+event_loop = 'uvloop'
+
+    @pytest.mark.parametrize("event_loop", ["asyncio", "uvloop"])
+    def test_health_callbacks_stop_before_interpreter_exit(event_loop):
+        if event_loop == "uvloop" and importlib.util.find_spec("uvloop") is None:
+            pytest.skip("uvloop is not installed")
+        env = dict(os.environ)
+        # An isolated interpreter is necessary to also verify normal CPython teardown.
+        env.update(
+            DYN_PLATFORM="cpu",
+            DYN_SYSTEM_PORT="0",
+            DYN_HEALTH_CHECK_ENABLED="true",
+            DYN_CANARY_WAIT_TIME="1",
+            DYN_HEALTH_CHECK_REQUEST_TIMEOUT="2",
+            DYN_RUNTIME_NUM_WORKER_THREADS="2",
+            DYN_RUNTIME_MAX_BLOCKING_THREADS="2",
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", CHILD, event_loop],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        report = json.loads(
+            next(
+                line.removeprefix("HEALTH_SHUTDOWN=")
+                for line in result.stdout.splitlines()
+                if line.startswith("HEALTH_SHUTDOWN=")
+            )
+        )
+        assert report["before"] > 0
+>       assert report["after"] == 0, result.stdout + result.stderr
+E       AssertionError: HEALTH_SHUTDOWN={"before": 1, "after": 3}
+E         [2m2026-11-12T04:50:31.185520Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=2, max_blocking_threads=2, system_host=0.0.0.0, system_port=0, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=true, canary_wait_time_secs=1, health_check_request_timeout_secs=2
+E         [2m2026-11-12T04:50:31.187709Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Memory
+E         [2m2026-11-12T04:50:31.188513Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+E         [2m2026-11-12T04:50:31.189987Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Starting health check tasks for 0 endpoints with canary_wait_time: 1s
+E         [2m2026-11-12T04:50:31.190042Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Dynamic endpoint discovery monitor started
+E         [2m2026-11-12T04:50:31.190050Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m HealthCheckManager started successfully with channel-based endpoint discovery
+E         [2m2026-11-12T04:50:31.190056Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Health check manager started (canary_wait_time: 1s, request_timeout: 2s)
+E         [2m2026-11-12T04:50:31.190113Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Starting dynamic endpoint discovery monitor with channel-based notifications
+E         [2m2026-11-12T04:50:31.190173Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:0
+E         [2m2026-11-12T04:50:31.190233Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:38067
+E         [2m2026-11-12T04:50:31.190270Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:38067 [3mpolicy[0m[2m=[0mWorker
+E         [2m2026-11-12T04:50:31.192323Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m127.0.0.1:0 [3mport_source[0m[2m=[0m"OS-assigned"
+E         [2m2026-11-12T04:50:31.192360Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+E         [2m2026-11-12T04:50:31.192383Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+E         [2m2026-11-12T04:50:31.192486Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 127.0.0.1:0
+E         [2m2026-11-12T04:50:31.192516Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m127.0.0.1:0 [3mactual[0m[2m=[0m127.0.0.1:35157
+E         [2m2026-11-12T04:50:31.192532Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m127.0.0.1:35157 [3madvertised_addr[0m[2m=[0m127.0.0.1:35157
+E         [2m2026-11-12T04:50:31.192658Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'shutdown-probe.backend.generate' with shared TCP server on 127.0.0.1:35157
+E         [2m2026-11-12T04:50:31.192768Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Spawning health check task for new endpoint: generate
+E         [2m2026-11-12T04:50:31.192825Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Spawned health check task for endpoint: generate
+E         [2m2026-11-12T04:50:31.192853Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Health check task started for: generate
+E         [2m2026-11-12T04:50:32.195063Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime readiness withdrawn for shutdown
+E         [2m2026-11-12T04:50:32.195088Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+E         [2m2026-11-12T04:50:32.195119Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+E         [2m2026-11-12T04:50:32.195136Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+E         [2m2026-11-12T04:50:32.195142Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 1
+E         [2m2026-11-12T04:50:32.195181Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mgenerate [3mendpoint_path[0m[2m=[0m1daf02dda9560a61/shutdown-probe/backend/generate
+E         [2m2026-11-12T04:50:32.195229Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+E         [2m2026-11-12T04:50:32.195342Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+E         [2m2026-11-12T04:50:35.446049Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+E         [2m2026-11-12T04:50:35.446111Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+E         [2m2026-11-12T04:50:35.446128Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+E         [2m2026-11-12T04:50:35.446134Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+E         [2m2026-11-12T04:50:35.446139Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+E         [2m2026-11-12T04:50:35.697229Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m4 [3mruntimes[0m[2m=[0m1
+E         
+E       assert 3 == 0
+
+/test_health_check_shutdown.py:94: AssertionError
+=============================== warnings summary ===============================
+../../test_health_check_shutdown.py:14
+  /test_health_check_shutdown.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.pre_merge - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.pre_merge, pytest.mark.integration, pytest.mark.gpu_0]
+
+../../test_health_check_shutdown.py:14
+  /test_health_check_shutdown.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.pre_merge, pytest.mark.integration, pytest.mark.gpu_0]
+
+../../test_health_check_shutdown.py:14
+  /test_health_check_shutdown.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.gpu_0 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.pre_merge, pytest.mark.integration, pytest.mark.gpu_0]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../dev::test_health_callbacks_stop_before_interpreter_exit[asyncio]
+FAILED ../../dev::test_health_callbacks_stop_before_interpreter_exit[uvloop]
+2 failed, 3 warnings in 9.61s

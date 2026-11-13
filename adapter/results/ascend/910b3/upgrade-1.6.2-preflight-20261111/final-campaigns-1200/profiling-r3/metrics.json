@@ -1,0 +1,86 @@
+{
+  "apiVersion": "monitoring.coreos.com/v1",
+  "kind": "PodMonitor",
+  "metadata": {
+    "name": "m10-metrics-final",
+    "namespace": "heyi-upgrade162",
+    "labels": {
+      "heyi.io/campaign": "m10-1029",
+      "release": "kube-prometheus-stack"
+    }
+  },
+  "spec": {
+    "namespaceSelector": {
+      "matchNames": [
+        "heyi-upgrade162"
+      ]
+    },
+    "selector": {
+      "matchExpressions": [
+        {
+          "key": "nvidia.com/dynamo-graph-deployment-name",
+          "operator": "In",
+          "values": [
+            "m10-sla",
+            "m10-qwen32",
+            "m10-deepseek",
+            "m10-offline-final",
+            "m10-offline-final-qwen32",
+            "m10-offline-final-deepseek",
+            "m10-small",
+            "m10-offline-final-r1",
+            "m10-offline-final-r1-qwen32",
+            "m10-offline-final-r1-deepseek",
+            "m10-offline-final-r3-deepseek",
+            "m10-offline-final-r3-deepseek-expanded",
+            "m10-hybrid-r3"
+          ]
+        }
+      ]
+    },
+    "podMetricsEndpoints": [
+      {
+        "port": "http",
+        "path": "/metrics",
+        "interval": "2s",
+        "honorLabels": true,
+        "relabelings": [
+          {
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      },
+      {
+        "port": "system",
+        "path": "/metrics",
+        "interval": "2s",
+        "honorLabels": true,
+        "relabelings": [
+          {
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      },
+      {
+        "port": "metrics",
+        "path": "/metrics",
+        "interval": "2s",
+        "honorLabels": true,
+        "relabelings": [
+          {
+            "sourceLabels": [
+              "__meta_kubernetes_pod_label_nvidia_com_dynamo_namespace"
+            ],
+            "targetLabel": "dynamo_namespace"
+          }
+        ]
+      }
+    ]
+  }
+}

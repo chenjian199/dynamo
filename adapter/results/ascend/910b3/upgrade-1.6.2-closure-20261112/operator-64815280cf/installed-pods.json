@@ -1,0 +1,408 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "checksum/config": "25b15a8904b83bf3ff617f69c6c16c36d01d14c86abdfd3abacd8f6de53f0dc6",
+          "kubectl.kubernetes.io/default-container": "manager"
+        },
+        "creationTimestamp": "2026-11-12T06:05:24Z",
+        "generateName": "heyi-upgrade162-dynamo-operator-controller-manager-8488756784-",
+        "labels": {
+          "app.kubernetes.io/instance": "heyi-upgrade162",
+          "app.kubernetes.io/name": "dynamo-operator",
+          "control-plane": "controller-manager",
+          "pod-template-hash": "8488756784"
+        },
+        "name": "heyi-upgrade162-dynamo-operator-controller-manager-848875652ngc",
+        "namespace": "heyi-upgrade162",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "heyi-upgrade162-dynamo-operator-controller-manager-8488756784",
+            "uid": "d16d77fe-1819-4f1d-a33b-ae4b2a3e9f12"
+          }
+        ],
+        "resourceVersion": "298877342",
+        "uid": "51a21d4b-48f0-489b-85f6-d6fee9e8f7fc"
+      },
+      "spec": {
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchExpressions": [
+                    {
+                      "key": "kubernetes.io/hostname",
+                      "operator": "In",
+                      "values": [
+                        "master-02-45d4a763"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "containers": [
+          {
+            "args": [
+              "--config=/etc/dynamo-operator/config.yaml",
+              "--operator-version=1.6.2",
+              "--operator-image=heyi/dynamo-operator:1.6.2-heyi-upgrade-64815280cf-arm64",
+              "--operator-image-pull-policy=IfNotPresent",
+              "--dgdr-default-image=heyi/dynamo:1.6.2-ascend0.30-64815280cf-tools"
+            ],
+            "command": [
+              "/manager"
+            ],
+            "env": [
+              {
+                "name": "KUBERNETES_CLUSTER_DOMAIN",
+                "value": "cluster.local"
+              },
+              {
+                "name": "POD_SERVICE_ACCOUNT",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "spec.serviceAccountName"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              }
+            ],
+            "image": "heyi/dynamo-operator:1.6.2-heyi-upgrade-64815280cf-arm64",
+            "imagePullPolicy": "IfNotPresent",
+            "livenessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8081,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 15,
+              "periodSeconds": 20,
+              "successThreshold": 1,
+              "timeoutSeconds": 1
+            },
+            "name": "manager",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "name": "metrics",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 9443,
+                "name": "webhook-server",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/readyz",
+                "port": 8081,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 5,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "resources": {
+              "limits": {
+                "cpu": "1024m",
+                "memory": "2Gi"
+              },
+              "requests": {
+                "cpu": "512m",
+                "memory": "1Gi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/dynamo-operator",
+                "name": "operator-config",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                "name": "cert",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-jwb6x",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "initContainers": [
+          {
+            "args": [
+              "--crds-dir=/opt/dynamo-operator/crds/",
+              "--version=1.6.2",
+              "--lpx-enabled=false",
+              "--conversion-webhook-service-name=heyi-upgrade162-dynamo-operator-webhook-service",
+              "--conversion-webhook-service-namespace=heyi-upgrade162"
+            ],
+            "command": [
+              "/crd-apply"
+            ],
+            "image": "heyi/dynamo-operator:1.6.2-heyi-upgrade-64815280cf-arm64",
+            "imagePullPolicy": "IfNotPresent",
+            "name": "crd-apply",
+            "resources": {},
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-jwb6x",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "nodeName": "master-02-45d4a763",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "runAsNonRoot": true
+        },
+        "serviceAccount": "heyi-upgrade162-dynamo-operator-controller-manager",
+        "serviceAccountName": "heyi-upgrade162-dynamo-operator-controller-manager",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "heyi-upgrade162-dynamo-operator-config"
+            },
+            "name": "operator-config"
+          },
+          {
+            "name": "cert",
+            "secret": {
+              "defaultMode": 420,
+              "optional": true,
+              "secretName": "webhook-server-cert"
+            }
+          },
+          {
+            "name": "kube-api-access-jwb6x",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-12T06:05:25Z",
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-12T06:05:31Z",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-12T06:05:43Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-12T06:05:43Z",
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-12T06:05:24Z",
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "containerID": "containerd://6fef2821186b50e5a2d47a4390a6435ddd8fb2d05235f0fd25636465ce852b23",
+            "image": "docker.io/heyi/dynamo-operator:1.6.2-heyi-upgrade-1aabe435ad-arm64",
+            "imageID": "sha256:e47bd27dacdd78bf76b5ab3bd0f2ddae3b84d7668da474ae3db34c284c2eed24",
+            "lastState": {},
+            "name": "manager",
+            "ready": true,
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-12T06:05:31Z"
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/dynamo-operator",
+                "name": "operator-config",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                "name": "cert",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-jwb6x",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.7.7",
+        "hostIPs": [
+          {
+            "ip": "192.168.7.7"
+          }
+        ],
+        "initContainerStatuses": [
+          {
+            "containerID": "containerd://4e0e0cbe755739d7b02e22ce50f402bd780cf9ceafa6e77edd67193df278b6a0",
+            "image": "docker.io/heyi/dynamo-operator:1.6.2-heyi-upgrade-1aabe435ad-arm64",
+            "imageID": "sha256:e47bd27dacdd78bf76b5ab3bd0f2ddae3b84d7668da474ae3db34c284c2eed24",
+            "lastState": {},
+            "name": "crd-apply",
+            "ready": true,
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://4e0e0cbe755739d7b02e22ce50f402bd780cf9ceafa6e77edd67193df278b6a0",
+                "exitCode": 0,
+                "finishedAt": "2026-11-12T06:05:30Z",
+                "reason": "Completed",
+                "startedAt": "2026-11-12T06:05:25Z"
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-jwb6x",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "phase": "Running",
+        "podIP": "10.42.5.26",
+        "podIPs": [
+          {
+            "ip": "10.42.5.26"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-11-12T06:05:24Z"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

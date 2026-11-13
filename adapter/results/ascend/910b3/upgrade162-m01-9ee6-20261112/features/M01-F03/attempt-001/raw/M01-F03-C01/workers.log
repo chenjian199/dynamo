@@ -1,0 +1,588 @@
+==========================================
+Ascend KV-aware routing (two TP=1 workers)
+==========================================
+Model:       Qwen3-0.6B
+Frontend:    http://localhost:18301
+GPU mem:     --kv-cache-memory-bytes 1073741824 --gpu-memory-utilization 0.01
+==========================================
+
+Example test command:
+
+  curl http://localhost:18301/v1/chat/completions \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "model": "Qwen3-0.6B",
+      "messages": [{"role": "user", "content": "Hello!"}],
+      "max_tokens": 32
+    }'
+
+==========================================
+[2m2026-11-12T07:06:12.943651Z[0m [32m INFO[0m [2mrouter_args.log_rejection_thresholds[0m[2m:[0m busy-worker rejection disabled: no rejection threshold is configured
+[2m2026-11-12T07:06:12.943836Z[0m [32m INFO[0m [2mmain.async_main[0m[2m:[0m Request migration disabled (limit: 0)
+[2m2026-11-12T07:06:12.959205Z[0m [33m WARN[0m [2mcpu_affinity.warn_if_frontend_cpu_affinity_spans_numa_nodes[0m[2m:[0m ================================================================================
+CRITICAL PERFORMANCE WARNING: Frontend CPU affinity spans multiple NUMA nodes!
+Running the frontend across multiple NUMA domains is known to cause catastrophic performance issues.
+Available CPUs: 0-191
+NUMA nodes: node0, node1, node2, node3
+Pin the frontend to CPUs from a single NUMA node.
+================================================================================
+[2m2026-11-12T07:06:12.959741Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=-1, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[2m2026-11-12T07:06:12.974879Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: File(/tmp/closure-m01-discovery)
+[2m2026-11-12T07:06:12.975150Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[2m2026-11-12T07:06:12.981117Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m Starting HTTP(S) service [3mprotocol[0m[2m=[0m"HTTP" [3maddress[0m[2m=[0m"0.0.0.0:18301"
+[2m2026-11-12T07:06:14.708115Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:16.710017Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+INFO 11-12 07:06:17 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-12 07:06:17 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-12 07:06:17 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-12 07:06:17 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-12 07:06:17 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-12 07:06:17 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+INFO 11-12 07:06:18 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-12 07:06:18 [__init__.py:272] Platform plugin ascend is activated
+[2m2026-11-12T07:06:18.711624Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+INFO 11-12 07:06:19 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+INFO 11-12 07:06:19 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[2m2026-11-12T07:06:20.713171Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:22.714612Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:24.716023Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:26.717544Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:28.719302Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:30.720586Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:32.721618Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:34.656410Z[0m [32m INFO[0m [2mpatch_indexer_kv_dtype._apply_indexer_kv_dtype_int8_patch[0m[2m:[0m Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[2m2026-11-12T07:06:34.656692Z[0m [32m INFO[0m [2mpatch_indexer_kv_dtype._apply_indexer_kv_dtype_int8_patch[0m[2m:[0m Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[2m2026-11-12T07:06:34.665055Z[0m [32m INFO[0m [2mpatch_kv_cache_dtype._apply_kv_cache_dtype_int8_patch[0m[2m:[0m Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[2m2026-11-12T07:06:34.665712Z[0m [32m INFO[0m [2mpatch_kv_cache_dtype._apply_kv_cache_dtype_int8_patch[0m[2m:[0m Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[2m2026-11-12T07:06:34.722997Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:34.742001Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[2m2026-11-12T07:06:34.742389Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[2m2026-11-12T07:06:34.834643Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[2m2026-11-12T07:06:34.835393Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[2m2026-11-12T07:06:35.545980Z[0m [33mWARNING[0m [2mindexer_topk[0m[2m:[0m Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[2m2026-11-12T07:06:35.546037Z[0m [33mWARNING[0m [2mindexer_topk[0m[2m:[0m Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[2m2026-11-12T07:06:35.856376Z[0m [32m INFO[0m [2margs.create_kv_events_config[0m[2m:[0m Using user-provided kv_events_config KVEventsConfig(enable_kv_cache_events=True, publisher='zmq', endpoint='tcp://*:18305', replay_endpoint=None, buffer_steps=10000, hwm=100000, max_queue_size=100000, topic='kv-events')
+[2m2026-11-12T07:06:35.856592Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: KVEventsConfig(enable_kv_cache_events=True, publisher='zmq', endpoint='tcp://*:18305', replay_endpoint=None, buffer_steps=10000, hwm=100000, max_queue_size=100000, topic='kv-events') (use_kv_events=True)
+[2m2026-11-12T07:06:35.856707Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Forward pass metrics enabled: scheduler_cls set to InstrumentedScheduler (port=18307)
+[2m2026-11-12T07:06:35.858154Z[0m [32m INFO[0m [2margs.create_kv_events_config[0m[2m:[0m Using user-provided kv_events_config KVEventsConfig(enable_kv_cache_events=True, publisher='zmq', endpoint='tcp://*:18304', replay_endpoint=None, buffer_steps=10000, hwm=100000, max_queue_size=100000, topic='kv-events')
+[2m2026-11-12T07:06:35.858393Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: KVEventsConfig(enable_kv_cache_events=True, publisher='zmq', endpoint='tcp://*:18304', replay_endpoint=None, buffer_steps=10000, hwm=100000, max_queue_size=100000, topic='kv-events') (use_kv_events=True)
+[2m2026-11-12T07:06:35.858504Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Forward pass metrics enabled: scheduler_cls set to InstrumentedScheduler (port=18306)
+[2m2026-11-12T07:06:36.724613Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:36.883215Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=18303, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[2m2026-11-12T07:06:36.893307Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=18302, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[2m2026-11-12T07:06:36.902455Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: File(/tmp/closure-m01-discovery)
+[2m2026-11-12T07:06:36.902739Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[2m2026-11-12T07:06:36.904164Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:18303
+[2m2026-11-12T07:06:36.904240Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:18303
+[2m2026-11-12T07:06:36.904309Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:18303 [3mpolicy[0m[2m=[0mWorker
+[2m2026-11-12T07:06:36.904962Z[0m [32m INFO[0m [2mgraceful_shutdown.install_signal_handlers[0m[2m:[0m Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[2m2026-11-12T07:06:36.905754Z[0m [33mWARNING[0m [2mprometheus.setup_multiprocess_prometheus[0m[2m:[0m Found PROMETHEUS_MULTIPROC_DIR was set by user. This directory must be wiped between vLLM runs or you will find inaccurate metrics. Unset the variable and vLLM will properly handle cleanup.
+[2m2026-11-12T07:06:36.912619Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: File(/tmp/closure-m01-discovery)
+[2m2026-11-12T07:06:36.912900Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[2m2026-11-12T07:06:36.914146Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:18302
+[2m2026-11-12T07:06:36.914216Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:18302
+[2m2026-11-12T07:06:36.914269Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:18302 [3mpolicy[0m[2m=[0mWorker
+[2m2026-11-12T07:06:36.914866Z[0m [32m INFO[0m [2mgraceful_shutdown.install_signal_handlers[0m[2m:[0m Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[2m2026-11-12T07:06:36.915514Z[0m [33mWARNING[0m [2mprometheus.setup_multiprocess_prometheus[0m[2m:[0m Found PROMETHEUS_MULTIPROC_DIR was set by user. This directory must be wiped between vLLM runs or you will find inaccurate metrics. Unset the variable and vLLM will properly handle cleanup.
+[2m2026-11-12T07:06:38.726127Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:40.727625Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:42.729123Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:44.730637Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:46.732141Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:48.733678Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:50.735350Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:52.736899Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:54.738375Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:56.740102Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:58.113446Z[0m [32m INFO[0m [2mmodel.__post_init__[0m[2m:[0m Resolved architecture: Qwen3ForCausalLM
+[2m2026-11-12T07:06:58.117097Z[0m [32m INFO[0m [2mmodel.get_and_verify_max_len[0m[2m:[0m Using max model len 4096
+[2m2026-11-12T07:06:58.319807Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[2m2026-11-12T07:06:58.320039Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[2m2026-11-12T07:06:58.320705Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[2m2026-11-12T07:06:58.321005Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+[2m2026-11-12T07:06:58.322200Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[2m2026-11-12T07:06:58.324832Z[0m [33mWARNING[0m [2mplatform._fix_incompatible_config[0m[2m:[0m GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[2m2026-11-12T07:06:58.325077Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[2m2026-11-12T07:06:58.341053Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m Dynamic EPLB is False
+[2m2026-11-12T07:06:58.341323Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m The number of redundant experts is 0
+[2m2026-11-12T07:06:58.341741Z[0m [32m INFO[0m [2mascend_config.derive_and_validate[0m[2m:[0m FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[2m2026-11-12T07:06:58.357153Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+[2m2026-11-12T07:06:58.357513Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[2m2026-11-12T07:06:58.357857Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-11-12T07:06:58.359873Z[0m [33mWARNING[0m [2mmodel.get_diff_sampling_param[0m[2m:[0m Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+[2m2026-11-12T07:06:58.742175Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:06:59.036546Z[0m [32m INFO[0m [2mmodel.__post_init__[0m[2m:[0m Resolved architecture: Qwen3ForCausalLM
+[2m2026-11-12T07:06:59.037395Z[0m [32m INFO[0m [2mmodel.get_and_verify_max_len[0m[2m:[0m Using max model len 4096
+[2m2026-11-12T07:06:59.275506Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[2m2026-11-12T07:06:59.275773Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[2m2026-11-12T07:06:59.276709Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[2m2026-11-12T07:06:59.277052Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+[2m2026-11-12T07:06:59.278396Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[2m2026-11-12T07:06:59.279195Z[0m [33mWARNING[0m [2mplatform._fix_incompatible_config[0m[2m:[0m GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[2m2026-11-12T07:06:59.279437Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[2m2026-11-12T07:06:59.296723Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m Dynamic EPLB is False
+[2m2026-11-12T07:06:59.296996Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m The number of redundant experts is 0
+[2m2026-11-12T07:06:59.297441Z[0m [32m INFO[0m [2mascend_config.derive_and_validate[0m[2m:[0m FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[2m2026-11-12T07:06:59.304148Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+[2m2026-11-12T07:06:59.304556Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[2m2026-11-12T07:06:59.304939Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-11-12T07:06:59.307038Z[0m [33mWARNING[0m [2mmodel.get_diff_sampling_param[0m[2m:[0m Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+[2m2026-11-12T07:07:00.743823Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:02.745118Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:04.746482Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[2m2026-11-12T07:07:06.748167Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:08.749315Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+INFO 11-12 07:07:10 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-12 07:07:10 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-12 07:07:10 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-12 07:07:10 [__init__.py:272] Platform plugin ascend is activated
+[2m2026-11-12T07:07:10.750542Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+INFO 11-12 07:07:11 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+INFO 11-12 07:07:11 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-12 07:07:11 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-12 07:07:11 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-12 07:07:11 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-12 07:07:12 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[2m2026-11-12T07:07:12.752055Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:14.753370Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:16.754709Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:18.755886Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:20.757080Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:22.758186Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:24.759406Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+INFO 11-12 07:07:24 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+INFO 11-12 07:07:24 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+INFO 11-12 07:07:24 [ascend_config.py:334] Dynamic EPLB is False
+INFO 11-12 07:07:24 [ascend_config.py:335] The number of redundant experts is 0
+INFO 11-12 07:07:24 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+INFO 11-12 07:07:24 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+INFO 11-12 07:07:24 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+INFO 11-12 07:07:24 [ascend_config.py:334] Dynamic EPLB is False
+INFO 11-12 07:07:24 [ascend_config.py:335] The number of redundant experts is 0
+INFO 11-12 07:07:24 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+(EngineCore pid=1625) INFO 11-12 07:07:24 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+(EngineCore pid=1625) INFO 11-12 07:07:24 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+(EngineCore pid=1625) INFO 11-12 07:07:24 [core.py:123] Initializing a V1 LLM engine (v0.30.0) with config: model='/models/Qwen3-0.6B', speculative_config=None, tokenizer='/models/Qwen3-0.6B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=npu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Qwen3-0.6B, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'vllm_ascend.compilation.compiler_interface.AscendCompiler', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, moe_backend='auto', sparse_indexer_topk_backend='auto', linear_backend='auto', linear_backend_per_quant=None)
+(EngineCore pid=1636) INFO 11-12 07:07:25 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+(EngineCore pid=1636) INFO 11-12 07:07:25 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+(EngineCore pid=1636) INFO 11-12 07:07:25 [core.py:123] Initializing a V1 LLM engine (v0.30.0) with config: model='/models/Qwen3-0.6B', speculative_config=None, tokenizer='/models/Qwen3-0.6B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=4096, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=npu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Qwen3-0.6B, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'vllm_ascend.compilation.compiler_interface.AscendCompiler', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, moe_backend='auto', sparse_indexer_topk_backend='auto', linear_backend='auto', linear_backend_per_quant=None)
+(EngineCore pid=1636) WARNING 11-12 07:07:26 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+(EngineCore pid=1625) WARNING 11-12 07:07:26 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[2m2026-11-12T07:07:26.760680Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:28.762123Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:30.763435Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:32.764775Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:34.766125Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:36.767470Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:38.768809Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:40.770181Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:42.771571Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:44.772975Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:46.774187Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1636) WARNING 11-12 07:07:47 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+(EngineCore pid=1625) WARNING 11-12 07:07:47 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+[2m2026-11-12T07:07:48.775392Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1625) INFO 11-12 07:07:49 [parallel_state.py:1827] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_b911e9dfa1804ba8bcb9b1167da64618 backend=hccl
+(EngineCore pid=1636) INFO 11-12 07:07:49 [parallel_state.py:1827] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_b52fb03ee11f457eb87a35241ad9706e backend=hccl
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : [Gloo] Rank 00
+ is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank [Gloo] Rank 00 is connected to  is connected to 00 peer ranks.  peer ranks. Expected number of connected peer ranks is : Expected number of connected peer ranks is : 00
+
+[Gloo] Rank [Gloo] Rank 00 is connected to  is connected to 00 peer ranks.  peer ranks. Expected number of connected peer ranks is : Expected number of connected peer ranks is : 00
+
+[Gloo] Rank 0 is connected to 0 peer ranks. [Gloo] Rank Expected number of connected peer ranks is : 00 is connected to 
+0 peer ranks. Expected number of connected peer ranks is : 0
+(EngineCore pid=1625) INFO 11-12 07:07:50 [parallel_state.py:2267] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, ETP rank 0, EP rank N/A, EPLB rank N/A
+[Gloo] Rank 0 is connected to [Gloo] Rank 00 peer ranks.  is connected to Expected number of connected peer ranks is : 00 peer ranks. 
+Expected number of connected peer ranks is : 0
+(EngineCore pid=1636) INFO 11-12 07:07:50 [parallel_state.py:2267] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, ETP rank 0, EP rank N/A, EPLB rank N/A
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[rank0]:[W1112 07:07:50.769163523 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[rank0]:[W1112 07:07:50.775396879 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+(EngineCore pid=1636) INFO 11-12 07:07:50 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(EngineCore pid=1625) INFO 11-12 07:07:50 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(EngineCore pid=1636) INFO 11-12 07:07:50 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+(EngineCore pid=1625) INFO 11-12 07:07:50 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+[2m2026-11-12T07:07:50.776821Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1625) INFO 11-12 07:07:51 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(EngineCore pid=1636) INFO 11-12 07:07:51 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(EngineCore pid=1625) INFO 11-12 07:07:51 [weight_utils.py:895] Filesystem type for checkpoints: XFS. Checkpoint size: 1.40 GiB. Available RAM: 472.02 GiB.
+(EngineCore pid=1636) (EngineCore pid=1625) INFO 11-12 07:07:51 [weight_utils.py:895] Filesystem type for checkpoints: XFS. Checkpoint size: 1.40 GiB. Available RAM: 472.02 GiB.
+INFO 11-12 07:07:51 [weight_utils.py:918] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=1636) INFO 11-12 07:07:51 [weight_utils.py:918] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=1636) (EngineCore pid=1625) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+(EngineCore pid=1636) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  2.39it/s]
+(EngineCore pid=1636) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  2.39it/s]
+(EngineCore pid=1636) 
+(EngineCore pid=1636) INFO 11-12 07:07:52 [default_loader.py:430] Loading weights took 0.54 seconds
+[2m2026-11-12T07:07:52.778250Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1625) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.35s/it]
+(EngineCore pid=1625) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.35s/it]
+(EngineCore pid=1625) 
+(EngineCore pid=1625) INFO 11-12 07:07:53 [default_loader.py:430] Loading weights took 1.42 seconds
+(EngineCore pid=1636) INFO 11-12 07:07:54 [model_runner_v1.py:4476] Loading model weights took 1.1397 GB
+(EngineCore pid=1636) INFO 11-12 07:07:54 [model_runner_v1.py:4563] Model runner load_model total time: 3.88 seconds
+(EngineCore pid=1636) INFO 11-12 07:07:54 [utils.py:320] Using LBNHC KV cache layout.
+[2m2026-11-12T07:07:54.779645Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1625) INFO 11-12 07:07:54 [model_runner_v1.py:4476] Loading model weights took 1.1397 GB
+(EngineCore pid=1625) INFO 11-12 07:07:54 [model_runner_v1.py:4563] Model runner load_model total time: 4.18 seconds
+(EngineCore pid=1625) INFO 11-12 07:07:54 [utils.py:320] Using LBNHC KV cache layout.
+[2m2026-11-12T07:07:56.780950Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:07:58.782261Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1625) INFO 11-12 07:08:00 [worker.py:584] Initial free memory 60.52 GiB, reserved 1.00 GiB for KV Cache as specified by kv_cache_memory_bytes, skipping memory profiling. This does not respect the gpu_memory_utilization config. Only use kv_cache_memory_bytes when you want manual control of KV cache memory size. If OOM'ed, check the difference of initial free memory between the current run and the previous run where kv_cache_memory_bytes is suggested and update it correspondingly.
+(EngineCore pid=1625) INFO 11-12 07:08:00 [kv_cache_utils.py:2395] NPU KV cache size: 9,344 tokens, Maximum concurrency for 4,096 tokens per request: 2.28x
+(EngineCore pid=1625) INFO 11-12 07:08:00 [kernel_warmup.py:44] Starting Triton kernel warmup.
+(EngineCore pid=1625) INFO 11-12 07:08:00 [kernel_warmup.py:36] rejection_sampler Triton warmup complete in 0.000s.
+(EngineCore pid=1625) [WARNING] AutoBlockify disabled for kernel 'token_bin_counts_and_mask_kernel'. Unsafe ops: atomic operations. Enabling may cause correctness issues. The compiler keeps AutoBlockify disabled for this kernel.
+(EngineCore pid=1636) INFO 11-12 07:08:00 [worker.py:584] Initial free memory 60.52 GiB, reserved 1.00 GiB for KV Cache as specified by kv_cache_memory_bytes, skipping memory profiling. This does not respect the gpu_memory_utilization config. Only use kv_cache_memory_bytes when you want manual control of KV cache memory size. If OOM'ed, check the difference of initial free memory between the current run and the previous run where kv_cache_memory_bytes is suggested and update it correspondingly.
+(EngineCore pid=1636) INFO 11-12 07:08:00 [kv_cache_utils.py:2395] NPU KV cache size: 9,344 tokens, Maximum concurrency for 4,096 tokens per request: 2.28x
+(EngineCore pid=1636) INFO 11-12 07:08:00 [kernel_warmup.py:44] Starting Triton kernel warmup.
+(EngineCore pid=1636) INFO 11-12 07:08:00 [kernel_warmup.py:36] rejection_sampler Triton warmup complete in 0.000s.
+(EngineCore pid=1636) [WARNING] AutoBlockify disabled for kernel 'token_bin_counts_and_mask_kernel'. Unsafe ops: atomic operations. Enabling may cause correctness issues. The compiler keeps AutoBlockify disabled for this kernel.
+[2m2026-11-12T07:08:00.783547Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:08:02.784792Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:08:04.785975Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1625) INFO 11-12 07:08:06 [kernel_warmup.py:36] penalties Triton warmup complete in 6.287s.
+(EngineCore pid=1625) INFO 11-12 07:08:06 [kernel_warmup.py:36] rms Triton warmup complete in 0.000s.
+(EngineCore pid=1625) INFO 11-12 07:08:06 [kernel_warmup.py:36] indexer Triton warmup complete in 0.000s.
+(EngineCore pid=1636) INFO 11-12 07:08:06 [kernel_warmup.py:36] penalties Triton warmup complete in 5.965s.
+(EngineCore pid=1625) INFO 11-12 07:08:06 [kernel_warmup.py:53] Triton kernel warmup finished in 6.288s.
+(EngineCore pid=1636) INFO 11-12 07:08:06 [kernel_warmup.py:36] rms Triton warmup complete in 0.000s.
+(EngineCore pid=1636) INFO 11-12 07:08:06 [kernel_warmup.py:36] indexer Triton warmup complete in 0.000s.
+(EngineCore pid=1636) INFO 11-12 07:08:06 [kernel_warmup.py:53] Triton kernel warmup finished in 5.966s.
+[2m2026-11-12T07:08:06.787243Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1636) INFO 11-12 07:08:07 [cpu_binding.py:539] [cpu_bind_mode] mode=topo_affinity rank=0 visible_npus=[0]
+(EngineCore pid=1636) INFO 11-12 07:08:07 [cpu_binding.py:623] The CPU allocation plan is as follows:
+(EngineCore pid=1636) INFO 11-12 07:08:07 [cpu_binding.py:637] NPU0: main=[2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45]  acl=[46]  release=[[47]]
+(EngineCore pid=1625) INFO 11-12 07:08:07 [cpu_binding.py:539] [cpu_bind_mode] mode=topo_affinity rank=0 visible_npus=[1]
+(EngineCore pid=1625) INFO 11-12 07:08:07 [cpu_binding.py:623] The CPU allocation plan is as follows:
+(EngineCore pid=1625) INFO 11-12 07:08:07 [cpu_binding.py:637] NPU1: main=[146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189]  acl=[190]  release=[[191]]
+(EngineCore pid=1636) INFO 11-12 07:08:07 [cpu_binding.py:663] [migrate] NPU:0 -> NUMA [0]
+(EngineCore pid=1636) WARNING 11-12 07:08:07 [cpu_binding.py:699] /proc/irq is not writable. If running in Docker, start the container with '--privileged=true'.
+(EngineCore pid=1636) INFO 11-12 07:08:07 [core.py:379] init engine (profile, create kv cache, warmup model) took 13.41 s
+(EngineCore pid=1625) INFO 11-12 07:08:08 [cpu_binding.py:663] [migrate] NPU:1 -> NUMA [3]
+(EngineCore pid=1625) WARNING 11-12 07:08:08 [cpu_binding.py:699] /proc/irq is not writable. If running in Docker, start the container with '--privileged=true'.
+(EngineCore pid=1625) INFO 11-12 07:08:08 [core.py:379] init engine (profile, create kv cache, warmup model) took 13.16 s
+[2m2026-11-12T07:08:08.788613Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+(EngineCore pid=1636) WARNING 11-12 07:08:08 [scheduler.py:224] Using custom scheduler class dynamo.vllm.instrumented_scheduler.InstrumentedScheduler. This scheduler interface is not public and compatibility may not be maintained. If you have subclassed Scheduler instead of AsyncScheduler, you will see degraded performance due to async scheduling being disabled.
+(EngineCore pid=1636) [2m2026-11-12T07:08:09.025201Z[0m [32m INFO[0m [2mkv_events.__init__[0m[2m:[0m Starting ZMQ publisher thread
+[2m2026-11-12T07:08:09.027266Z[0m [32m INFO[0m [2minstrumented_scheduler.__init__[0m[2m:[0m InstrumentedScheduler: ZMQ PUB bound on tcp://*:18306 (worker_id=17864498916540423001, dp_rank=0)
+(EngineCore pid=1625) WARNING 11-12 07:08:09 [scheduler.py:224] Using custom scheduler class dynamo.vllm.instrumented_scheduler.InstrumentedScheduler. This scheduler interface is not public and compatibility may not be maintained. If you have subclassed Scheduler instead of AsyncScheduler, you will see degraded performance due to async scheduling being disabled.
+(EngineCore pid=1625) [2m2026-11-12T07:08:09.224378Z[0m [32m INFO[0m [2mkv_events.__init__[0m[2m:[0m Starting ZMQ publisher thread
+[2m2026-11-12T07:08:09.226590Z[0m [32m INFO[0m [2minstrumented_scheduler.__init__[0m[2m:[0m InstrumentedScheduler: ZMQ PUB bound on tcp://*:18307 (worker_id=15633257901333262220, dp_rank=0)
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.005136Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.005428Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.006447Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.006733Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.011333Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.011872Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.018449Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.018700Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.018948Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-11-12T07:08:10.025342Z[0m [32m INFO[0m [2mmain._setup_vllm_engine[0m[2m:[0m worker for Qwen3-0.6B has been initialized
+[2m2026-11-12T07:08:10.048770Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m Configured shared event-plane ZMQ context [3mio_threads[0m[2m=[0m4
+[2m2026-11-12T07:08:10.049516Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:39157 [3mtopic[0m[2m=[0mkv_metrics [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.049742Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:39157
+[2m2026-11-12T07:08:10.049854Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/kv_metrics/1aceecc169fda6
+[2m2026-11-12T07:08:10.050274Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mkv_metrics [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m7545865647029670
+(EngineCore pid=1636) [2m2026-11-12T07:08:10.037331Z[0m [31mERROR[0m [2mcore._invoke_utility_method[0m[2m:[0m Invocation of get_kv_cache_group_metadata method failed
+(EngineCore pid=1636) Traceback (most recent call last):
+(EngineCore pid=1636)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1599, in _invoke_utility_method
+(EngineCore pid=1636)     result = get_result()
+(EngineCore pid=1636)              ^^^^^^^^^^^^
+(EngineCore pid=1636)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1553, in <lambda>
+(EngineCore pid=1636)     (method := getattr(self, method_name))
+(EngineCore pid=1636)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1636) AttributeError: 'EngineCoreProc' object has no attribute 'get_kv_cache_group_metadata'
+[2m2026-11-12T07:08:10.055273Z[0m [33m WARN[0m [2mcache_info.configure_kv_event_block_size[0m[2m:[0m Failed to fetch KV cache group metadata; falling back to vLLM cache_config.block_size: Call to get_kv_cache_group_metadata method failed: 'EngineCoreProc' object has no attribute 'get_kv_cache_group_metadata'
+[2m2026-11-12T07:08:10.055456Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.055968Z[0m [32m INFO[0m [2mengine_monitor.__init__[0m[2m:[0m VllmEngineMonitor initialized and health check task started.
+[2m2026-11-12T07:08:10.056116Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.056788Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.057167Z[0m [32m INFO[0m [2mmain.setup_kv_event_publisher[0m[2m:[0m KV event publisher for dp_rank=0 subscribing to vLLM at tcp://127.0.0.1:18304
+[2m2026-11-12T07:08:10.057890Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m Initializing KvEventPublisher for worker 17864498916540423001 on serving endpoint close-c3c60587-m01-f03-c01/backend/generate [3mkv_state_endpoint[0m[2m=[0mclose-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:10.057916Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m LocalKvIndexer enabled for worker 17864498916540423001 on endpoint close-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:10.058167Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m Using event plane for KV event publishing
+[2m2026-11-12T07:08:10.058515Z[0m [32m INFO[0m [2mmain.setup_kv_event_publisher[0m[2m:[0m Worker reading KV events for dp_rank=0 from tcp://127.0.0.1:18304
+[2m2026-11-12T07:08:10.058660Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.058765Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:10.074004Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:38733 [3mtopic[0m[2m=[0mforward-pass-metrics [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.074059Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:34037 [3mtopic[0m[2m=[0mkv-events [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.074158Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:38733
+[2m2026-11-12T07:08:10.074196Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:34037
+[2m2026-11-12T07:08:10.074200Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/forward-pass-metrics/26e39c42b9653
+[2m2026-11-12T07:08:10.074246Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/kv-events/11a8011a2a0ef5
+[2m2026-11-12T07:08:10.074563Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mforward-pass-metrics [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m684144336803411
+[2m2026-11-12T07:08:10.074758Z[0m [32m INFO[0m [2mmain.setup_fpm_relay[0m[2m:[0m FPM relay for dp_rank=0 subscribing to tcp://127.0.0.1:18306
+[2m2026-11-12T07:08:10.074917Z[0m [32m INFO[0m [2mdynamo_llm::fpm_publisher[0m[2m:[0m FPM relay: connected to tcp://127.0.0.1:18306
+[2m2026-11-12T07:08:10.075661Z[0m [32m INFO[0m [2mworker_factory.register_engine_routes[0m[2m:[0m Registered engine routes: control/sleep, control/wake_up, control/scale_elastic_ep, control/ep_capacity, control/start_profile, control/stop_profile, and RL admin routes: abort_request, destroy_weights_update_group, flush_cache, get_weight_version, init_weights_update_group, liveness_probe, pause_generation, resume_generation, set_weight_version, update_weights_from_disk, update_weights_from_distributed, update_weights_from_tensor
+[2m2026-11-12T07:08:10.075767Z[0m [32m INFO[0m [2mworker_factory._run_decode_worker[0m[2m:[0m Registering model with endpoint types: chat,completions
+[2m2026-11-12T07:08:10.084457Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:33419 [3mtopic[0m[2m=[0mactive_sequences_events [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.084548Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:33419
+[2m2026-11-12T07:08:10.084587Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/active_sequences_events/1aa5239a829b7e
+[2m2026-11-12T07:08:10.084817Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mactive_sequences_events [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m7499921729166206
+[2m2026-11-12T07:08:10.085173Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mkv-events [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m4969797291478773
+[2m2026-11-12T07:08:10.085255Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::indexer::recovery::worker_query_endpoint[0m[2m:[0m WorkerKvQuery endpoint starting for worker 17864498916540423001 dp_rank 0 routed by instance 17864498916540423001 on endpoint 'worker_kv_query_source_11a8011a2a0ef5'
+[2m2026-11-12T07:08:10.085259Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.086233Z[0m [32m INFO[0m [2mmain.register_vllm_model[0m[2m:[0m Published vLLM engine-native generate capability
+[2m2026-11-12T07:08:10.086366Z[0m [32m INFO[0m [2mmain.register_vllm_model[0m[2m:[0m Getting engine runtime configuration metadata from vLLM engine for chat,completions...
+[2m2026-11-12T07:08:10.093873Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m192.168.7.7:0 [3mport_source[0m[2m=[0m"OS-assigned"
+[2m2026-11-12T07:08:10.093923Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+[2m2026-11-12T07:08:10.093945Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+[2m2026-11-12T07:08:10.094009Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 192.168.7.7:0
+[2m2026-11-12T07:08:10.094047Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m192.168.7.7:0 [3mactual[0m[2m=[0m192.168.7.7:37187
+[2m2026-11-12T07:08:10.094068Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m192.168.7.7:37187 [3madvertised_addr[0m[2m=[0m192.168.7.7:37187
+[2m2026-11-12T07:08:10.094157Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.worker_kv_query_source_11a8011a2a0ef5' with shared TCP server on 192.168.7.7:37187
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.144348Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.144630Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.145718Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.146025Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.151095Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.151680Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.158795Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.159102Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.159364Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-11-12T07:08:10.167104Z[0m [32m INFO[0m [2m_core[0m[2m:[0m Registered base model 'Qwen3-0.6B' MDC
+[2m2026-11-12T07:08:10.167184Z[0m [32m INFO[0m [2mmain._setup_vllm_engine[0m[2m:[0m worker for Qwen3-0.6B has been initialized
+[2m2026-11-12T07:08:10.169658Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.clear_kv_blocks' with shared TCP server on 192.168.7.7:37187
+[2m2026-11-12T07:08:10.169667Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.get_perf_metrics' with shared TCP server on 192.168.7.7:37187
+[2m2026-11-12T07:08:10.169712Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.generate' with shared TCP server on 192.168.7.7:37187
+[2m2026-11-12T07:08:10.192532Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m Configured shared event-plane ZMQ context [3mio_threads[0m[2m=[0m4
+[2m2026-11-12T07:08:10.193351Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:36855 [3mtopic[0m[2m=[0mkv_metrics [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.193588Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:36855
+[2m2026-11-12T07:08:10.193651Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/kv_metrics/1c64e732c4a6e3
+[2m2026-11-12T07:08:10.193971Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mkv_metrics [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m7992243499869923
+(EngineCore pid=1625) [2m2026-11-12T07:08:10.180564Z[0m [31mERROR[0m [2mcore._invoke_utility_method[0m[2m:[0m Invocation of get_kv_cache_group_metadata method failed
+(EngineCore pid=1625) Traceback (most recent call last):
+(EngineCore pid=1625)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1599, in _invoke_utility_method
+(EngineCore pid=1625)     result = get_result()
+(EngineCore pid=1625)              ^^^^^^^^^^^^
+(EngineCore pid=1625)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1553, in <lambda>
+(EngineCore pid=1625)     (method := getattr(self, method_name))
+(EngineCore pid=1625)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=1625) AttributeError: 'EngineCoreProc' object has no attribute 'get_kv_cache_group_metadata'
+[2m2026-11-12T07:08:10.198854Z[0m [33m WARN[0m [2mcache_info.configure_kv_event_block_size[0m[2m:[0m Failed to fetch KV cache group metadata; falling back to vLLM cache_config.block_size: Call to get_kv_cache_group_metadata method failed: 'EngineCoreProc' object has no attribute 'get_kv_cache_group_metadata'
+[2m2026-11-12T07:08:10.198996Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.199458Z[0m [32m INFO[0m [2mengine_monitor.__init__[0m[2m:[0m VllmEngineMonitor initialized and health check task started.
+[2m2026-11-12T07:08:10.199614Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.200211Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.200568Z[0m [32m INFO[0m [2mmain.setup_kv_event_publisher[0m[2m:[0m KV event publisher for dp_rank=0 subscribing to vLLM at tcp://127.0.0.1:18305
+[2m2026-11-12T07:08:10.201218Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m Initializing KvEventPublisher for worker 15633257901333262220 on serving endpoint close-c3c60587-m01-f03-c01/backend/generate [3mkv_state_endpoint[0m[2m=[0mclose-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:10.201240Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m LocalKvIndexer enabled for worker 15633257901333262220 on endpoint close-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:10.201565Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m Using event plane for KV event publishing
+[2m2026-11-12T07:08:10.201951Z[0m [32m INFO[0m [2mmain.setup_kv_event_publisher[0m[2m:[0m Worker reading KV events for dp_rank=0 from tcp://127.0.0.1:18305
+[2m2026-11-12T07:08:10.202110Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.202238Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:10.217969Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:42417 [3mtopic[0m[2m=[0mforward-pass-metrics [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.217994Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:37821 [3mtopic[0m[2m=[0mkv-events [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.218089Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:42417
+[2m2026-11-12T07:08:10.218146Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/forward-pass-metrics/cfddae15d9c40
+[2m2026-11-12T07:08:10.218191Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:37821
+[2m2026-11-12T07:08:10.218262Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/kv-events/1bb7665f9bae3e
+[2m2026-11-12T07:08:10.218384Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mforward-pass-metrics [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m3656816246234176
+[2m2026-11-12T07:08:10.218615Z[0m [32m INFO[0m [2mmain.setup_fpm_relay[0m[2m:[0m FPM relay for dp_rank=0 subscribing to tcp://127.0.0.1:18307
+[2m2026-11-12T07:08:10.218793Z[0m [32m INFO[0m [2mdynamo_llm::fpm_publisher[0m[2m:[0m FPM relay: connected to tcp://127.0.0.1:18307
+[2m2026-11-12T07:08:10.219651Z[0m [32m INFO[0m [2mworker_factory.register_engine_routes[0m[2m:[0m Registered engine routes: control/sleep, control/wake_up, control/scale_elastic_ep, control/ep_capacity, control/start_profile, control/stop_profile, and RL admin routes: abort_request, destroy_weights_update_group, flush_cache, get_weight_version, init_weights_update_group, liveness_probe, pause_generation, resume_generation, set_weight_version, update_weights_from_disk, update_weights_from_distributed, update_weights_from_tensor
+[2m2026-11-12T07:08:10.219804Z[0m [32m INFO[0m [2mworker_factory._run_decode_worker[0m[2m:[0m Registering model with endpoint types: chat,completions
+[2m2026-11-12T07:08:10.229085Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:45777 [3mtopic[0m[2m=[0mactive_sequences_events [3msndhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:10.229197Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://192.168.7.7:45777
+[2m2026-11-12T07:08:10.229238Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kv_store[0m[2m:[0m KVStoreDiscovery::register: EventChannel bucket=v1/event_channels, key=namespace/close-c3c60587-m01-f03-c01/component/backend/endpoint/generate/topic/active_sequences_events/1362f10268184b
+[2m2026-11-12T07:08:10.229416Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mkv-events [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m7801474689773118
+[2m2026-11-12T07:08:10.229495Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::indexer::recovery::worker_query_endpoint[0m[2m:[0m WorkerKvQuery endpoint starting for worker 15633257901333262220 dp_rank 0 routed by instance 15633257901333262220 on endpoint 'worker_kv_query_source_1bb7665f9bae3e'
+[2m2026-11-12T07:08:10.238705Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m192.168.7.7:0 [3mport_source[0m[2m=[0m"OS-assigned"
+[2m2026-11-12T07:08:10.238849Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+[2m2026-11-12T07:08:10.238891Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+[2m2026-11-12T07:08:10.239050Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 192.168.7.7:0
+[2m2026-11-12T07:08:10.239102Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m192.168.7.7:0 [3mactual[0m[2m=[0m192.168.7.7:36723
+[2m2026-11-12T07:08:10.239153Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m192.168.7.7:36723 [3madvertised_addr[0m[2m=[0m192.168.7.7:36723
+[2m2026-11-12T07:08:10.239242Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.worker_kv_query_source_1bb7665f9bae3e' with shared TCP server on 192.168.7.7:36723
+[2m2026-11-12T07:08:10.240387Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mactive_sequences_events [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m5456811824519243
+[2m2026-11-12T07:08:10.241393Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-12T07:08:10.242434Z[0m [32m INFO[0m [2mmain.register_vllm_model[0m[2m:[0m Published vLLM engine-native generate capability
+[2m2026-11-12T07:08:10.242611Z[0m [32m INFO[0m [2mmain.register_vllm_model[0m[2m:[0m Getting engine runtime configuration metadata from vLLM engine for chat,completions...
+[2m2026-11-12T07:08:10.373283Z[0m [32m INFO[0m [2m_core[0m[2m:[0m Registered base model 'Qwen3-0.6B' MDC
+[2m2026-11-12T07:08:10.375173Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.generate' with shared TCP server on 192.168.7.7:36723
+[2m2026-11-12T07:08:10.375719Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.clear_kv_blocks' with shared TCP server on 192.168.7.7:36723
+[2m2026-11-12T07:08:10.376305Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'close-c3c60587-m01-f03-c01.backend.get_perf_metrics' with shared TCP server on 192.168.7.7:36723
+[2m2026-11-12T07:08:10.789908Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:08:10.999757Z[0m [32m INFO[0m [2mdynamo_llm::model_card[0m[2m:[0m initializing process-wide tokenizer cache [3mcache_bytes[0m[2m=[0m67108864
+[2m2026-11-12T07:08:10.999861Z[0m [32m INFO[0m [2mdynamo_llm::model_card[0m[2m:[0m wrapping tokenizer in L1 prefix cache [3mcache_bytes[0m[2m=[0m67108864 [3mcache_extend[0m[2m=[0mtrue [3mspecials[0m[2m=[0m14
+[2m2026-11-12T07:08:11.001863Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m Configured shared event-plane ZMQ context [3mio_threads[0m[2m=[0m4
+[2m2026-11-12T07:08:11.002507Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ single-consumer stream connected [3mendpoint[0m[2m=[0m"tcp://192.168.7.7:39157" [3mtopic[0m[2m=[0m"kv_metrics" [3mrcvhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:11.002539Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ single-consumer stream connected [3mendpoint[0m[2m=[0m"tcp://192.168.7.7:36855" [3mtopic[0m[2m=[0m"kv_metrics" [3mrcvhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:11.004454Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m TCP request callback server using OS-assigned port
+[2m2026-11-12T07:08:11.015130Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::indexer::recovery::subscriber[0m[2m:[0m Using direct-ZMQ KV event ingress on the application runtime
+[2m2026-11-12T07:08:11.015343Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::indexer::recovery::direct_zmq[0m[2m:[0m Configured direct-ZMQ KV ingress SUB fan-in [3mendpoints_per_sub[0m[2m=[0m1 [3menv[0m[2m=[0m"DYN_ROUTER_ZMQ_ENDPOINTS_PER_SUB"
+[2m2026-11-12T07:08:11.016511Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ single-consumer stream connected [3mendpoint[0m[2m=[0m"tcp://192.168.7.7:37821" [3mtopic[0m[2m=[0m"kv-events" [3mrcvhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:11.016514Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ single-consumer stream connected [3mendpoint[0m[2m=[0m"tcp://192.168.7.7:34037" [3mtopic[0m[2m=[0m"kv-events" [3mrcvhwm[0m[2m=[0m100000
+[2m2026-11-12T07:08:11.017205Z[0m [32m INFO[0m [2mdynamo_kv_router::scheduling::queue[0m[2m:[0m Router policy class configured [3mpolicy_class[0m[2m=[0m"default" [3mqueue_policy[0m[2m=[0mfcfs [3mquantum[0m[2m=[0m1 [3mprefill_busy_threshold[0m[2m=[0mNone [3mprefill_busy_threshold_frac[0m[2m=[0mNone
+[2m2026-11-12T07:08:11.017236Z[0m [32m INFO[0m [2mdynamo_kv_router::scheduling::queue[0m[2m:[0m Router queue overlap-score refresh enabled after 10.0s wait
+[2m2026-11-12T07:08:11.017467Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::embedded[0m[2m:[0m KvRouter scheduling on embedded selection partition [3mworker_type[0m[2m=[0maggregated
+[2m2026-11-12T07:08:11.017507Z[0m [33m WARN[0m [2mdynamo_kv_router::sequences::multi_worker[0m[2m:[0m Adding worker WorkerWithDpRank { worker_id: 15633257901333262220, dp_rank: 0 }
+[2m2026-11-12T07:08:11.017541Z[0m [33m WARN[0m [2mdynamo_kv_router::sequences::multi_worker[0m[2m:[0m Adding worker WorkerWithDpRank { worker_id: 17864498916540423001, dp_rank: 0 }
+[2m2026-11-12T07:08:11.018098Z[0m [32m INFO[0m [2mdynamo_llm::kv_router[0m[2m:[0m KV Routing initialized
+[2m2026-11-12T07:08:11.018360Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ single-consumer stream connected [3mendpoint[0m[2m=[0m"tcp://192.168.7.7:45777" [3mtopic[0m[2m=[0m"active_sequences_events" [3mrcvhwm[0m[2m=[0m1024
+[2m2026-11-12T07:08:11.018405Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ single-consumer stream connected [3mendpoint[0m[2m=[0m"tcp://192.168.7.7:33419" [3mtopic[0m[2m=[0m"active_sequences_events" [3mrcvhwm[0m[2m=[0m1024
+[2m2026-11-12T07:08:11.020300Z[0m [32m INFO[0m [1mhandle_payload[0m: [2mdynamo_runtime::pipeline::network::ingress::push_handler[0m[2m:[0m request received [3mrequest_id[0m[2m=[0m01cb39fa-9ed8-4250-8877-434ae412bd84 [2m[3motel.kind[0m[2m=[0m"server" [3mrequest_id[0m[2m=[0m"01cb39fa-9ed8-4250-8877-434ae412bd84" [3mcomponent[0m[2m=[0m"backend" [3mendpoint[0m[2m=[0m"worker_kv_query_source_1bb7665f9bae3e" [3mnamespace[0m[2m=[0m"close-c3c60587-m01-f03-c01" [3minstance_id[0m[2m=[0m15633257901333262220[0m
+[2m2026-11-12T07:08:11.020578Z[0m [32m INFO[0m [1mhandle_payload[0m: [2mdynamo_runtime::pipeline::network::ingress::push_handler[0m[2m:[0m request received [3mrequest_id[0m[2m=[0m5004c4b1-5268-4a9f-b8b8-f539ae561d01 [2m[3motel.kind[0m[2m=[0m"server" [3mrequest_id[0m[2m=[0m"5004c4b1-5268-4a9f-b8b8-f539ae561d01" [3mcomponent[0m[2m=[0m"backend" [3mendpoint[0m[2m=[0m"worker_kv_query_source_11a8011a2a0ef5" [3mnamespace[0m[2m=[0m"close-c3c60587-m01-f03-c01" [3minstance_id[0m[2m=[0m17864498916540423001[0m
+[2m2026-11-12T07:08:11.020866Z[0m [32m INFO[0m [2mdynamo_llm::preprocessor[0m[2m:[0m Selected model parser route [3mmodel[0m[2m=[0mQwen3-0.6B [3mparser_version[0m[2m=[0mAuto [3munified_family[0m[2m=[0mNone [3mtool_parser[0m[2m=[0mNone [3mreasoning_parser[0m[2m=[0mNone
+[2m2026-11-12T07:08:11.021005Z[0m [32m INFO[0m [2mdynamo_kv_router::indexer::local[0m[2m:[0m Built compressed radix recovery dump [3mevent_count[0m[2m=[0m0 [3mrepresented_block_count[0m[2m=[0m0 [3mlast_event_id[0m[2m=[0m0
+[2m2026-11-12T07:08:11.021250Z[0m [32m INFO[0m [1mhandle_payload[0m: [2mdynamo_runtime::pipeline::network::ingress::push_handler[0m[2m:[0m request completed [3mrequest_id[0m[2m=[0m01cb39fa-9ed8-4250-8877-434ae412bd84 [2m[3motel.kind[0m[2m=[0m"server" [3mrequest_id[0m[2m=[0m"01cb39fa-9ed8-4250-8877-434ae412bd84" [3mcomponent[0m[2m=[0m"backend" [3mendpoint[0m[2m=[0m"worker_kv_query_source_1bb7665f9bae3e" [3mnamespace[0m[2m=[0m"close-c3c60587-m01-f03-c01" [3minstance_id[0m[2m=[0m15633257901333262220[0m
+[2m2026-11-12T07:08:11.021342Z[0m [32m INFO[0m [2mdynamo_kv_router::indexer::local[0m[2m:[0m Built compressed radix recovery dump [3mevent_count[0m[2m=[0m0 [3mrepresented_block_count[0m[2m=[0m0 [3mlast_event_id[0m[2m=[0m0
+[2m2026-11-12T07:08:11.021655Z[0m [32m INFO[0m [1mhandle_payload[0m: [2mdynamo_runtime::pipeline::network::ingress::push_handler[0m[2m:[0m request completed [3mrequest_id[0m[2m=[0m5004c4b1-5268-4a9f-b8b8-f539ae561d01 [2m[3motel.kind[0m[2m=[0m"server" [3mrequest_id[0m[2m=[0m"5004c4b1-5268-4a9f-b8b8-f539ae561d01" [3mcomponent[0m[2m=[0m"backend" [3mendpoint[0m[2m=[0m"worker_kv_query_source_11a8011a2a0ef5" [3mnamespace[0m[2m=[0m"close-c3c60587-m01-f03-c01" [3minstance_id[0m[2m=[0m17864498916540423001[0m
+[2m2026-11-12T07:08:11.986532Z[0m [33m WARN[0m [2mmm_routing[0m[2m:[0m /models/Qwen3-0.6B is not supported for MM-aware KV routing (image routing processor unavailable (mm-routing: failed to read preprocessor_config.json at /root/.cache/dynamo/mdc/by-slug/qwen3-0_6b/f1685b8a54e4bc8f75537aa64f3783babf4155abd8e02e03b1a1abbc048f4cbf/preprocessor_config.json); image-placeholder token or model-specific prompt layout unresolvable from config.json / processor_config.json / tokenizer_config.json / vocab probe). Falling back to KV routing without MM awareness — text-prefix overlap still works but the router cannot distinguish requests by image content. [3mmodel[0m[2m=[0m/models/Qwen3-0.6B [3mreasons[0m[2m=[0mimage routing processor unavailable (mm-routing: failed to read preprocessor_config.json at /root/.cache/dynamo/mdc/by-slug/qwen3-0_6b/f1685b8a54e4bc8f75537aa64f3783babf4155abd8e02e03b1a1abbc048f4cbf/preprocessor_config.json); image-placeholder token or model-specific prompt layout unresolvable from config.json / processor_config.json / tokenizer_config.json / vocab probe
+[2m2026-11-12T07:08:11.986675Z[0m [32m INFO[0m [2mdynamo_llm::discovery::watcher[0m[2m:[0m Chat completions is ready
+[2m2026-11-12T07:08:11.987052Z[0m [32m INFO[0m [2mdynamo_llm::preprocessor[0m[2m:[0m Selected model parser route [3mmodel[0m[2m=[0mQwen3-0.6B [3mparser_version[0m[2m=[0mAuto [3munified_family[0m[2m=[0mNone [3mtool_parser[0m[2m=[0mNone [3mreasoning_parser[0m[2m=[0mNone
+[2m2026-11-12T07:08:12.791430Z[0m [31mERROR[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m404 [3mlatency_ms[0m[2m=[0m0
+[2m2026-11-12T07:08:12.852074Z[0m [33m WARN[0m [2mmm_routing[0m[2m:[0m /models/Qwen3-0.6B is not supported for MM-aware KV routing (image routing processor unavailable (mm-routing: failed to read preprocessor_config.json at /root/.cache/dynamo/mdc/by-slug/qwen3-0_6b/f1685b8a54e4bc8f75537aa64f3783babf4155abd8e02e03b1a1abbc048f4cbf/preprocessor_config.json); image-placeholder token or model-specific prompt layout unresolvable from config.json / processor_config.json / tokenizer_config.json / vocab probe). Falling back to KV routing without MM awareness — text-prefix overlap still works but the router cannot distinguish requests by image content. [3mmodel[0m[2m=[0m/models/Qwen3-0.6B [3mreasons[0m[2m=[0mimage routing processor unavailable (mm-routing: failed to read preprocessor_config.json at /root/.cache/dynamo/mdc/by-slug/qwen3-0_6b/f1685b8a54e4bc8f75537aa64f3783babf4155abd8e02e03b1a1abbc048f4cbf/preprocessor_config.json); image-placeholder token or model-specific prompt layout unresolvable from config.json / processor_config.json / tokenizer_config.json / vocab probe
+[2m2026-11-12T07:08:12.852235Z[0m [32m INFO[0m [2mdynamo_llm::discovery::watcher[0m[2m:[0m Completions is ready
+[2m2026-11-12T07:08:12.853122Z[0m [32m INFO[0m [2mdynamo_llm::discovery::model[0m[2m:[0m Adding worker set to model [3mmodel[0m[2m=[0mQwen3-0.6B [3mnamespace[0m[2m=[0m["close-c3c60587-m01-f03-c01","backend","generate","chat|completions","aggregated"]
+[2m2026-11-12T07:08:12.854576Z[0m [32m INFO[0m [2mdynamo_llm::discovery::watcher[0m[2m:[0m Committed discovered model group [3mmodel_name[0m[2m=[0m"Qwen3-0.6B" [3mgroup[0m[2m=[0m["Qwen3-0.6B","[\"close-c3c60587-m01-f03-c01\",\"backend\",\"generate\",\"chat|completions\",\"aggregated\"]"] [3mmembers[0m[2m=[0m2
+[2m2026-11-12T07:08:12.854695Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m chat endpoints enabled
+[2m2026-11-12T07:08:12.854767Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m responses endpoints enabled
+[2m2026-11-12T07:08:12.854775Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m completion endpoints enabled
+[2m2026-11-12T07:08:14.794843Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m http response sent [3mstatus[0m[2m=[0m200 [3mlatency_ms[0m[2m=[0m1
+[2m2026-11-12T07:08:44.148316Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime readiness withdrawn for shutdown
+[2m2026-11-12T07:08:44.148395Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-11-12T07:08:44.148482Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+(EngineCore pid=1636) (EngineCore pid=1625) [2m2026-11-12T07:08:44.148524Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-11-12T07:08:44.148511Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Received shutdown signal; unregistering endpoints from discovery
+[2m2026-11-12T07:08:44.148518Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Received shutdown signal; unregistering endpoints from discovery
+[2m2026-11-12T07:08:44.148385Z[0m [32m INFO[0m [2mcore.signal_handler[0m[2m:[0m [shutdown] EngineCore: trigger received signal=SIGTERM
+[2m2026-11-12T07:08:44.148370Z[0m [32m INFO[0m [2mcore.signal_handler[0m[2m:[0m [shutdown] EngineCore: trigger received signal=SIGTERM
+[2m2026-11-12T07:08:44.148550Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-11-12T07:08:44.148595Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-11-12T07:08:44.148663Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+[2m2026-11-12T07:08:44.148697Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-11-12T07:08:44.148728Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-11-12T07:08:44.148737Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-11-12T07:08:44.148744Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+(EngineCore pid=1625) (EngineCore pid=1636) [2m2026-11-12T07:08:44.148797Z[0m [33m WARN[0m [2mdynamo_llm::discovery::worker_monitor[0m[2m:[0m runtime-config watch closed [3msource[0m[2m=[0mAggregated
+[2m2026-11-12T07:08:44.148816Z[0m [32m INFO[0m [2mdynamo_llm::discovery::worker_monitor[0m[2m:[0m Worker monitoring task exiting
+[2m2026-11-12T07:08:44.148734Z[0m [32m INFO[0m [2mcore.signal_handler[0m[2m:[0m [shutdown] EngineCore: trigger received signal=SIGTERM
+[2m2026-11-12T07:08:44.148929Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m frontend service entering draining stage [3mprevious_stage[0m[2m=[0mReady [3minflight_requests[0m[2m=[0m0
+[2m2026-11-12T07:08:44.148726Z[0m [32m INFO[0m [2mcore.signal_handler[0m[2m:[0m [shutdown] EngineCore: trigger received signal=SIGTERM
+[2m2026-11-12T07:08:44.148979Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m HTTP server shutdown requested
+[2m2026-11-12T07:08:44.149010Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m frontend service entering stopping stage [3mprevious_stage[0m[2m=[0mDraining [3minflight_requests[0m[2m=[0m0
+[2m2026-11-12T07:08:44.149106Z[0m [32m INFO[0m [2mdynamo_llm::http::service::service_v2[0m[2m:[0m frontend service entering stopping stage [3mprevious_stage[0m[2m=[0mStopping [3minflight_requests[0m[2m=[0m0
+[2m2026-11-12T07:08:44.149129Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-11-12T07:08:44.149101Z[0m [33m WARN[0m [2mdynamo_llm::discovery::controller[0m[2m:[0m Model discovery stream ended; retaining committed serving state
+(EngineCore pid=1636) [2m2026-11-12T07:08:44.149104Z[0m [32m INFO[0m [2mcore._handle_shutdown[0m[2m:[0m [shutdown] EngineCore: start mode=abort timeout=0s
+(EngineCore pid=1625) [2m2026-11-12T07:08:44.149163Z[0m [32m INFO[0m [2mcore._handle_shutdown[0m[2m:[0m [shutdown] EngineCore: start mode=abort timeout=0s
+[2m2026-11-12T07:08:44.149198Z[0m [32m INFO[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Successfully unregistered endpoint instance from discovery - worker removed from routing pool [3minstance_id[0m[2m=[0m15633257901333262220
+(EngineCore pid=1636) [2m2026-11-12T07:08:44.149314Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-11-12T07:08:44.149291Z[0m [32m INFO[0m [2mcore._handle_shutdown[0m[2m:[0m [shutdown] EngineCore: request processing complete; starting resource teardown
+(EngineCore pid=1625) [2m2026-11-12T07:08:44.149347Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-11-12T07:08:44.149314Z[0m [32m INFO[0m [2mcore._handle_shutdown[0m[2m:[0m [shutdown] EngineCore: request processing complete; starting resource teardown
+(EngineCore pid=1636) [2m2026-11-12T07:08:44.149440Z[0m [32m INFO[0m [2mcore.run_engine_core[0m[2m:[0m [shutdown] EngineCore: exiting busy loop
+(EngineCore pid=1625) [2m2026-11-12T07:08:44.149454Z[0m [32m INFO[0m [2mcore.run_engine_core[0m[2m:[0m [shutdown] EngineCore: exiting busy loop
+[2m2026-11-12T07:08:44.149366Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-11-12T07:08:44.149591Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+[2m2026-11-12T07:08:44.150406Z[0m [31mERROR[0m [2mdynamo_runtime::component::client[0m[2m:[0m monitor_instance_source: The Sender is dropped: channel closed, endpoint=close-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:44.159959Z[0m [32m INFO[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Successfully unregistered endpoint instance from discovery - worker removed from routing pool [3minstance_id[0m[2m=[0m17864498916540423001
+[2m2026-11-12T07:08:44.160179Z[0m [32m INFO[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Successfully unregistered endpoint instance from discovery - worker removed from routing pool [3minstance_id[0m[2m=[0m15633257901333262220
+[2m2026-11-12T07:08:44.171137Z[0m [32m INFO[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Successfully unregistered endpoint instance from discovery - worker removed from routing pool [3minstance_id[0m[2m=[0m17864498916540423001
+[2m2026-11-12T07:08:44.171192Z[0m [32m INFO[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Successfully unregistered endpoint instance from discovery - worker removed from routing pool [3minstance_id[0m[2m=[0m15633257901333262220
+[2m2026-11-12T07:08:44.172206Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Grace period 5.00s before stopping endpoints
+[2m2026-11-12T07:08:44.182232Z[0m [32m INFO[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Successfully unregistered endpoint instance from discovery - worker removed from routing pool [3minstance_id[0m[2m=[0m17864498916540423001
+[2m2026-11-12T07:08:44.183342Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Grace period 5.00s before stopping endpoints
+[2m2026-11-12T07:08:44.400657Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m10 [3mruntimes[0m[2m=[0m1
+(EngineCore pid=1636) [2m2026-11-12T07:08:45.342200Z[0m [33mWARNING[0m [2mparallel_state.cleanup_dist_env_and_memory[0m[2m:[0m torch.accelerator.empty_host_cache() only available in Pytorch >=2.9
+(EngineCore pid=1625) [2m2026-11-12T07:08:45.423800Z[0m [33mWARNING[0m [2mparallel_state.cleanup_dist_env_and_memory[0m[2m:[0m torch.accelerator.empty_host_cache() only available in Pytorch >=2.9
+[2m2026-11-12T07:08:49.172564Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Withdrawing worker lifecycle records before engine shutdown
+[2m2026-11-12T07:08:49.172798Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Initiating runtime shutdown
+[2m2026-11-12T07:08:49.172836Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime readiness withdrawn for shutdown
+[2m2026-11-12T07:08:49.172849Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-11-12T07:08:49.172950Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-11-12T07:08:49.173022Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-11-12T07:08:49.173035Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 4
+[2m2026-11-12T07:08:49.173414Z[0m [32m INFO[0m [2mengine_monitor._check_engine_health[0m[2m:[0m VllmEngineMonitor: Shutdown event detected, stopping engine health monitoring.
+[2m2026-11-12T07:08:49.173454Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fget%5Fperf%5Fmetrics%2Fd8f47d3b9309af8c'
+[2m2026-11-12T07:08:49.173492Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mget_perf_metrics [3mendpoint_path[0m[2m=[0md8f47d3b9309af8c/close-c3c60587-m01-f03-c01/backend/get_perf_metrics
+[2m2026-11-12T07:08:49.184577Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Withdrawing worker lifecycle records before engine shutdown
+[2m2026-11-12T07:08:49.184769Z[0m [32m INFO[0m [2mgraceful_shutdown.graceful_shutdown_with_discovery[0m[2m:[0m Initiating runtime shutdown
+[2m2026-11-12T07:08:49.184713Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fworker%5Fkv%5Fquery%5Fsource%5F1bb7665f9bae3e%2Fd8f47d3b9309af8c'
+[2m2026-11-12T07:08:49.184801Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime readiness withdrawn for shutdown
+[2m2026-11-12T07:08:49.184840Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-11-12T07:08:49.184844Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mworker_kv_query_source_1bb7665f9bae3e [3mendpoint_path[0m[2m=[0md8f47d3b9309af8c/close-c3c60587-m01-f03-c01/backend/worker_kv_query_source_1bb7665f9bae3e
+[2m2026-11-12T07:08:49.184895Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-11-12T07:08:49.184935Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-11-12T07:08:49.184943Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 4
+[2m2026-11-12T07:08:49.185384Z[0m [32m INFO[0m [2mengine_monitor._check_engine_health[0m[2m:[0m VllmEngineMonitor: Shutdown event detected, stopping engine health monitoring.
+[2m2026-11-12T07:08:49.185565Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fworker%5Fkv%5Fquery%5Fsource%5F11a8011a2a0ef5%2Ff7eb731d4abe1b59'
+[2m2026-11-12T07:08:49.185622Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mworker_kv_query_source_11a8011a2a0ef5 [3mendpoint_path[0m[2m=[0mf7eb731d4abe1b59/close-c3c60587-m01-f03-c01/backend/worker_kv_query_source_11a8011a2a0ef5
+[2m2026-11-12T07:08:49.195685Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fclear%5Fkv%5Fblocks%2Fd8f47d3b9309af8c'
+[2m2026-11-12T07:08:49.195699Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fgenerate%2Fd8f47d3b9309af8c'
+[2m2026-11-12T07:08:49.195724Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mclear_kv_blocks [3mendpoint_path[0m[2m=[0md8f47d3b9309af8c/close-c3c60587-m01-f03-c01/backend/clear_kv_blocks
+[2m2026-11-12T07:08:49.195733Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mgenerate [3mendpoint_path[0m[2m=[0md8f47d3b9309af8c/close-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:49.195761Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:49.195804Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+[2m2026-11-12T07:08:49.196305Z[0m [32m INFO[0m [2mdynamo_llm::fpm_publisher[0m[2m:[0m FPM relay: shutting down
+[2m2026-11-12T07:08:49.196320Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher::event_processor[0m[2m:[0m KV Event source received cancellation signal
+[2m2026-11-12T07:08:49.196549Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fgenerate%2Ff7eb731d4abe1b59'
+[2m2026-11-12T07:08:49.196574Z[0m [33m WARN[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m Failed to unregister KV event source [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/event_sources/namespace%2Fclose%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fcomponent%2Fbackend%2Fendpoint%2Fgenerate%2Ftopic%2Fkv%2Devents%2F1bb7665f9bae3e' [3mpublisher_id[0m[2m=[0m7801474689773118
+[2m2026-11-12T07:08:49.196580Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mgenerate [3mendpoint_path[0m[2m=[0mf7eb731d4abe1b59/close-c3c60587-m01-f03-c01/backend/generate
+[2m2026-11-12T07:08:49.196614Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fclear%5Fkv%5Fblocks%2Ff7eb731d4abe1b59'
+[2m2026-11-12T07:08:49.196533Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: start timeout=0s
+[2m2026-11-12T07:08:49.196687Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mclear_kv_blocks [3mendpoint_path[0m[2m=[0mf7eb731d4abe1b59/close-c3c60587-m01-f03-c01/backend/clear_kv_blocks
+[2m2026-11-12T07:08:49.196742Z[0m [33m WARN[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m Failed to unregister EventPublisher from discovery [3mtopic[0m[2m=[0mkv-events [3mpublisher_id[0m[2m=[0m7801474689773118 [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/event_channels/namespace%2Fclose%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fcomponent%2Fbackend%2Fendpoint%2Fgenerate%2Ftopic%2Fkv%2Devents%2F1bb7665f9bae3e'
+[2m2026-11-12T07:08:49.196783Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:49.196952Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: stopping engine manager
+[2m2026-11-12T07:08:49.197009Z[0m [33m WARN[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m Failed to unregister EventPublisher from discovery [3mtopic[0m[2m=[0mforward-pass-metrics [3mpublisher_id[0m[2m=[0m3656816246234176 [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/event_channels/namespace%2Fclose%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fcomponent%2Fbackend%2Fendpoint%2Fgenerate%2Ftopic%2Fforward%2Dpass%2Dmetrics%2Fcfddae15d9c40'
+[2m2026-11-12T07:08:49.197091Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:49.197300Z[0m [32m INFO[0m [2mutils.shutdown[0m[2m:[0m [shutdown] Process manager: send sigterm to process EngineCore
+[2m2026-11-12T07:08:49.197691Z[0m [33mWARNING[0m [2mutils.shutdown[0m[2m:[0m [shutdown] Process manager: force killing remaining processes count=1
+[2m2026-11-12T07:08:49.197860Z[0m [33mWARNING[0m [2mutils.shutdown[0m[2m:[0m [shutdown] Process manager: force killing remaining process EngineCore pid 1625
+[2m2026-11-12T07:08:49.200793Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: engine manager stopped
+[2m2026-11-12T07:08:49.200994Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: cleaning up background resources
+[2m2026-11-12T07:08:49.201402Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: complete
+[2m2026-11-12T07:08:49.207671Z[0m [33m WARN[0m [2mdynamo_runtime::component::endpoint[0m[2m:[0m Failed to unregister endpoint from discovery [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/instances/close%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fbackend%2Fget%5Fperf%5Fmetrics%2Ff7eb731d4abe1b59'
+[2m2026-11-12T07:08:49.207707Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mget_perf_metrics [3mendpoint_path[0m[2m=[0mf7eb731d4abe1b59/close-c3c60587-m01-f03-c01/backend/get_perf_metrics
+[2m2026-11-12T07:08:49.207730Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:49.207774Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+[2m2026-11-12T07:08:49.208026Z[0m [32m INFO[0m [2mdynamo_llm::fpm_publisher[0m[2m:[0m FPM relay: shutting down
+[2m2026-11-12T07:08:49.208052Z[0m [32m INFO[0m [2mdynamo_llm::kv_router::publisher::event_processor[0m[2m:[0m KV Event source received cancellation signal
+[2m2026-11-12T07:08:49.208193Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: start timeout=0s
+[2m2026-11-12T07:08:49.208416Z[0m [33m WARN[0m [2mdynamo_llm::kv_router::publisher[0m[2m:[0m Failed to unregister KV event source [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/event_sources/namespace%2Fclose%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fcomponent%2Fbackend%2Fendpoint%2Fgenerate%2Ftopic%2Fkv%2Devents%2F11a8011a2a0ef5' [3mpublisher_id[0m[2m=[0m4969797291478773
+[2m2026-11-12T07:08:49.208569Z[0m [33m WARN[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m Failed to unregister EventPublisher from discovery [3mtopic[0m[2m=[0mkv-events [3mpublisher_id[0m[2m=[0m4969797291478773 [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/event_channels/namespace%2Fclose%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fcomponent%2Fbackend%2Fendpoint%2Fgenerate%2Ftopic%2Fkv%2Devents%2F11a8011a2a0ef5'
+[2m2026-11-12T07:08:49.208612Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:49.208603Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: stopping engine manager
+[2m2026-11-12T07:08:49.208804Z[0m [33m WARN[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m Failed to unregister EventPublisher from discovery [3mtopic[0m[2m=[0mforward-pass-metrics [3mpublisher_id[0m[2m=[0m684144336803411 [3merror[0m[2m=[0mCould not find key '/tmp/closure-m01-discovery/v1/event_channels/namespace%2Fclose%2Dc3c60587%2Dm01%2Df03%2Dc01%2Fcomponent%2Fbackend%2Fendpoint%2Fgenerate%2Ftopic%2Fforward%2Dpass%2Dmetrics%2F26e39c42b9653'
+[2m2026-11-12T07:08:49.208856Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T07:08:49.208893Z[0m [32m INFO[0m [2mutils.shutdown[0m[2m:[0m [shutdown] Process manager: send sigterm to process EngineCore
+[2m2026-11-12T07:08:49.209272Z[0m [33mWARNING[0m [2mutils.shutdown[0m[2m:[0m [shutdown] Process manager: force killing remaining processes count=1
+[2m2026-11-12T07:08:49.209430Z[0m [33mWARNING[0m [2mutils.shutdown[0m[2m:[0m [shutdown] Process manager: force killing remaining process EngineCore pid 1636
+[2m2026-11-12T07:08:49.211493Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: engine manager stopped
+[2m2026-11-12T07:08:49.211687Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: cleaning up background resources
+[2m2026-11-12T07:08:49.212065Z[0m [32m INFO[0m [2mcore_client.shutdown[0m[2m:[0m [shutdown] MPClient: complete
+[2m2026-11-12T07:08:49.453134Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m4 [3mruntimes[0m[2m=[0m1
+[2m2026-11-12T07:08:49.463658Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m4 [3mruntimes[0m[2m=[0m1
+Cleaning up...

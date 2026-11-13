@@ -1,0 +1,76 @@
+{
+  "feature_id": "M01-F03",
+  "prepare": [],
+  "run": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/m01-controller.py",
+        "run",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M01-F03-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py"
+      ],
+      "case_id": "M01-F03-C01",
+      "optional": false
+    }
+  ],
+  "observe": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/m01-controller.py",
+        "observe",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M01-F03-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py"
+      ],
+      "case_id": "M01-F03-C01",
+      "optional": false
+    }
+  ],
+  "cleanup": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/m01-controller.py",
+        "cleanup",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M01-F03-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py"
+      ],
+      "case_id": "M01-F03-C01",
+      "optional": false
+    }
+  ],
+  "resources": [],
+  "case_ids": [
+    "M01-F03-C01"
+  ],
+  "recipe_sources": {
+    "adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py": "15c43c80156236bcb4cbca3bb38561cee10f19941ee713aa8e5186a98aac67d3"
+  },
+  "bindings_sha256": {
+    "M01-F03-C01": "68a996343c971e5af5583837952a944ae9020e8a30bfbbf3763db7f2e0ffa921"
+  },
+  "verify": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "adapter.workflow.evidence.verify",
+        "--envelope",
+        "{attempt}/envelope.json"
+      ]
+    }
+  ]
+}

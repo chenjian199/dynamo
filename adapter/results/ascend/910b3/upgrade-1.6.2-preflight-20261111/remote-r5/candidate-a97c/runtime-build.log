@@ -1,0 +1,78 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  111.5MB
+Step 1/15 : ARG BASE_IMAGE
+Step 2/15 : FROM ${BASE_IMAGE}
+ ---> 74224d25260d
+Step 3/15 : USER root
+ ---> Running in 10adec475b88
+ ---> Removed intermediate container 10adec475b88
+ ---> e08bb5115264
+Step 4/15 : ARG ACCELERATOR
+ ---> Running in 5c3791ecccdb
+ ---> Removed intermediate container 5c3791ecccdb
+ ---> 1ae44d755f20
+Step 5/15 : ENV DYNAMO_IMAGE_PLATFORM=${ACCELERATOR} DYN_PLATFORM=${ACCELERATOR}
+ ---> Running in 779c867a45a5
+ ---> Removed intermediate container 779c867a45a5
+ ---> 75f7fd75386d
+Step 6/15 : ENV PATH=/opt/dynamo/venv/bin:${PATH}
+ ---> Running in 5df60c0ebded
+ ---> Removed intermediate container 5df60c0ebded
+ ---> 4289236a4bf8
+Step 7/15 : ENV LD_LIBRARY_PATH=/opt/dynamo/native:${LD_LIBRARY_PATH}
+ ---> Running in 5d32e0f4e1fb
+ ---> Removed intermediate container 5d32e0f4e1fb
+ ---> a3bdeabf51bf
+Step 8/15 : COPY artifacts /opt/dynamo/artifacts
+ ---> 4fc7055b174d
+Step 9/15 : COPY audit.py /opt/dynamo/bin/audit.py
+ ---> 6f98fb2ed9a6
+Step 10/15 : COPY entrypoint.sh /opt/dynamo/bin/entrypoint.sh
+ ---> 472e3b59b716
+Step 11/15 : RUN python3 -m venv --system-site-packages /opt/dynamo/venv &&     python /opt/dynamo/bin/audit.py verify /opt/dynamo/artifacts &&     python -m pip install --no-index --no-deps --ignore-installed /opt/dynamo/artifacts/wheels/*.whl &&     mkdir -p /opt/dynamo/native && cp -a /opt/dynamo/artifacts/native/. /opt/dynamo/native/ &&     chmod +x /opt/dynamo/bin/entrypoint.sh &&     python /opt/dynamo/bin/audit.py installed /opt/dynamo/artifacts
+ ---> Running in 8c7307a917cd
+Processing /opt/dynamo/artifacts/wheels/ai_dynamo-1.6.2-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/aiohttp-3.14.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/blake3-1.0.9-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/durationpy-0.11-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/google_auth-2.62.2-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/gpu_memory_service-0.9.0-cp312-cp312-linux_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/kubernetes-32.0.1-py2.py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/kvbm-1.6.2-cp310-abi3-linux_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/multidict-6.9.1-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/oauthlib-4.0.1-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/pyasn1-0.6.5-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/pyasn1_modules-0.4.2-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/pydantic-2.13.5-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/pydantic_core-2.46.5-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+Processing /opt/dynamo/artifacts/wheels/redis-8.1.0-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/requests_oauthlib-2.0.0-py2.py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/websocket_client-1.9.2-py3-none-any.whl
+Processing /opt/dynamo/artifacts/wheels/zstandard-0.23.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+Installing collected packages: durationpy, zstandard, websocket-client, requests-oauthlib, redis, pydantic-core, pydantic, pyasn1-modules, pyasn1, oauthlib, multidict, kvbm, kubernetes, gpu-memory-service, google-auth, blake3, aiohttp, ai-dynamo-runtime, ai-dynamo
+Successfully installed ai-dynamo-1.6.2 ai-dynamo-runtime-1.6.2 aiohttp-3.14.3 blake3-1.0.9 durationpy-0.11 google-auth-2.62.2 gpu-memory-service-0.9.0 kubernetes-32.0.1 kvbm-1.6.2 multidict-6.9.1 oauthlib-4.0.1 pyasn1-0.6.5 pyasn1-modules-0.4.2 pydantic-2.13.5 pydantic-core-2.46.5 redis-8.1.0 requests-oauthlib-2.0.0 websocket-client-1.9.2 zstandard-0.23.0
+{"imports": {"dynamo._core": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so", "dynamo.common.platform": "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/common/platform/__init__.py", "kvbm._core": "/opt/dynamo/venv/lib/python3.12/site-packages/kvbm/_core.abi3.so", "gpu_memory_service": "/opt/dynamo/venv/lib/python3.12/site-packages/gpu_memory_service/__init__.py"}, "vendor_conflicts": 10}
+ ---> Removed intermediate container 8c7307a917cd
+ ---> 17a6006649e5
+Step 12/15 : RUN if [ "$ACCELERATOR" != cuda ]; then         python /opt/dynamo/artifacts/vendor-patches/patch_vendor.py --platform "$ACCELERATOR" --apply > /opt/dynamo/vendor-patch.log;     fi &&     if [ "$ACCELERATOR" = ascend ]; then         python /opt/dynamo/artifacts/vendor-patches/patch_ascend_tp.py --apply >> /opt/dynamo/vendor-patch.log;     fi
+ ---> Running in 16fba5238f2b
+ ---> Removed intermediate container 16fba5238f2b
+ ---> fc795029c870
+Step 13/15 : WORKDIR /opt/dynamo
+ ---> Running in cd1a09b09be3
+ ---> Removed intermediate container cd1a09b09be3
+ ---> e3156dbc9d5d
+Step 14/15 : ENTRYPOINT ["/opt/dynamo/bin/entrypoint.sh"]
+ ---> Running in 8291788cd137
+ ---> Removed intermediate container 8291788cd137
+ ---> 2cc592229e7a
+Step 15/15 : CMD ["python", "-m", "dynamo.frontend", "--help"]
+ ---> Running in 3542c8597b57
+ ---> Removed intermediate container 3542c8597b57
+ ---> 26b68876a523
+Successfully built 26b68876a523
+Successfully tagged heyi/dynamo:1.6.2-ascend0.30-a97c71d2b1-runtime

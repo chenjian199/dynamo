@@ -1,0 +1,68 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "closure-comparison-tools-2a239c2b50",
+    "namespace": "heyi-upgrade162",
+    "labels": {
+      "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+    }
+  },
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "restartPolicy": "Never",
+    "activeDeadlineSeconds": 7200,
+    "automountServiceAccountToken": false,
+    "containers": [
+      {
+        "name": "main",
+        "image": "docker.io/heyi/dynamo@sha256:0a64ed62f07d451a1b648dc033edd0678b32a545a6d2c2910dc4cc5fcc01c47e",
+        "imagePullPolicy": "Never",
+        "command": [
+          "/opt/dynamo/bin/tools-entrypoint.sh"
+        ],
+        "args": [
+          "sleep",
+          "infinity"
+        ],
+        "env": [
+          {
+            "name": "DYN_PLATFORM",
+            "value": "cpu"
+          },
+          {
+            "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+            "value": "0"
+          }
+        ],
+        "resources": {
+          "requests": {
+            "cpu": "1",
+            "memory": "2Gi"
+          },
+          "limits": {
+            "cpu": "4",
+            "memory": "8Gi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "comparison",
+            "mountPath": "/comparison"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "comparison",
+        "hostPath": {
+          "path": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/comparison-2a239c2b50",
+          "type": "Directory"
+        }
+      }
+    ]
+  }
+}

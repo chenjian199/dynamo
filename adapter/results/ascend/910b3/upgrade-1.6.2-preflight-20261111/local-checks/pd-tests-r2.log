@@ -1,0 +1,172 @@
+[LogService] File logging is disabled due to failure on creating directory "//mxlog/umd/" 
+INFO 11-11 14:55:35 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 14:55:35 [__init__.py:54] - metax -> vllm_metax:register
+INFO 11-11 14:55:35 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 14:55:35 [__init__.py:237] Platform plugin metax is activated
+INFO 11-11 14:55:35 [envs.py:136] vllm-metax would try to sets VLLM_USE_FLASHINFER_SAMPLER default to False. Reason: controlled by VLLM_METAX_USE_FLASHINFER_SAMPLER; disabled by default
+INFO 11-11 14:55:35 [envs.py:136] vllm-metax would try to sets VLLM_ENGINE_READY_TIMEOUT_S default to 7200. Reason: set timeout to 7200s for model loading
+INFO 11-11 14:55:35 [envs.py:136] vllm-metax would try to sets VLLM_FLOAT32_MATMUL_PRECISION default to high. Reason: set float32 matmul precision to high for better performance on Maca platform
+INFO 11-11 14:55:35 [envs.py:136] vllm-metax would try to sets VLLM_USE_V2_MODEL_RUNNER default to False. Reason: v2 model runner is still under development and not fully tested on Maca platform, disable it by default
+INFO 11-11 14:55:35 [envs.py:136] vllm-metax would try to sets VLLM_USE_DEEP_GEMM_E8M0 default to False. Reason: USE_DEEP_GEMM_E8M0 default to false on Maca platform
+INFO 11-11 14:55:43 [importing.py:53] Triton is installed but 0 active driver(s) found (expected 1). Disabling Triton to prevent runtime errors.
+INFO 11-11 14:55:43 [importing.py:88] Triton not installed or not compatible; certain GPU-related functions will not be available.
+........................................................................ [ 46%]
+...........................................F............................ [ 93%]
+.........F                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_ascend_mooncake_libraries_are_loaded_globally_once ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4769cb02c0>
+
+    def test_ascend_mooncake_libraries_are_loaded_globally_once(monkeypatch):
+        import ctypes
+    
+        from dynamo.common.platform import ascend_mooncake
+    
+        calls = []
+        marker = object()
+    
+        def load(path, mode):
+            calls.append((path, mode))
+            return marker
+    
+        monkeypatch.setattr(ascend_mooncake, "_cann_datadist", None)
+        monkeypatch.setattr(ascend_mooncake.ctypes, "CDLL", load)
+>       ascend_mooncake.prepare_mooncake_libraries()
+
+components/src/dynamo/vllm/tests/test_pd_contract.py:458: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def prepare_mooncake_libraries():
+        global _cann_datadist
+        if _cann_datadist is None:
+            # Resolve the active CANN environment, never a hard-coded old release.
+            # Absolute candidates also avoid loading a same-named library from cwd.
+            candidates = []
+            for variable in ("ASCEND_HOME_PATH", "ASCEND_TOOLKIT_HOME"):
+                if root := os.environ.get(variable):
+                    candidates.append(Path(root) / "lib64/libllm_datadist.so")
+            candidates.extend(
+                Path(directory) / "libllm_datadist.so"
+                for directory in os.environ.get("LD_LIBRARY_PATH", "").split(":")
+                if directory and Path(directory).is_absolute()
+            )
+            candidates.append(
+                Path("/usr/local/Ascend/ascend-toolkit/latest/lib64/libllm_datadist.so")
+            )
+            library = next((path for path in candidates if path.is_file()), None)
+            if library is None:
+>               raise RuntimeError(
+                    "Cannot find CANN libllm_datadist.so; initialize the active "
+                    "CANN environment before importing Mooncake"
+                )
+E               RuntimeError: Cannot find CANN libllm_datadist.so; initialize the active CANN environment before importing Mooncake
+
+components/src/dynamo/common/platform/ascend_mooncake.py:38: RuntimeError
+____________ test_real_vllm_mooncake_helper_signature_is_compatible ____________
+
+    @pytest.mark.skipif(
+        _real_mooncake_spec is None,
+        reason="vLLM Mooncake connector not installed in this environment",
+    )
+    def test_real_vllm_mooncake_helper_signature_is_compatible():
+        """Contract test: when vLLM Mooncake is present, the helper the protocol
+        imports must exist and be callable with a single vllm_config argument."""
+        import inspect
+    
+>       real = importlib.import_module(_MOONCAKE_MOD)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+components/src/dynamo/vllm/tests/test_vllm_kv_connector_protocols.py:571: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/conda/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+<frozen importlib._bootstrap_external>:999: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+/opt/conda/lib/python3.12/site-packages/vllm/distributed/kv_transfer/kv_connector/v1/mooncake/mooncake_connector.py:51: in <module>
+    from vllm.model_executor.models.utils import extract_layer_index
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/models/utils.py:21: in <module>
+    from vllm.model_executor.model_loader.reload import (
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/model_loader/__init__.py:11: in <module>
+    from vllm.model_executor.model_loader.base_loader import BaseModelLoader
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/model_loader/base_loader.py:12: in <module>
+    from vllm.model_executor.model_loader.reload import finalize_layerwise_processing
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/model_loader/reload/__init__.py:29: in <module>
+    from .layerwise import (
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/model_loader/reload/layerwise.py:12: in <module>
+    from vllm.model_executor.layers.attention import Attention, MLAAttention
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/layers/attention/__init__.py:13: in <module>
+    from vllm.model_executor.layers.attention.mm_encoder_attention import MMEncoderAttention
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/layers/attention/mm_encoder_attention.py:11: in <module>
+    from vllm.kernels.triton.qkv_padded_fp8_quant import (
+/opt/conda/lib/python3.12/site-packages/vllm/kernels/__init__.py:5: in <module>
+    from . import aiter_ops, oink_ops, vllm_c, xpu_ops
+/opt/conda/lib/python3.12/site-packages/vllm/kernels/oink_ops.py:18: in <module>
+    OINK_AVAILABLE = current_platform.has_device_capability(100) and hasattr(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:158: in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:734: in has_device_capability
+    return super().has_device_capability(capability, device_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm/platforms/interface.py:447: in has_device_capability
+    current_capability = cls.get_device_capability(device_id=device_id)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:158: in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:720: in get_device_capability
+    handle = pymxsml.nvmlDeviceGetHandleByIndex(physical_device_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/third_party/pymxsml.py:2501: in nvmlDeviceGetHandleByIndex
+    _nvmlCheckReturn(ret)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ret = 2
+
+    def _nvmlCheckReturn(ret):
+        if (ret != MXSMLEX_SUCCESS):
+>           raise NVMLError(ret)
+E           vllm_metax.third_party.pymxsml.NVMLError_InvalidArgument: Invalid Argument
+
+/opt/conda/lib/python3.12/site-packages/vllm_metax/third_party/pymxsml.py:942: NVMLError_InvalidArgument
+----------------------------- Captured stdout call -----------------------------
+INFO Print the version information of mcoplib during compilation.
+
+Version info:Mcoplib_Version = '0.4.11'
+Build_Maca_Version = '3.8.0.25'
+Build_Torch_Version = '2.10.0+metax3.8.0.9'
+Min_Compatibility_Maca_Version = '3.7.0'
+GIT_BRANCH = 'HEAD'
+GIT_COMMIT = 'a3b69de'
+Vllm Op Version = 0.26.0
+SGlang Op Version  = 0.5.17 
+
+INFO Staring Check the torch version compatibility of the operating environment.
+
+INFO: Torch version compatibility check passed: build=2.10.0+metax3.8.0.9, runtime=2.10.0+metax3.8.2.2.
+
+INFO Staring Check the current MACA version of the operating environment.
+
+INFO: Release major.minor matching,  successful:3.8. 
+
+INFO Staring Check the MACA minimum compatibility version of the operating environment.
+
+INFO: MACA minimum compatibility check passed: 3.8.2 >= 3.7.0.
+
+=========================== short test summary info ============================
+FAILED components/src/dynamo/vllm/tests/test_pd_contract.py::test_ascend_mooncake_libraries_are_loaded_globally_once
+FAILED components/src/dynamo/vllm/tests/test_vllm_kv_connector_protocols.py::test_real_vllm_mooncake_helper_signature_is_compatible
+2 failed, 152 passed in 12.60s

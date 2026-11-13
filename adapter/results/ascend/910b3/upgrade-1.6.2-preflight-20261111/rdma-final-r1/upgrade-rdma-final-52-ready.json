@@ -1,0 +1,273 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "annotations": {
+      "ascend.kubectl.kubernetes.io/ascend-910-configuration": "{\"pod_name\":\"upgrade-rdma-final-52\",\"server_id\":\"192.168.7.7\",\"super_pod_id\":-1,\"devices\":[{\"device_id\":\"0\",\"device_ip\":\"10.52.11.35\",\"super_device_id\":\"4290772992\"}]}",
+      "huawei.com/AscendReal": "Ascend910-0",
+      "huawei.com/kltDev": "Ascend910-0"
+    },
+    "creationTimestamp": "2026-11-11T11:24:43Z",
+    "labels": {
+      "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+    },
+    "name": "upgrade-rdma-final-52",
+    "namespace": "heyi-upgrade162",
+    "resourceVersion": "298389695",
+    "uid": "2265854e-2b43-4b0e-9401-2852102461a5"
+  },
+  "spec": {
+    "activeDeadlineSeconds": 900,
+    "automountServiceAccountToken": false,
+    "containers": [
+      {
+        "args": [
+          "sleep",
+          "850"
+        ],
+        "command": [
+          "/opt/dynamo/bin/entrypoint.sh"
+        ],
+        "env": [
+          {
+            "name": "HF_HUB_OFFLINE",
+            "value": "1"
+          },
+          {
+            "name": "VLLM_HOST_IP",
+            "valueFrom": {
+              "fieldRef": {
+                "apiVersion": "v1",
+                "fieldPath": "status.podIP"
+              }
+            }
+          },
+          {
+            "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+            "value": "20090"
+          },
+          {
+            "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+            "value": "60"
+          },
+          {
+            "name": "ASCEND_TRANSFER_TIMEOUT",
+            "value": "30000"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "GOMAXPROCS",
+            "value": "4"
+          },
+          {
+            "name": "SPT_NOENV",
+            "value": "1"
+          },
+          {
+            "name": "OMP_NUM_THREADS",
+            "value": "4"
+          },
+          {
+            "name": "DYN_PLATFORM",
+            "value": "ascend"
+          }
+        ],
+        "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+        "imagePullPolicy": "Never",
+        "name": "main",
+        "resources": {
+          "limits": {
+            "cpu": "16",
+            "huawei.com/Ascend910": "1",
+            "memory": "64Gi"
+          },
+          "requests": {
+            "cpu": "4",
+            "huawei.com/Ascend910": "1",
+            "memory": "16Gi"
+          }
+        },
+        "terminationMessagePath": "/dev/termination-log",
+        "terminationMessagePolicy": "File",
+        "volumeMounts": [
+          {
+            "mountPath": "/usr/local/Ascend/driver",
+            "name": "ascend-driver",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/usr/local/dcmi",
+            "name": "ascend-dcmi",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/usr/local/sbin/npu-smi",
+            "name": "ascend-smi",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/dev/shm",
+            "name": "shm"
+          }
+        ]
+      }
+    ],
+    "dnsPolicy": "ClusterFirst",
+    "enableServiceLinks": true,
+    "nodeName": "master-02-45d4a763",
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "preemptionPolicy": "PreemptLowerPriority",
+    "priority": 0,
+    "restartPolicy": "Never",
+    "schedulerName": "default-scheduler",
+    "securityContext": {},
+    "serviceAccount": "default",
+    "serviceAccountName": "default",
+    "terminationGracePeriodSeconds": 90,
+    "tolerations": [
+      {
+        "effect": "NoSchedule",
+        "key": "huawei.com/Ascend910",
+        "operator": "Exists"
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/not-ready",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/unreachable",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      }
+    ],
+    "volumes": [
+      {
+        "hostPath": {
+          "path": "/usr/local/Ascend/driver",
+          "type": "Directory"
+        },
+        "name": "ascend-driver"
+      },
+      {
+        "hostPath": {
+          "path": "/usr/local/dcmi",
+          "type": "Directory"
+        },
+        "name": "ascend-dcmi"
+      },
+      {
+        "hostPath": {
+          "path": "/usr/local/bin/npu-smi",
+          "type": "File"
+        },
+        "name": "ascend-smi"
+      },
+      {
+        "emptyDir": {
+          "medium": "Memory",
+          "sizeLimit": "8Gi"
+        },
+        "name": "shm"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:24:45Z",
+        "status": "True",
+        "type": "PodReadyToStartContainers"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:24:44Z",
+        "status": "True",
+        "type": "Initialized"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:24:45Z",
+        "status": "True",
+        "type": "Ready"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:24:45Z",
+        "status": "True",
+        "type": "ContainersReady"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:24:43Z",
+        "status": "True",
+        "type": "PodScheduled"
+      }
+    ],
+    "containerStatuses": [
+      {
+        "containerID": "containerd://47fa1ae60142a9d5ea50e57768a605439d6c45c4f66f74a8d09a89ce5993a083",
+        "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+        "imageID": "sha256:3ffd28fee081ae257f16d33102f39a611784bc174a0c8ebe8f1a46e47c71b311",
+        "lastState": {},
+        "name": "main",
+        "ready": true,
+        "restartCount": 0,
+        "started": true,
+        "state": {
+          "running": {
+            "startedAt": "2026-11-11T11:24:44Z"
+          }
+        },
+        "volumeMounts": [
+          {
+            "mountPath": "/usr/local/Ascend/driver",
+            "name": "ascend-driver",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/usr/local/dcmi",
+            "name": "ascend-dcmi",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/usr/local/sbin/npu-smi",
+            "name": "ascend-smi",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/dev/shm",
+            "name": "shm"
+          }
+        ]
+      }
+    ],
+    "hostIP": "192.168.7.7",
+    "hostIPs": [
+      {
+        "ip": "192.168.7.7"
+      }
+    ],
+    "phase": "Running",
+    "podIP": "10.42.5.228",
+    "podIPs": [
+      {
+        "ip": "10.42.5.228"
+      }
+    ],
+    "qosClass": "Burstable",
+    "startTime": "2026-11-11T11:24:44Z"
+  }
+}

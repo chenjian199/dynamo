@@ -1,0 +1,667 @@
+...................................FF................................... [ 15%]
+........................................................................ [ 31%]
+........................................................F............... [ 47%]
+........................................................................ [ 63%]
+........................................................................ [ 79%]
+.....................................................FFFFFFFFFFFF....... [ 95%]
+....................                                                     [100%]
+=================================== FAILURES ===================================
+_ TestInjectMockerAicArgs.test_dense_tp_pick_starts_with_canonical_estimator[False] _
+
+self = <test_dgd_generation_ais.TestInjectMockerAicArgs object at 0x7f1657e7de50>
+explicit_capacity = False
+
+    @pytest.mark.parametrize("explicit_capacity", [False, True])
+    def test_dense_tp_pick_starts_with_canonical_estimator(self, explicit_capacity):
+        # Only packaged model metadata/performance tables are used; no weights.
+        from aisimulate_core.sdk import RustForwardPassPerfModel
+    
+        from dynamo.mocker.args import parse_args
+        from dynamo.mocker.config import build_mocker_engine_args
+    
+        pick = PickedParallelConfig(tp=2)
+        spec = self._spec("vllm").model_copy(
+            update={
+                "hf_id": "Qwen/Qwen3-32B",
+                "prefill_pick": pick,
+                "decode_pick": pick,
+            }
+        )
+        args = ["--model-path", spec.hf_id, "--disaggregation-mode", "prefill"]
+        if explicit_capacity:
+            args.extend(["--num-gpu-blocks-override", "1024"])
+        engine = build_mocker_engine_args(
+>           parse_args(_inject_mocker_ais_args(args, spec, pick))
+        )
+
+components/src/dynamo/profiler/tests/unit/test_dgd_generation_ais.py:359: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/mocker/args.py:159: in parse_args
+    engine_defaults = normalize_mocker_config()["engine"]
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = None
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ TestInjectMockerAicArgs.test_dense_tp_pick_starts_with_canonical_estimator[True] _
+
+self = <test_dgd_generation_ais.TestInjectMockerAicArgs object at 0x7f1657e7dfa0>
+explicit_capacity = True
+
+    @pytest.mark.parametrize("explicit_capacity", [False, True])
+    def test_dense_tp_pick_starts_with_canonical_estimator(self, explicit_capacity):
+        # Only packaged model metadata/performance tables are used; no weights.
+        from aisimulate_core.sdk import RustForwardPassPerfModel
+    
+        from dynamo.mocker.args import parse_args
+        from dynamo.mocker.config import build_mocker_engine_args
+    
+        pick = PickedParallelConfig(tp=2)
+        spec = self._spec("vllm").model_copy(
+            update={
+                "hf_id": "Qwen/Qwen3-32B",
+                "prefill_pick": pick,
+                "decode_pick": pick,
+            }
+        )
+        args = ["--model-path", spec.hf_id, "--disaggregation-mode", "prefill"]
+        if explicit_capacity:
+            args.extend(["--num-gpu-blocks-override", "1024"])
+        engine = build_mocker_engine_args(
+>           parse_args(_inject_mocker_ais_args(args, spec, pick))
+        )
+
+components/src/dynamo/profiler/tests/unit/test_dgd_generation_ais.py:359: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/mocker/args.py:159: in parse_args
+    engine_defaults = normalize_mocker_config()["engine"]
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = None
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ TestAssembleFinalConfig.test_enable_planner_worker_scaling_adapters_uses_component_name_fallback _
+
+self = <test_helpers_profile_sla.TestAssembleFinalConfig object at 0x7f1656ae3230>
+
+    @pytest.mark.pre_merge
+    @pytest.mark.gpu_0
+    def test_enable_planner_worker_scaling_adapters_uses_component_name_fallback(self):
+        dgd_config = {
+            "spec": {
+                "components": [
+                    {"name": "prefill", "type": "worker"},
+                    {"name": "decode", "type": "worker"},
+                ]
+            }
+        }
+    
+        enable_planner_worker_scaling_adapters(
+            dgd_config, _make_planner(mode="prefill")
+        )
+    
+        components = {
+            component["name"]: component
+            for component in dgd_config["spec"]["components"]
+        }
+>       assert components["prefill"]["scalingAdapter"] == {"enabled": True}
+E       AssertionError: assert {} == {'enabled': True}
+E         
+E         Right contains 1 more item:
+E         {'enabled': True}
+E         Use -v to get more diff
+
+components/src/dynamo/profiler/tests/unit/test_helpers_profile_sla.py:946: AssertionError
+----------------------------- Captured stderr call -----------------------------
+[2m2026-11-11T07:19:07.867967Z[0m [33m WARN[0m [2mplanner_config._validate_config[0m[2m:[0m pre_deployment_sweeping_mode='rapid' but aic_interpolation is not set; planner will use ais_perf_model, live FPM tuning, or profile_results_dir files if the get_perf_metrics endpoint is unavailable.
+------------------------------ Captured log call -------------------------------
+WARNING  dynamo.planner.config.planner_config:planner_config.py:1061 pre_deployment_sweeping_mode='rapid' but aic_interpolation is not set; planner will use ais_perf_model, live FPM tuning, or profile_results_dir files if the get_perf_metrics endpoint is unavailable.
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[256-vllm] _
+
+backend_name = 'vllm', isl = 256
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'vllm', 'block_size': 512, 'enable_chunked_prefill': False, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[256-sglang] _
+
+backend_name = 'sglang', isl = 256
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'sglang', 'block_size': 512, 'enable_chunked_prefill': True, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[512-vllm] _
+
+backend_name = 'vllm', isl = 512
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'vllm', 'block_size': 512, 'enable_chunked_prefill': False, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[512-sglang] _
+
+backend_name = 'sglang', isl = 512
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'sglang', 'block_size': 512, 'enable_chunked_prefill': True, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[1024-vllm] _
+
+backend_name = 'vllm', isl = 1024
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'vllm', 'block_size': 512, 'enable_chunked_prefill': False, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[1024-sglang] _
+
+backend_name = 'sglang', isl = 1024
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'sglang', 'block_size': 512, 'enable_chunked_prefill': True, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[2048-vllm] _
+
+backend_name = 'vllm', isl = 2048
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'vllm', 'block_size': 512, 'enable_chunked_prefill': False, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[2048-sglang] _
+
+backend_name = 'sglang', isl = 2048
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'sglang', 'block_size': 512, 'enable_chunked_prefill': True, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[4096-vllm] _
+
+backend_name = 'vllm', isl = 4096
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'vllm', 'block_size': 512, 'enable_chunked_prefill': False, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_ test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[4096-sglang] _
+
+backend_name = 'sglang', isl = 4096
+
+    @pytest.mark.parametrize("backend_name", AIC_PARITY_BACKENDS)
+    @pytest.mark.parametrize("isl", [256, 512, 1024, 2048, 4096])
+    def test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix(
+        backend_name, isl
+    ):
+        report = run_synthetic_trace_replay(
+            isl,
+            128,
+            8,
+>           extra_engine_args=_ais_replay_args(backend_name),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            num_workers=1,
+            replay_mode="offline",
+            replay_concurrency=8,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:72: in _ais_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'sglang', 'block_size': 512, 'enable_chunked_prefill': True, 'enable_prefix_caching': True, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+______ test_run_synthetic_disagg_replay_preserves_aic_local_optimum[vllm] ______
+
+backend_name = 'vllm', isl = 1024, osl = 512, request_count = 1440
+replay_concurrency = 720, total_gpu_budget = 20, prefill_tp = 1, decode_tp = 2
+prefill_bs = 1, decode_bs = 120, prefill_workers = 6, decode_workers = 5
+
+    @pytest.mark.timeout(120)
+    @pytest.mark.parametrize(
+        (
+            "backend_name",
+            "isl",
+            "osl",
+            "request_count",
+            "replay_concurrency",
+            "total_gpu_budget",
+            "prefill_tp",
+            "decode_tp",
+            "prefill_bs",
+            "decode_bs",
+            "prefill_workers",
+            "decode_workers",
+        ),
+        [
+            pytest.param(
+                "vllm",
+                1024,
+                512,
+                1440,
+                720,
+                20,
+                1,
+                2,
+                1,
+                120,
+                6,
+                5,
+                id="vllm",
+            ),
+            pytest.param(
+                "sglang",
+                1024,
+                512,
+                2944,
+                1472,
+                24,
+                2,
+                2,
+                1,
+                184,
+                6,
+                6,
+                id="sglang",
+            ),
+        ],
+    )
+    def test_run_synthetic_disagg_replay_preserves_aic_local_optimum(
+        backend_name,
+        isl,
+        osl,
+        request_count,
+        replay_concurrency,
+        total_gpu_budget,
+        prefill_tp,
+        decode_tp,
+        prefill_bs,
+        decode_bs,
+        prefill_workers,
+        decode_workers,
+    ):
+>       prefill_args = _ais_disagg_replay_args(
+            backend_name,
+            tp_size=prefill_tp,
+            is_prefill=True,
+            max_num_seqs=prefill_bs,
+            max_num_batched_tokens=isl,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:117: in _ais_disagg_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'vllm', 'block_size': 512, 'enable_chunked_prefill': False, 'enable_prefix_caching': False, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+_____ test_run_synthetic_disagg_replay_preserves_aic_local_optimum[sglang] _____
+
+backend_name = 'sglang', isl = 1024, osl = 512, request_count = 2944
+replay_concurrency = 1472, total_gpu_budget = 24, prefill_tp = 2, decode_tp = 2
+prefill_bs = 1, decode_bs = 184, prefill_workers = 6, decode_workers = 6
+
+    @pytest.mark.timeout(120)
+    @pytest.mark.parametrize(
+        (
+            "backend_name",
+            "isl",
+            "osl",
+            "request_count",
+            "replay_concurrency",
+            "total_gpu_budget",
+            "prefill_tp",
+            "decode_tp",
+            "prefill_bs",
+            "decode_bs",
+            "prefill_workers",
+            "decode_workers",
+        ),
+        [
+            pytest.param(
+                "vllm",
+                1024,
+                512,
+                1440,
+                720,
+                20,
+                1,
+                2,
+                1,
+                120,
+                6,
+                5,
+                id="vllm",
+            ),
+            pytest.param(
+                "sglang",
+                1024,
+                512,
+                2944,
+                1472,
+                24,
+                2,
+                2,
+                1,
+                184,
+                6,
+                6,
+                id="sglang",
+            ),
+        ],
+    )
+    def test_run_synthetic_disagg_replay_preserves_aic_local_optimum(
+        backend_name,
+        isl,
+        osl,
+        request_count,
+        replay_concurrency,
+        total_gpu_budget,
+        prefill_tp,
+        decode_tp,
+        prefill_bs,
+        decode_bs,
+        prefill_workers,
+        decode_workers,
+    ):
+>       prefill_args = _ais_disagg_replay_args(
+            backend_name,
+            tp_size=prefill_tp,
+            is_prefill=True,
+            max_num_seqs=prefill_bs,
+            max_num_batched_tokens=isl,
+        )
+
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py:117: in _ais_disagg_replay_args
+    return normalize_mocker_config({"engine": payload})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+config = {'engine': {'backend': 'sglang', 'block_size': 512, 'enable_chunked_prefill': True, 'enable_prefix_caching': False, ...}}
+
+    def normalize_mocker_config(config: Mapping[str, Any] | str | None = None) -> dict:
+>       from dynamo._core import _normalize_mocker_config
+E       ImportError: cannot import name '_normalize_mocker_config' from 'dynamo._core' (/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/_core.abi3.so)
+
+components/src/dynamo/mocker/config.py:20: ImportError
+=========================== short test summary info ============================
+FAILED components/src/dynamo/profiler/tests/unit/test_dgd_generation_ais.py::TestInjectMockerAicArgs::test_dense_tp_pick_starts_with_canonical_estimator[False]
+FAILED components/src/dynamo/profiler/tests/unit/test_dgd_generation_ais.py::TestInjectMockerAicArgs::test_dense_tp_pick_starts_with_canonical_estimator[True]
+FAILED components/src/dynamo/profiler/tests/unit/test_helpers_profile_sla.py::TestAssembleFinalConfig::test_enable_planner_worker_scaling_adapters_uses_component_name_fallback
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[256-vllm]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[256-sglang]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[512-vllm]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[512-sglang]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[1024-vllm]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[1024-sglang]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[2048-vllm]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[2048-sglang]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[4096-vllm]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_concurrency_replay_matches_aic_static_point_no_prefix[4096-sglang]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_disagg_replay_preserves_aic_local_optimum[vllm]
+FAILED components/src/dynamo/profiler/tests/unit/test_replay_ais_parity.py::test_run_synthetic_disagg_replay_preserves_aic_local_optimum[sglang]
+15 failed, 437 passed in 21.52s

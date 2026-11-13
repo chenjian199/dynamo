@@ -1,0 +1,77 @@
+{
+  "source_commit": "5cbe424879e88f3da56e3f99054f8bcfde49165c",
+  "cases": [
+    {
+      "name": "advanced",
+      "image": {
+        "tag": "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime",
+        "id": "sha256:25e659744dbd88b82498fb3aacc89e298e76de2698d4d2e36e68b35161a2b08c"
+      },
+      "argv": [
+        "bash",
+        "/harness/run-advanced.sh",
+        "ascend",
+        "/evidence/advanced"
+      ],
+      "limit_seconds": 2400,
+      "started": 1794390004.088708,
+      "container_id": "8a3f1b6906e5b50a61d08d643db110a397afd92679b3d3117500e898569d22b1",
+      "create_argv": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "heyi-upgrade-162-r4-advanced",
+        "--network",
+        "host",
+        "--shm-size",
+        "16g",
+        "--user",
+        "0",
+        "-e",
+        "OMP_NUM_THREADS=4",
+        "-e",
+        "HF_HUB_OFFLINE=1",
+        "-e",
+        "PYTHONUNBUFFERED=1",
+        "-e",
+        "PYTHONPATH=/harness/test-deps",
+        "-e",
+        "PYTORCH_NPU_ALLOC_CONF=expandable_segments:True",
+        "--mount",
+        "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-5cbe/full-harness-r4,dst=/harness,readonly",
+        "--mount",
+        "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-5cbe/advanced-r4,dst=/evidence",
+        "--mount",
+        "type=bind,src=/data/weight/Qwen3-0.6B,dst=/models/Qwen3-0.6B,readonly",
+        "--device",
+        "/dev/davinci2",
+        "--device",
+        "/dev/davinci3",
+        "--device",
+        "/dev/davinci_manager",
+        "--device",
+        "/dev/devmm_svm",
+        "--device",
+        "/dev/hisi_hdc",
+        "--mount",
+        "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+        "--mount",
+        "type=bind,src=/usr/local/dcmi,dst=/usr/local/dcmi,readonly",
+        "--mount",
+        "type=bind,src=/usr/local/sbin/npu-smi,dst=/usr/local/sbin/npu-smi,readonly",
+        "sha256:25e659744dbd88b82498fb3aacc89e298e76de2698d4d2e36e68b35161a2b08c",
+        "sleep",
+        "infinity"
+      ],
+      "exit_code": 0,
+      "cleanup": {
+        "exit_code": 0,
+        "stdout": "8a3f1b6906e5b50a61d08d643db110a397afd92679b3d3117500e898569d22b1\n",
+        "stderr": ""
+      },
+      "finished": 1794390343.1806087
+    }
+  ],
+  "certified": false
+}

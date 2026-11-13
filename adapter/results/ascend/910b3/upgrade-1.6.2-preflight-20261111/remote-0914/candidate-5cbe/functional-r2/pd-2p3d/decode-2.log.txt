@@ -1,0 +1,874 @@
+[DECODE-2] INFO 11-11 09:13:00 [plugins/__init__.py:52] Available plugins for group vllm.platform_plugins:
+[DECODE-2] INFO 11-11 09:13:00 [plugins/__init__.py:54] - ascend -> vllm_ascend:register
+[DECODE-2] INFO 11-11 09:13:00 [plugins/__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[DECODE-2] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[DECODE-2]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[DECODE-2] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[DECODE-2]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[DECODE-2] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[DECODE-2]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:36] Checking if TPU platform is available.
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:55] TPU platform is not available because: No module named 'libtpu'
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:61] Checking if CUDA platform is available.
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:88] Exception happens when checking CUDA platform: NVML Shared Library Not Found
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:105] CUDA platform is not available because: NVML Shared Library Not Found
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:112] Checking if ROCm platform is available.
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:126] ROCm platform is not available because: No module named 'amdsmi'
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:147] Checking if XPU platform is available.
+[DECODE-2] DEBUG 11-11 09:13:00 [platforms/__init__.py:177] Checking if CPU platform is available.
+[DECODE-2] INFO 11-11 09:13:00 [platforms/__init__.py:272] Platform plugin ascend is activated
+[DECODE-2] INFO 11-11 09:13:01 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[DECODE-2] [2m2026-11-11T09:13:13.893999Z[0m [2mDEBUG[0m [2mflashinfer.has_flashinfer[0m[2m:[0m FlashInfer unavailable since package was not found
+[DECODE-2] [2m2026-11-11T09:13:14.787634Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m Available plugins for group vllm.general_plugins:
+[DECODE-2] [2m2026-11-11T09:13:14.787793Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - msserviceprofiler -> ms_service_profiler.patcher.vllm:register_service_profiler
+[DECODE-2] [2m2026-11-11T09:13:14.787874Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - dynamo_nixl_telemetry -> dynamo.vllm.nixl_telemetry:allow_nixl_telemetry_capture
+[DECODE-2] [2m2026-11-11T09:13:14.787940Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - arctic_inference -> arctic_inference.vllm.plugin:arctic_inference_plugin
+[DECODE-2] [2m2026-11-11T09:13:14.788005Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - ascend_kv_connector -> vllm_ascend:register_connector
+[DECODE-2] [2m2026-11-11T09:13:14.788067Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - ascend_model -> vllm_ascend:register_model
+[DECODE-2] [2m2026-11-11T09:13:14.788126Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - ascend_model_loader -> vllm_ascend:register_model_loader
+[DECODE-2] [2m2026-11-11T09:13:14.788184Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - ascend_service_profiling -> vllm_ascend:register_service_profiling
+[DECODE-2] [2m2026-11-11T09:13:14.788241Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - lora_filesystem_resolver -> vllm.plugins.lora_resolvers.filesystem_resolver:register_filesystem_resolver
+[DECODE-2] [2m2026-11-11T09:13:14.788331Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m - lora_hf_hub_resolver -> vllm.plugins.lora_resolvers.hf_hub_resolver:register_hf_hub_resolver
+[DECODE-2] [2m2026-11-11T09:13:14.788395Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[DECODE-2] [2m2026-11-11T09:13:15.101205Z[0m [32m INFO[0m [2mpatch_indexer_kv_dtype._apply_indexer_kv_dtype_int8_patch[0m[2m:[0m Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[DECODE-2] [2m2026-11-11T09:13:15.109176Z[0m [32m INFO[0m [2mpatch_kv_cache_dtype._apply_kv_cache_dtype_int8_patch[0m[2m:[0m Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[DECODE-2] [2m2026-11-11T09:13:15.140612Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Gemma4ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.gemma4_mm:AscendGemma4ForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.140886Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture KimiLinearForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3:AscendKimiLinearForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141000Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture KimiK3ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3:AscendKimiK3ForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.141082Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture KimiK3MTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3_mtp:AscendKimiK3MTP.
+[DECODE-2] [2m2026-11-11T09:13:15.141157Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture K3DSparkModel is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3_dspark:AscendK3DSparkForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141227Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DeepseekV4ForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.model:AscendDeepseekV4ForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141294Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DeepseekV4ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.vl_model:AscendDeepseekV4ForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.141371Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DeepseekV41ForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v41.vl_model:AscendDeepseekV41ForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141439Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture MiniMaxM3SparseForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.minimax_m3:MiniMaxM3SparseForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141505Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture MiniMaxM3SparseForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.minimax_m3:MiniMaxM3SparseForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.141572Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DeepSeekV4MTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.mtp:DeepSeekV4MTP.
+[DECODE-2] [2m2026-11-11T09:13:15.141638Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DSparkDraftModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.dspark:DSparkDeepseekV4ForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141709Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Qwen3DSparkModel is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_dspark:AscendQwen3DSparkForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141779Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Qwen3OmniDSparkModel is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_dspark:AscendQwen3DSparkForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141843Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DFlash2DraftModel is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_dflash2:DFlash2Qwen3ForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.141906Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DeepSeekMTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_mtp:AscendDeepSeekMTP.
+[DECODE-2] [2m2026-11-11T09:13:15.141968Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture DeepseekV32MTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_mtp:AscendDeepSeekMTP.
+[DECODE-2] [2m2026-11-11T09:13:15.142031Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture GlmMoeDsaForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_mtp:AscendGlmMoeDsaForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.142094Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Qwen3_5ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_5_vl:AscendQwen3_5ForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.142157Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Qwen3_5MoeForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_5_vl:AscendQwen3_5MoeForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.142225Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Eagle3LlamaForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.llama_eagle3:AscendEagle3LlamaForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.142288Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Glm5NextForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.glm5next.model:Glm5NextForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.142350Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Glm5NextForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.glm5next.model:Glm5NextForConditionalGeneration.
+[DECODE-2] [2m2026-11-11T09:13:15.142411Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture Glm5NextMTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.glm5next.mtp:Glm5NextMTP.
+[DECODE-2] [2m2026-11-11T09:13:15.142472Z[0m [2mDEBUG[0m [2mregistry.register_model[0m[2m:[0m Model architecture LlamaForCausalLMEagle3 is already registered, and will be overwritten by the new model class vllm_ascend.models.llama_eagle3:AscendEagle3LlamaForCausalLM.
+[DECODE-2] [2m2026-11-11T09:13:15.148675Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[DECODE-2] [2m2026-11-11T09:13:15.191059Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[DECODE-2] [2m2026-11-11T09:13:15.416182Z[0m [2mDEBUG[0m [2m__init__._wrapper[0m[2m:[0m The quantization method 'compressed-tensors' already exists and will be overwritten by the quantization config <class 'vllm_ascend.quantization.configs.compressed_tensors_config.AscendCompressedTensorsConfig'>.
+[DECODE-2] [2m2026-11-11T09:13:15.529219Z[0m [2mDEBUG[0m [2mdecorators.cls_decorator_helper[0m[2m:[0m Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.qwen3_dflash.DFlashQwen3Model'>: ['input_ids', 'positions', 'input_embeds']
+[DECODE-2] [2m2026-11-11T09:13:15.545896Z[0m [33mWARNING[0m [2mindexer_topk[0m[2m:[0m Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[DECODE-2] [2m2026-11-11T09:13:15.667423Z[0m [2mDEBUG[0m [2mdecorators.cls_decorator_helper[0m[2m:[0m Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.deepseek_v2.DeepseekV2Model'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] [2m2026-11-11T09:13:15.668339Z[0m [2mDEBUG[0m [2mdecorators.cls_decorator_helper[0m[2m:[0m Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.deepseek_mtp.DeepSeekMTP'>: ['input_ids', 'positions', 'hidden_states', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] [2m2026-11-11T09:13:15.676815Z[0m [2mDEBUG[0m [2m__init__._wrapper[0m[2m:[0m The quantization method 'fp8' already exists and will be overwritten by the quantization config <class 'vllm_ascend.quantization.configs.fp8_config.AscendFp8Config'>.
+[DECODE-2] [2m2026-11-11T09:13:15.676998Z[0m [2mDEBUG[0m [2m__init__._wrapper[0m[2m:[0m The quantization method 'deepseek_v4_fp8' already exists and will be overwritten by the quantization config <class 'vllm_ascend.quantization.configs.fp8_config.AscendDeepseekV4FP8Config'>.
+[DECODE-2] [2m2026-11-11T09:13:15.686021Z[0m [2mDEBUG[0m [2m__init__._wrapper[0m[2m:[0m The quantization method 'modelopt_mxfp8' already exists and will be overwritten by the quantization config <class 'vllm_ascend.quantization.configs.modelopt_mxfp8_config.AscendModelOptMxFp8Config'>.
+[DECODE-2] [2m2026-11-11T09:13:15.686139Z[0m [2mDEBUG[0m [2m__init__._wrapper[0m[2m:[0m The quantization method 'mxfp8' already exists and will be overwritten by the quantization config <class 'vllm_ascend.quantization.configs.modelopt_mxfp8_config.AscendModelOptMxFp8Config'>.
+[DECODE-2] [2m2026-11-11T09:13:15.697222Z[0m [32m INFO[0m [2margs.create_kv_events_config[0m[2m:[0m No kv_events_config required: prefix caching is disabled
+[DECODE-2] [2m2026-11-11T09:13:15.697393Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: None (use_kv_events=False)
+[DECODE-2] [2m2026-11-11T09:13:15.697496Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Forward pass metrics enabled: scheduler_cls set to InstrumentedScheduler (port=20492)
+[DECODE-2] [2m2026-11-11T09:13:16.784052Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=19619, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[DECODE-2] [2m2026-11-11T09:13:16.800970Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: File(/tmp/m05-de41880feb)
+[DECODE-2] [2m2026-11-11T09:13:16.801190Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[DECODE-2] [2m2026-11-11T09:13:16.802582Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:19619
+[DECODE-2] [2m2026-11-11T09:13:16.802649Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:19619
+[DECODE-2] [2m2026-11-11T09:13:16.802691Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:19619 [3mpolicy[0m[2m=[0mWorker
+[DECODE-2] [2m2026-11-11T09:13:16.803293Z[0m [32m INFO[0m [2mgraceful_shutdown.install_signal_handlers[0m[2m:[0m Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[DECODE-2] [2m2026-11-11T09:13:16.803906Z[0m [33mWARNING[0m [2mprometheus.setup_multiprocess_prometheus[0m[2m:[0m Found PROMETHEUS_MULTIPROC_DIR was set by user. This directory must be wiped between vLLM runs or you will find inaccurate metrics. Unset the variable and vLLM will properly handle cleanup.
+[DECODE-2] [2m2026-11-11T09:13:16.814514Z[0m [2mDEBUG[0m [2mregistry.inspect_model_cls[0m[2m:[0m Loaded model info for class vllm.model_executor.models.qwen3.Qwen3ForCausalLM from cache
+[DECODE-2] [2m2026-11-11T09:13:16.814615Z[0m [2mDEBUG[0m [2mlog_time._wrapper[0m[2m:[0m Registry inspect model class: Elapsed time 0.0006692 secs
+[DECODE-2] [2m2026-11-11T09:13:16.814871Z[0m [32m INFO[0m [2mmodel.__post_init__[0m[2m:[0m Resolved architecture: Qwen3ForCausalLM
+[DECODE-2] [2m2026-11-11T09:13:16.815752Z[0m [32m INFO[0m [2mmodel.get_and_verify_max_len[0m[2m:[0m Using max model len 2048
+[DECODE-2] [2m2026-11-11T09:13:16.816031Z[0m [2mDEBUG[0m [2mmodel.is_chunked_prefill_supported[0m[2m:[0m Generative models support chunked prefill.
+[DECODE-2] [2m2026-11-11T09:13:16.816121Z[0m [2mDEBUG[0m [2mmodel.is_prefix_caching_supported[0m[2m:[0m Generative models support prefix caching.
+[DECODE-2] [2m2026-11-11T09:13:16.816205Z[0m [2mDEBUG[0m [2marg_utils._set_default_chunked_prefill_and_prefix_caching_args[0m[2m:[0m Enabling chunked prefill by default
+[DECODE-2] [2m2026-11-11T09:13:16.816795Z[0m [2mDEBUG[0m [2mparallel._verify_args[0m[2m:[0m Disabled the custom all-reduce kernel because it is not supported on current platform.
+[DECODE-2] [2m2026-11-11T09:13:16.909379Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:17.033241Z[0m [2mDEBUG[0m [2marg_utils._set_default_max_num_seqs_and_batched_tokens_args[0m[2m:[0m Defaulting max_num_batched_tokens to 2048 for OPENAI_API_SERVER usage context.
+[DECODE-2] [2m2026-11-11T09:13:17.034494Z[0m [2mDEBUG[0m [2mparallel._verify_args[0m[2m:[0m Disabled the custom all-reduce kernel because it is not supported on current platform.
+[DECODE-2] [2m2026-11-11T09:13:17.036463Z[0m [2mDEBUG[0m [2mmodel.maybe_untie_word_embeddings[0m[2m:[0m The config for /models/Qwen3-0.6B says the word embeddings are tied, but the checkpoint contains an lm_head. Loading it to find out whether they really are tied.
+[DECODE-2] [2m2026-11-11T09:13:17.036736Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[DECODE-2] [2m2026-11-11T09:13:17.036889Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[DECODE-2] [2m2026-11-11T09:13:17.037067Z[0m [2mDEBUG[0m [2mkernel.set_platform_defaults[0m[2m:[0m Setting platform-specific IR op priority defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), user-defined: IrOpPriorityConfig(rms_norm=[], fused_add_rms_norm=[], gelu_and_mul_sparse=[])
+[DECODE-2] [2m2026-11-11T09:13:17.037716Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[DECODE-2] [2m2026-11-11T09:13:17.038035Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+[DECODE-2] [2m2026-11-11T09:13:17.039358Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[DECODE-2] [2m2026-11-11T09:13:17.040348Z[0m [33mWARNING[0m [2mplatform._fix_incompatible_config[0m[2m:[0m GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[DECODE-2] [2m2026-11-11T09:13:17.040862Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[DECODE-2] [2m2026-11-11T09:13:17.057559Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m Dynamic EPLB is False
+[DECODE-2] [2m2026-11-11T09:13:17.058033Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m The number of redundant experts is 0
+[DECODE-2] [2m2026-11-11T09:13:17.058671Z[0m [32m INFO[0m [2mascend_config.derive_and_validate[0m[2m:[0m FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[DECODE-2] [2m2026-11-11T09:13:17.065394Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+[DECODE-2] [2m2026-11-11T09:13:17.065964Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[DECODE-2] [2m2026-11-11T09:13:17.912886Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:17.955709Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[DECODE-2] [2m2026-11-11T09:13:17.958255Z[0m [33mWARNING[0m [2mmodel.get_diff_sampling_param[0m[2m:[0m Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+[DECODE-2] [2m2026-11-11T09:13:17.999789Z[0m [2mDEBUG[0m [2m__init__.load_plugins_by_group[0m[2m:[0m No plugins for group vllm.stat_logger_plugins found.
+[DECODE-2] [2m2026-11-11T09:13:18.000392Z[0m [2mDEBUG[0m [2mregistry.load_tokenizer_cls[0m[2m:[0m Loading CachedHfTokenizer for tokenizer_mode='hf'
+[DECODE-2] [2m2026-11-11T09:13:18.915991Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:18.998626Z[0m [2mDEBUG[0m [2mregistry.load_renderer_cls[0m[2m:[0m Loading HfRenderer for renderer_mode='hf'
+[DECODE-2] [2m2026-11-11T09:13:19.918825Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:20.921664Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:21.924528Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:22.927492Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:23.930320Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:24.933051Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[DECODE-2]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[DECODE-2] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[DECODE-2]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[DECODE-2] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[DECODE-2]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[DECODE-2] [2m2026-11-11T09:13:25.935823Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:26.938628Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:27.941538Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:28.944267Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:29.947069Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] INFO 11-11 09:13:30 [plugins/__init__.py:52] Available plugins for group vllm.platform_plugins:
+[DECODE-2] INFO 11-11 09:13:30 [plugins/__init__.py:54] - ascend -> vllm_ascend:register
+[DECODE-2] INFO 11-11 09:13:30 [plugins/__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:36] Checking if TPU platform is available.
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:55] TPU platform is not available because: No module named 'libtpu'
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:61] Checking if CUDA platform is available.
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:88] Exception happens when checking CUDA platform: NVML Shared Library Not Found
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:105] CUDA platform is not available because: NVML Shared Library Not Found
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:112] Checking if ROCm platform is available.
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:126] ROCm platform is not available because: No module named 'amdsmi'
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:147] Checking if XPU platform is available.
+[DECODE-2] DEBUG 11-11 09:13:30 [platforms/__init__.py:177] Checking if CPU platform is available.
+[DECODE-2] INFO 11-11 09:13:30 [platforms/__init__.py:272] Platform plugin ascend is activated
+[DECODE-2] [2m2026-11-11T09:13:30.949833Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] INFO 11-11 09:13:31 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[DECODE-2] [2m2026-11-11T09:13:31.952601Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:32.955617Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:33.958338Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:34.932451Z[0m [2mDEBUG[0m [2mutils.wait_for_engine_startup[0m[2m:[0m Waiting for 1 local, 0 remote core engine proc(s) to connect.
+[DECODE-2] [2m2026-11-11T09:13:34.961075Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:35.963827Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:36.966673Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:37.969606Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:38.972459Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:39.975099Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:40.977556Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:41.980168Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] DEBUG 11-11 09:13:42 [utils/flashinfer.py:100] FlashInfer unavailable since package was not found
+[DECODE-2] [2m2026-11-11T09:13:42.982753Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:43.985554Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] INFO 11-11 09:13:44 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[DECODE-2] INFO 11-11 09:13:44 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[DECODE-2] INFO 11-11 09:13:44 [ascend_config.py:334] Dynamic EPLB is False
+[DECODE-2] INFO 11-11 09:13:44 [ascend_config.py:335] The number of redundant experts is 0
+[DECODE-2] INFO 11-11 09:13:44 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [v1/engine/core.py:1263] Waiting for init message from front-end.
+[DECODE-2] [2m2026-11-11T09:13:44.758973Z[0m [2mDEBUG[0m [2mutils.wait_for_engine_startup[0m[2m:[0m HELLO from local core engine process 0.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [v1/engine/core.py:1274] Received init message: EngineHandshakeMetadata(addresses=EngineZmqAddresses(inputs=['ipc:///tmp/3bee9349-0893-4e89-95e4-2b1ad73aae79'], outputs=['ipc:///tmp/792bc46e-7701-4c18-99b6-54758c400185'], coordinator_input=None, coordinator_output=None, frontend_stats_publish_address=None), parallel_config={})
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [v1/engine/core.py:1067] Has DP Coordinator: False, stats publish address: None
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:52] Available plugins for group vllm.general_plugins:
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - msserviceprofiler -> ms_service_profiler.patcher.vllm:register_service_profiler
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - dynamo_nixl_telemetry -> dynamo.vllm.nixl_telemetry:allow_nixl_telemetry_capture
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - arctic_inference -> arctic_inference.vllm.plugin:arctic_inference_plugin
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - ascend_kv_connector -> vllm_ascend:register_connector
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - ascend_model -> vllm_ascend:register_model
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - ascend_model_loader -> vllm_ascend:register_model_loader
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - ascend_service_profiling -> vllm_ascend:register_service_profiling
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - lora_filesystem_resolver -> vllm.plugins.lora_resolvers.filesystem_resolver:register_filesystem_resolver
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:54] - lora_hf_hub_resolver -> vllm.plugins.lora_resolvers.hf_hub_resolver:register_hf_hub_resolver
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [plugins/__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Gemma4ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.gemma4_mm:AscendGemma4ForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture KimiLinearForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3:AscendKimiLinearForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture KimiK3ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3:AscendKimiK3ForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture KimiK3MTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3_mtp:AscendKimiK3MTP.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture K3DSparkModel is already registered, and will be overwritten by the new model class vllm_ascend.models.kimi_k3_dspark:AscendK3DSparkForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DeepseekV4ForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.model:AscendDeepseekV4ForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DeepseekV4ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.vl_model:AscendDeepseekV4ForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DeepseekV41ForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v41.vl_model:AscendDeepseekV41ForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture MiniMaxM3SparseForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.minimax_m3:MiniMaxM3SparseForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture MiniMaxM3SparseForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.minimax_m3:MiniMaxM3SparseForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DeepSeekV4MTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.mtp:DeepSeekV4MTP.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DSparkDraftModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_v4.dspark:DSparkDeepseekV4ForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Qwen3DSparkModel is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_dspark:AscendQwen3DSparkForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Qwen3OmniDSparkModel is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_dspark:AscendQwen3DSparkForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DFlash2DraftModel is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_dflash2:DFlash2Qwen3ForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DeepSeekMTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_mtp:AscendDeepSeekMTP.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture DeepseekV32MTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_mtp:AscendDeepSeekMTP.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture GlmMoeDsaForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.deepseek_mtp:AscendGlmMoeDsaForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Qwen3_5ForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_5_vl:AscendQwen3_5ForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Qwen3_5MoeForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.qwen3_5_vl:AscendQwen3_5MoeForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Eagle3LlamaForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.llama_eagle3:AscendEagle3LlamaForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Glm5NextForCausalLM is already registered, and will be overwritten by the new model class vllm_ascend.models.glm5next.model:Glm5NextForCausalLM.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Glm5NextForConditionalGeneration is already registered, and will be overwritten by the new model class vllm_ascend.models.glm5next.model:Glm5NextForConditionalGeneration.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture Glm5NextMTPModel is already registered, and will be overwritten by the new model class vllm_ascend.models.glm5next.mtp:Glm5NextMTP.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:44 [model_executor/models/registry.py:1147] Model architecture LlamaForCausalLMEagle3 is already registered, and will be overwritten by the new model class vllm_ascend.models.llama_eagle3:AscendEagle3LlamaForCausalLM.
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:44 [model_executor/model_loader/__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:44 [model_executor/model_loader/__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:44 [v1/engine/core.py:123] Initializing a V1 LLM engine (v0.30.0) with config: model='/models/Qwen3-0.6B', speculative_config=None, tokenizer='/models/Qwen3-0.6B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=npu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=m05-model, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'vllm_ascend.compilation.compiler_interface.AscendCompiler', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': True, 'alignment_asserts': True, 'scalar_asserts': True, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, moe_backend='auto', sparse_indexer_topk_backend='auto', linear_backend='auto', linear_backend_per_quant=None)
+[DECODE-2] [2m2026-11-11T09:13:44.987921Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) WARNING 11-11 09:13:45 [model_executor/layers/indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:45 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.deepseek_v2.DeepseekV2Model'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:45 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.deepseek_eagle3.DeepseekV2Eagle3Model'>: ['input_ids', 'positions', 'hidden_states', 'input_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:45 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.laguna.LagunaModel'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:45 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.qwen3_dflash.DFlashQwen3Model'>: ['input_ids', 'positions', 'input_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:45 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.laguna_dflash.DFlashLagunaModel'>: ['input_ids', 'positions', 'input_embeds']
+[DECODE-2] [2m2026-11-11T09:13:45.990742Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:46.993380Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:47 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.deepseek_mtp.DeepSeekMTP'>: ['input_ids', 'positions', 'hidden_states', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:47 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm_ascend.models.deepseek_v4.model.DeepseekV4Model'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:47 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm_ascend.models.deepseek_v4.dspark.DSparkDeepseekV4ForCausalLM'>: ['input_ids', 'positions', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:47 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm_ascend.models.deepseek_v41.dspark.DSparkDeepseekV41ForCausalLM'>: ['input_ids', 'positions', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:47 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.v1.spec_decode.ngram_proposer_gpu.NgramGPUKernel'>: ['num_tokens_no_spec', 'token_ids_gpu', 'combined_mask']
+[DECODE-2] [2m2026-11-11T09:13:47.995503Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:48.998046Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) WARNING 11-11 09:13:49 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.minimax_m2.MiniMaxM2Model'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.step3p5.Step3p5Model'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.qwen2_moe.Qwen2MoeModel'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.qwen3_next.Qwen3NextModel'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.qwen3_moe.Qwen3MoeModel'>: ['input_ids', 'positions', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [compilation/decorators.py:223] Inferred dynamic dimensions for forward method of <class 'vllm.model_executor.models.bailing_moe.BailingMoeModel'>: ['input_ids', 'position_ids', 'intermediate_tensors', 'inputs_embeds']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [config/kernel.py:88] Setting IR op priority for rms_norm to ['native']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [ir/op.py:422] Priority for vllm.ir.rms_norm set to ['native']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [config/kernel.py:88] Setting IR op priority for fused_add_rms_norm to ['native']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [ir/op.py:422] Priority for vllm.ir.fused_add_rms_norm set to ['native']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [config/kernel.py:88] Setting IR op priority for gelu_and_mul_sparse to ['native']
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:49 [ir/op.py:422] Priority for vllm.ir.gelu_and_mul_sparse set to ['native']
+[DECODE-2] [2m2026-11-11T09:13:50.000625Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:51.003229Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:51 [distributed/parallel_state.py:1783] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_3436f0e066f14c75ad73ea4766bda117 backend=hccl
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:51 [distributed/parallel_state.py:1827] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_3436f0e066f14c75ad73ea4766bda117 backend=hccl
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:51 [distributed/parallel_state.py:1916] Detected 1 nodes in the distributed environment
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:51 [distributed/parallel_state.py:2267] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, ETP rank 0, EP rank N/A, EPLB rank N/A
+[DECODE-2] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:51 [v1/sample/logits_processor/__init__.py:64] No logitsprocs plugins installed (group vllm.logits_processors).
+[DECODE-2] [rank0]:[W1111 09:13:51.075332476 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:51 [model_executor/offloader/base.py:136] Offloader set to NoopOffloader (no offloading).
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:51 [sampler.py:76] [sample/sampler] AscendSampler initialized. logprobs_mode=raw_logprobs, triton_available=True
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:51 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:51 [v1/sample/logits_processor/__init__.py:64] No logitsprocs plugins installed (group vllm.logits_processors).
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:51 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+[DECODE-2] [2m2026-11-11T09:13:52.006225Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: VocabParallelEmbedding using <class 'vllm_ascend.ops.vocab_parallel_embedding.AscendVocabParallelEmbedding'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RotaryEmbedding using <class 'vllm_ascend.ops.rotary_embedding.AscendRotaryEmbedding'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: ApplyRotaryEmb using <class 'vllm_ascend.ops.rotary_embedding.AscendApplyRotaryEmb'>
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:52 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:52 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] [2m2026-11-11T09:13:53.009025Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: QKVParallelLinear using <class 'vllm_ascend.ops.linear.AscendQKVParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: MergedColumnParallelLinear using <class 'vllm_ascend.ops.linear.AscendMergedColumnParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: RowParallelLinear using <class 'vllm_ascend.ops.linear.AscendRowParallelLinear'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: SiluAndMul using <class 'vllm_ascend.ops.activation.AscendSiluAndMul'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:123] Instantiating custom op: RMSNorm using <class 'vllm_ascend.ops.layernorm.AscendRMSNorm'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: ParallelLMHead using <class 'vllm_ascend.ops.vocab_parallel_embedding.AscendParallelLMHead'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/custom_op.py:61] Instantiating pluggable layer: LogitsProcessor using <class 'vllm_ascend.ops.vocab_parallel_embedding.AscendLogitsProcessor'>
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [config/model.py:1993] head dtype: torch.bfloat16
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [config/compilation.py:1335] enabled custom ops: Counter({'RMSNorm': 113, 'SiluAndMul': 28, 'RotaryEmbedding': 1, 'ApplyRotaryEmb': 1})
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [config/compilation.py:1336] disabled custom ops: Counter()
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/model_loader/base_loader.py:74] Loading weights on npu ...
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:53 [model_executor/model_loader/weight_utils.py:895] Filesystem type for checkpoints: XFS. Checkpoint size: 1.40 GiB. Available RAM: 464.00 GiB.
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:53 [model_executor/model_loader/weight_utils.py:918] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+[DECODE-2] (EngineCore pid=2794) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight lm_head.weight with shape torch.Size([151936, 1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight embed_tokens.weight with shape torch.Size([151936, 1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.0.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.0.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.0.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.0.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.0.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.0.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.0.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.0.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.0.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.0.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.0.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.1.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.1.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.1.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.1.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.1.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.1.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.1.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.1.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.1.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.1.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.1.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.10.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.10.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.10.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.10.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.10.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.10.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.10.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.10.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.10.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.10.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.10.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.11.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.11.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.11.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.11.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.11.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.11.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.11.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.11.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.11.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.11.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.11.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.12.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.12.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.12.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.12.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.12.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.12.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.12.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.12.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.12.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.12.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.12.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.13.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.13.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.13.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.13.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.13.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.13.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.13.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.13.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.13.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.13.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.13.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.14.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.14.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.14.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.14.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.14.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.14.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.14.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.14.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.14.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.14.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.14.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.15.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.15.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.15.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.15.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.15.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/models/utils.py:311] Loaded weight layers.15.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:53 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.15.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.15.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.15.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.15.self_attn.qkv_proj.weight
+[DECODE-2] [2m2026-11-11T09:13:54.011864Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.15.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.16.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.16.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.16.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.16.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.16.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.16.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.16.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.16.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.16.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.16.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.16.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.17.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.17.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.17.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.17.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.17.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.17.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.17.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.17.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.17.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.17.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.17.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.18.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.18.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.18.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.18.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.18.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.18.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.18.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.18.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.18.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.18.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.18.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.19.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.19.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.19.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.19.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.19.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.19.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.19.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.19.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.19.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.19.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.19.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.2.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.2.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.2.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.2.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.2.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.2.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.2.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.2.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.2.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.2.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.2.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.20.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.20.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.20.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.20.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.20.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.20.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.20.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.20.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.20.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.20.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.20.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.21.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.21.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.21.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.21.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.21.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.21.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.21.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.21.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.21.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.21.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.21.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.22.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.22.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.22.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.22.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.22.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.22.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.22.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.22.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.22.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.22.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.22.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.23.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.23.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.23.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.23.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.23.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.23.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.23.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.23.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.23.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.23.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.23.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.24.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.24.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.24.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.24.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.24.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.24.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.24.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.24.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.24.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.24.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.24.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.25.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.25.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.25.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.25.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.25.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.25.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.25.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.25.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.25.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.25.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.25.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.26.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.26.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.26.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.26.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.26.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.26.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.26.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.26.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.26.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.26.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.26.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.27.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.27.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.27.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.27.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.27.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.27.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.27.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.27.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.27.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.27.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.27.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.3.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.3.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.3.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.3.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.3.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.3.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.3.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.3.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.3.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.3.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.3.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.4.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.4.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.4.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.4.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.4.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.4.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.4.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.4.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.4.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.4.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.4.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.5.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.5.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.5.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.5.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.5.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.5.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.5.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.5.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.5.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.5.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.5.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.6.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.6.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.6.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.6.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.6.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.6.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.6.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.6.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.6.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.6.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.6.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.7.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.7.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.7.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.7.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.7.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.7.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.7.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.7.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.7.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.7.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.7.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.8.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.8.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.8.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.8.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.8.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.8.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.8.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.8.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.8.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.8.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.8.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.9.input_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.9.mlp.down_proj.weight with shape torch.Size([1024, 3072])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 0 with shape torch.Size([3072, 1024]) into model.layers.9.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:985] Loaded shard 1 with shape torch.Size([3072, 1024]) into model.layers.9.mlp.gate_up_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.9.post_attention_layernorm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.9.self_attn.k_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard k with shape torch.Size([1024, 1024]) into model.layers.9.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.9.self_attn.o_proj.weight with shape torch.Size([1024, 2048])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight layers.9.self_attn.q_norm.weight with shape torch.Size([128])
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard q with shape torch.Size([2048, 1024]) into model.layers.9.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/layers/linear.py:1339] Loaded shard v with shape torch.Size([1024, 1024]) into model.layers.9.self_attn.qkv_proj.weight
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:54 [model_executor/models/utils.py:311] Loaded weight norm.weight with shape torch.Size([1024])
+[DECODE-2] (EngineCore pid=2794) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.52s/it]
+[DECODE-2] (EngineCore pid=2794) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.52s/it]
+[DECODE-2] (EngineCore pid=2794) 
+[DECODE-2] [2m2026-11-11T09:13:54.768456Z[0m [2mDEBUG[0m [2mutils.wait_for_engine_startup[0m[2m:[0m Waiting for 1 local, 0 remote core engine proc(s) to start.
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:13:54 [model_executor/model_loader/default_loader.py:430] Loading weights took 1.64 seconds
+[DECODE-2] [2m2026-11-11T09:13:55.014766Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:56.017312Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:57.019668Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:58.021891Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:13:59.024835Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) DEBUG 11-11 09:13:59 [model_executor/model_loader/weight_tying.py:98] Re-tying lm_head, which is identical to the input embeddings
+[DECODE-2] [2m2026-11-11T09:14:00.027827Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:00 [model_runner_v1.py:4476] Loading model weights took 1.1397 GB
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:00 [model_runner_v1.py:4563] Model runner load_model total time: 8.63 seconds
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:00 [v1/attention/backends/utils.py:320] Using LBNHC KV cache layout.
+[DECODE-2] [2m2026-11-11T09:14:01.030489Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] [2m2026-11-11T09:14:02.033197Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:02 [worker.py:584] Initial free memory 60.53 GiB, reserved 0.50 GiB for KV Cache as specified by kv_cache_memory_bytes, skipping memory profiling. This does not respect the gpu_memory_utilization config. Only use kv_cache_memory_bytes when you want manual control of KV cache memory size. If OOM'ed, check the difference of initial free memory between the current run and the previous run where kv_cache_memory_bytes is suggested and update it correspondingly.
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:02 [v1/core/kv_cache_utils.py:2395] NPU KV cache size: 4,608 tokens, Maximum concurrency for 2,048 tokens per request: 2.25x
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:02 [distributed/.../kv_connector/factory.py:62] Creating v1 connector with name: MooncakeConnector and engine_id: 33a96a62-7586-418a-8149-1a1a6a75bcb2-38ed5fd85fd24bd8a1ec5b8d77a8c29e
+[DECODE-2] (EngineCore pid=2794) INFO 11-11 09:14:02 [utils.py:43] Injected comm_resource_config.qos=1 from kv_connector_extra_config (or the P/D default) into ASCEND_GLOBAL_RESOURCE_CONFIG.
+[DECODE-2] WARNING: Logging before InitGoogleLogging() is written to STDERR
+[DECODE-2] W1111 09:14:02.579870  2794 transfer_engine_py.cpp:120] Using default malloc/free for protocol: ascend
+[DECODE-2] I1111 09:14:02.579999  2794 transfer_engine_impl.cpp:1046] Metrics reporting is disabled (set MC_TE_METRIC=1 to enable)
+[DECODE-2] I1111 09:14:02.580041  2794 transfer_engine_impl.cpp:116] Transfer Engine parseHostNameWithPort. server_name: 192.168.7.7 port: 12001
+[DECODE-2] I1111 09:14:02.580076  2794 transfer_engine_impl.cpp:183] Transfer Engine RPC using P2P handshake, listening on 192.168.7.7:15655
+[DECODE-2] I1111 09:14:02.580344  2794 ascend_direct_transport.cpp:118] install AscendDirectTransport for: 192.168.7.7:15655
+[DECODE-2] I1111 09:14:02.580406  2794 utils.cpp:189] [AscendTE] resolving link config, te is created for store=false, HCCL_INTRA_ROCE_ENABLE=(unset)
+[DECODE-2] I1111 09:14:02.580456  2794 utils.cpp:205] [AscendTE] resolved ASCEND_GLOBAL_RESOURCE_CONFIG (protocol_desc): {"comm_resource_config.qos": 1}
+[DECODE-2] I1111 09:14:02.580492  2794 ascend_direct_transport.cpp:196] [AscendTE] init local segment, te is created for store=false, roce_mode=false, use_fabric_mem=false
+[DECODE-2] I1111 09:14:02.580543  2794 utils.cpp:270] Find available between 20200 and 20300
+[DECODE-2] I1111 09:14:02.580607  2794 transfer_executor_base.cpp:127] Set transfer timeout to:30000
+[DECODE-2] I1111 09:14:02.580613  2794 transfer_executor_base.cpp:159] AutoConnect enabled by capability probe
+[DECODE-2] I1111 09:14:02.581323  2794 transfer_executor_base.cpp:227] Client-Server mode enabled, set LocalCommRes to {"version":"1.3"}
+[DECODE-2] I1111 09:14:02.581338  2794 transfer_executor_base.cpp:232] Set AutoConnect to: 1
+[DECODE-2] I1111 09:14:02.581362  2794 transfer_executor_base.cpp:259] [AscendTE] init adxl, te is created for store=false, GlobalResourceConfig: {"comm_resource_config.qos": 1}
+[DECODE-2] [2m2026-11-11T09:14:03.035183Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms

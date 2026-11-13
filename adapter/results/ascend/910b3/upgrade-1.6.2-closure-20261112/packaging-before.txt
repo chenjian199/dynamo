@@ -1,0 +1,205 @@
+F.F.......FF                                                             [100%]
+=================================== FAILURES ===================================
+___________________ test_sealed_artifacts_reject_corruption ____________________
+
+audit = <module 'platform_audit' from '/home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/container/platforms/audit.py'>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f16d9920130>
+tmp_path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_sealed_artifacts_reject_c0')
+
+    def test_sealed_artifacts_reject_corruption(audit, monkeypatch, tmp_path):
+        wheel = tmp_path / "package.whl"
+        wheel.write_bytes(b"original")
+>       invoke(audit, monkeypatch, "seal", tmp_path)
+
+container/tests/test_platform_packaging.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+container/tests/test_platform_packaging.py:31: in invoke
+    audit.main()
+container/platforms/audit.py:133: in main
+    {
+container/platforms/audit.py:134: in <dictcomp>
+    str(p.relative_to(path)): digest(p)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_sealed_artifacts_reject_c0/package.whl')
+
+    def digest(path):
+        with path.open("rb") as handle:
+>           return hashlib.file_digest(handle, "sha256").hexdigest()
+E           AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+container/platforms/audit.py:20: AttributeError
+________________ test_sealed_artifacts_reject_external_symlink _________________
+
+audit = <module 'platform_audit' from '/home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/container/platforms/audit.py'>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f16d9922f50>
+tmp_path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_sealed_artifacts_reject_e0')
+
+    def test_sealed_artifacts_reject_external_symlink(audit, monkeypatch, tmp_path):
+        artifacts = tmp_path / "artifacts"
+        artifacts.mkdir()
+        external = tmp_path / "external"
+        external.write_bytes(b"outside")
+        (artifacts / "package.whl").symlink_to(external)
+>       invoke(audit, monkeypatch, "seal", artifacts)
+
+container/tests/test_platform_packaging.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+container/tests/test_platform_packaging.py:31: in invoke
+    audit.main()
+container/platforms/audit.py:133: in main
+    {
+container/platforms/audit.py:134: in <dictcomp>
+    str(p.relative_to(path)): digest(p)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_sealed_artifacts_reject_e0/artifacts/package.whl')
+
+    def digest(path):
+        with path.open("rb") as handle:
+>           return hashlib.file_digest(handle, "sha256").hexdigest()
+E           AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+container/platforms/audit.py:20: AttributeError
+_______ test_download_verifies_before_publishing_and_reuses_cache[False] _______
+
+audit = <module 'platform_audit' from '/home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/container/platforms/audit.py'>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f16d99bf820>
+tmp_path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_download_verifies_before_0')
+corrupt = False
+
+    @pytest.mark.parametrize("corrupt", [False, True])
+    def test_download_verifies_before_publishing_and_reuses_cache(
+        audit, monkeypatch, tmp_path, corrupt
+    ):
+        import hashlib
+    
+        destination = tmp_path / "wheels"
+        destination.mkdir()
+        report = tmp_path / "dependencies.json"
+        expected = hashlib.sha256(b"complete wheel").hexdigest()
+        report.write_text(
+            json.dumps(
+                {
+                    "install": [
+                        {
+                            "download_info": {
+                                "url": "https://example.invalid/package.whl",
+                                "archive_info": {"hashes": {"sha256": expected}},
+                            }
+                        }
+                    ]
+                }
+            )
+        )
+        calls = []
+    
+        def download(argv, **kwargs):
+            calls.append((argv, kwargs))
+            assert kwargs["timeout"] == 300
+            stage = Path(argv[argv.index("--dest") + 1])
+            (stage / "package.whl").write_bytes(
+                b"truncated" if corrupt else b"complete wheel"
+            )
+    
+        monkeypatch.setattr(audit.subprocess, "run", download)
+        monkeypatch.setattr(
+            audit.sys, "argv", ["audit.py", "download", str(report), str(destination)]
+        )
+        if corrupt:
+            with pytest.raises(RuntimeError, match="hash mismatch"):
+                audit.main()
+            assert not (destination / "package.whl").exists()
+        else:
+>           audit.main()
+
+container/tests/test_platform_packaging.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+container/platforms/audit.py:105: in main
+    if not staged.is_file() or digest(staged) != expected:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_download_verifies_before_0/wheels/.download-yofwi8_n/package.whl')
+
+    def digest(path):
+        with path.open("rb") as handle:
+>           return hashlib.file_digest(handle, "sha256").hexdigest()
+E           AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+container/platforms/audit.py:20: AttributeError
+_______ test_download_verifies_before_publishing_and_reuses_cache[True] ________
+
+audit = <module 'platform_audit' from '/home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/container/platforms/audit.py'>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f16d99a3eb0>
+tmp_path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_download_verifies_before_1')
+corrupt = True
+
+    @pytest.mark.parametrize("corrupt", [False, True])
+    def test_download_verifies_before_publishing_and_reuses_cache(
+        audit, monkeypatch, tmp_path, corrupt
+    ):
+        import hashlib
+    
+        destination = tmp_path / "wheels"
+        destination.mkdir()
+        report = tmp_path / "dependencies.json"
+        expected = hashlib.sha256(b"complete wheel").hexdigest()
+        report.write_text(
+            json.dumps(
+                {
+                    "install": [
+                        {
+                            "download_info": {
+                                "url": "https://example.invalid/package.whl",
+                                "archive_info": {"hashes": {"sha256": expected}},
+                            }
+                        }
+                    ]
+                }
+            )
+        )
+        calls = []
+    
+        def download(argv, **kwargs):
+            calls.append((argv, kwargs))
+            assert kwargs["timeout"] == 300
+            stage = Path(argv[argv.index("--dest") + 1])
+            (stage / "package.whl").write_bytes(
+                b"truncated" if corrupt else b"complete wheel"
+            )
+    
+        monkeypatch.setattr(audit.subprocess, "run", download)
+        monkeypatch.setattr(
+            audit.sys, "argv", ["audit.py", "download", str(report), str(destination)]
+        )
+        if corrupt:
+            with pytest.raises(RuntimeError, match="hash mismatch"):
+>               audit.main()
+
+container/tests/test_platform_packaging.py:253: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+container/platforms/audit.py:105: in main
+    if not staged.is_file() or digest(staged) != expected:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/tmp/pytest-of-metax/pytest-45/test_download_verifies_before_1/wheels/.download-mv1tm641/package.whl')
+
+    def digest(path):
+        with path.open("rb") as handle:
+>           return hashlib.file_digest(handle, "sha256").hexdigest()
+E           AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+container/platforms/audit.py:20: AttributeError
+=============================== warnings summary ===============================
+../../../../../../../../var/tmp/adapter-workflow/venv/lib/python3.10/site-packages/_pytest/config/__init__.py:1474
+  /var/tmp/adapter-workflow/venv/lib/python3.10/site-packages/_pytest/config/__init__.py:1474: PytestConfigWarning: Unknown config option: asyncio_mode
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED container/tests/test_platform_packaging.py::test_sealed_artifacts_reject_corruption
+FAILED container/tests/test_platform_packaging.py::test_sealed_artifacts_reject_external_symlink
+FAILED container/tests/test_platform_packaging.py::test_download_verifies_before_publishing_and_reuses_cache[False]
+FAILED container/tests/test_platform_packaging.py::test_download_verifies_before_publishing_and_reuses_cache[True]
+4 failed, 8 passed, 1 warning in 0.11s

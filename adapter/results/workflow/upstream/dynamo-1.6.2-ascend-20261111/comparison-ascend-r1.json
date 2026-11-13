@@ -1,0 +1,376 @@
+{
+  "runs": {
+    "native": {
+      "source_commit": null,
+      "vllm": "0.30.0+empty",
+      "conditions": {
+        "workload_sha256": "c57d0644d37e21e8d83adc316730d2b1b855b3458c99b2db7d31bccca6f86c3d",
+        "weights_sha256": "ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+        "hardware": {
+          "node": "master",
+          "ip": "192.168.7.5",
+          "model": "Ascend 910B3",
+          "npus": 1,
+          "driver": "25.2.0"
+        },
+        "parallelism": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "load": {
+          "warmup_requests": 8,
+          "measured_requests_per_round": 128,
+          "rounds": 2,
+          "concurrency": 4,
+          "input_tokens": 128,
+          "output_tokens": 32,
+          "request_timeout_seconds": 120
+        },
+        "sampling": {
+          "temperature": 0,
+          "ignore_eos": true
+        },
+        "engine_configuration": {
+          "dtype": "bfloat16",
+          "max_model_len": 2048,
+          "max_num_seqs": 8,
+          "max_num_batched_tokens": 2048,
+          "kv_cache_memory_bytes": 536870912,
+          "block_size": 128,
+          "prefix_caching": false,
+          "enforce_eager": true
+        },
+        "metric_definition": "Same M09 load.request SSE parser in all arms. TTFT to first nonempty text chunk; TPOT between first and last nonempty text chunks divided by API completion_tokens minus one. Throughput is successful requests divided by wall time, excluding warmup; report output-token throughput separately. Synthetic token inputs test scheduling, not semantic quality."
+      },
+      "correct": true,
+      "failed_requests": 0,
+      "metrics": {
+        "throughput": 1.8466436760626823,
+        "ttft_p95_ms": 205.3055316209793,
+        "tpot_p95_ms": 65.79425161884677
+      },
+      "artifacts": [
+        {
+          "path": "comparison-evidence/comparison-r1/workload.json",
+          "sha256": "c57d0644d37e21e8d83adc316730d2b1b855b3458c99b2db7d31bccca6f86c3d"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/load.py",
+          "sha256": "f239ec8dd2c2345884d15cb8c79f5a173fd798141a5965ac1b14cd118c4fb7bb"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/measure.py",
+          "sha256": "6858b50a37c4f88918a052bd54e90e222161cdabd74f149e28a1c704faa8e745"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/run.py",
+          "sha256": "0a6342d79895ce909e9f7e9edd0a90823f6c6b9fa0b22801b74ffa60b591b8e7"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/result.json",
+          "sha256": "4098c31f644d05c0b2bfe44c8cce39658e9d1d1a38d81d1020dd74222357b323"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native.json",
+          "sha256": "810395fccea1a722ee5eb9f79d0ddbfe2cf59e7b977729aea27be1e4542f314d"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/node.json",
+          "sha256": "4827147441560f52648d365e54b7e747e14b4161ec0bdab7810dac60fb9ad57b"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/measure.log",
+          "sha256": "f7a9070e4c81a614d443ea9d4f0491d6fcaa35e83ce4d06427e26353d73386a5"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/upgrade-compare-native-delete.log",
+          "sha256": "d8ce9fbaa9780acc4768a3643afa2137fdb959bcd18b3af49dabbb5a2bdeb078"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/measure.json",
+          "sha256": "de0cc6cd2824bfbdf9cd7c0df8d99940458133cbf73263d06b0045b4faafedb8"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/ready.json",
+          "sha256": "78916f5bc6050677dffa0b622e583bb82454caee41ddc7bc73270e874fee7e9e"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/upgrade-compare-native-delete.json",
+          "sha256": "705a56450e310666a8ee43ad4d8a9c7915c7cd35aaa3501e32e8d3eb70679032"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/argv.json",
+          "sha256": "fe7a6fcad658c84ff1c0835a967138375449508cfb05e6971a4037c2822cc136"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/pods.json",
+          "sha256": "5f49687e6d4d7040cf015c422ff8189975aec1df98e519f5a84240820e04e660"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/apply.log",
+          "sha256": "1d77b533017137e2376ec72ad5c2204d39c0188d20e33a3fd8411ef750a617c5"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/result.json",
+          "sha256": "9b0c24b7e36d5e09a6c15d455ebd8e8027c488bbffb03380bd4655be10bec677"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/native/upgrade-compare-native.log",
+          "sha256": "e778023f376b6f01377e54f5af70f53155748d72e2709541ed055163f6876396"
+        }
+      ]
+    },
+    "old_heyi": {
+      "source_commit": "bd801c6234aae2827042c8abf268395d4582e5eb",
+      "vllm": "0.23.0+empty",
+      "conditions": {
+        "workload_sha256": "c57d0644d37e21e8d83adc316730d2b1b855b3458c99b2db7d31bccca6f86c3d",
+        "weights_sha256": "ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+        "hardware": {
+          "node": "master",
+          "ip": "192.168.7.5",
+          "model": "Ascend 910B3",
+          "npus": 1,
+          "driver": "25.2.0"
+        },
+        "parallelism": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "load": {
+          "warmup_requests": 8,
+          "measured_requests_per_round": 128,
+          "rounds": 2,
+          "concurrency": 4,
+          "input_tokens": 128,
+          "output_tokens": 32,
+          "request_timeout_seconds": 120
+        },
+        "sampling": {
+          "temperature": 0,
+          "ignore_eos": true
+        },
+        "engine_configuration": {
+          "dtype": "bfloat16",
+          "max_model_len": 2048,
+          "max_num_seqs": 8,
+          "max_num_batched_tokens": 2048,
+          "kv_cache_memory_bytes": 536870912,
+          "block_size": 128,
+          "prefix_caching": false,
+          "enforce_eager": true
+        },
+        "metric_definition": "Same M09 load.request SSE parser in all arms. TTFT to first nonempty text chunk; TPOT between first and last nonempty text chunks divided by API completion_tokens minus one. Throughput is successful requests divided by wall time, excluding warmup; report output-token throughput separately. Synthetic token inputs test scheduling, not semantic quality."
+      },
+      "correct": true,
+      "failed_requests": 0,
+      "metrics": {
+        "throughput": 1.772373219868803,
+        "ttft_p95_ms": 215.98124504089355,
+        "tpot_p95_ms": 68.82443254993808
+      },
+      "artifacts": [
+        {
+          "path": "comparison-evidence/comparison-r1/workload.json",
+          "sha256": "c57d0644d37e21e8d83adc316730d2b1b855b3458c99b2db7d31bccca6f86c3d"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/load.py",
+          "sha256": "f239ec8dd2c2345884d15cb8c79f5a173fd798141a5965ac1b14cd118c4fb7bb"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/measure.py",
+          "sha256": "6858b50a37c4f88918a052bd54e90e222161cdabd74f149e28a1c704faa8e745"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/run.py",
+          "sha256": "0a6342d79895ce909e9f7e9edd0a90823f6c6b9fa0b22801b74ffa60b591b8e7"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/result.json",
+          "sha256": "4098c31f644d05c0b2bfe44c8cce39658e9d1d1a38d81d1020dd74222357b323"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi.json",
+          "sha256": "3b1ed8ca0a3054165d8815fc23b7a49db755f509b81781a9f10367eaf457cfde"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/upgrade-compare-old-heyi-worker-e2cbbebe-66cfd5c594-7vmc2.log",
+          "sha256": "7439dfda8d9a9f60fa23da7fbc5c47bbf8c64c4f41a6461e922580a3f0beb26d"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/node.json",
+          "sha256": "7c4ead699dc7de143260bca99b2acdca3a7c4c6a6e95af4e976f98d7996baa50"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/measure.log",
+          "sha256": "a1c2bb23b46380a091e2dbc5b8dd5f8e514430d8634b74aea98134e43cc530d3"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/upgrade-compare-old-heyi-frontend-59f7db89c-tt52r.log",
+          "sha256": "19f8b1b8686a0b9dd805351ff8f86762be2cf55ada5f2479b151158bde5f44a4"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/upgrade-compare-old-heyi-delete.log",
+          "sha256": "d4f1421e18c83e20a4b6331d6423016fad1d3614bbfa64c4087d4ece47c5bfc0"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/measure.json",
+          "sha256": "f7ffd6e0e787c34e3f6cdc6abb593c715d7900a4af0481f602d7046a09d6a762"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/ready.json",
+          "sha256": "b9b39bf4cfd68d80fd56e173754726cf3a4af3ba5e74036480aecb8e3e32a761"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/argv.json",
+          "sha256": "0609489b0d245bda56bcbc4bb96c3a7278a449454b36bfe286fcc390ce620a2f"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/upgrade-compare-old-heyi-delete.json",
+          "sha256": "671a0b241348a12d75e412e7e8ab6f8490022d75b46013db1355f6e75d641375"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/pods.json",
+          "sha256": "92b01016fc68e9f56f9ca3e41f1fba48a25aecdf10f6110c05295455a6f7fd48"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/apply.log",
+          "sha256": "d8cff2f51aab0ac670f133cbbd06d24f2ed9a6d9c9615f72647c90345385b041"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/old_heyi/result.json",
+          "sha256": "a611903d96a209d317b6186858e1171fc733b206c5cd86438af57c1c4399311a"
+        }
+      ]
+    },
+    "new_heyi": {
+      "source_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+      "vllm": "0.30.0+empty",
+      "conditions": {
+        "workload_sha256": "c57d0644d37e21e8d83adc316730d2b1b855b3458c99b2db7d31bccca6f86c3d",
+        "weights_sha256": "ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+        "hardware": {
+          "node": "master",
+          "ip": "192.168.7.5",
+          "model": "Ascend 910B3",
+          "npus": 1,
+          "driver": "25.2.0"
+        },
+        "parallelism": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "load": {
+          "warmup_requests": 8,
+          "measured_requests_per_round": 128,
+          "rounds": 2,
+          "concurrency": 4,
+          "input_tokens": 128,
+          "output_tokens": 32,
+          "request_timeout_seconds": 120
+        },
+        "sampling": {
+          "temperature": 0,
+          "ignore_eos": true
+        },
+        "engine_configuration": {
+          "dtype": "bfloat16",
+          "max_model_len": 2048,
+          "max_num_seqs": 8,
+          "max_num_batched_tokens": 2048,
+          "kv_cache_memory_bytes": 536870912,
+          "block_size": 128,
+          "prefix_caching": false,
+          "enforce_eager": true
+        },
+        "metric_definition": "Same M09 load.request SSE parser in all arms. TTFT to first nonempty text chunk; TPOT between first and last nonempty text chunks divided by API completion_tokens minus one. Throughput is successful requests divided by wall time, excluding warmup; report output-token throughput separately. Synthetic token inputs test scheduling, not semantic quality."
+      },
+      "correct": true,
+      "failed_requests": 0,
+      "metrics": {
+        "throughput": 1.8272596583086265,
+        "ttft_p95_ms": 206.94146305322647,
+        "tpot_p95_ms": 67.62322903640809
+      },
+      "artifacts": [
+        {
+          "path": "comparison-evidence/comparison-r1/workload.json",
+          "sha256": "c57d0644d37e21e8d83adc316730d2b1b855b3458c99b2db7d31bccca6f86c3d"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/load.py",
+          "sha256": "f239ec8dd2c2345884d15cb8c79f5a173fd798141a5965ac1b14cd118c4fb7bb"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/measure.py",
+          "sha256": "6858b50a37c4f88918a052bd54e90e222161cdabd74f149e28a1c704faa8e745"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/run.py",
+          "sha256": "0a6342d79895ce909e9f7e9edd0a90823f6c6b9fa0b22801b74ffa60b591b8e7"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/result.json",
+          "sha256": "4098c31f644d05c0b2bfe44c8cce39658e9d1d1a38d81d1020dd74222357b323"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi.json",
+          "sha256": "565a66874977de25086b86630e8fccde14ebbe270a31b99b9483c4e3b6494376"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/node.json",
+          "sha256": "400e8665b7a6830366083e7a1733c6d7b07bcbd4d88144c751f830cb0cfe70c0"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/measure.log",
+          "sha256": "fbe7882db534202bb10ed90c729b4e257f707b5dbf20482d692bb6f97c03357a"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/upgrade-compare-new-heyi-worker-a01f9616-7b5d57d495-dt297.log",
+          "sha256": "13a5fb0486f707408901c2dd330ddd1dd2ed7ba77ce7f285787c0c159f5cbdc6"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/upgrade-compare-new-heyi-delete.log",
+          "sha256": "c04fba4f22bc7dec8952c1036eebb0967af08cc3009dc72bcb70ac901cb5a7f6"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/measure.json",
+          "sha256": "c4699b0391ef83a6263f4c0388fbf55914ad0fe0462211b3bd76a0c289742a3f"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/ready.json",
+          "sha256": "49dd23bc45ed2b17b382a4a8170a3528b58eb5b92326ae9f9a6d70b9f6fbc174"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/upgrade-compare-new-heyi-frontend-78d7897f88-4czzm.log",
+          "sha256": "5589ba640cd69da2a79276acbcc6c080dc585ed8dfbc7f6f1f74e35e95b55dbb"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/argv.json",
+          "sha256": "cac011e3bf2ff4a2882769d8350166d840f1d6925c3caa945d2fc78d498f9a41"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/pods.json",
+          "sha256": "8dd1561113b0ac03eb68124b2608b2a4380bdea4a5bb1d061788c6ac5e5b4301"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/apply.log",
+          "sha256": "ae45fe03456a39fd8c5774cbf24868d8be358d92924738aee25b9635d03ce964"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/upgrade-compare-new-heyi-delete.json",
+          "sha256": "0f501d6e42a006646b2a87f89f83824bc1dfe4b1d275d1e218d59dc5da49f0a6"
+        },
+        {
+          "path": "comparison-evidence/comparison-r1/new_heyi/result.json",
+          "sha256": "cac6dd0d6132a173947e1fef1498d8a039153945df7eeebe18bc14c353bb29a8"
+        }
+      ]
+    }
+  },
+  "analysis": "256 measured requests per arm, two rounds, eight excluded warmups; nearest-rank p95 independently recomputed. Correctness scope is two semantic prompts plus exact input/output token accounting and no failed requests. No DeepSeek, tail-SLA, or production-performance claim."
+}

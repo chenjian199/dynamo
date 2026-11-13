@@ -1,0 +1,1219 @@
+{
+  "identity": "fe6dfd1833840635eef824b5492f12866d7be283b22ccfcd3a07bcd7bb196b53",
+  "feature": {
+    "schema_version": 1,
+    "id": "M02-F04",
+    "revision": 2,
+    "name": "离线构建与版本保护",
+    "module": "M02",
+    "owner": "HEYI",
+    "dependencies": [
+      "M02-F03"
+    ],
+    "requirements": [
+      "ssh",
+      "workspace",
+      "runtime",
+      "images"
+    ],
+    "implementation_paths": [
+      "Cargo.lock",
+      "Cargo.toml",
+      "container/platforms",
+      "lib/bindings/kvbm",
+      "lib/bindings/python",
+      "pyproject.toml",
+      "adapter/modules/m02-build-packaging/common"
+    ],
+    "reference": {
+      "baseline": "container/platforms/cuda.json",
+      "rule": "Compare supported behavior, not a whitelist of tested TP/DP/PP combinations; preserve vendor engine arguments."
+    },
+    "scope": {
+      "behavior": "离线构建与版本保护",
+      "exclusions": [
+        "Unmeasured hardware/topologies and vendor-native failures are not certified by this feature."
+      ]
+    },
+    "cases": [
+      {
+        "id": "M02-F04-C01",
+        "name": "离线构建与版本保护",
+        "required_assertions": [
+          "behavior",
+          "cleanup",
+          "identity",
+          "offline_dependency_complete",
+          "digest_lock_matches"
+        ],
+        "evidence_requirements": [
+          "command",
+          "environment",
+          "raw_output",
+          "verifier"
+        ],
+        "checks": {
+          "behavior": [
+            {
+              "op": "positive",
+              "path": "/completed_operations"
+            }
+          ],
+          "cleanup": [
+            {
+              "op": "equal",
+              "path": "/resources_remaining",
+              "value": []
+            }
+          ],
+          "identity": [
+            {
+              "op": "equal",
+              "path": "/identity",
+              "expected_from": "/identity"
+            },
+            {
+              "op": "equal",
+              "path": "/installed_versions",
+              "expected_from": "/stack/versions"
+            },
+            {
+              "op": "equal",
+              "path": "/execution_image",
+              "expected_from": "/case_binding/image"
+            },
+            {
+              "op": "equal",
+              "path": "/observed_topology",
+              "expected_from": "/case_binding/topology"
+            },
+            {
+              "op": "equal",
+              "path": "/model_manifests",
+              "expected_from": "/model_manifests"
+            }
+          ],
+          "offline_dependency_complete": [
+            {
+              "op": "equal_fields",
+              "path": "/measurements/offline_dependency_complete/actual",
+              "other": "/measurements/offline_dependency_complete/reference",
+              "nonempty": true
+            }
+          ],
+          "digest_lock_matches": [
+            {
+              "op": "equal_fields",
+              "path": "/measurements/digest_lock_matches/actual",
+              "other": "/measurements/digest_lock_matches/reference",
+              "nonempty": true
+            }
+          ]
+        },
+        "recipe": {
+          "entrypoints": [
+            "container/platforms/audit.py"
+          ],
+          "binding": "environment.case_bindings.M02-F04-C01",
+          "phases": [
+            "prepare",
+            "run",
+            "observe",
+            "cleanup",
+            "verify"
+          ],
+          "verifier": "adapter/workflow/evidence/verify.py",
+          "required_inputs": [
+            "nodes",
+            "image",
+            "topology"
+          ],
+          "observation": "cases/M02-F04-C01/observations.json"
+        },
+        "negative_cases": [
+          "missing_or_modified_measurement",
+          "wrong_image_or_model_identity",
+          "native_failure_kept_separate"
+        ],
+        "native_control": "Same model revision, engine parameters, workload and topology; paired raw outputs required where parity is asserted."
+      }
+    ],
+    "failure_classes": [
+      "environment",
+      "adaptation",
+      "native_engine",
+      "unsupported_evidenced",
+      "insufficient_evidence"
+    ],
+    "retry": {
+      "max_attempts": 2,
+      "policy": "Diagnose first; never hide an earlier failure."
+    },
+    "acceptance_notes": [
+      "Assertions require independently observed evidence, not copied constants or a generic passed flag.",
+      "For a capability with multiple native backends, choose a supported backend in campaign scope; do not require every vendor to implement every transport."
+    ],
+    "entrypoints": [
+      "container/platforms/audit.py"
+    ],
+    "contract_path": "adapter/modules/m02-build-packaging/features/f04-offline/feature.yaml",
+    "contract_sha256": "266cfca95367fa9df5317b5afd8e0453d9a1b54f1cbd99e0d13ee8778b74a994",
+    "case_scope": {
+      "M02-F04-C01": {
+        "disposition": "required"
+      }
+    }
+  },
+  "attempt_directory": "/home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/features/M02-F04/attempt-001",
+  "source": {
+    "head": "2a239c2b500ea7e48c86b7216b9878158db4802a",
+    "files_sha256": "b840ad57814d0f75d6aad4669ec801a79fd348e31e4c74809a60e6af6e33e2dd"
+  },
+  "stack": {
+    "id": "ascend",
+    "architecture": "arm64",
+    "python": "python3",
+    "base_image": "quay.io/ascend/vllm-ascend@sha256:28351d337b7f9367073344240fa4e28d99794d549d577eaf317689950064150a",
+    "versions": {
+      "vllm": "0.30.0+empty",
+      "torch": "2.10.0+cpu",
+      "vllm-ascend": "0.30.0",
+      "torch-npu": "2.10.0.post7"
+    },
+    "protected_packages": [
+      "vllm",
+      "vllm-ascend",
+      "torch",
+      "torch-npu",
+      "torchvision",
+      "torchaudio",
+      "triton-ascend",
+      "mooncake-transfer-engine",
+      "mooncake-transfer-engine-npu",
+      "triton"
+    ],
+    "runtime_features": [
+      "mm-routing",
+      "request-trace-s3",
+      "kv-indexer",
+      "slot-tracker",
+      "select-service",
+      "ais-forward-pass"
+    ],
+    "kvbm_features": [],
+    "gms": false,
+    "omni": "deferred",
+    "kernel_mode": "vendor-host-staging",
+    "nixl_link_mode": "runtime-capi"
+  },
+  "environment": {
+    "schema_version": 1,
+    "name": "ascend-scoped-closure",
+    "ssh_config": "/var/tmp/dynamo-regression-1028/ssh-config-upgrade-fresh",
+    "nodes": [
+      {
+        "id": "huawei-52",
+        "ssh": "huawei-52",
+        "workspace": "/root/CJ_workspace",
+        "machine_id": "2f1051b28ea34496954a8d3a053026d0",
+        "host_identity": {
+          "kind": "dmi_product_uuid",
+          "value": "a6691552-b04f-9b68-ef11-06c062f7d919"
+        },
+        "device_probe": [
+          "npu-smi",
+          "info"
+        ],
+        "device_paths": [
+          "/dev/davinci0",
+          "/dev/davinci1",
+          "/dev/davinci2",
+          "/dev/davinci3",
+          "/dev/davinci4",
+          "/dev/davinci5",
+          "/dev/davinci6",
+          "/dev/davinci7",
+          "/dev/davinci_manager",
+          "/dev/devmm_svm",
+          "/dev/hisi_hdc"
+        ],
+        "network_probe": [
+          "ip",
+          "-br",
+          "link"
+        ],
+        "models": [
+          {
+            "id": "Qwen3-0.6B",
+            "path": "/data/weight/Qwen3-0.6B",
+            "revision": "sha256:ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+            "manifest": "heyi-upgrade-162-manifest-ae67e66d6a53.json",
+            "manifest_sha256": "b61ad956b1d13c3c3c84e4da97d1881de5a9fba4c49c895675c6060d0050afae"
+          },
+          {
+            "id": "Qwen3-32B",
+            "path": "/data/Qwen3-32B",
+            "revision": "sha256:50284a270cdaa5e00ffe0a8770f9587fb606507dace3a35072f2ee3da3953d6e",
+            "manifest": "heyi-upgrade-162-manifest-50284a270cda.json",
+            "manifest_sha256": "9df8c6fb4555f1d6f4985f378a1ef7b413e6dd5b1cd26d2936861cc353b82e4c"
+          },
+          {
+            "id": "DeepSeek-V4-Flash-w8a8-mtp",
+            "path": "/data/DeepSeek-V4-Flash-w8a8-mtp",
+            "revision": "sha256:2f40413ced522e6f48a68955b14cdc275b1fe230f06c71d38f81fce43e8032a7",
+            "manifest": "heyi-upgrade-162-manifest-2f40413ced52.json",
+            "manifest_sha256": "069fc4fc40a713ffd221b957e1bcd9d803b7ca5d441963a0c0e9b002fcd895c9"
+          }
+        ],
+        "runtime": "k3s",
+        "images": [
+          "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+          "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+          "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+          "docker.io/heyi/dynamo-operator@sha256:6305e303fe4803965f20e1ca99f52d8419169f888eebbc6588ca34f8b7b31c23"
+        ]
+      },
+      {
+        "id": "huawei-55",
+        "ssh": "huawei-55",
+        "workspace": "/root/CJ_workspace",
+        "machine_id": "2f1051b28ea34496954a8d3a053026d0",
+        "host_identity": {
+          "kind": "dmi_product_uuid",
+          "value": "a6891e26-b04f-b1ac-ef11-1cbf7c5530b3"
+        },
+        "device_probe": [
+          "npu-smi",
+          "info"
+        ],
+        "device_paths": [
+          "/dev/davinci0",
+          "/dev/davinci1",
+          "/dev/davinci2",
+          "/dev/davinci3",
+          "/dev/davinci4",
+          "/dev/davinci5",
+          "/dev/davinci6",
+          "/dev/davinci7",
+          "/dev/davinci_manager",
+          "/dev/devmm_svm",
+          "/dev/hisi_hdc"
+        ],
+        "network_probe": [
+          "ip",
+          "-br",
+          "link"
+        ],
+        "models": [
+          {
+            "id": "Qwen3-0.6B",
+            "path": "/data/dynamo-regression-models/Qwen3-0.6B",
+            "revision": "sha256:ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+            "manifest": "heyi-upgrade-162-manifest-ae67e66d6a53.json",
+            "manifest_sha256": "b61ad956b1d13c3c3c84e4da97d1881de5a9fba4c49c895675c6060d0050afae"
+          },
+          {
+            "id": "Qwen3-32B",
+            "path": "/data/Qwen3-32B",
+            "revision": "sha256:50284a270cdaa5e00ffe0a8770f9587fb606507dace3a35072f2ee3da3953d6e",
+            "manifest": "heyi-upgrade-162-manifest-50284a270cda.json",
+            "manifest_sha256": "9df8c6fb4555f1d6f4985f378a1ef7b413e6dd5b1cd26d2936861cc353b82e4c"
+          },
+          {
+            "id": "DeepSeek-V4-Flash-w8a8-mtp",
+            "path": "/data/DeepSeek-V4-Flash-w8a8-mtp",
+            "revision": "sha256:2f40413ced522e6f48a68955b14cdc275b1fe230f06c71d38f81fce43e8032a7",
+            "manifest": "heyi-upgrade-162-manifest-2f40413ced52.json",
+            "manifest_sha256": "069fc4fc40a713ffd221b957e1bcd9d803b7ca5d441963a0c0e9b002fcd895c9"
+          }
+        ],
+        "runtime": "k3s",
+        "images": [
+          "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+          "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+          "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+          "docker.io/heyi/dynamo-operator@sha256:6305e303fe4803965f20e1ca99f52d8419169f888eebbc6588ca34f8b7b31c23"
+        ]
+      }
+    ],
+    "budgets": {
+      "task_timeout_seconds": 7200,
+      "max_attempts": 2,
+      "max_tasks": 60
+    },
+    "execution_enabled": true,
+    "image_source_root": "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50",
+    "image_inventory": {
+      "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26": {
+        "reference": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "config_id": "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+        "repo_digests": [
+          "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      },
+      "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16": {
+        "reference": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "config_id": "sha256:a287d189026db25571d0703ebd0b0c4599bc04e6d4403091ed536c62c6692daa",
+        "repo_digests": [
+          "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      },
+      "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384": {
+        "reference": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "config_id": "sha256:950992087fd28d0cf4a13641a20af72c032f374ce9ad03c269b4339ba2d79aa0",
+        "repo_digests": [
+          "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      },
+      "docker.io/heyi/dynamo-operator@sha256:6305e303fe4803965f20e1ca99f52d8419169f888eebbc6588ca34f8b7b31c23": {
+        "reference": "docker.io/heyi/dynamo-operator@sha256:6305e303fe4803965f20e1ca99f52d8419169f888eebbc6588ca34f8b7b31c23",
+        "config_id": "sha256:e47bd27dacdd78bf76b5ab3bd0f2ddae3b84d7668da474ae3db34c284c2eed24",
+        "repo_digests": [
+          "docker.io/heyi/dynamo-operator@sha256:6305e303fe4803965f20e1ca99f52d8419169f888eebbc6588ca34f8b7b31c23"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      }
+    },
+    "asset_probe_timeout_seconds": 1800,
+    "kubernetes": {
+      "host": "huawei-52",
+      "context": "default",
+      "namespace": "heyi-upgrade162",
+      "resource_key": "huawei.com/Ascend910",
+      "minimum_devices_per_node": 1,
+      "nodes": [
+        "master-02-45d4a763",
+        "master"
+      ],
+      "required_apis": [],
+      "required_resources": []
+    },
+    "case_bindings": {
+      "M01-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "workers": 2
+        }
+      },
+      "M01-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "workers": 2
+        }
+      },
+      "M01-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "workers": 2
+        }
+      },
+      "M02-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "models": [],
+        "topology": {}
+      },
+      "M02-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "models": [],
+        "topology": {}
+      },
+      "M02-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      },
+      "M02-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      },
+      "M03-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F02-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F02-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-32B"
+        ],
+        "topology": {
+          "tp": 4,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F04-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 2,
+          "pp": 1
+        }
+      },
+      "M03-F04-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-32B"
+        ],
+        "topology": {
+          "tp": 4,
+          "dp": 1,
+          "pp": 2
+        }
+      },
+      "M03-F04-C04": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "DeepSeek-V4-Flash-w8a8-mtp"
+        ],
+        "topology": {
+          "tp": 8,
+          "dp": 1,
+          "pp": 1,
+          "ep": 8
+        }
+      },
+      "M03-F05-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 2,
+          "pp": 1
+        }
+      },
+      "M03-F05-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "DeepSeek-V4-Flash-w8a8-mtp"
+        ],
+        "topology": {
+          "tp": 8,
+          "dp": 1,
+          "pp": 1,
+          "ep": 8
+        }
+      },
+      "M03-F05-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M03-F05-C04": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "DeepSeek-V4-Flash-w8a8-mtp"
+        ],
+        "topology": {
+          "tp": 8,
+          "dp": 1,
+          "pp": 1,
+          "ep": 8
+        }
+      },
+      "M04-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "models": [],
+        "topology": {
+          "devices": 2
+        }
+      },
+      "M04-F01-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "models": [],
+        "topology": {
+          "devices": 2
+        }
+      },
+      "M04-F01-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "models": [],
+        "topology": {
+          "devices": 2
+        }
+      },
+      "M04-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "models": [],
+        "topology": {
+          "devices": 2
+        }
+      },
+      "M05-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M05-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "devices": 2
+        }
+      },
+      "M05-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "prefill_replicas": 2,
+          "decode_replicas": 3
+        }
+      },
+      "M05-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "dp": 1,
+          "pp": 1,
+          "prefill_tp": 1,
+          "decode_tp": 2,
+          "prefill_replicas": 1,
+          "decode_replicas": 1
+        }
+      },
+      "M05-F05-C01": {
+        "nodes": [
+          "huawei-52",
+          "huawei-55"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "prefill_replicas": 1,
+          "decode_replicas": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763",
+          "master"
+        ]
+      },
+      "M05-F06-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M05-F06-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M05-F06-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M05-F07-C01": {
+        "nodes": [
+          "huawei-52",
+          "huawei-55"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "DeepSeek-V4-Flash-w8a8-mtp"
+        ],
+        "topology": {
+          "tp": 8,
+          "dp": 1,
+          "pp": 1,
+          "prefill_replicas": 1,
+          "decode_replicas": 1,
+          "ep": 8
+        }
+      },
+      "M06-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 2,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M06-F01-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 2,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M06-F01-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "workers": 2
+        }
+      },
+      "M06-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "ranks": 2
+        }
+      },
+      "M06-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "ranks": 2
+        }
+      },
+      "M06-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "ranks": 2
+        }
+      },
+      "M08-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {},
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M08-F01-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M08-F02-C01": {
+        "nodes": [
+          "huawei-52",
+          "huawei-55"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "prefill_replicas": 1,
+          "decode_replicas": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763",
+          "master"
+        ]
+      },
+      "M08-F03-C01": {
+        "nodes": [
+          "huawei-52",
+          "huawei-55"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "prefill_replicas": 1,
+          "decode_replicas": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763",
+          "master"
+        ]
+      },
+      "M08-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M08-F06-C01": {
+        "nodes": [
+          "huawei-52",
+          "huawei-55"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1,
+          "prefill_replicas": 1,
+          "decode_replicas": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763",
+          "master"
+        ]
+      },
+      "M09-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F02-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F02-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F03-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F03-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M09-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "models": [
+          "Qwen3-0.6B"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        },
+        "kubernetes_nodes": [
+          "master-02-45d4a763"
+        ]
+      },
+      "M10-F01-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      },
+      "M10-F02-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [
+          "Qwen3-0.6B",
+          "Qwen3-32B",
+          "DeepSeek-V4-Flash-w8a8-mtp"
+        ],
+        "topology": {
+          "tp": 1,
+          "dp": 1,
+          "pp": 1
+        }
+      },
+      "M10-F03-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      },
+      "M10-F04-C01": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      },
+      "M10-F04-C02": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      },
+      "M10-F04-C03": {
+        "nodes": [
+          "huawei-52"
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "models": [],
+        "topology": {}
+      }
+    }
+  },
+  "result_path": "/home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/features/M02-F04/attempt-001/result.json"
+}

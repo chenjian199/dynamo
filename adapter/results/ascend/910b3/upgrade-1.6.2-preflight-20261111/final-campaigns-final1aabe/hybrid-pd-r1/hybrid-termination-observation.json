@@ -1,0 +1,12 @@
+{
+  "observed_at_utc": "2026-11-11T13:24:37Z",
+  "evidence_type": "interactive_tool_observation",
+  "source": "kubectl logs upgrade-hybrid-pd-r1-decode-9008c29c-54bcf8864f-s9wp6 --tail=3",
+  "context": "After successful client boundary/concurrency/cancellation/recovery tests and UID-scoped DGD deletion, while decode Pod was terminating",
+  "observed_lines": [
+    "resource_tracker: There appear to be 10 leaked shared_memory objects to clean up at shutdown",
+    "FATAL: exception not rethrown"
+  ],
+  "followup": "A later log retrieval and /var/log/pods lookup found the already removed Pod; the full termination tail was not recovered. Kept separately from the pre-delete raw worker logs. Controller confirmed all owned model Pods removed; final node device state and empty discovery metadata recorded under cleanup-final. Destructor cause remains unclassified; not claimed fixed or native-engine attributed.",
+  "test_effect": "Request/lifecycle assertions passed; this is an unresolved shutdown diagnostic, not proof of a host leak or graceful-shutdown certification."
+}

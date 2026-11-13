@@ -1,0 +1,57 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.61kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [stage-0 1/9] FROM docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02@sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d
+#5 resolve docker.io/heyi/dynamo-vllm-cuda-runtime:1.5.1-m02@sha256:b59de8ff7d75d04160091e6b5540e0c32236c1e5a0b9aacc5d476c13e28dfd7d 0.0s done
+#5 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 1.69kB done
+#4 DONE 0.0s
+
+#6 [stage-0 3/9] COPY dgdr_v1beta1_types.py /tmp/dgdr_v1beta1_types.py
+#6 CACHED
+
+#7 [stage-0 4/9] RUN /opt/dynamo/venv/bin/python -c "import importlib.util, shutil; shutil.copyfile('/tmp/dgdr_v1beta1_types.py', importlib.util.find_spec('dynamo.profiler.utils.dgdr_v1beta1_types').origin)"
+#7 CACHED
+
+#8 [stage-0 5/9] COPY deploy /opt/dynamo/profiler-support/deploy
+#8 CACHED
+
+#9 [stage-0 6/9] COPY --chmod=755 kubectl /usr/local/bin/kubectl
+#9 CACHED
+
+#10 [stage-0 2/9] RUN --mount=type=cache,target=/root/.cache/pip --mount=type=bind,source=wheels,target=/wheels /opt/dynamo/venv/bin/python -m pip install --find-links=/wheels --timeout=180 --retries=10 /wheels/pandas-2.3.3-*.whl /wheels/pyarrow-26.0.0-*.whl aiofiles==24.1.0 kubernetes==32.0.1 kubernetes-asyncio==32.0.0 plotext==5.3.2 plotly==6.4.0 'scipy>=1.14,<2' aiperf==0.13.0 && /opt/dynamo/venv/bin/python -c "import importlib.metadata as m; assert m.version('vllm') == '0.28.0'"
+#10 CACHED
+
+#11 [stage-0 7/9] COPY --chmod=755 dgd-apply-overrides /usr/local/bin/dgd-apply-overrides
+#11 CACHED
+
+#12 [stage-0 8/9] RUN ln -sf /bin/bash /bin/sh
+#12 DONE 0.3s
+
+#13 [stage-0 9/9] RUN /opt/dynamo/venv/bin/python -c "import json; from pathlib import Path; from aiconfigurator.sdk import perf_database; p=Path(perf_database.get_systems_paths()[0]); (p/'h800_sxm.yaml').write_text(json.dumps({'node': {'num_gpus_per_node': 8}, 'gpu': {'mem_capacity': 80 * 1024**3}}))"
+#13 DONE 0.7s
+
+#14 exporting to image
+#14 exporting layers 0.1s done
+#14 exporting manifest sha256:7703f55ffd1e5b7d4f5a37e9dfb59beb357e954c62b2116ff89a67f413fb64f3 done
+#14 exporting config sha256:09fe88bc2df1c8d8c23b39216113c39e6028f3e241b0bd67298203f3b0eb26ef done
+#14 exporting attestation manifest sha256:3fec2494bb7bc49c2a57ff9823ebfd0ac6fcf4f4b3c50a7d3842aaa325f80c83 done
+#14 exporting manifest list sha256:81e710c550679d1066f3a8f54b16d1898db736a8d974096958fa4008ced54ee3 done
+#14 naming to docker.io/heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3 done
+#14 unpacking to docker.io/heyi/dynamo-profiler-cuda:1.5.1-m08-advanced3 0.1s done
+#14 DONE 0.4s

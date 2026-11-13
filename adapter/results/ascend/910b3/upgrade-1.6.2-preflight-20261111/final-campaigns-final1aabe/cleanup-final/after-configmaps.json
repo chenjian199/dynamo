@@ -1,0 +1,51 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "data": {
+        "config.yaml": "apiVersion: operator.config.dynamo.nvidia.com/v1alpha1\nkind: OperatorConfiguration\nserver:\n  metrics:\n    bindAddress: \"0.0.0.0\"\n    secure: true\n  webhook:\n    certProvisionMode: \"auto\"\n    secretName: \"webhook-server-cert\"\n    serviceName: heyi-upgrade162-dynamo-operator-webhook-service\nleaderElection:\n  enabled: true\n  id: \"dynamo.nvidia.com\"\n  namespace: \"kube-system\"\norchestrators:\n  kaiScheduler:\n    enabled: true\n  volcanoScheduler:\n    enabled: false\n  grove:\n    enabled: true\n    terminationDelay: \"4h\"\nserviceMesh:\n  enabled: false\nrbac:\n  plannerClusterRoleName: heyi-upgrade162-dynamo-operator-planner\n  dgdrProfilingClusterRoleName: heyi-upgrade162-dynamo-operator-dgdr-profiling\n  eppClusterRoleName: heyi-upgrade162-dynamo-operator-epp\nmpi:\n  sshSecretName: \"mpi-run-ssh-secret\"\n  sshSecretNamespace: \"heyi-upgrade162\"\nlpx:\n  enabled: false\n"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "annotations": {
+          "meta.helm.sh/release-name": "heyi-upgrade162",
+          "meta.helm.sh/release-namespace": "heyi-upgrade162"
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "labels": {
+          "app.kubernetes.io/instance": "heyi-upgrade162",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "dynamo-operator",
+          "app.kubernetes.io/version": "1.6.2",
+          "helm.sh/chart": "dynamo-operator-1.6.2"
+        },
+        "name": "heyi-upgrade162-dynamo-operator-config",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298358064",
+        "uid": "fd31c41e-88a1-445b-b904-1ec2f4107d2b"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "ca.crt": "-----BEGIN CERTIFICATE-----\nMIIBdzCCAR2gAwIBAgIBADAKBggqhkjOPQQDAjAjMSEwHwYDVQQDDBhrM3Mtc2Vy\ndmVyLWNhQDE3NzAzMDI3NDYwHhcNMjYwMjA1MTQ0NTQ2WhcNMzYwMjAzMTQ0NTQ2\nWjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3NzAzMDI3NDYwWTATBgcqhkjO\nPQIBBggqhkjOPQMBBwNCAAT6n+6uFI60hEoqkiQyzpWWwt+HW772+UOicvMz+mEW\ntrucADr0QwlMZzI/GGeCqy1+R/pmzFQFYZEHd5ozAUm/o0IwQDAOBgNVHQ8BAf8E\nBAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUHZAuSsKMA9shRJgUC5DX\nH2eHuzkwCgYIKoZIzj0EAwIDSAAwRQIgS535MAbyXNgtoCjxGj7Pb923Z/DjOQBH\n3ijY+rqafpUCIQCIMtoaVKaPhE03XfTcs4F6AjvCY08q2oxgYHnkCNSlFA==\n-----END CERTIFICATE-----\n"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "annotations": {
+          "kubernetes.io/description": "Contains a CA bundle that can be used to verify the kube-apiserver when using internal endpoints such as the internal service IP or kubernetes.default.svc. No other usage is guaranteed across distributions of Kubernetes clusters."
+        },
+        "creationTimestamp": "2026-11-11T09:10:03Z",
+        "name": "kube-root-ca.crt",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298328993",
+        "uid": "0e880eda-c68f-4c1e-9c0a-592da3e13b8f"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

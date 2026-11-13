@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# Derived from NVIDIA Dynamo. Modified by HEYI.
+
 *                   text  eol=lf
 *.sln               text  eol=crlf
 *.[Gg][Ii][Ff]      binary
@@ -20,3 +24,9 @@ lib/llm/tests/snapshots/** linguist-vendored
 
 # Preserve the released vLLM proto byte-for-byte, including its trailing blank line.
 lib/backend/vllm-sidecar/proto/vllm_grpc.proto -text diff whitespace=-blank-at-eof
+
+# Hashed raw observations must round-trip without newline normalization.
+adapter/results/**/*.log -text diff -whitespace
+
+# Frozen evidence is byte-sensitive, including JSON and raw HTTP/SSE captures.
+adapter/results/** -text -whitespace

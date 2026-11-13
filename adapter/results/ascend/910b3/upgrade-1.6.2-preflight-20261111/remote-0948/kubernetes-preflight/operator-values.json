@@ -1,0 +1,47 @@
+{
+  "upgradeCRD": true,
+  "global": {
+    "grove": {
+      "enabled": false,
+      "install": false
+    },
+    "kai-scheduler": {
+      "enabled": false,
+      "install": false
+    },
+    "etcd": {
+      "install": false
+    },
+    "nats": {
+      "install": false
+    }
+  },
+  "controllerManager": {
+    "manager": {
+      "image": {
+        "repository": "heyi/dynamo-operator",
+        "tag": "1.6.2-heyi-upgrade-5cbe424879-arm64"
+      },
+      "dgdrDefaultImage": "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-tools"
+    },
+    "affinity": {
+      "nodeAffinity": {
+        "requiredDuringSchedulingIgnoredDuringExecution": {
+          "nodeSelectorTerms": [
+            {
+              "matchExpressions": [
+                {
+                  "key": "kubernetes.io/hostname",
+                  "operator": "In",
+                  "values": [
+                    "master-02-45d4a763"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

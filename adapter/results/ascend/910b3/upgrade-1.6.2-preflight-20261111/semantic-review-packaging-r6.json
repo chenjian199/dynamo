@@ -1,0 +1,48 @@
+{
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "reviewer": "Codex; semantic migration review, qualification remains separate",
+  "records": [
+    {
+      "path": "container/platforms/runtime.Dockerfile",
+      "disposition": "retain",
+      "reason": "Retain immutable vendor base plus isolated system-site-packages venv; install only verified bundled wheels without resolving at image runtime, copy native helper and apply guarded vendor patches. Final1aabe installed identity and hardware evidence validate actual imports and vendor versions.",
+      "candidate_sha256": "4bb21c5ff1dbb106a85025c8b4ee8999e2f37fe1481812a73f5062d80b16508d"
+    },
+    {
+      "path": "container/platforms/dev.Dockerfile",
+      "disposition": "retain",
+      "reason": "Derive dev from exact runtime; add tools and editable backend under inherited runtime constraints, keeping GMS editable import precedence. Final1aabe Python and fullRust editable tests pass.",
+      "candidate_sha256": "42eab5ab1106e63fbc34d4dcb50b67b6c83a4c082733077abc331dbfcd6617ba"
+    },
+    {
+      "path": "container/platforms/dev-editable.sh",
+      "disposition": "retain",
+      "reason": "Before mutation require exact source/image platform profile and Rust toolchain; preserve PIP_NO_DEPS, locked bindings and separate target dirs for colliding _core libraries; refresh native helper from Cargo output and check imports resolve to mounted source. Both final modes exercised.",
+      "candidate_sha256": "b8c6445f11c4190830163110f025e9b0047732a799e134a86d5b52983affb54f"
+    },
+    {
+      "path": "container/platforms/dev-check.py",
+      "disposition": "retain",
+      "reason": "Compare full runtime package snapshot and newly introduced pip conflicts after dev installation; reject pip check execution errors as well as dependency regressions. Final1aabe dev audit passes.",
+      "candidate_sha256": "33fea34e65691b5b96709d1fc6107768d1f1667539181511a594fd38df5f3455"
+    },
+    {
+      "path": "container/platforms/dev-setup.sh",
+      "disposition": "retain",
+      "reason": "Retain vendor-specific apt mirror scope, freeze inherited packages, install pinned dev requirements and source Rust toolchain; verify Swagger archive hash. Full actual1aabe build and editable install succeeded; network needed at build time remains documented.",
+      "candidate_sha256": "4bef3470e8345f14bcddd6250ebabea02b9a940e43b51c211bd7eccfedcd9219"
+    },
+    {
+      "path": "container/platforms/entrypoint.sh",
+      "disposition": "retain",
+      "reason": "Ascend sources packaged CANN environment then restores isolated Python/native library search; CUDA and MetaX-specific library/UCX branches remain distinct. FinalAscend packaged startup tested; no CUDA or MetaX multi-node qualification claimed.",
+      "candidate_sha256": "3760456c00aaf012bc6fc72b51f033de562611b25a71939bfee0bee89d1f8cff"
+    },
+    {
+      "path": "container/platforms/build-wheels.sh",
+      "disposition": "retain",
+      "reason": "Build both locked Rust bindings, Python packages and standalone KVBM helper; resolve all built-wheel requirements in clean resolver while protecting vendor versions; hash downloads and archive locks/features. Final1aabe complete ARM64 build passed, no reused upstream runtime binary.",
+      "candidate_sha256": "1b9b855158ed798d1c111f30eed03ff0b568bb95e2071dfb481da7daa03defb8"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "reviewer": "Codex; scoped migration review, hardware qualification recorded separately",
+  "records": [
+    {
+      "path": "lib/platform/src/device.rs",
+      "disposition": "retain",
+      "reason": "Retain SDK-independent unsafe backend contract with per-thread context binding, completion and ownership requirements. Provider/context/ordinal identify addresses and streams; no raw SDK handle is treated as interchangeable across vendors. ActualAscend allocator/copy and independentKVBM tests exercise the implementation.",
+      "candidate_sha256": "4923066fc544d007e515b122ca1c34b45c0f7b991d2a2519a6baba5f497f5807",
+      "same_as_old_heyi": true
+    },
+    {
+      "path": "lib/platform/src/lib.rs",
+      "disposition": "retain",
+      "reason": "Retain versioned platform descriptor, explicit available/unavailable/unknown capabilities and contextual requirements; validate unique device IDs and nonzero capacities. Available capability reports do not assert certification. No tested-TP whitelist introduced.",
+      "candidate_sha256": "c63d8c7489c672201bdfc6d71af1a30734b0f64b67dabb4b3c7fa76b4c10f200",
+      "same_as_old_heyi": true
+    },
+    {
+      "path": "lib/platform/src/memory.rs",
+      "disposition": "retain",
+      "reason": "Retain bounded asynchronous-copy reservations and resource-owning reaper; canceled receipts do not free DMA buffers. Checked ranges/context/alignment, failed-submit stream fallback and fail-safe quarantine remain. SDK fault quarantine can deliberately retain resources and is not an unbounded leak-free guarantee; final live normal/cancel paths passed.",
+      "candidate_sha256": "43840e6da969c3dadd6bf35538072a40183f01d3b1b8f6af47f63fe7aad13544",
+      "same_as_old_heyi": true
+    },
+    {
+      "path": "lib/memory/src/platform.rs",
+      "disposition": "retain",
+      "reason": "Retain provider-owned allocation through MemoryDescriptor/Buffer ownership, preserving explicit device_identity. Return no NIXL descriptor instead of mislabeling vendor allocation as CUDA. Transfer registration remains delegated to vendor M05 path.",
+      "candidate_sha256": "633ac0ebd200ccc9a28efabd81bca467bd3548498e5bfb45b7fba68b1b5e1f88",
+      "same_as_old_heyi": true
+    },
+    {
+      "path": "lib/memory/src/device.rs",
+      "disposition": "retain",
+      "reason": "Target delta only guards NIXL imports/method/trait behind its feature and adds attribution. Original CUDA allocation/drop semantics unchanged; Ascend does not require NIXL when building its native path. No CUDA hardware regression claimed.",
+      "candidate_sha256": "5183715750b4a8c066ad8babd84295ece3b6626151cc34c8354afe44cdcec2e8",
+      "same_as_old_heyi": true
+    }
+  ]
+}

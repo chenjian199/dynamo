@@ -1,0 +1,613 @@
+{
+    "apiVersion": "nvidia.com/v1beta1",
+    "kind": "DynamoGraphDeploymentRequest",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"nvidia.com/v1beta1\",\"kind\":\"DynamoGraphDeploymentRequest\",\"metadata\":{\"annotations\":{},\"labels\":{\"heyi.io/campaign\":\"upgrade-1.6.2-ascend-20261111\"},\"name\":\"upgrade-profile-r1\",\"namespace\":\"heyi-upgrade162\"},\"spec\":{\"autoApply\":true,\"backend\":\"vllm\",\"hardware\":{\"gpuSku\":\"ascend_910b3\",\"numGpusPerNode\":8,\"totalGpus\":2,\"vramMb\":65536},\"image\":\"heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools\",\"model\":\"/models/Qwen3-0.6B\",\"overrides\":{\"dgd\":{\"apiVersion\":\"nvidia.com/v1beta1\",\"kind\":\"DynamoGraphDeployment\",\"metadata\":{\"annotations\":{\"nvidia.com/dynamo-discovery-backend\":\"kubernetes\",\"nvidia.com/enable-grove\":\"false\",\"nvidia.com/workload-provider\":\"component\"},\"labels\":{\"heyi.io/campaign\":\"upgrade-1.6.2-ascend-20261111\"}},\"spec\":{\"backendFramework\":\"vllm\",\"components\":[{\"name\":\"Frontend\",\"podTemplate\":{\"spec\":{\"containers\":[{\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"arm64\",\"kubernetes.io/hostname\":\"master-02-45d4a763\"},\"volumes\":[{\"hostPath\":{\"path\":\"/data/weight/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"}]}},\"runtimeVersionOverride\":\"1.6.2\",\"sharedMemorySize\":\"8Gi\",\"type\":\"frontend\"},{\"name\":\"VllmDecodeWorker\",\"podTemplate\":{\"spec\":{\"containers\":[{\"$patch\":{\"args\":\"append\"},\"args\":[\"--enforce-eager\",\"--gpu-memory-utilization\",\"0.3\",\"--disable-custom-all-reduce\",\"--max-model-len\",\"1024\",\"--block-size\",\"128\"],\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\",\"-m\",\"dynamo.vllm\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"ascend\"},{\"name\":\"VLLM_HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.podIP\"}}},{\"name\":\"VLLM_MOONCAKE_BOOTSTRAP_PORT\",\"value\":\"20090\"},{\"name\":\"VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT\",\"value\":\"60\"},{\"name\":\"ASCEND_TRANSFER_TIMEOUT\",\"value\":\"30000\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"},{\"name\":\"DYN_HEALTH_CHECK_PAYLOAD\",\"value\":\"{\\\"token_ids\\\": [1], \\\"sampling_options\\\": {\\\"temperature\\\": 0.0}, \\\"stop_conditions\\\": {\\\"max_tokens\\\": 1}, \\\"annotations\\\": [\\\"x-bypass-remote-prefill\\\"]}\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/usr/local/Ascend/driver\",\"name\":\"ascend-driver\",\"readOnly\":true},{\"mountPath\":\"/usr/local/dcmi\",\"name\":\"ascend-dcmi\",\"readOnly\":true},{\"mountPath\":\"/usr/local/sbin/npu-smi\",\"name\":\"ascend-smi\",\"readOnly\":true}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"arm64\",\"kubernetes.io/hostname\":\"master-02-45d4a763\"},\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"huawei.com/Ascend910\",\"operator\":\"Exists\"}],\"volumes\":[{\"hostPath\":{\"path\":\"/data/weight/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"hostPath\":{\"path\":\"/usr/local/Ascend/driver\",\"type\":\"Directory\"},\"name\":\"ascend-driver\"},{\"hostPath\":{\"path\":\"/usr/local/dcmi\",\"type\":\"Directory\"},\"name\":\"ascend-dcmi\"},{\"hostPath\":{\"path\":\"/usr/local/bin/npu-smi\",\"type\":\"File\"},\"name\":\"ascend-smi\"}]}},\"runtimeVersionOverride\":\"1.6.2\",\"sharedMemorySize\":\"8Gi\",\"type\":\"worker\"},{\"name\":\"VllmPrefillWorker\",\"podTemplate\":{\"spec\":{\"containers\":[{\"$patch\":{\"args\":\"append\"},\"args\":[\"--enforce-eager\",\"--gpu-memory-utilization\",\"0.3\",\"--disable-custom-all-reduce\",\"--max-model-len\",\"1024\",\"--block-size\",\"128\"],\"command\":[\"/opt/dynamo/bin/entrypoint.sh\",\"python3\",\"-m\",\"dynamo.vllm\"],\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_ROUTER_USE_KV_EVENTS\",\"value\":\"true\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"ascend\"},{\"name\":\"VLLM_HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.podIP\"}}},{\"name\":\"VLLM_MOONCAKE_BOOTSTRAP_PORT\",\"value\":\"20090\"},{\"name\":\"VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT\",\"value\":\"60\"},{\"name\":\"ASCEND_TRANSFER_TIMEOUT\",\"value\":\"30000\"},{\"name\":\"PYTHONUNBUFFERED\",\"value\":\"1\"},{\"name\":\"GOMAXPROCS\",\"value\":\"4\"},{\"name\":\"SPT_NOENV\",\"value\":\"1\"}],\"envFrom\":[{\"secretRef\":{\"name\":\"hf-token-secret\",\"optional\":true}}],\"image\":\"heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/usr/local/Ascend/driver\",\"name\":\"ascend-driver\",\"readOnly\":true},{\"mountPath\":\"/usr/local/dcmi\",\"name\":\"ascend-dcmi\",\"readOnly\":true},{\"mountPath\":\"/usr/local/sbin/npu-smi\",\"name\":\"ascend-smi\",\"readOnly\":true}],\"workingDir\":\"/tmp\"}],\"nodeSelector\":{\"kubernetes.io/arch\":\"arm64\",\"kubernetes.io/hostname\":\"master-02-45d4a763\"},\"tolerations\":[{\"effect\":\"NoSchedule\",\"key\":\"huawei.com/Ascend910\",\"operator\":\"Exists\"}],\"volumes\":[{\"hostPath\":{\"path\":\"/data/weight/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"hostPath\":{\"path\":\"/usr/local/Ascend/driver\",\"type\":\"Directory\"},\"name\":\"ascend-driver\"},{\"hostPath\":{\"path\":\"/usr/local/dcmi\",\"type\":\"Directory\"},\"name\":\"ascend-dcmi\"},{\"hostPath\":{\"path\":\"/usr/local/bin/npu-smi\",\"type\":\"File\"},\"name\":\"ascend-smi\"}]}},\"runtimeVersionOverride\":\"1.6.2\",\"sharedMemorySize\":\"8Gi\",\"type\":\"worker\"}]}},\"profilingJob\":{\"activeDeadlineSeconds\":3600,\"backoffLimit\":0,\"template\":{\"spec\":{\"containers\":[{\"env\":[{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"HUGGING_FACE_HUB_TOKEN\",\"valueFrom\":{\"secretKeyRef\":{\"key\":\"HF_TOKEN\",\"name\":\"hf-token-secret\",\"optional\":true}}},{\"name\":\"TORCH_DEVICE_BACKEND_AUTOLOAD\",\"value\":\"0\"},{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"}],\"image\":\"heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools\",\"imagePullPolicy\":\"Never\",\"name\":\"profiler\",\"volumeMounts\":[{\"mountPath\":\"/models/Qwen3-0.6B\",\"name\":\"models\",\"readOnly\":true},{\"mountPath\":\"/opt/dynamo/platform-capacity\",\"name\":\"capacity\",\"readOnly\":true}],\"workingDir\":\"/tmp\"},{\"env\":[{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"},{\"name\":\"TORCH_DEVICE_BACKEND_AUTOLOAD\",\"value\":\"0\"}],\"image\":\"heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools\",\"imagePullPolicy\":\"Never\",\"name\":\"output-copier\",\"volumeMounts\":[{\"mountPath\":\"/opt/dynamo/platform-capacity\",\"name\":\"capacity\",\"readOnly\":true}]}],\"nodeSelector\":{\"kubernetes.io/arch\":\"arm64\",\"kubernetes.io/hostname\":\"master-02-45d4a763\"},\"securityContext\":{\"runAsGroup\":0,\"runAsNonRoot\":false,\"runAsUser\":0},\"volumes\":[{\"hostPath\":{\"path\":\"/data/weight/Qwen3-0.6B\",\"type\":\"Directory\"},\"name\":\"models\"},{\"hostPath\":{\"path\":\"/data/dynamo-upgrade-1.6.2-20261111/dgdr-r1/profiler\",\"type\":\"DirectoryOrCreate\"},\"name\":\"profiling-output\"},{\"configMap\":{\"name\":\"m10-capacity\"},\"name\":\"capacity\"}]}}}},\"runtimeVersionOverride\":\"1.6.2\",\"searchStrategy\":\"thorough\",\"sla\":{\"itl\":1000,\"ttft\":10000},\"workload\":{\"concurrency\":1,\"isl\":128,\"osl\":16}}}\n"
+        },
+        "creationTimestamp": "2026-11-11T10:25:28Z",
+        "finalizers": [
+            "nvidia.com/finalizer"
+        ],
+        "generation": 1,
+        "labels": {
+            "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+        },
+        "name": "upgrade-profile-r1",
+        "namespace": "heyi-upgrade162",
+        "resourceVersion": "298361564",
+        "uid": "12318daa-6fc0-4bbd-9370-c7605c13694b"
+    },
+    "spec": {
+        "autoApply": true,
+        "backend": "vllm",
+        "hardware": {
+            "gpuSku": "ascend_910b3",
+            "numGpusPerNode": 8,
+            "totalGpus": 2,
+            "vramMb": 65536
+        },
+        "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools",
+        "model": "/models/Qwen3-0.6B",
+        "overrides": {
+            "dgd": {
+                "apiVersion": "nvidia.com/v1beta1",
+                "kind": "DynamoGraphDeployment",
+                "metadata": {
+                    "annotations": {
+                        "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                        "nvidia.com/enable-grove": "false",
+                        "nvidia.com/workload-provider": "component"
+                    },
+                    "labels": {
+                        "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+                    }
+                },
+                "spec": {
+                    "backendFramework": "vllm",
+                    "components": [
+                        {
+                            "name": "Frontend",
+                            "podTemplate": {
+                                "spec": {
+                                    "containers": [
+                                        {
+                                            "command": [
+                                                "/opt/dynamo/bin/entrypoint.sh",
+                                                "python3"
+                                            ],
+                                            "env": [
+                                                {
+                                                    "name": "HF_HUB_OFFLINE",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "DYN_REQUEST_PLANE",
+                                                    "value": "tcp"
+                                                },
+                                                {
+                                                    "name": "DYN_EVENT_PLANE",
+                                                    "value": "zmq"
+                                                },
+                                                {
+                                                    "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                                    "value": "true"
+                                                },
+                                                {
+                                                    "name": "DYN_PLATFORM",
+                                                    "value": "cpu"
+                                                },
+                                                {
+                                                    "name": "PYTHONUNBUFFERED",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "GOMAXPROCS",
+                                                    "value": "4"
+                                                },
+                                                {
+                                                    "name": "SPT_NOENV",
+                                                    "value": "1"
+                                                }
+                                            ],
+                                            "envFrom": [
+                                                {
+                                                    "secretRef": {
+                                                        "name": "hf-token-secret",
+                                                        "optional": true
+                                                    }
+                                                }
+                                            ],
+                                            "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                                            "imagePullPolicy": "Never",
+                                            "name": "main",
+                                            "volumeMounts": [
+                                                {
+                                                    "mountPath": "/models/Qwen3-0.6B",
+                                                    "name": "models",
+                                                    "readOnly": true
+                                                }
+                                            ],
+                                            "workingDir": "/tmp"
+                                        }
+                                    ],
+                                    "nodeSelector": {
+                                        "kubernetes.io/arch": "arm64",
+                                        "kubernetes.io/hostname": "master-02-45d4a763"
+                                    },
+                                    "volumes": [
+                                        {
+                                            "hostPath": {
+                                                "path": "/data/weight/Qwen3-0.6B",
+                                                "type": "Directory"
+                                            },
+                                            "name": "models"
+                                        }
+                                    ]
+                                }
+                            },
+                            "runtimeVersionOverride": "1.6.2",
+                            "sharedMemorySize": "8Gi",
+                            "type": "frontend"
+                        },
+                        {
+                            "name": "VllmDecodeWorker",
+                            "podTemplate": {
+                                "spec": {
+                                    "containers": [
+                                        {
+                                            "$patch": {
+                                                "args": "append"
+                                            },
+                                            "args": [
+                                                "--enforce-eager",
+                                                "--gpu-memory-utilization",
+                                                "0.3",
+                                                "--disable-custom-all-reduce",
+                                                "--max-model-len",
+                                                "1024",
+                                                "--block-size",
+                                                "128"
+                                            ],
+                                            "command": [
+                                                "/opt/dynamo/bin/entrypoint.sh",
+                                                "python3",
+                                                "-m",
+                                                "dynamo.vllm"
+                                            ],
+                                            "env": [
+                                                {
+                                                    "name": "HF_HUB_OFFLINE",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "DYN_REQUEST_PLANE",
+                                                    "value": "tcp"
+                                                },
+                                                {
+                                                    "name": "DYN_EVENT_PLANE",
+                                                    "value": "zmq"
+                                                },
+                                                {
+                                                    "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                                    "value": "true"
+                                                },
+                                                {
+                                                    "name": "DYN_PLATFORM",
+                                                    "value": "ascend"
+                                                },
+                                                {
+                                                    "name": "VLLM_HOST_IP",
+                                                    "valueFrom": {
+                                                        "fieldRef": {
+                                                            "fieldPath": "status.podIP"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                                    "value": "20090"
+                                                },
+                                                {
+                                                    "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                                    "value": "60"
+                                                },
+                                                {
+                                                    "name": "ASCEND_TRANSFER_TIMEOUT",
+                                                    "value": "30000"
+                                                },
+                                                {
+                                                    "name": "PYTHONUNBUFFERED",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "GOMAXPROCS",
+                                                    "value": "4"
+                                                },
+                                                {
+                                                    "name": "SPT_NOENV",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "DYN_HEALTH_CHECK_PAYLOAD",
+                                                    "value": "{\"token_ids\": [1], \"sampling_options\": {\"temperature\": 0.0}, \"stop_conditions\": {\"max_tokens\": 1}, \"annotations\": [\"x-bypass-remote-prefill\"]}"
+                                                }
+                                            ],
+                                            "envFrom": [
+                                                {
+                                                    "secretRef": {
+                                                        "name": "hf-token-secret",
+                                                        "optional": true
+                                                    }
+                                                }
+                                            ],
+                                            "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                                            "imagePullPolicy": "Never",
+                                            "name": "main",
+                                            "volumeMounts": [
+                                                {
+                                                    "mountPath": "/models/Qwen3-0.6B",
+                                                    "name": "models",
+                                                    "readOnly": true
+                                                },
+                                                {
+                                                    "mountPath": "/usr/local/Ascend/driver",
+                                                    "name": "ascend-driver",
+                                                    "readOnly": true
+                                                },
+                                                {
+                                                    "mountPath": "/usr/local/dcmi",
+                                                    "name": "ascend-dcmi",
+                                                    "readOnly": true
+                                                },
+                                                {
+                                                    "mountPath": "/usr/local/sbin/npu-smi",
+                                                    "name": "ascend-smi",
+                                                    "readOnly": true
+                                                }
+                                            ],
+                                            "workingDir": "/tmp"
+                                        }
+                                    ],
+                                    "nodeSelector": {
+                                        "kubernetes.io/arch": "arm64",
+                                        "kubernetes.io/hostname": "master-02-45d4a763"
+                                    },
+                                    "tolerations": [
+                                        {
+                                            "effect": "NoSchedule",
+                                            "key": "huawei.com/Ascend910",
+                                            "operator": "Exists"
+                                        }
+                                    ],
+                                    "volumes": [
+                                        {
+                                            "hostPath": {
+                                                "path": "/data/weight/Qwen3-0.6B",
+                                                "type": "Directory"
+                                            },
+                                            "name": "models"
+                                        },
+                                        {
+                                            "hostPath": {
+                                                "path": "/usr/local/Ascend/driver",
+                                                "type": "Directory"
+                                            },
+                                            "name": "ascend-driver"
+                                        },
+                                        {
+                                            "hostPath": {
+                                                "path": "/usr/local/dcmi",
+                                                "type": "Directory"
+                                            },
+                                            "name": "ascend-dcmi"
+                                        },
+                                        {
+                                            "hostPath": {
+                                                "path": "/usr/local/bin/npu-smi",
+                                                "type": "File"
+                                            },
+                                            "name": "ascend-smi"
+                                        }
+                                    ]
+                                }
+                            },
+                            "runtimeVersionOverride": "1.6.2",
+                            "sharedMemorySize": "8Gi",
+                            "type": "worker"
+                        },
+                        {
+                            "name": "VllmPrefillWorker",
+                            "podTemplate": {
+                                "spec": {
+                                    "containers": [
+                                        {
+                                            "$patch": {
+                                                "args": "append"
+                                            },
+                                            "args": [
+                                                "--enforce-eager",
+                                                "--gpu-memory-utilization",
+                                                "0.3",
+                                                "--disable-custom-all-reduce",
+                                                "--max-model-len",
+                                                "1024",
+                                                "--block-size",
+                                                "128"
+                                            ],
+                                            "command": [
+                                                "/opt/dynamo/bin/entrypoint.sh",
+                                                "python3",
+                                                "-m",
+                                                "dynamo.vllm"
+                                            ],
+                                            "env": [
+                                                {
+                                                    "name": "HF_HUB_OFFLINE",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "DYN_REQUEST_PLANE",
+                                                    "value": "tcp"
+                                                },
+                                                {
+                                                    "name": "DYN_EVENT_PLANE",
+                                                    "value": "zmq"
+                                                },
+                                                {
+                                                    "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                                    "value": "true"
+                                                },
+                                                {
+                                                    "name": "DYN_PLATFORM",
+                                                    "value": "ascend"
+                                                },
+                                                {
+                                                    "name": "VLLM_HOST_IP",
+                                                    "valueFrom": {
+                                                        "fieldRef": {
+                                                            "fieldPath": "status.podIP"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                                    "value": "20090"
+                                                },
+                                                {
+                                                    "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                                    "value": "60"
+                                                },
+                                                {
+                                                    "name": "ASCEND_TRANSFER_TIMEOUT",
+                                                    "value": "30000"
+                                                },
+                                                {
+                                                    "name": "PYTHONUNBUFFERED",
+                                                    "value": "1"
+                                                },
+                                                {
+                                                    "name": "GOMAXPROCS",
+                                                    "value": "4"
+                                                },
+                                                {
+                                                    "name": "SPT_NOENV",
+                                                    "value": "1"
+                                                }
+                                            ],
+                                            "envFrom": [
+                                                {
+                                                    "secretRef": {
+                                                        "name": "hf-token-secret",
+                                                        "optional": true
+                                                    }
+                                                }
+                                            ],
+                                            "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                                            "imagePullPolicy": "Never",
+                                            "name": "main",
+                                            "volumeMounts": [
+                                                {
+                                                    "mountPath": "/models/Qwen3-0.6B",
+                                                    "name": "models",
+                                                    "readOnly": true
+                                                },
+                                                {
+                                                    "mountPath": "/usr/local/Ascend/driver",
+                                                    "name": "ascend-driver",
+                                                    "readOnly": true
+                                                },
+                                                {
+                                                    "mountPath": "/usr/local/dcmi",
+                                                    "name": "ascend-dcmi",
+                                                    "readOnly": true
+                                                },
+                                                {
+                                                    "mountPath": "/usr/local/sbin/npu-smi",
+                                                    "name": "ascend-smi",
+                                                    "readOnly": true
+                                                }
+                                            ],
+                                            "workingDir": "/tmp"
+                                        }
+                                    ],
+                                    "nodeSelector": {
+                                        "kubernetes.io/arch": "arm64",
+                                        "kubernetes.io/hostname": "master-02-45d4a763"
+                                    },
+                                    "tolerations": [
+                                        {
+                                            "effect": "NoSchedule",
+                                            "key": "huawei.com/Ascend910",
+                                            "operator": "Exists"
+                                        }
+                                    ],
+                                    "volumes": [
+                                        {
+                                            "hostPath": {
+                                                "path": "/data/weight/Qwen3-0.6B",
+                                                "type": "Directory"
+                                            },
+                                            "name": "models"
+                                        },
+                                        {
+                                            "hostPath": {
+                                                "path": "/usr/local/Ascend/driver",
+                                                "type": "Directory"
+                                            },
+                                            "name": "ascend-driver"
+                                        },
+                                        {
+                                            "hostPath": {
+                                                "path": "/usr/local/dcmi",
+                                                "type": "Directory"
+                                            },
+                                            "name": "ascend-dcmi"
+                                        },
+                                        {
+                                            "hostPath": {
+                                                "path": "/usr/local/bin/npu-smi",
+                                                "type": "File"
+                                            },
+                                            "name": "ascend-smi"
+                                        }
+                                    ]
+                                }
+                            },
+                            "runtimeVersionOverride": "1.6.2",
+                            "sharedMemorySize": "8Gi",
+                            "type": "worker"
+                        }
+                    ]
+                }
+            },
+            "profilingJob": {
+                "activeDeadlineSeconds": 3600,
+                "backoffLimit": 0,
+                "template": {
+                    "spec": {
+                        "containers": [
+                            {
+                                "env": [
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "HUGGING_FACE_HUB_TOKEN",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "key": "HF_TOKEN",
+                                                "name": "hf-token-secret",
+                                                "optional": true
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "cpu"
+                                    }
+                                ],
+                                "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools",
+                                "imagePullPolicy": "Never",
+                                "name": "profiler",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/opt/dynamo/platform-capacity",
+                                        "name": "capacity",
+                                        "readOnly": true
+                                    }
+                                ],
+                                "workingDir": "/tmp"
+                            },
+                            {
+                                "env": [
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "cpu"
+                                    },
+                                    {
+                                        "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+                                        "value": "0"
+                                    }
+                                ],
+                                "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools",
+                                "imagePullPolicy": "Never",
+                                "name": "output-copier",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/opt/dynamo/platform-capacity",
+                                        "name": "capacity",
+                                        "readOnly": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "arm64",
+                            "kubernetes.io/hostname": "master-02-45d4a763"
+                        },
+                        "securityContext": {
+                            "runAsGroup": 0,
+                            "runAsNonRoot": false,
+                            "runAsUser": 0
+                        },
+                        "volumes": [
+                            {
+                                "hostPath": {
+                                    "path": "/data/weight/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/data/dynamo-upgrade-1.6.2-20261111/dgdr-r1/profiler",
+                                    "type": "DirectoryOrCreate"
+                                },
+                                "name": "profiling-output"
+                            },
+                            {
+                                "configMap": {
+                                    "name": "m10-capacity"
+                                },
+                                "name": "capacity"
+                            }
+                        ]
+                    }
+                }
+            },
+            "trustRemoteCode": false
+        },
+        "runtimeVersionOverride": "1.6.2",
+        "searchStrategy": "thorough",
+        "sla": {
+            "itl": 1000,
+            "ttft": 10000
+        },
+        "workload": {
+            "concurrency": 1,
+            "isl": 128,
+            "osl": 16
+        }
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastTransitionTime": "2026-11-11T10:25:28Z",
+                "message": "DGDR spec validation passed",
+                "observedGeneration": 1,
+                "reason": "ValidationPassed",
+                "status": "True",
+                "type": "Validation"
+            },
+            {
+                "lastTransitionTime": "2026-11-11T10:25:28Z",
+                "message": "Discovering GPU hardware and preparing profiling job",
+                "observedGeneration": 1,
+                "reason": "DiscoveringHardware",
+                "status": "False",
+                "type": "Profiling"
+            },
+            {
+                "lastTransitionTime": "2026-11-11T10:25:28Z",
+                "message": "DGDR is pending",
+                "observedGeneration": 1,
+                "reason": "Pending",
+                "status": "False",
+                "type": "Succeeded"
+            }
+        ],
+        "observedGeneration": 1,
+        "phase": "Pending"
+    }
+}

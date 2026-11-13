@@ -1,0 +1,611 @@
+{
+  "kind": "unqualified_field_evidence_crosswalk",
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "release_qualified": false,
+  "note": "This index locates current field material by feature ID. It is not a frozen workflow campaign, verifier result or inherited qualification. Formal feature statuses are unchanged.",
+  "features": [
+    {
+      "feature_id": "M01-F01",
+      "name": "平台身份与选择",
+      "revision": 2,
+      "contract": "adapter/modules/m01-platform-contract/features/f01-platform/feature.yaml",
+      "contract_sha256": "d0616a17832f1ba4ca869df5e221066379eff53708248f75faae2d1ac579e023",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "最终安装包的平台身份、NPU执行、CPU控制面；不是全部负例认证",
+      "evidence": [
+        "final-acceptance-55-1140",
+        "final-acceptance-52-1140"
+      ]
+    },
+    {
+      "feature_id": "M01-F02",
+      "name": "设备枚举与服务发现",
+      "revision": 2,
+      "contract": "adapter/modules/m01-platform-contract/features/f02-discovery/feature.yaml",
+      "contract_sha256": "6ba80b2496a470954a9948ea9ec4a9ff4fc9d6bc4411603ec036a912ebaf9ff8",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "双节点DGD发现、worker重建及退出发现元数据清理",
+      "evidence": [
+        "final-campaigns-final1aabe/cluster-services/pd-cross-final-r1",
+        "final-campaigns-final1aabe/cleanup-final"
+      ]
+    },
+    {
+      "feature_id": "M01-F03",
+      "name": "版本与能力探测",
+      "revision": 2,
+      "contract": "adapter/modules/m01-platform-contract/features/f03-stack/feature.yaml",
+      "contract_sha256": "2289fa9554a7853a0fd129fb48eda43f7056f899a978626f5b881b0aecea0d0c",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "冻结镜像摘要、实际0.30+empty及插件0.30、CANN9.2.1；未升级宿主驱动",
+      "evidence": [
+        "final-acceptance-55-1140",
+        "final-acceptance-52-1140"
+      ]
+    },
+    {
+      "feature_id": "M02-F01",
+      "name": "开发环境与 editable 安装",
+      "revision": 2,
+      "contract": "adapter/modules/m02-build-packaging/features/f01-bootstrap/feature.yaml",
+      "contract_sha256": "d6b8bd181528792510f8d1fcca5fa8ad7f362e6876a800b8829c130681b477f0",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "最终dev镜像Python与完整Rust editable安装，独立工作目录清理",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M02-F02",
+      "name": "Rust Python 依赖隔离构建",
+      "revision": 2,
+      "contract": "adapter/modules/m02-build-packaging/features/f02-build/feature.yaml",
+      "contract_sha256": "3c5d4870a7717aa77ad09cf0b79972e81fdf8655f04b68f997e1817ddacc493b",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "ARM64 runtime/dev/tools/Operator构建，安装身份及tools129项检查",
+      "evidence": [
+        "final-acceptance-52-1140"
+      ]
+    },
+    {
+      "feature_id": "M02-F03",
+      "name": "runtime dev tools 镜像",
+      "revision": 2,
+      "contract": "adapter/modules/m02-build-packaging/features/f03-images/feature.yaml",
+      "contract_sha256": "e06605f9a9671b5539ea9abbc78bf3a23fcc364872186971371a937f35109fe9",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "四角色最终镜像导出、77个OCI blob与已存在containerd导入ID核验",
+      "evidence": [
+        "final-campaigns-final1aabe/offline-candidate"
+      ]
+    },
+    {
+      "feature_id": "M02-F04",
+      "name": "离线构建与版本保护",
+      "revision": 2,
+      "contract": "adapter/modules/m02-build-packaging/features/f04-offline/feature.yaml",
+      "contract_sha256": "266cfca95367fa9df5317b5afd8e0453d9a1b54f1cbd99e0d13ee8778b74a994",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "版本锁保护、镜像离线导入有证据；未证明完全断网从源码冷构建",
+      "evidence": [
+        "final-campaigns-final1aabe/offline-candidate"
+      ]
+    },
+    {
+      "feature_id": "M03-F01",
+      "name": "原生与 Dynamo 基础推理",
+      "revision": 2,
+      "contract": "adapter/modules/m03-engine-integration/features/f01-baseline/feature.yaml",
+      "contract_sha256": "3efe5e8a1fc32399874bf84230bb2c726341e33d9d13f81fc72e2e45db8849ac",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "Qwen0.6旧HEYI/新候选/原生三组对照；Qwen32、DeepSeek聚合API",
+      "evidence": [
+        "final-acceptance-55-1140",
+        "final-acceptance-52-1140",
+        "final-campaigns-final1aabe/dynamo-deepseek-api-final-r2",
+        "comparison-gate-r1.json"
+      ]
+    },
+    {
+      "feature_id": "M03-F02",
+      "name": "流式取消与生命周期",
+      "revision": 2,
+      "contract": "adapter/modules/m03-engine-integration/features/f02-lifecycle/feature.yaml",
+      "contract_sha256": "4cc83f6fa1c22546ab1fa93ec0bc32d2733da2d68c6fa50964ac30e8d04c02e0",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "流式、取消、故障后恢复；保留Hybrid退出析构告警",
+      "evidence": [
+        "pd-soak-final-independent-audit.json",
+        "final-campaigns-final1aabe/hybrid-pd-r1"
+      ]
+    },
+    {
+      "feature_id": "M03-F03",
+      "name": "KV 事件与路由",
+      "revision": 2,
+      "contract": "adapter/modules/m03-engine-integration/features/f03-routing/feature.yaml",
+      "contract_sha256": "e9de97173b5d7f40af0389dd231ef790716a0746791a6b3cbf865efc74fbb3cb",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "最终镜像双worker KV事件与路由断言",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M03-F04",
+      "name": "TP DP PP EP 参数透传",
+      "revision": 2,
+      "contract": "adapter/modules/m03-engine-integration/features/f04-parallel/feature.yaml",
+      "contract_sha256": "d2b984aee41158e0d3a3189f195f9ce6ce64cd0065ffab0429235e6b15dcaca9",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "TP2/TP4/TP8、LoRA DP2、原生对照PP2、DeepSeek EP；不等同所有拓扑认证",
+      "evidence": [
+        "final-acceptance-55-1140",
+        "final-acceptance-52-1140",
+        "final-campaigns-final1aabe/pp2-final-r1",
+        "final-campaigns-final1aabe/dynamo-deepseek-api-final-r2"
+      ]
+    },
+    {
+      "feature_id": "M03-F05",
+      "name": "LoRA 量化推测解码与 MoE",
+      "revision": 2,
+      "contract": "adapter/modules/m03-engine-integration/features/f05-advanced/feature.yaml",
+      "contract_sha256": "5c834d8b59a707f83000e5bb6273768042012752307dcc133127b767c5a57f2b",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "合成LoRA DP2、ngram、DeepSeek W8A8/EP；无真实LoRA精度或大模型质量认证",
+      "evidence": [
+        "final-acceptance-52-1140",
+        "final-acceptance-55-1140",
+        "final-campaigns-final1aabe/dynamo-deepseek-api-final-r2"
+      ]
+    },
+    {
+      "feature_id": "M04-F01",
+      "name": "设备内存分配注册和复制",
+      "revision": 2,
+      "contract": "adapter/modules/m04-device-memory/features/f01-memory/feature.yaml",
+      "contract_sha256": "35939eecd6e50daf4c49873798ac1e765d535db2bc22553a2cb9dfe82a8a7631",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "最终安装的独立KVBM及NPU内存六组实机测试",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M04-F02",
+      "name": "流事件与所有权回收",
+      "revision": 2,
+      "contract": "adapter/modules/m04-device-memory/features/f02-synchronization/feature.yaml",
+      "contract_sha256": "68f5502c699e736a8cbc2c93738e750a38ae66561d8520ff94cc4bd52efa3002",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "事件同步、host/disk重载字节和取消清理；不是跨卡直接P2P能力新增",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M05-F01",
+      "name": "PD 布局及交接协议",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f01-contract/feature.yaml",
+      "contract_sha256": "667312cef972d6b8fe7699ac14b7428b5f1fb72a78e1a527f12a32cdca6070ce",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "厂商严格配置和交错KV注册；最终PD端到端及Hybrid日志",
+      "evidence": [
+        "final-campaigns-final1aabe/cluster-services/pd-cross-final-r1",
+        "final-campaigns-final1aabe/hybrid-pd-r1"
+      ]
+    },
+    {
+      "feature_id": "M05-F02",
+      "name": "NIXL Mooncake 传输",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f02-transport/feature.yaml",
+      "contract_sha256": "ca46dc9de905f8ba7e396b2ceb8ec4d4c281ad27043dac198ba9ac213119f4c4",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "Ascend Mooncake0.3.13真实传输；不将Ascend NIXL跳过用例计为通过",
+      "evidence": [
+        "rdma-final-r1",
+        "final-campaigns-final1aabe/cluster-services/pd-cross-final-r1"
+      ]
+    },
+    {
+      "feature_id": "M05-F03",
+      "name": "不等数量 P D",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f03-unequal/feature.yaml",
+      "contract_sha256": "60ee042aba147ffac56bd80d7aa968f7ad1fbb227b3e8d2818ce175cde58e415",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "跨节点2P3D六条交接配对、API与故障恢复",
+      "evidence": [
+        "final-campaigns-final1aabe/cluster-services/pd-cross-final-r1"
+      ]
+    },
+    {
+      "feature_id": "M05-F04",
+      "name": "异宽 TP 与秩映射",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f04-asymmetric/feature.yaml",
+      "contract_sha256": "a994bb8532f5496f64e60b6ef744034afcbc0fbf36a1ed7fc5f75d578c16c0be",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "TP1 Prefill -> TP2 Decode、基线与取消恢复；不宣称所有异宽比率",
+      "evidence": [
+        "final-campaigns-final1aabe/candidate-1aabe/pd-split-final-r1",
+        "final-campaigns-final1aabe/pd-split-final-r1"
+      ]
+    },
+    {
+      "feature_id": "M05-F05",
+      "name": "跨节点 KV 传输",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f05-crossnode/feature.yaml",
+      "contract_sha256": "73419ecd34a851879d9b4f864cbbcdc4b542770f79bb1b545a08cebcbce61ba7",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "双节点PD与独立READ/WRITE字节校验",
+      "evidence": [
+        "final-campaigns-final1aabe/cluster-services/pd-cross-final-r1",
+        "rdma-final-r1"
+      ]
+    },
+    {
+      "feature_id": "M05-F06",
+      "name": "故障取消回收长稳",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f06-recovery/feature.yaml",
+      "contract_sha256": "5f0eda41875ea6ebce164c3a16cef7655e24f26c4ea11ec3b6b7c4a0bb67c42f",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "1817.415秒/1920请求/60取消/3故障；独立资源增长与145原始文件摘要审计",
+      "evidence": [
+        "pd-soak-final-independent-audit.json",
+        "pd-soak-final-55.tar.gz"
+      ]
+    },
+    {
+      "feature_id": "M05-F07",
+      "name": "混合 KV 布局",
+      "revision": 2,
+      "contract": "adapter/modules/m05-pd-transfer/features/f07-hybrid/feature.yaml",
+      "contract_sha256": "363ac2cdb833b134b52bc95351c4a86e1c10bded16bce66a3094baa47136585e",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "DeepSeek TP8+TP8 Hybrid七边界、两轮并发、四取消及恢复；非数值精度/SLO验收",
+      "evidence": [
+        "final-campaigns-final1aabe/hybrid-pd-r1"
+      ]
+    },
+    {
+      "feature_id": "M06-F01",
+      "name": "G2 G3 缓存卸载命中及路由",
+      "revision": 2,
+      "contract": "adapter/modules/m06-kvbm-collectives/features/f01-tiers/feature.yaml",
+      "contract_sha256": "95170e0ef2a0fd6a690369ae1b2ac4c9ca5bf607da3097b84f9a36fe4eba2763",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "TP2 host/disk缓存卸载重载、输出和字节校验及取消",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M06-F02",
+      "name": "独立 KVBM 引擎调用",
+      "revision": 2,
+      "contract": "adapter/modules/m06-kvbm-collectives/features/f02-independent/feature.yaml",
+      "contract_sha256": "133a547d6df624b01b3d8029ede9a5689289c1de30c853734c37f27dd4e16333",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "独立KVBM六组原生设备调用",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M06-F03",
+      "name": "分片多卡搬运",
+      "revision": 2,
+      "contract": "adapter/modules/m06-kvbm-collectives/features/f03-sharded/feature.yaml",
+      "contract_sha256": "e9c1720006e883dc2ca6c3f76dd5ff53ad5a23f89554ddc76620d4c4a7697860",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "TP2安装包执行及内存/磁盘重载字节校验",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M06-F04",
+      "name": "MLA replicated 广播",
+      "revision": 2,
+      "contract": "adapter/modules/m06-kvbm-collectives/features/f04-replicated/feature.yaml",
+      "contract_sha256": "a582af454c092e18c1904c2d8b7facef12e6e436d3d146258502079df450f5fe",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "独立replicated广播案例；不是整条大模型MLA生产负载认证",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M06-F05",
+      "name": "G4 远端缓存",
+      "revision": 2,
+      "contract": "adapter/modules/m06-kvbm-collectives/features/f05-remote/feature.yaml",
+      "contract_sha256": "94232f73858c721bc478f6ee8ff402224fca27badc74aa8b5b4bf2f10f678a89",
+      "qualification": "pending",
+      "observed_coverage": "not_executed",
+      "scope": "G4远端缓存扩展继续保留原范围限制",
+      "evidence": []
+    },
+    {
+      "feature_id": "M07-F01",
+      "name": "VMM 句柄共享与 GMS",
+      "revision": 2,
+      "contract": "adapter/modules/m07-gms-multimodal/features/f01-gms/feature.yaml",
+      "contract_sha256": "830974fcec9edea62222301b01b7ef0a22981768def2b012ad56ea9e9d506a14",
+      "qualification": "pending",
+      "observed_coverage": "not_executed",
+      "scope": "Ascend GMS provider未实现；保留历史VMM限制，未把9.1旧失败当9.2.1新硬件结论",
+      "evidence": []
+    },
+    {
+      "feature_id": "M07-F02",
+      "name": "多模态输入与编码",
+      "revision": 2,
+      "contract": "adapter/modules/m07-gms-multimodal/features/f02-media/feature.yaml",
+      "contract_sha256": "c34399b26a6e3fd757014ac2d0ec02efc7f166e17cf8a90bb8f7a64ffc154191",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "本地媒体/张量四项通过；无完整VL模型及精度认证",
+      "evidence": [
+        "final-acceptance-55-1140"
+      ]
+    },
+    {
+      "feature_id": "M07-F03",
+      "name": "独立编码器传输",
+      "revision": 2,
+      "contract": "adapter/modules/m07-gms-multimodal/features/f03-encoder/feature.yaml",
+      "contract_sha256": "c25659316a7b0092944449dad1ff7036e187e2a937043f15252a770f1b425562",
+      "qualification": "pending",
+      "observed_coverage": "not_executed",
+      "scope": "独立编码器端到端模型资产与完整传输回归未补齐",
+      "evidence": []
+    },
+    {
+      "feature_id": "M07-F04",
+      "name": "Omni 阶段生命周期与通道",
+      "revision": 2,
+      "contract": "adapter/modules/m07-gms-multimodal/features/f04-omni/feature.yaml",
+      "contract_sha256": "32fab7ab3b7bd7c87eddbf6dc63970b3293788bea0fe5e68461ccbc490b492be",
+      "qualification": "pending",
+      "observed_coverage": "not_executed",
+      "scope": "Omni hidden-state完整跨stage通道继续暂缓",
+      "evidence": []
+    },
+    {
+      "feature_id": "M08-F01",
+      "name": "资源名校验与 Operator 部署",
+      "revision": 2,
+      "contract": "adapter/modules/m08-kubernetes/features/f01-operator/feature.yaml",
+      "contract_sha256": "83ec88532939e002f1d36e0517523ddb4970d5284c6b6e6a7edbe7f1b13b1ecf",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "1.6.2 Helm安装、标准Ascend资源和最终DGD就绪；已清理模型保留控制器",
+      "evidence": [
+        "final-acceptance-52-1140",
+        "final-campaigns-final1aabe/cleanup-final"
+      ]
+    },
+    {
+      "feature_id": "M08-F02",
+      "name": "Operator 跨节点 PD",
+      "revision": 2,
+      "contract": "adapter/modules/m08-kubernetes/features/f02-crossnode/feature.yaml",
+      "contract_sha256": "f24bcd3552f7fd868b9699d43de24e14106dab8ef6f48d4db771f7f799bb76ba",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "Operator部署双节点2P3D及DeepSeek Hybrid",
+      "evidence": [
+        "final-campaigns-final1aabe/cluster-services/pd-cross-final-r1",
+        "final-campaigns-final1aabe/hybrid-pd-r1"
+      ]
+    },
+    {
+      "feature_id": "M08-F03",
+      "name": "Grove KAI 与 Gang 调度",
+      "revision": 2,
+      "contract": "adapter/modules/m08-kubernetes/features/f03-grove/feature.yaml",
+      "contract_sha256": "eabc86070cd2fc2d4cdb3f1235b43e56a1df61433109b32c896b162439c16974",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "Grove alpha14/KAI0.17；7卡占用时gang阻塞，释放后2->3->2->0及worker恢复",
+      "evidence": [
+        "final-campaigns-final1aabe/cluster-services/grove-final-r1"
+      ]
+    },
+    {
+      "feature_id": "M08-F04",
+      "name": "DGDR 分析任务编排",
+      "revision": 2,
+      "contract": "adapter/modules/m08-kubernetes/features/f04-dgdr/feature.yaml",
+      "contract_sha256": "fb37770b02f9765bd348f4acfc60f66af43295a05eacf9b58edee0727e5e39c4",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "四候选78份AIPerf审计；autoApply Ready，精确相同选中spec重建API通过",
+      "evidence": [
+        "final-campaigns-final1aabe/dgdr-r2"
+      ]
+    },
+    {
+      "feature_id": "M08-F05",
+      "name": "厂商 DRA",
+      "revision": 2,
+      "contract": "adapter/modules/m08-kubernetes/features/f05-dra/feature.yaml",
+      "contract_sha256": "5c8e1d749862fb347370692c0405bc70b3177f747adcdd1581e8182b0273a0af",
+      "qualification": "pending",
+      "observed_coverage": "not_executed",
+      "scope": "当前K3s1.32不满足此前选定实验DRA环境，未擅自升级",
+      "evidence": []
+    },
+    {
+      "feature_id": "M08-F06",
+      "name": "集群 RDMA 路径",
+      "revision": 2,
+      "contract": "adapter/modules/m08-kubernetes/features/f06-rdma/feature.yaml",
+      "contract_sha256": "b88ec37fde35a6ec9a19cb4cfb3ae2cf13242b590a3911cb8ad95e31c4d979ba",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "40个跨节点READ/WRITE字节检查及HCCN RC成对计数；不是Hybrid性能证明",
+      "evidence": [
+        "rdma-final-r1"
+      ]
+    },
+    {
+      "feature_id": "M09-F01",
+      "name": "指标与资源观测",
+      "revision": 2,
+      "contract": "adapter/modules/m09-telemetry-planner/features/f01-telemetry/feature.yaml",
+      "contract_sha256": "55941eb120120c8ae78197587c75d6599405a101f3a275271e52332cda3704ab",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "实际worker队列/KV指标及Prometheus驱动规划；没有完整设备exporter新版本矩阵认证",
+      "evidence": [
+        "final-campaigns-final1aabe/profiling-r5"
+      ]
+    },
+    {
+      "feature_id": "M09-F02",
+      "name": "离线采样插值及画像身份",
+      "revision": 2,
+      "contract": "adapter/modules/m09-telemetry-planner/features/f02-profile/feature.yaml",
+      "contract_sha256": "26cf14698fbe30e77c72831ca6d1ad8f06b0baf6b922eaa5c348ebf35c73fd6c",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "54份实际AIPerf完整5/3网格、身份/插值/保存/复用和重启指纹",
+      "evidence": [
+        "final-campaigns-final1aabe/profiling-r3",
+        "final-campaigns-final1aabe/profiling-r5"
+      ]
+    },
+    {
+      "feature_id": "M09-F03",
+      "name": "在线规划扩缩容与恢复",
+      "revision": 2,
+      "contract": "adapter/modules/m09-telemetry-planner/features/f03-planner/feature.yaml",
+      "contract_sha256": "694a1a6ad706d1b315e26c2502c6506d2410b74f29d20f48c7de377aa3a2ab04",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "独立75ms/95%阈值场景1->3->2->1及回收；150ms及默认80%失败仍保留",
+      "evidence": [
+        "final-campaigns-final1aabe/profiling-r3",
+        "final-campaigns-final1aabe/profiling-r4",
+        "final-campaigns-final1aabe/profiling-r5"
+      ]
+    },
+    {
+      "feature_id": "M09-F04",
+      "name": "SLA 与性能分析",
+      "revision": 2,
+      "contract": "adapter/modules/m09-telemetry-planner/features/f04-sla/feature.yaml",
+      "contract_sha256": "40fbb7af7aca80706eb944eec4ffed81898a866c43bf4eda0004e25aa5cce719",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "性能指标独立重算；高负载TTFT/TPOT目标未达成，只有恢复阶段达标",
+      "evidence": [
+        "final-campaigns-final1aabe/profiling-r5",
+        "comparison-gate-r1.json"
+      ]
+    },
+    {
+      "feature_id": "M09-F05",
+      "name": "功耗观测与控制",
+      "revision": 2,
+      "contract": "adapter/modules/m09-telemetry-planner/features/f05-power/feature.yaml",
+      "contract_sha256": "2f54ad6a0ebb936268d7628df3c9a4868ab7ea4c62c88568cc89d2fe5cdc6a26",
+      "qualification": "pending",
+      "observed_coverage": "not_executed",
+      "scope": "功耗写入继续暂缓；npu-smi健康快照不是闭环功率控制认证",
+      "evidence": [
+        "final-campaigns-final1aabe/cleanup-final"
+      ]
+    },
+    {
+      "feature_id": "M10-F01",
+      "name": "最终安装镜像身份与锁定",
+      "revision": 2,
+      "contract": "adapter/modules/m10-validation/features/f01-identity/feature.yaml",
+      "contract_sha256": "5e01bc59f9747d4fa7b88bc3b408af796e7b7eeaad07ce0364a3a2d1cfe4256c",
+      "qualification": "pending",
+      "observed_coverage": "evidence_available",
+      "scope": "最终源提交、四镜像configID、安装元数据和hash核验",
+      "evidence": [
+        "final-acceptance-52-1140",
+        "final-acceptance-55-1140",
+        "final-campaigns-final1aabe/offline-candidate"
+      ]
+    },
+    {
+      "feature_id": "M10-F02",
+      "name": "跨模块最终镜像回归",
+      "revision": 2,
+      "contract": "adapter/modules/m10-validation/features/f02-regression/feature.yaml",
+      "contract_sha256": "2eac26f11fba3034d122b3787af9b044758573ceeff9cecfde825663860cea1a",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "最终镜像已执行主要跨模块场景；不冒充45功能全量冻结campaign",
+      "evidence": [
+        "final-campaigns-final1aabe/",
+        "final-acceptance-55-1140",
+        "final-acceptance-52-1140"
+      ]
+    },
+    {
+      "feature_id": "M10-F03",
+      "name": "证据范围与限制审计",
+      "revision": 2,
+      "contract": "adapter/modules/m10-validation/features/f03-audit/feature.yaml",
+      "contract_sha256": "4aa713b776bb3dc71685a07706603837b6c17cf80c4358ada2c6a4094a35dfea",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "独立原始文件摘要、性能/长稳审计及范围报告；升级语义台账与正式campaign门禁仍待完成",
+      "evidence": [
+        "upgrade-summary.md",
+        "upgrade-gate-final.json"
+      ]
+    },
+    {
+      "feature_id": "M10-F04",
+      "name": "离线导入与封存交付",
+      "revision": 2,
+      "contract": "adapter/modules/m10-validation/features/f04-offline/feature.yaml",
+      "contract_sha256": "43b84ac1295043f123a1e94cd0304bb012df979301970c94c843812f3412a982",
+      "qualification": "pending",
+      "observed_coverage": "partial",
+      "scope": "候选离线包包含镜像/依赖/chart/源代码/证据；尚非sealed正式交付，非空集群冷安装",
+      "evidence": [
+        "final-campaigns-final1aabe/offline-candidate"
+      ]
+    }
+  ]
+}

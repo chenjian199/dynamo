@@ -1,0 +1,83 @@
+[
+  {
+    "role": "runtime",
+    "argv": [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "--rm",
+      "--name",
+      "heyi-648-tools-role-runtime",
+      "--network",
+      "none",
+      "--user",
+      "0",
+      "-e",
+      "DYN_PLATFORM=ascend",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "--mount",
+      "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/source-64815280cf/adapter/modules/m10-validation/common/regression/check-installed.py,dst=/test/check-installed.py,readonly",
+      "sha256:e4d70b19e45845d4c2329b1e8b08fad8b356c2f824f9cdbd129c370170f3de62",
+      "/opt/dynamo/bin/entrypoint.sh",
+      "/opt/dynamo/venv/bin/python",
+      "/test/check-installed.py",
+      "--role",
+      "runtime"
+    ],
+    "returncode": 0,
+    "remaining_container_ids": [],
+    "finished": 1794466030.5403044
+  },
+  {
+    "role": "profiler",
+    "argv": [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "--rm",
+      "--name",
+      "heyi-648-tools-role-profiler",
+      "--network",
+      "none",
+      "--user",
+      "0",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "--mount",
+      "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/source-64815280cf/adapter/modules/m10-validation/common/regression/check-installed.py,dst=/test/check-installed.py,readonly",
+      "sha256:e4d70b19e45845d4c2329b1e8b08fad8b356c2f824f9cdbd129c370170f3de62",
+      "/opt/dynamo/tools-venv/bin/python",
+      "-m",
+      "dynamo.profiler",
+      "--help"
+    ],
+    "returncode": 0,
+    "remaining_container_ids": [],
+    "finished": 1794466040.3303742
+  },
+  {
+    "role": "planner",
+    "argv": [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "--rm",
+      "--name",
+      "heyi-648-tools-role-planner",
+      "--network",
+      "none",
+      "--user",
+      "0",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "--mount",
+      "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/source-64815280cf/adapter/modules/m10-validation/common/regression/check-installed.py,dst=/test/check-installed.py,readonly",
+      "sha256:e4d70b19e45845d4c2329b1e8b08fad8b356c2f824f9cdbd129c370170f3de62",
+      "/opt/dynamo/tools-venv/bin/python",
+      "-m",
+      "dynamo.planner",
+      "--help"
+    ],
+    "returncode": 0,
+    "remaining_container_ids": [],
+    "finished": 1794466044.3151224
+  }
+]

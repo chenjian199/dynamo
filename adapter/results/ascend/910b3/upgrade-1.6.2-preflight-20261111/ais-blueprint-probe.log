@@ -1,0 +1,105 @@
+(model_path: 'str', system: 'str', backend: 'str', *, image: 'str' = '', isl: 'int' = 4000, osl: 'int' = 1000, enable_wideep: 'bool' = False, backend_version: 'str | None' = None, num_gpus_per_node: 'int | None' = None, total_gpus: 'int | None' = None, k8s_pvc_name: 'str | None' = None, k8s_pvc_mount_path: 'str' = '/workspace/model_cache', k8s_model_path_in_pvc: 'str | None' = None) -> 'tuple[list[EnumeratedCandidate], list[EnumeratedCandidate], bool, int]'
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+[2m2026-11-11T10:27:16.339783Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T10:27:16.383676Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+candidates 4
+[2m2026-11-11T10:27:16.426987Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T10:27:16.469935Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumeration complete: 2 prefill DGDs, 2 decode DGDs
+{
+  "apiVersion": "nvidia.com/v1beta1",
+  "kind": "DynamoGraphDeployment",
+  "metadata": {
+    "name": "vllm-agg-a7e83cc5"
+  },
+  "spec": {
+    "components": [
+      {
+        "name": "Frontend",
+        "type": "frontend",
+        "replicas": 1,
+        "podTemplate": {
+          "spec": {
+            "containers": [
+              {
+                "name": "main",
+                "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                "command": [
+                  "python3"
+                ],
+                "args": [
+                  "-m",
+                  "dynamo.frontend",
+                  "--model-name",
+                  "/models/Qwen3-0.6B",
+                  "--model-path",
+                  "/models/Qwen3-0.6B"
+                ],
+                "envFrom": [
+                  {
+                    "secretRef": {
+                      "name": "hf-token-secret"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "decode",
+        "type": "decode",
+        "replicas": 1,
+        "podTemplate": {
+          "spec": {
+            "containers": [
+              {
+                "name": "main",
+                "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                "workingDir": "/workspace/examples/backends/vllm",
+                "command": [
+                  "python3",
+                  "-m",
+                  "dynamo.vllm"
+                ],
+                "args": [
+                  "--tensor-parallel-size",
+                  "1",
+                  "--pipeline-parallel-size",
+                  "1",
+                  "--max-num-seqs",
+                  "1",
+                  "--max-num-batched-tokens",
+                  "1628",
+                  "--kv-transfer-config",
+                  "{\"kv_connector\":\"NixlConnector\",\"kv_role\":\"kv_producer\"}",
+                  "--model",
+                  "/models/Qwen3-0.6B",
+                  "--served-model-name",
+                  "/models/Qwen3-0.6B",
+                  "--no-enable-prefix-caching"
+                ],
+                "resources": {
+                  "limits": {
+                    "nvidia.com/gpu": "1"
+                  },
+                  "requests": {
+                    "ephemeral-storage": "2Gi",
+                    "nvidia.com/gpu": "1"
+                  }
+                },
+                "envFrom": [
+                  {
+                    "secretRef": {
+                      "name": "hf-token-secret"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

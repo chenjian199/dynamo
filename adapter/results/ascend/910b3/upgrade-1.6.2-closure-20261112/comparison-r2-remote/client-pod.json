@@ -1,0 +1,172 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Pod\",\"metadata\":{\"annotations\":{},\"labels\":{\"heyi.io/campaign\":\"upgrade-1.6.2-ascend-20261111\"},\"name\":\"closure-comparison-tools\",\"namespace\":\"heyi-upgrade162\"},\"spec\":{\"activeDeadlineSeconds\":7200,\"automountServiceAccountToken\":false,\"containers\":[{\"args\":[\"sleep\",\"infinity\"],\"command\":[\"/opt/dynamo/bin/tools-entrypoint.sh\"],\"env\":[{\"name\":\"DYN_PLATFORM\",\"value\":\"cpu\"},{\"name\":\"TORCH_DEVICE_BACKEND_AUTOLOAD\",\"value\":\"0\"}],\"image\":\"docker.io/heyi/dynamo@sha256:0a64ed62f07d451a1b648dc033edd0678b32a545a6d2c2910dc4cc5fcc01c47e\",\"imagePullPolicy\":\"Never\",\"name\":\"main\",\"resources\":{\"limits\":{\"cpu\":\"4\",\"memory\":\"8Gi\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"2Gi\"}},\"volumeMounts\":[{\"mountPath\":\"/comparison\",\"name\":\"comparison\"}]}],\"nodeSelector\":{\"kubernetes.io/hostname\":\"master-02-45d4a763\"},\"restartPolicy\":\"Never\",\"volumes\":[{\"hostPath\":{\"path\":\"/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/comparison-r2\",\"type\":\"Directory\"},\"name\":\"comparison\"}]}}\n"
+    },
+    "creationTimestamp": "2026-11-12T06:20:40Z",
+    "labels": {
+      "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+    },
+    "name": "closure-comparison-tools",
+    "namespace": "heyi-upgrade162",
+    "resourceVersion": "298883786",
+    "uid": "c4367de8-f1d8-4808-92ec-c31dd9e16c3b"
+  },
+  "spec": {
+    "activeDeadlineSeconds": 7200,
+    "automountServiceAccountToken": false,
+    "containers": [
+      {
+        "args": [
+          "sleep",
+          "infinity"
+        ],
+        "command": [
+          "/opt/dynamo/bin/tools-entrypoint.sh"
+        ],
+        "env": [
+          {
+            "name": "DYN_PLATFORM",
+            "value": "cpu"
+          },
+          {
+            "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+            "value": "0"
+          }
+        ],
+        "image": "docker.io/heyi/dynamo@sha256:0a64ed62f07d451a1b648dc033edd0678b32a545a6d2c2910dc4cc5fcc01c47e",
+        "imagePullPolicy": "Never",
+        "name": "main",
+        "resources": {
+          "limits": {
+            "cpu": "4",
+            "memory": "8Gi"
+          },
+          "requests": {
+            "cpu": "1",
+            "memory": "2Gi"
+          }
+        },
+        "terminationMessagePath": "/dev/termination-log",
+        "terminationMessagePolicy": "File",
+        "volumeMounts": [
+          {
+            "mountPath": "/comparison",
+            "name": "comparison"
+          }
+        ]
+      }
+    ],
+    "dnsPolicy": "ClusterFirst",
+    "enableServiceLinks": true,
+    "nodeName": "master-02-45d4a763",
+    "nodeSelector": {
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "preemptionPolicy": "PreemptLowerPriority",
+    "priority": 0,
+    "restartPolicy": "Never",
+    "schedulerName": "default-scheduler",
+    "securityContext": {},
+    "serviceAccount": "default",
+    "serviceAccountName": "default",
+    "terminationGracePeriodSeconds": 30,
+    "tolerations": [
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/not-ready",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/unreachable",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      }
+    ],
+    "volumes": [
+      {
+        "hostPath": {
+          "path": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/comparison-r2",
+          "type": "Directory"
+        },
+        "name": "comparison"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-12T06:20:41Z",
+        "status": "True",
+        "type": "PodReadyToStartContainers"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-12T06:20:40Z",
+        "status": "True",
+        "type": "Initialized"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-12T06:20:41Z",
+        "status": "True",
+        "type": "Ready"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-12T06:20:41Z",
+        "status": "True",
+        "type": "ContainersReady"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-12T06:20:40Z",
+        "status": "True",
+        "type": "PodScheduled"
+      }
+    ],
+    "containerStatuses": [
+      {
+        "containerID": "containerd://0d149a8edb4c1394078ed806e4dcf65b8dc1d1adad3e0bc79c42ca4ae6a4eced",
+        "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-49ef509336-tools",
+        "imageID": "docker.io/heyi/dynamo@sha256:0a64ed62f07d451a1b648dc033edd0678b32a545a6d2c2910dc4cc5fcc01c47e",
+        "lastState": {},
+        "name": "main",
+        "ready": true,
+        "restartCount": 0,
+        "started": true,
+        "state": {
+          "running": {
+            "startedAt": "2026-11-12T06:20:40Z"
+          }
+        },
+        "volumeMounts": [
+          {
+            "mountPath": "/comparison",
+            "name": "comparison"
+          }
+        ]
+      }
+    ],
+    "hostIP": "192.168.7.7",
+    "hostIPs": [
+      {
+        "ip": "192.168.7.7"
+      }
+    ],
+    "phase": "Running",
+    "podIP": "10.42.5.27",
+    "podIPs": [
+      {
+        "ip": "10.42.5.27"
+      }
+    ],
+    "qosClass": "Burstable",
+    "startTime": "2026-11-12T06:20:40Z"
+  }
+}

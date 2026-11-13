@@ -1,0 +1,361 @@
+[LogService] File logging is disabled due to failure on creating directory "//mxlog/umd/" 
+INFO 11-11 15:35:39 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 15:35:39 [__init__.py:54] - metax -> vllm_metax:register
+INFO 11-11 15:35:39 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 15:35:39 [__init__.py:237] Platform plugin metax is activated
+INFO 11-11 15:35:39 [envs.py:136] vllm-metax would try to sets VLLM_USE_FLASHINFER_SAMPLER default to False. Reason: controlled by VLLM_METAX_USE_FLASHINFER_SAMPLER; disabled by default
+INFO 11-11 15:35:39 [envs.py:136] vllm-metax would try to sets VLLM_ENGINE_READY_TIMEOUT_S default to 7200. Reason: set timeout to 7200s for model loading
+INFO 11-11 15:35:39 [envs.py:136] vllm-metax would try to sets VLLM_FLOAT32_MATMUL_PRECISION default to high. Reason: set float32 matmul precision to high for better performance on Maca platform
+INFO 11-11 15:35:39 [envs.py:136] vllm-metax would try to sets VLLM_USE_V2_MODEL_RUNNER default to False. Reason: v2 model runner is still under development and not fully tested on Maca platform, disable it by default
+INFO 11-11 15:35:39 [envs.py:136] vllm-metax would try to sets VLLM_USE_DEEP_GEMM_E8M0 default to False. Reason: USE_DEEP_GEMM_E8M0 default to false on Maca platform
+INFO 11-11 15:35:47 [importing.py:53] Triton is installed but 0 active driver(s) found (expected 1). Disabling Triton to prevent runtime errors.
+INFO 11-11 15:35:47 [importing.py:88] Triton not installed or not compatible; certain GPU-related functions will not be available.
+.......F.........................................F...................... [ 37%]
+........................................................................ [ 75%]
+..........................FF..................                           [100%]
+=================================== FAILURES ===================================
+___________________ test_custom_jinja_template_invalid_path ____________________
+
+mock_vllm_cli = <function make_cli_args_fixture.<locals>.mock_cli_args.<locals>.set_args at 0x7f8939efcc20>
+
+    def test_custom_jinja_template_invalid_path(mock_vllm_cli):
+        """Test that invalid file path raises FileNotFoundError."""
+        invalid_path = "/nonexistent/path/to/template.jinja"
+    
+        mock_vllm_cli("--model", "Qwen/Qwen3-0.6B", "--custom-jinja-template", invalid_path)
+    
+        with pytest.raises(
+            FileNotFoundError,
+            match=re.escape(f"Custom Jinja template file not found: {invalid_path}"),
+        ):
+>           parse_args()
+
+components/src/dynamo/vllm/tests/test_vllm_unit.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/vllm/args.py:94: in parse_args
+    return _build_config(*_parse_cli_args(argv))
+                          ^^^^^^^^^^^^^^^^^^^^^
+components/src/dynamo/vllm/args.py:137: in _parse_cli_args
+    AsyncEngineArgs.add_cli_args(vllm_parser, async_args_only=False)
+/opt/conda/lib/python3.12/site-packages/vllm/engine/arg_utils.py:2733: in add_cli_args
+    load_general_plugins()
+/opt/conda/lib/python3.12/site-packages/vllm/plugins/__init__.py:90: in load_general_plugins
+    func()
+/opt/conda/lib/python3.12/site-packages/vllm_metax/__init__.py:34: in register_out_of_tree
+    _patch()
+/opt/conda/lib/python3.12/site-packages/vllm_metax/__init__.py:22: in _patch
+    import vllm_metax.device_allocator.cumem
+/opt/conda/lib/python3.12/site-packages/vllm_metax/device_allocator/cumem.py:39: in <module>
+    from vllm_metax.patch.enhancement.distributed.cuda_wrapper import CudaRTLibrary
+/opt/conda/lib/python3.12/site-packages/vllm_metax/patch/enhancement/__init__.py:12: in <module>
+    from . import quant_kernels  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/patch/enhancement/quant_kernels/__init__.py:8: in <module>
+    from . import fp8_block_kernel
+/opt/conda/lib/python3.12/site-packages/vllm_metax/patch/enhancement/quant_kernels/fp8_block_kernel.py:10: in <module>
+    from vllm_metax.registry.linear_kernels.fp8 import (
+/opt/conda/lib/python3.12/site-packages/vllm_metax/registry/__init__.py:4: in <module>
+    from . import (
+/opt/conda/lib/python3.12/site-packages/vllm_metax/registry/custom_ops/__init__.py:3: in <module>
+    from . import activation, layernorm  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/registry/custom_ops/layernorm.py:3: in <module>
+    from vllm.model_executor.layers.layernorm import GemmaRMSNorm, RMSNorm, RMSNormGated
+/opt/conda/lib/python3.12/site-packages/vllm/model_executor/layers/layernorm.py:10: in <module>
+    import vllm.kernels  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm/kernels/__init__.py:5: in <module>
+    from . import aiter_ops, oink_ops, vllm_c, xpu_ops
+/opt/conda/lib/python3.12/site-packages/vllm/kernels/oink_ops.py:18: in <module>
+    OINK_AVAILABLE = current_platform.has_device_capability(100) and hasattr(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:158: in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:734: in has_device_capability
+    return super().has_device_capability(capability, device_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm/platforms/interface.py:447: in has_device_capability
+    current_capability = cls.get_device_capability(device_id=device_id)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:158: in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/platform.py:720: in get_device_capability
+    handle = pymxsml.nvmlDeviceGetHandleByIndex(physical_device_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm_metax/third_party/pymxsml.py:2501: in nvmlDeviceGetHandleByIndex
+    _nvmlCheckReturn(ret)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ret = 2
+
+    def _nvmlCheckReturn(ret):
+        if (ret != MXSMLEX_SUCCESS):
+>           raise NVMLError(ret)
+E           vllm_metax.third_party.pymxsml.NVMLError_InvalidArgument: Invalid Argument
+
+/opt/conda/lib/python3.12/site-packages/vllm_metax/third_party/pymxsml.py:942: NVMLError_InvalidArgument
+----------------------------- Captured stderr call -----------------------------
+[2m2026-11-11T07:35:50.511168Z[0m [32m INFO[0m [2mconfig[0m[2m:[0m JAX version 0.4.38 available.
+------------------------------ Captured log call -------------------------------
+INFO     datasets:config.py:125 JAX version 0.4.38 available.
+___________ test_setup_vllm_engine_reuses_engine_config_model_config ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f892dfa35c0>
+
+    def test_setup_vllm_engine_reuses_engine_config_model_config(monkeypatch):
+        from dynamo.vllm import main as vllm_main
+    
+        # Isolate NIXL env so allow_nixl_telemetry_capture() cannot leak into later tests.
+        for var in (
+            "NIXL_TELEMETRY_ENABLE",
+            "NIXL_TELEMETRY_EXPORTER",
+            "NIXL_TELEMETRY_DIR",
+            "NIXL_TELEMETRY_PROMETHEUS_PORT",
+        ):
+            monkeypatch.delenv(var, raising=False)
+    
+        class FakeModelConfig:
+            def get_diff_sampling_param(self):
+                return {"temperature": 0.7}
+    
+        vllm_config = SimpleNamespace(
+            additional_config={},
+            cache_config=SimpleNamespace(block_size=None),
+            model_config=FakeModelConfig(),
+        )
+    
+        class FakeEngineArgs:
+            enable_log_requests = False
+            enable_lora = False
+            disable_log_stats = True
+            load_format = "modelexpress"
+    
+            def create_model_config(self):
+                raise AssertionError("setup_vllm_engine must not create ModelConfig twice")
+    
+            def create_engine_config(self, usage_context):
+                return vllm_config
+    
+        engine_client = SimpleNamespace(vllm_config=vllm_config, shutdown=Mock())
+    
+        class FakeAsyncLLM:
+            @staticmethod
+            def from_vllm_config(**_kwargs):
+                return engine_client
+    
+        class FakeMetrics:
+            def __init__(self, **_kwargs):
+                pass
+    
+            def set_model_load_time(self, _load_time):
+                pass
+    
+        monkeypatch.setattr(vllm_main, "setup_multiprocess_prometheus", lambda: None)
+        monkeypatch.setattr(vllm_main, "LLMBackendMetrics", FakeMetrics)
+        monkeypatch.setattr(vllm_main, "_uses_dynamo_connector", lambda _args: False)
+        monkeypatch.setattr(vllm_main, "AsyncLLM", FakeAsyncLLM)
+        monkeypatch.setattr(
+            vllm_main,
+            "get_engine_cache_info",
+            lambda _engine: {"block_size": 16},
+        )
+    
+        config = SimpleNamespace(
+            component="backend",
+            namespace="dynamo",
+            engine_args=FakeEngineArgs(),
+            disaggregation_mode=DisaggregationMode.AGGREGATED,
+            embedding_worker=False,
+            embedding_worker_processes=1,
+            gms_shadow_mode=False,
+            multimodal_embedding_cache_capacity_gb=0,
+            route_to_encoder=False,
+            served_model_name="Qwen/Qwen3-0.6B",
+        )
+    
+>       _, _, default_sampling_params, _, _ = vllm_main.setup_vllm_engine(config)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+components/src/dynamo/vllm/tests/test_vllm_unit.py:670: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/vllm/main.py:618: in setup_vllm_engine
+    result = _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+components/src/dynamo/vllm/main.py:721: in _setup_vllm_engine
+    configure_kv_capacity_worker(vllm_config)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+vllm_config = namespace(additional_config={}, cache_config=namespace(block_size=None), model_config=<test_vllm_unit.test_setup_vllm_engine_reuses_engine_config_model_config.<locals>.FakeModelConfig object at 0x7f892dfa3200>)
+
+    def configure_kv_capacity_worker(vllm_config: Any) -> None:
+        if hasattr(vllm_config.cache_config, "kv_cache_size_tokens"):
+            return
+>       parallel = vllm_config.parallel_config
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'parallel_config'
+
+components/src/dynamo/vllm/capacity.py:40: AttributeError
+___________ test_startup_failure_releases_acquired_resources[engine] ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f892ddd84a0>
+tmp_path = PosixPath('/tmp/pytest-of-metax/pytest-3/test_startup_failure_releases_0')
+failure = 'engine'
+
+    @pytest.mark.parametrize("failure", ["config", "engine", "cache"])
+    def test_startup_failure_releases_acquired_resources(monkeypatch, tmp_path, failure):
+        monkeypatch.delenv("DYN_PLATFORM", raising=False)
+        monkeypatch.delenv("PROMETHEUS_MULTIPROC_DIR", raising=False)
+        directory = Mock(name=str(tmp_path / "metrics"))
+        directory.name = str(tmp_path / "metrics")
+        monkeypatch.setattr(
+            entry.tempfile, "TemporaryDirectory", Mock(return_value=directory)
+        )
+        monkeypatch.setattr(entry, "setup_multiprocess_prometheus", Mock())
+        monkeypatch.setattr(entry, "LLMBackendMetrics", Mock())
+        monkeypatch.setattr(entry, "configure_multimodal_embedding_cache", Mock())
+        monkeypatch.setattr(
+            entry, "disable_hybrid_kv_cache_manager_for_incompatible_pd_connector", Mock()
+        )
+        monkeypatch.setattr(entry, "_uses_dynamo_connector", lambda args: False)
+        model_config = SimpleNamespace(get_diff_sampling_param=lambda: {})
+        effective = SimpleNamespace(
+            model_config=model_config,
+            additional_config={},
+            cache_config=SimpleNamespace(block_size=64),
+        )
+        engine = Mock()
+        create = Mock(
+            return_value=engine,
+            side_effect=RuntimeError("engine") if failure == "engine" else None,
+        )
+        monkeypatch.setattr(entry.AsyncLLM, "from_vllm_config", create)
+        cache = Mock(side_effect=RuntimeError("cache"))
+        monkeypatch.setattr(entry, "get_engine_cache_info", cache)
+        args = SimpleNamespace(
+            enable_lora=False,
+            load_format="auto",
+            enable_log_requests=False,
+            disable_log_stats=False,
+            create_engine_config=Mock(
+                return_value=effective,
+                side_effect=RuntimeError("config") if failure == "config" else None,
+            ),
+        )
+        config = SimpleNamespace(
+            engine_args=args,
+            disaggregation_mode=DisaggregationMode.AGGREGATED,
+            embedding_worker=False,
+            served_model_name="test",
+            component="backend",
+            route_to_encoder=False,
+            multimodal_embedding_cache_capacity_gb=0,
+            namespace="test",
+        )
+        with pytest.raises(RuntimeError, match=failure):
+>           entry.setup_vllm_engine(config)
+
+components/src/dynamo/vllm/tests/test_platform_integration.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/vllm/main.py:618: in setup_vllm_engine
+    result = _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+components/src/dynamo/vllm/main.py:721: in _setup_vllm_engine
+    configure_kv_capacity_worker(vllm_config)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+vllm_config = namespace(model_config=namespace(get_diff_sampling_param=<function test_startup_failure_releases_acquired_resources.<locals>.<lambda> at 0x7f892dfc5940>), additional_config={}, cache_config=namespace(block_size=64))
+
+    def configure_kv_capacity_worker(vllm_config: Any) -> None:
+        if hasattr(vllm_config.cache_config, "kv_cache_size_tokens"):
+            return
+>       parallel = vllm_config.parallel_config
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'parallel_config'
+
+components/src/dynamo/vllm/capacity.py:40: AttributeError
+___________ test_startup_failure_releases_acquired_resources[cache] ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f892e86e030>
+tmp_path = PosixPath('/tmp/pytest-of-metax/pytest-3/test_startup_failure_releases_1')
+failure = 'cache'
+
+    @pytest.mark.parametrize("failure", ["config", "engine", "cache"])
+    def test_startup_failure_releases_acquired_resources(monkeypatch, tmp_path, failure):
+        monkeypatch.delenv("DYN_PLATFORM", raising=False)
+        monkeypatch.delenv("PROMETHEUS_MULTIPROC_DIR", raising=False)
+        directory = Mock(name=str(tmp_path / "metrics"))
+        directory.name = str(tmp_path / "metrics")
+        monkeypatch.setattr(
+            entry.tempfile, "TemporaryDirectory", Mock(return_value=directory)
+        )
+        monkeypatch.setattr(entry, "setup_multiprocess_prometheus", Mock())
+        monkeypatch.setattr(entry, "LLMBackendMetrics", Mock())
+        monkeypatch.setattr(entry, "configure_multimodal_embedding_cache", Mock())
+        monkeypatch.setattr(
+            entry, "disable_hybrid_kv_cache_manager_for_incompatible_pd_connector", Mock()
+        )
+        monkeypatch.setattr(entry, "_uses_dynamo_connector", lambda args: False)
+        model_config = SimpleNamespace(get_diff_sampling_param=lambda: {})
+        effective = SimpleNamespace(
+            model_config=model_config,
+            additional_config={},
+            cache_config=SimpleNamespace(block_size=64),
+        )
+        engine = Mock()
+        create = Mock(
+            return_value=engine,
+            side_effect=RuntimeError("engine") if failure == "engine" else None,
+        )
+        monkeypatch.setattr(entry.AsyncLLM, "from_vllm_config", create)
+        cache = Mock(side_effect=RuntimeError("cache"))
+        monkeypatch.setattr(entry, "get_engine_cache_info", cache)
+        args = SimpleNamespace(
+            enable_lora=False,
+            load_format="auto",
+            enable_log_requests=False,
+            disable_log_stats=False,
+            create_engine_config=Mock(
+                return_value=effective,
+                side_effect=RuntimeError("config") if failure == "config" else None,
+            ),
+        )
+        config = SimpleNamespace(
+            engine_args=args,
+            disaggregation_mode=DisaggregationMode.AGGREGATED,
+            embedding_worker=False,
+            served_model_name="test",
+            component="backend",
+            route_to_encoder=False,
+            multimodal_embedding_cache_capacity_gb=0,
+            namespace="test",
+        )
+        with pytest.raises(RuntimeError, match=failure):
+>           entry.setup_vllm_engine(config)
+
+components/src/dynamo/vllm/tests/test_platform_integration.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/vllm/main.py:618: in setup_vllm_engine
+    result = _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+components/src/dynamo/vllm/main.py:721: in _setup_vllm_engine
+    configure_kv_capacity_worker(vllm_config)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+vllm_config = namespace(model_config=namespace(get_diff_sampling_param=<function test_startup_failure_releases_acquired_resources.<locals>.<lambda> at 0x7f892ddcc040>), additional_config={}, cache_config=namespace(block_size=64))
+
+    def configure_kv_capacity_worker(vllm_config: Any) -> None:
+        if hasattr(vllm_config.cache_config, "kv_cache_size_tokens"):
+            return
+>       parallel = vllm_config.parallel_config
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'parallel_config'
+
+components/src/dynamo/vllm/capacity.py:40: AttributeError
+=========================== short test summary info ============================
+FAILED components/src/dynamo/vllm/tests/test_vllm_unit.py::test_custom_jinja_template_invalid_path
+FAILED components/src/dynamo/vllm/tests/test_vllm_unit.py::test_setup_vllm_engine_reuses_engine_config_model_config
+FAILED components/src/dynamo/vllm/tests/test_platform_integration.py::test_startup_failure_releases_acquired_resources[engine]
+FAILED components/src/dynamo/vllm/tests/test_platform_integration.py::test_startup_failure_releases_acquired_resources[cache]
+4 failed, 186 passed in 14.23s

@@ -1,0 +1,121 @@
+[LogService] File logging is disabled due to failure on creating directory "//mxlog/umd/" 
+INFO 11-11 15:36:59 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 15:36:59 [__init__.py:54] - metax -> vllm_metax:register
+INFO 11-11 15:36:59 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 15:36:59 [__init__.py:237] Platform plugin metax is activated
+INFO 11-11 15:36:59 [envs.py:136] vllm-metax would try to sets VLLM_USE_FLASHINFER_SAMPLER default to False. Reason: controlled by VLLM_METAX_USE_FLASHINFER_SAMPLER; disabled by default
+INFO 11-11 15:36:59 [envs.py:136] vllm-metax would try to sets VLLM_ENGINE_READY_TIMEOUT_S default to 7200. Reason: set timeout to 7200s for model loading
+INFO 11-11 15:36:59 [envs.py:136] vllm-metax would try to sets VLLM_FLOAT32_MATMUL_PRECISION default to high. Reason: set float32 matmul precision to high for better performance on Maca platform
+INFO 11-11 15:36:59 [envs.py:136] vllm-metax would try to sets VLLM_USE_V2_MODEL_RUNNER default to False. Reason: v2 model runner is still under development and not fully tested on Maca platform, disable it by default
+INFO 11-11 15:36:59 [envs.py:136] vllm-metax would try to sets VLLM_USE_DEEP_GEMM_E8M0 default to False. Reason: USE_DEEP_GEMM_E8M0 default to false on Maca platform
+INFO 11-11 15:37:07 [importing.py:53] Triton is installed but 0 active driver(s) found (expected 1). Disabling Triton to prevent runtime errors.
+INFO 11-11 15:37:07 [importing.py:88] Triton not installed or not compatible; certain GPU-related functions will not be available.
+.......F                                                                 [100%]
+=================================== FAILURES ===================================
+___________ test_setup_vllm_engine_reuses_engine_config_model_config ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f26281ed3d0>
+
+    def test_setup_vllm_engine_reuses_engine_config_model_config(monkeypatch):
+        from dynamo.vllm import main as vllm_main
+    
+        # Isolate NIXL env so allow_nixl_telemetry_capture() cannot leak into later tests.
+        for var in (
+            "NIXL_TELEMETRY_ENABLE",
+            "NIXL_TELEMETRY_EXPORTER",
+            "NIXL_TELEMETRY_DIR",
+            "NIXL_TELEMETRY_PROMETHEUS_PORT",
+        ):
+            monkeypatch.delenv(var, raising=False)
+    
+        class FakeModelConfig:
+            def get_diff_sampling_param(self):
+                return {"temperature": 0.7}
+    
+        vllm_config = SimpleNamespace(
+            additional_config={},
+            cache_config=SimpleNamespace(block_size=None),
+            parallel_config=SimpleNamespace(worker_extension_cls=None),
+            model_config=FakeModelConfig(),
+        )
+    
+        class FakeEngineArgs:
+            enable_log_requests = False
+            enable_lora = False
+            disable_log_stats = True
+            load_format = "modelexpress"
+    
+            def create_model_config(self):
+                raise AssertionError("setup_vllm_engine must not create ModelConfig twice")
+    
+            def create_engine_config(self, usage_context):
+                return vllm_config
+    
+        engine_client = SimpleNamespace(vllm_config=vllm_config, shutdown=Mock())
+    
+        class FakeAsyncLLM:
+            @staticmethod
+            def from_vllm_config(**_kwargs):
+                return engine_client
+    
+        class FakeMetrics:
+            def __init__(self, **_kwargs):
+                pass
+    
+            def set_model_load_time(self, _load_time):
+                pass
+    
+        monkeypatch.setattr(vllm_main, "setup_multiprocess_prometheus", lambda: None)
+        monkeypatch.setattr(vllm_main, "LLMBackendMetrics", FakeMetrics)
+        monkeypatch.setattr(vllm_main, "_uses_dynamo_connector", lambda _args: False)
+        monkeypatch.setattr(vllm_main, "AsyncLLM", FakeAsyncLLM)
+        monkeypatch.setattr(
+            vllm_main,
+            "get_engine_cache_info",
+            lambda _engine: {"block_size": 16},
+        )
+    
+        config = SimpleNamespace(
+            component="backend",
+            namespace="dynamo",
+            engine_args=FakeEngineArgs(),
+            disaggregation_mode=DisaggregationMode.AGGREGATED,
+            embedding_worker=False,
+            embedding_worker_processes=1,
+            gms_shadow_mode=False,
+            multimodal_embedding_cache_capacity_gb=0,
+            route_to_encoder=False,
+            served_model_name="Qwen/Qwen3-0.6B",
+        )
+    
+>       _, _, default_sampling_params, _, _ = vllm_main.setup_vllm_engine(config)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+components/src/dynamo/vllm/tests/test_vllm_unit.py:671: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+components/src/dynamo/vllm/main.py:618: in setup_vllm_engine
+    result = _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+components/src/dynamo/vllm/main.py:727: in _setup_vllm_engine
+    validate_platform_engine_config(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+vllm_config = namespace(additional_config={}, cache_config=namespace(block_size=None), parallel_config=namespace(worker_extension_cl..._vllm_unit.test_setup_vllm_engine_reuses_engine_config_model_config.<locals>.FakeModelConfig object at 0x7f26281ed100>)
+
+    def validate_platform_engine_config(vllm_config, *, require_metrics=False):
+        """Check the effective config after the vendor has applied its defaults.
+    
+        This runs before AsyncLLM starts processes. In particular a vendor must not
+        silently replace the scheduler that publishes idle cache invalidations.
+        """
+        platform_id = os.environ.get("DYN_PLATFORM")
+        if platform_id is None:
+            return
+>       events = vllm_config.kv_events_config
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'kv_events_config'
+
+components/src/dynamo/vllm/platform.py:32: AttributeError
+=========================== short test summary info ============================
+FAILED components/src/dynamo/vllm/tests/test_vllm_unit.py::test_setup_vllm_engine_reuses_engine_config_model_config
+1 failed, 7 passed in 13.13s

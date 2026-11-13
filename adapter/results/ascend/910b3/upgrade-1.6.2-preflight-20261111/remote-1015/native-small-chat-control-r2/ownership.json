@@ -1,0 +1,32 @@
+{
+  "id": "00791563cf9418657c01f3fda570fa89fbc1e702d581623519bbc7f79475c8a5",
+  "argv": [
+    "docker",
+    "create",
+    "--name",
+    "heyi-upgrade162-native-chat-control-r2",
+    "--network",
+    "none",
+    "--entrypoint",
+    "bash",
+    "--device",
+    "/dev/davinci5",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/native-small-chat-control-r2,dst=/probe,readonly",
+    "--device",
+    "/dev/davinci_manager",
+    "--device",
+    "/dev/devmm_svm",
+    "--device",
+    "/dev/hisi_hdc",
+    "--mount",
+    "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+    "--mount",
+    "type=bind,src=/usr/local/dcmi,dst=/usr/local/dcmi,readonly",
+    "--mount",
+    "type=bind,src=/data/weight/Qwen3-0.6B,dst=/models/Qwen3-0.6B,readonly",
+    "sha256:74224d25260decde6abdd26c6ebc383faadbaf792115631bdbe966793742c4db",
+    "-lc",
+    "source /usr/local/Ascend/ascend-toolkit/set_env.sh && python3 /probe/probe.py"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "buildx.build.provenance": {
+    "builder": {
+      "id": ""
+    },
+    "buildType": "https://mobyproject.org/buildkit@v1",
+    "materials": [
+      {
+        "uri": "pkg:docker/docker.m.daocloud.io/library/golang@1.27.3?platform=linux%2Farm64",
+        "digest": {
+          "sha256": "e519d3b0a5b285e5aa53ab9eef02bc6bbb9cb04608389b743a136a9ce75f0d1e"
+        }
+      },
+      {
+        "uri": "pkg:docker/docker.m.daocloud.io/library/python@3.12-slim?platform=linux%2Farm64",
+        "digest": {
+          "sha256": "5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b"
+        }
+      },
+      {
+        "uri": "pkg:docker/nvcr.io/nvidia/distroless/go@v4.1.7?platform=linux%2Farm64",
+        "digest": {
+          "sha256": "9ef7b9ac43cbf4c833fd5d98689dc09b06a29e5ec3451796b037aa27928fe532"
+        }
+      }
+    ],
+    "invocation": {
+      "configSource": {
+        "entryPoint": "Dockerfile"
+      },
+      "parameters": {
+        "frontend": "dockerfile.v0",
+        "args": {
+          "build-arg:DOCKER_PROXY": "docker.m.daocloud.io/",
+          "build-arg:GOPROXY": "https://goproxy.cn,direct",
+          "context:compliance": "local:compliance",
+          "context:operator-chart": "local:operator-chart",
+          "force-network-mode": "host",
+          "frontend.caps": "moby.buildkit.frontend.contexts+forward"
+        },
+        "locals": [
+          {
+            "name": "compliance"
+          },
+          {
+            "name": "context"
+          },
+          {
+            "name": "dockerfile"
+          }
+        ]
+      },
+      "environment": {
+        "platform": "linux/arm64"
+      }
+    }
+  },
+  "buildx.build.ref": "default/default/nc60sa6cl8jtnswucxwdm3qid",
+  "containerimage.config.digest": "sha256:e47bd27dacdd78bf76b5ab3bd0f2ddae3b84d7668da474ae3db34c284c2eed24",
+  "containerimage.digest": "sha256:e47bd27dacdd78bf76b5ab3bd0f2ddae3b84d7668da474ae3db34c284c2eed24",
+  "image.name": "docker.io/heyi/dynamo-operator:1.6.2-heyi-upgrade-64815280cf-arm64"
+}

@@ -1,0 +1,449 @@
+{
+  "passed": false,
+  "started": "2026-11-12T09:00:55Z",
+  "command": [
+    "bash",
+    "/harness/adapter/modules/m03-engine-integration/common/engine/serve.sh",
+    "--pipeline-parallel-size",
+    "1",
+    "--enable-expert-parallel",
+    "--tokenizer-mode",
+    "deepseek_v4",
+    "--quantization",
+    "ascend",
+    "--max-num-batched-tokens",
+    "4096",
+    "--additional-config",
+    "{\"enable_dsa_cp\":true}"
+  ],
+  "environment": {
+    "PLATFORM": "ascend",
+    "TP": "8",
+    "DP": "1",
+    "DEVICES": "0,1,2,3,4,5,6,7",
+    "MODEL_PATH": "/models/DeepSeek-V4-Flash-w8a8-mtp"
+  },
+  "source_mode": "installed",
+  "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a",
+  "installed_source_manifest_sha256": "d3addf9a8a004a91c4aaf5a5ff7aa3e8f7603a37c8a0c96495c11054e738e77a",
+  "packages": {
+    "vllm": "0.30.0+empty",
+    "torch": "2.10.0+cpu",
+    "ai-dynamo": "1.6.2",
+    "vllm-ascend": "0.30.0"
+  },
+  "harness_sha256": {
+    "adapter/modules/m03-engine-integration/common/engine/advanced-smoke.py": "51bdfc19e4b70d82daf87c7101e813c8673034ede50ef6f93e8a1b5d8bc85719",
+    "adapter/modules/m03-engine-integration/common/engine/create-lora.py": "8269ebd876bce6bfbedad861fefbc7d94f201bc37bccc839db57029a86dda976",
+    "adapter/modules/m03-engine-integration/common/engine/create-quantized.py": "4a141e6cde7a95599a57839cc2f0221b0daaab05a57de2f58ea97d06dc89ff9c",
+    "adapter/modules/m03-engine-integration/common/engine/rank-smoke.py": "50a3268585bc3ae1aee36e8ac336b31d25c0efb59d341f185ba4a30ff7d803cb",
+    "adapter/modules/m03-engine-integration/common/engine/run-case.py": "77f22bc5b98adff4a91b1ec8102eee626ee2c3f79835227e36ca9acf70aeb79d",
+    "adapter/modules/m03-engine-integration/common/engine/serve.sh": "bcc7e18ebca5f27472fd097a33301995bd9a54b196f1a2a8677bf13f264f2d85",
+    "adapter/modules/m07-gms-multimodal/common/media/collect-followup.py": "389c1c7cad91d1f8fb8063273e40f7aa9e8785704aa03ec18109504e9d126d10",
+    "adapter/modules/m07-gms-multimodal/common/media/collect.py": "1c14e1869d2a7724a369f9ccf02b27096e743018b418146b680a696c98e9e838",
+    "adapter/modules/m07-gms-multimodal/common/media/make-video.sh": "4af02cf28c3f416f0675bdfee89f73c6415ff6aaa1cf3c20ef61714389502a83",
+    "adapter/modules/m07-gms-multimodal/common/media/omni-check.py": "e62e9246c925d20eab25f3203e4b9a53766ef06dd9043986754675211b9331f9",
+    "adapter/modules/m07-gms-multimodal/common/media/omni_soak.py": "eb3472f77e8848a6591b84d13a652c65c0bc9857cdfef0687b8a3ce0764ed47c",
+    "adapter/modules/m07-gms-multimodal/common/media/prepare-omni.sh": "94cc0a123cbb6f99b9578e6a79469ec85813bb1e226f3c8cc6de96e7b0f90005",
+    "adapter/modules/m07-gms-multimodal/common/media/probe.sh": "5474384567486de6c0f33e0d52c21b55ebb1f662a9f0a0ca5fd495e76284a7a8",
+    "adapter/modules/m07-gms-multimodal/common/media/run.py": "ddfe48022eb5d40f156b05cc02800e083ca14d1c91fbc3773d57b285da89f1da",
+    "adapter/modules/m07-gms-multimodal/common/media/sample-gpu.py": "7fe6f0575d9a634afa62496eb0d3d42268e5b9c5e57e4e19515dad1260b20147",
+    "adapter/modules/m07-gms-multimodal/common/media/serve-mm.sh": "6a380fc987a5678212ad3e7a6edab94fafcd1adfd3753c5ea3e68964a9bc8dea",
+    "adapter/modules/m07-gms-multimodal/common/media/summarize-omni-soak.py": "34ff1fe240d074a9ea5e90a1c849b90d6520581625275c6bdb5355f44d73a684",
+    "adapter/modules/m07-gms-multimodal/common/media/test_multimodal.py": "8c82f207d5dbfbdeec943249429435a5366e6b03c375a594bd0f63949265e9bf",
+    "adapter/modules/m07-gms-multimodal/common/media/video-check.py": "c80f5a007530818f3097ca7c484262dcca935bbaf0948fbbc781b7d41c9c7227"
+  },
+  "model_config": {
+    "architectures": [
+      "DeepseekV4ForCausalLM"
+    ],
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "bos_token_id": 0,
+    "eos_token_id": 1,
+    "hc_eps": 1e-06,
+    "hc_mult": 4,
+    "hc_sinkhorn_iters": 20,
+    "head_dim": 512,
+    "hidden_act": "silu",
+    "hidden_size": 4096,
+    "index_head_dim": 128,
+    "index_n_heads": 64,
+    "index_topk": 512,
+    "initializer_range": 0.02,
+    "max_position_embeddings": 1048576,
+    "model_type": "deepseek_v4",
+    "moe_intermediate_size": 2048,
+    "n_routed_experts": 256,
+    "n_shared_experts": 1,
+    "norm_topk_prob": true,
+    "num_attention_heads": 64,
+    "num_experts_per_tok": 6,
+    "num_hidden_layers": 43,
+    "num_hash_layers": 3,
+    "num_key_value_heads": 1,
+    "num_nextn_predict_layers": 1,
+    "o_groups": 8,
+    "o_lora_rank": 1024,
+    "q_lora_rank": 1024,
+    "qk_rope_head_dim": 64,
+    "rms_norm_eps": 1e-06,
+    "rope_scaling": {
+      "beta_fast": 32,
+      "beta_slow": 1,
+      "factor": 16,
+      "original_max_position_embeddings": 65536,
+      "type": "yarn"
+    },
+    "rope_theta": 10000,
+    "routed_scaling_factor": 1.5,
+    "scoring_func": "sqrtsoftplus",
+    "sliding_window": 128,
+    "swiglu_limit": 10.0,
+    "tie_word_embeddings": false,
+    "topk_method": "noaux_tc",
+    "torch_dtype": "bfloat16",
+    "transformers_version": "4.57.1",
+    "use_cache": true,
+    "vocab_size": 129280,
+    "compress_rope_theta": 160000,
+    "compress_ratios": [
+      0,
+      0,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      128,
+      4,
+      0
+    ]
+  },
+  "model_config_sha256": "c3137398b85ef26b9592debadc424349f0b949b7ebe2f20603dda12efab4d533",
+  "model_files": {
+    "quant_model_weights-00001-of-00070.safetensors": {
+      "size": 4287158928,
+      "mtime_ns": 1785398896800878783
+    },
+    "quant_model_weights-00002-of-00070.safetensors": {
+      "size": 4287175776,
+      "mtime_ns": 1785403373300680269
+    },
+    "quant_model_weights-00003-of-00070.safetensors": {
+      "size": 4289498968,
+      "mtime_ns": 1785398900376891385
+    },
+    "quant_model_weights-00004-of-00070.safetensors": {
+      "size": 4287674560,
+      "mtime_ns": 1785399416614710689
+    },
+    "quant_model_weights-00005-of-00070.safetensors": {
+      "size": 4292711176,
+      "mtime_ns": 1785398976385159250
+    },
+    "quant_model_weights-00006-of-00070.safetensors": {
+      "size": 4289498784,
+      "mtime_ns": 1785400501426537492
+    },
+    "quant_model_weights-00007-of-00070.safetensors": {
+      "size": 4292977928,
+      "mtime_ns": 1785398909832924710
+    },
+    "quant_model_weights-00008-of-00070.safetensors": {
+      "size": 4292727496,
+      "mtime_ns": 1785398893852868394
+    },
+    "quant_model_weights-00009-of-00070.safetensors": {
+      "size": 4289498592,
+      "mtime_ns": 1785399508987036223
+    },
+    "quant_model_weights-00010-of-00070.safetensors": {
+      "size": 4292977680,
+      "mtime_ns": 1785399767679948205
+    },
+    "quant_model_weights-00011-of-00070.safetensors": {
+      "size": 4292711144,
+      "mtime_ns": 1785399603091367862
+    },
+    "quant_model_weights-00012-of-00070.safetensors": {
+      "size": 4289498376,
+      "mtime_ns": 1785399687611665724
+    },
+    "quant_model_weights-00013-of-00070.safetensors": {
+      "size": 4292977608,
+      "mtime_ns": 1785399577123276346
+    },
+    "quant_model_weights-00014-of-00070.safetensors": {
+      "size": 4289499072,
+      "mtime_ns": 1785403819646263375
+    },
+    "quant_model_weights-00015-of-00070.safetensors": {
+      "size": 4292712088,
+      "mtime_ns": 1785399896708403528
+    },
+    "quant_model_weights-00016-of-00070.safetensors": {
+      "size": 4292979528,
+      "mtime_ns": 1785400457898383888
+    },
+    "quant_model_weights-00017-of-00070.safetensors": {
+      "size": 4289500416,
+      "mtime_ns": 1785400499258529842
+    },
+    "quant_model_weights-00018-of-00070.safetensors": {
+      "size": 4292729624,
+      "mtime_ns": 1785403510505166908
+    },
+    "quant_model_weights-00019-of-00070.safetensors": {
+      "size": 4292978968,
+      "mtime_ns": 1785400611454925767
+    },
+    "quant_model_weights-00020-of-00070.safetensors": {
+      "size": 4289500232,
+      "mtime_ns": 1785400246133636600
+    },
+    "quant_model_weights-00021-of-00070.safetensors": {
+      "size": 4292712992,
+      "mtime_ns": 1785400694651219355
+    },
+    "quant_model_weights-00022-of-00070.safetensors": {
+      "size": 4292978912,
+      "mtime_ns": 1785404172023515878
+    },
+    "quant_model_weights-00023-of-00070.safetensors": {
+      "size": 4289500048,
+      "mtime_ns": 1785400854187782336
+    },
+    "quant_model_weights-00024-of-00070.safetensors": {
+      "size": 4292712800,
+      "mtime_ns": 1785401354641548366
+    },
+    "quant_model_weights-00025-of-00070.safetensors": {
+      "size": 4240117568,
+      "mtime_ns": 1785401006200318767
+    },
+    "quant_model_weights-00026-of-00070.safetensors": {
+      "size": 4291898520,
+      "mtime_ns": 1785401064564524726
+    },
+    "quant_model_weights-00027-of-00070.safetensors": {
+      "size": 4292729120,
+      "mtime_ns": 1785401539226199739
+    },
+    "quant_model_weights-00028-of-00070.safetensors": {
+      "size": 4289500520,
+      "mtime_ns": 1785401695370750751
+    },
+    "quant_model_weights-00029-of-00070.safetensors": {
+      "size": 4292979696,
+      "mtime_ns": 1785401649826590032
+    },
+    "quant_model_weights-00030-of-00070.safetensors": {
+      "size": 4292712672,
+      "mtime_ns": 1785402010671862962
+    },
+    "quant_model_weights-00031-of-00070.safetensors": {
+      "size": 4289500336,
+      "mtime_ns": 1785401870531368685
+    },
+    "quant_model_weights-00032-of-00070.safetensors": {
+      "size": 4292979440,
+      "mtime_ns": 1785402321224958286
+    },
+    "quant_model_weights-00033-of-00070.safetensors": {
+      "size": 4292712608,
+      "mtime_ns": 1785402315764939029
+    },
+    "quant_model_weights-00034-of-00070.safetensors": {
+      "size": 4289500152,
+      "mtime_ns": 1785404494480662202
+    },
+    "quant_model_weights-00035-of-00070.safetensors": {
+      "size": 4292979200,
+      "mtime_ns": 1785402295788868573
+    },
+    "quant_model_weights-00036-of-00070.safetensors": {
+      "size": 4292728968,
+      "mtime_ns": 1785402620930015349
+    },
+    "quant_model_weights-00037-of-00070.safetensors": {
+      "size": 4289499952,
+      "mtime_ns": 1785402995583340575
+    },
+    "quant_model_weights-00038-of-00070.safetensors": {
+      "size": 4292979104,
+      "mtime_ns": 1785402639238079922
+    },
+    "quant_model_weights-00039-of-00070.safetensors": {
+      "size": 4289500632,
+      "mtime_ns": 1785460121977990856
+    },
+    "quant_model_weights-00040-of-00070.safetensors": {
+      "size": 4292713640,
+      "mtime_ns": 1785402887570957475
+    },
+    "quant_model_weights-00041-of-00070.safetensors": {
+      "size": 4292979040,
+      "mtime_ns": 1785403179015991177
+    },
+    "quant_model_weights-00042-of-00070.safetensors": {
+      "size": 4289500440,
+      "mtime_ns": 1785403261364283251
+    },
+    "quant_model_weights-00043-of-00070.safetensors": {
+      "size": 4292713272,
+      "mtime_ns": 1785403492197101973
+    },
+    "quant_model_weights-00044-of-00070.safetensors": {
+      "size": 4292978984,
+      "mtime_ns": 1785403883886491561
+    },
+    "quant_model_weights-00045-of-00070.safetensors": {
+      "size": 4289500256,
+      "mtime_ns": 1785460763972320337
+    },
+    "quant_model_weights-00046-of-00070.safetensors": {
+      "size": 4292729408,
+      "mtime_ns": 1785404041467051754
+    },
+    "quant_model_weights-00047-of-00070.safetensors": {
+      "size": 4292978920,
+      "mtime_ns": 1785403797362184338
+    },
+    "quant_model_weights-00048-of-00070.safetensors": {
+      "size": 4289500072,
+      "mtime_ns": 1785460860068666106
+    },
+    "quant_model_weights-00049-of-00070.safetensors": {
+      "size": 4292712808,
+      "mtime_ns": 1785404395620310757
+    },
+    "quant_model_weights-00050-of-00070.safetensors": {
+      "size": 4292979024,
+      "mtime_ns": 1785404553620872443
+    },
+    "quant_model_weights-00051-of-00070.safetensors": {
+      "size": 4289499792,
+      "mtime_ns": 1785459970677441780
+    },
+    "quant_model_weights-00052-of-00070.safetensors": {
+      "size": 4292712744,
+      "mtime_ns": 1785404460376540963
+    },
+    "quant_model_weights-00053-of-00070.safetensors": {
+      "size": 4289500560,
+      "mtime_ns": 1785405118406875918
+    },
+    "quant_model_weights-00054-of-00070.safetensors": {
+      "size": 4292979784,
+      "mtime_ns": 1785404793037723561
+    },
+    "quant_model_weights-00055-of-00070.safetensors": {
+      "size": 4292729072,
+      "mtime_ns": 1785404840345891740
+    },
+    "quant_model_weights-00056-of-00070.safetensors": {
+      "size": 4289500376,
+      "mtime_ns": 1785460034961675070
+    },
+    "quant_model_weights-00057-of-00070.safetensors": {
+      "size": 4292979496,
+      "mtime_ns": 1785405155119005761
+    },
+    "quant_model_weights-00058-of-00070.safetensors": {
+      "size": 4292712624,
+      "mtime_ns": 1785405245195324341
+    },
+    "quant_model_weights-00059-of-00070.safetensors": {
+      "size": 4289500192,
+      "mtime_ns": 1785405439964013194
+    },
+    "quant_model_weights-00060-of-00070.safetensors": {
+      "size": 4292979248,
+      "mtime_ns": 1785405455420067859
+    },
+    "quant_model_weights-00061-of-00070.safetensors": {
+      "size": 4292712568,
+      "mtime_ns": 1785461113221576987
+    },
+    "quant_model_weights-00062-of-00070.safetensors": {
+      "size": 4289500008,
+      "mtime_ns": 1785459852129011562
+    },
+    "quant_model_weights-00063-of-00070.safetensors": {
+      "size": 4292979120,
+      "mtime_ns": 1785459855081022275
+    },
+    "quant_model_weights-00064-of-00070.safetensors": {
+      "size": 4288482160,
+      "mtime_ns": 1785460617863790449
+    },
+    "quant_model_weights-00065-of-00070.safetensors": {
+      "size": 4293748672,
+      "mtime_ns": 1785461141553678930
+    },
+    "quant_model_weights-00066-of-00070.safetensors": {
+      "size": 4292979056,
+      "mtime_ns": 1785460259746490824
+    },
+    "quant_model_weights-00067-of-00070.safetensors": {
+      "size": 4289500488,
+      "mtime_ns": 1785461191769859615
+    },
+    "quant_model_weights-00068-of-00070.safetensors": {
+      "size": 4292623114,
+      "mtime_ns": 1785460488191319861
+    },
+    "quant_model_weights-00069-of-00070.safetensors": {
+      "size": 4011118664,
+      "mtime_ns": 1785460556807568873
+    },
+    "quant_model_weights-00070-of-00070.safetensors": {
+      "size": 4236526180,
+      "mtime_ns": 1785460716188147272
+    }
+  },
+  "engine_blocks_per_rank": 117,
+  "error": "CalledProcessError(1, ['/opt/dynamo/venv/bin/python', '/harness/adapter/modules/m03-engine-integration/common/engine/rank-smoke.py', '--platform', 'ascend', '--dp', '1', '--block-size', '128', '--expected-blocks', '117', '--output', '/evidence/case/kv.json'])",
+  "shutdown": "exited",
+  "server_returncode": 0,
+  "shutdown_passed": true,
+  "server_log": {
+    "path": "/evidence/case/server.log",
+    "sha256": "6b2546f2e939d740f394043dc8b44fc5a4c20497b459b8b9813a435372d12c69"
+  }
+}

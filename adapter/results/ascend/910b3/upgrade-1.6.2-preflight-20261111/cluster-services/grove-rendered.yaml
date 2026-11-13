@@ -1,0 +1,679 @@
+---
+# Source: grove-charts/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grove-operator
+  namespace: grove-system
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-serviceaccount
+    app.kubernetes.io/name: grove-operator-service-account
+    app.kubernetes.io/part-of: grove
+automountServiceAccountToken: false
+---
+# Source: grove-charts/templates/webhook-server-cert-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grove-webhook-server-cert
+  namespace: grove-system
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-webhook-server-secret
+    app.kubernetes.io/name: grove-webhook-server-secret
+    app.kubernetes.io/part-of: grove
+type: kubernetes.io/tls
+data:
+  tls.crt: ""
+  tls.key: ""
+---
+# Source: grove-charts/templates/configmap-operator.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grove-operator-cm-b77904eb
+  namespace: grove-system
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-configmap
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+immutable: true
+data:
+  config.yaml: |
+    apiVersion: operator.config.grove.io/v1alpha1
+    kind: OperatorConfiguration
+    runtimeClientConnection:
+      qps: 100
+      burst: 150
+    leaderElection:
+      enabled: true
+      leaseDuration: 15s
+      renewDeadline: 10s
+      retryPeriod: 2s
+      resourceLock: leases
+      resourceName: grove-operator-leader-election
+      resourceNamespace: grove-system
+    server:
+      webhooks:
+        port: 9443
+        serverCertDir: /etc/grove-operator/webhook-certs
+        secretName: grove-webhook-server-cert
+        certProvisionMode: auto
+      healthProbes:
+        port: 9444
+      metrics:
+        port: 9445
+    controllers:
+      podCliqueSet:
+        concurrentSyncs: 3
+      podClique:
+        concurrentSyncs: 3
+      podCliqueScalingGroup:
+        concurrentSyncs: 3
+    scheduler:
+      profiles:
+      - name: default-scheduler
+      - name: kai-scheduler
+    debugging:
+      enableProfiling: false
+      pprofBindHost: "127.0.0.1"
+      pprofBindPort: 2753
+    logLevel: info
+    logFormat: json
+    topologyAwareScheduling:
+      enabled: false
+    network:
+      autoMNNVLEnabled: false
+---
+# Source: grove-charts/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: grove:system:grove-operator
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-clusterrole
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+rules:
+- apiGroups:
+  - scheduler.grove.io
+  resources:
+  - podgangs
+  - podgangs/status
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - deletecollection
+  - patch
+  - update
+- apiGroups:
+  - grove.io
+  resources:
+  - podcliquesets
+  - podcliquesets/status
+  - podcliques
+  - podcliques/status
+  - podcliquescalinggroups
+  - clustertopologybindings
+  - clustertopologybindings/status
+  - podcliquescalinggroups/status
+  - podgangmaps
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - deletecollection
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/status
+  - serviceaccounts
+  - services
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - deletecollection
+  - patch
+  - update
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - create
+    - get
+    - list
+    - patch
+    - delete
+    - watch
+    - update
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - create
+    - get
+    - list
+    - patch
+    - delete
+    - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - get
+  - list
+  - delete
+  - deletecollection
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - kai.scheduler
+  resources:
+  - topologies
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  - delete
+# DRA (Dynamic Resource Allocation) integration for resource sharing
+- apiGroups:
+  - resource.k8s.io
+  resources:
+  - resourceclaims
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - delete
+  - deletecollection
+  - patch
+  - update
+- apiGroups:
+  - resource.k8s.io
+  resources:
+  - resourceclaimtemplates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - scheduling.run.ai
+  resources:
+  - podgroups
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  - delete
+---
+# Source: grove-charts/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grove:system:grove-operator
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-clusterrolebinding
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grove:system:grove-operator
+subjects:
+- kind: ServiceAccount
+  name: grove-operator
+  namespace: grove-system
+---
+# Source: grove-charts/templates/leaderelection-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-lease-role
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+  name: grove:system:grove-operator-lease
+  namespace: 'grove-system'
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+---
+# Source: grove-charts/templates/leaderelection-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grove:system:grove-operator-lease
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-lease-rolebinding
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+  namespace: 'grove-system'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: grove:system:grove-operator-lease
+subjects:
+  - kind: ServiceAccount
+    name: grove-operator
+    namespace: 'grove-system'
+---
+# Source: grove-charts/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grove-operator
+  namespace: grove-system
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-service
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+spec:
+  type: ClusterIP
+  selector:
+    
+    app.kubernetes.io/component: operator-deployment
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 9445
+      targetPort: 9445
+    - name: webhooks
+      protocol: TCP
+      port: 9443
+      targetPort: 9443
+---
+# Source: grove-charts/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grove-operator
+  namespace: grove-system
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-deployment
+    app.kubernetes.io/name: grove-operator
+    app.kubernetes.io/part-of: grove
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      
+      app.kubernetes.io/component: operator-deployment
+      app.kubernetes.io/name: grove-operator
+      app.kubernetes.io/part-of: grove
+  template:
+    metadata:
+      labels:
+        chart: "grove-charts-v0.1.0-alpha.14"
+        release: "heyi-grove"
+        app.kubernetes.io/component: operator-deployment
+        app.kubernetes.io/name: grove-operator
+        app.kubernetes.io/part-of: grove
+    spec:
+      restartPolicy: Always
+      serviceAccountName: grove-operator
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      nodeSelector:
+        kubernetes.io/hostname: master-02-45d4a763
+      containers:
+        - name: grove-operator
+          image: ghcr.io/ai-dynamo/grove/grove-operator:v0.1.0-alpha.14
+          imagePullPolicy: Never
+          args:
+            - --config=/etc/grove-operator/config/config.yaml
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9444
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 9444
+              scheme: HTTP
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              ephemeral-storage: 128Mi
+              memory: 128Mi
+          volumeMounts:
+            - name: operator-config
+              mountPath: /etc/grove-operator/config
+            - name: kube-api-access-grove
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
+            - name: grove-webhook-server-cert
+              mountPath: /etc/grove-operator/webhook-certs
+              readOnly: true
+          env:
+            - name: GROVE_OPERATOR_SERVICE_ACCOUNT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: GROVE_INIT_CONTAINER_IMAGE
+              value: ghcr.io/ai-dynamo/grove/grove-initc:v0.1.0-alpha.14
+      volumes:
+        - name: kube-api-access-grove
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  expirationSeconds: 43200 # 12 hours
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                  - key: ca.crt
+                    path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        fieldPath: metadata.namespace
+                        apiVersion: v1
+        - name: operator-config
+          configMap:
+            name: grove-operator-cm-b77904eb
+        - name: grove-webhook-server-cert
+          # Mount the Secret volume containing webhook certificates
+          secret:
+            secretName: grove-webhook-server-cert
+            defaultMode: 420
+            optional: true
+---
+# Source: grove-charts/templates/pcs-defaulting-webhook-config.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: podcliqueset-defaulting-webhook
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-pcs-defaulting-webhook
+    app.kubernetes.io/name: pcs-defaulting-webhook
+    app.kubernetes.io/part-of: grove
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: grove-operator
+        namespace: grove-system
+        path: /webhooks/default-podcliqueset
+        port: 9443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: pcs.defaulting.webhooks.grove.io
+    namespaceSelector: { }
+    rules:
+      - apiGroups:
+          - "grove.io"
+        apiVersions:
+          - "v1alpha1"
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - podcliquesets
+        scope: "Namespaced"
+    sideEffects: None
+    timeoutSeconds: 10
+---
+# Source: grove-charts/templates/clustertopology-validating-webhook-config.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: clustertopology-validating-webhook
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-clustertopology-validating-webhook
+    app.kubernetes.io/name: clustertopology-validating-webhook
+    app.kubernetes.io/part-of: grove
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: grove-operator
+        namespace: grove-system
+        path: /webhooks/validate-clustertopology
+        port: 9443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: clustertopology.validating.webhooks.grove.io
+    namespaceSelector: { }
+    rules:
+      - apiGroups:
+          - "grove.io"
+        apiVersions:
+          - "v1alpha1"
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - clustertopologybindings
+        scope: "Cluster"
+    sideEffects: None
+    timeoutSeconds: 10
+---
+# Source: grove-charts/templates/pclq-validating-webhook-config.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: podclique-validating-webhook
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-pclq-validating-webhook
+    app.kubernetes.io/name: pclq-validating-webhook
+    app.kubernetes.io/part-of: grove
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: grove-operator
+        namespace: grove-system
+        path: /webhooks/validate-podclique
+        port: 9443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: pclq.validating.webhooks.grove.io
+    namespaceSelector: { }
+    rules:
+      - apiGroups:
+          - "grove.io"
+        apiVersions:
+          - "v1alpha1"
+        operations:
+          - UPDATE
+        resources:
+          - podcliques
+          - podcliques/scale
+        scope: "Namespaced"
+    sideEffects: None
+    timeoutSeconds: 10
+---
+# Source: grove-charts/templates/pcs-validating-webhook-config.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: podcliqueset-validating-webhook
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-pcs-validating-webhook
+    app.kubernetes.io/name: pcs-validating-webhook
+    app.kubernetes.io/part-of: grove
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: grove-operator
+        namespace: grove-system
+        path: /webhooks/validate-podcliqueset
+        port: 9443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: pcs.validating.webhooks.grove.io
+    namespaceSelector: { }
+    rules:
+      - apiGroups:
+          - "grove.io"
+        apiVersions:
+          - "v1alpha1"
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - podcliquesets
+        scope: "Namespaced"
+    sideEffects: None
+    timeoutSeconds: 10
+---
+# Source: grove-charts/templates/pcsg-validating-webhook-config.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: podcliquescalinggroup-validating-webhook
+  labels:
+    chart: "grove-charts-v0.1.0-alpha.14"
+    release: "heyi-grove"
+    app.kubernetes.io/component: operator-pcsg-validating-webhook
+    app.kubernetes.io/name: pcsg-validating-webhook
+    app.kubernetes.io/part-of: grove
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      service:
+        name: grove-operator
+        namespace: grove-system
+        path: /webhooks/validate-podcliquescalinggroup
+        port: 9443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: pcsg.validating.webhooks.grove.io
+    namespaceSelector: { }
+    rules:
+      - apiGroups:
+          - "grove.io"
+        apiVersions:
+          - "v1alpha1"
+        operations:
+          - UPDATE
+        resources:
+          - podcliquescalinggroups
+          - podcliquescalinggroups/scale
+        scope: "Namespaced"
+    sideEffects: None
+    timeoutSeconds: 10

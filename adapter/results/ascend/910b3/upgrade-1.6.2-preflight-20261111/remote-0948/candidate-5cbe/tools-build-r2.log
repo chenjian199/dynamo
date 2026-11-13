@@ -1,0 +1,76 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from tools.Dockerfile
+#1 transferring dockerfile: 2.58kB done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${RUNTIME_IMAGE} results in empty or invalid base image name (line 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [stage-0  1/14] FROM docker.io/heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.68kB done
+#5 DONE 0.0s
+
+#6 [stage-0  2/14] WORKDIR /opt/dynamo/tools-build
+#6 CACHED
+
+#7 [stage-0  3/14] COPY audit.py requirements-tools.txt requirements-planner.txt requirements-tools-constraints.txt patch-aiperf.py patch-aiperf-local-fast.py ./
+#7 CACHED
+
+#8 [stage-0  4/14] COPY wheels ./wheels
+#8 CACHED
+
+#9 [stage-0  5/14] RUN --mount=type=cache,target=/root/.cache/pip /opt/dynamo/venv/bin/python audit.py snapshot before.json &&     env -u PYTHONPATH /opt/dynamo/venv/bin/python -m venv /opt/dynamo/tools-venv &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --no-index --no-deps wheels/*.whl &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --cache-dir /root/.cache/pip --timeout 120 --retries 5 --find-links ./wheels --only-binary aisimulate -c requirements-tools-constraints.txt -r requirements-tools.txt -r requirements-planner.txt /opt/dynamo/artifacts/wheels/ai_dynamo*.whl /opt/dynamo/artifacts/wheels/kvbm*.whl /opt/dynamo/artifacts/wheels/gpu_memory_service*.whl pytest==8.4.2 pytest-asyncio==1.2.0 PyYAML blake3 pillow
+#9 7.142 Processing ./wheels/aisimulate-0.13.0-cp311-abi3-manylinux_2_28_aarch64.whl
+#9 7.309 Installing collected packages: aisimulate
+#9 10.75 Successfully installed aisimulate-0.13.0
+#9 11.54 Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+#9 11.54 Looking in links: ./wheels
+#9 11.54 Processing /opt/dynamo/artifacts/wheels/ai_dynamo-1.6.2-py3-none-any.whl
+#9 11.58 Processing /opt/dynamo/artifacts/wheels/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl
+#9 11.65 Processing /opt/dynamo/artifacts/wheels/kvbm-1.6.2-cp310-abi3-linux_aarch64.whl
+#9 11.67 Processing /opt/dynamo/artifacts/wheels/gpu_memory_service-0.9.0-cp312-cp312-linux_aarch64.whl
+#9 133.0 Collecting pytest==8.4.2
+#9 133.2   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl (365 kB)
+#9 133.8 Collecting pytest-asyncio==1.2.0
+#9 134.0   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/04/93/2fa34714b7a4ae72f2f8dad66ba17dd9a2c793220719e736dda28b7aec27/pytest_asyncio-1.2.0-py3-none-any.whl (15 kB)
+#9 134.3 Collecting PyYAML
+#9 134.4   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ed/23/7a778b6bd0b9a8039df8b1b1d80e2e2ad78aa04171592c8a5c43a56a6af4/pyyaml-6.0.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (775 kB)
+#9 134.6      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 775.1/775.1 kB 4.5 MB/s eta 0:00:00
+#9 134.9 Collecting blake3
+#9 135.1   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/44/1f/6ae6f6ee6c17968ab6de0bb7a2dc7e7740062b498ff43c96012ccdff4444/blake3-1.0.11-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (369 kB)
+#9 135.9 Collecting pillow
+#9 136.1   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/3b/bb/9e30e8ed18c20800ee327a12107d5249ad8dc444867b3adfcc21654e3c71/pillow-13.0.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (6.5 MB)
+#9 137.5      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.5/6.5 MB 4.4 MB/s eta 0:00:00
+#9 137.5 Requirement already satisfied: aisimulate==0.13.0 in /opt/dynamo/tools-venv/lib/python3.12/site-packages (from -r requirements-tools.txt (line 4)) (0.13.0)
+#9 138.2 Collecting pandas==2.3.3 (from -r requirements-tools.txt (line 5))
+#9 138.4   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/57/56/cf2dbe1a3f5271370669475ead12ce77c61726ffd19a35546e31aa8edf4e/pandas-2.3.3-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl (11.7 MB)
+#9 142.5      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.7/11.7 MB 2.9 MB/s eta 0:00:00
+#9 142.8 Collecting aiofiles==24.1.0 (from -r requirements-tools.txt (line 6))
+#9 143.0   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/a5/45/30bb92d442636f570cb5651bc661f52b610e2eec3f891a5dc3a4c3667db0/aiofiles-24.1.0-py3-none-any.whl (15 kB)
+#9 143.3 Collecting kubernetes==32.0.1 (from -r requirements-tools.txt (line 7))
+#9 143.6   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/08/10/9f8af3e6f569685ce3af7faab51c8dd9d93b9c38eba339ca31c746119447/kubernetes-32.0.1-py2.py3-none-any.whl (2.0 MB)
+#9 145.2      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 1.1 MB/s eta 0:00:00
+#9 145.4 Collecting kubernetes-asyncio==32.0.0 (from -r requirements-tools.txt (line 8))
+#9 145.6   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/d6/d0/046ab1a8edad497d134432565fc7710fc3134eeb2f08ec147a08d1509f06/kubernetes_asyncio-32.0.0-py3-none-any.whl (2.0 MB)
+#9 147.3      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 1.2 MB/s eta 0:00:00
+#9 147.5 Collecting plotext==5.3.2 (from -r requirements-tools.txt (line 9))
+#9 147.7   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f6/1e/12fe7c40cd2099a1f454518754ed229b01beaf3bbb343127f0cc13ce6c22/plotext-5.3.2-py3-none-any.whl (64 kB)
+#9 148.2 Collecting plotly==6.4.0 (from -r requirements-tools.txt (line 10))
+#9 148.4   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/78/ae/89b45ccccfeebc464c9233de5675990f75241b8ee4cd63227800fdf577d1/plotly-6.4.0-py3-none-any.whl (9.9 MB)
+#9 174.2      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.9/9.9 MB 376.4 kB/s eta 0:00:00
+#9 180.7 Collecting scipy<2,>=1.14 (from -r requirements-tools.txt (line 11))
+#9 180.9   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/75/9a/2e71719f31eaefe0e3a1706c4a1ded94e664bfd95ffca2b219a671faee01/scipy-1.18.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (34.0 MB)
+#9 CANCELED
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - InvalidDefaultArgInFrom: Default value for ARG ${RUNTIME_IMAGE} results in empty or invalid base image name (line 4)
+ERROR: failed to build: failed to solve: Canceled: context canceled

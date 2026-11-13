@@ -1,0 +1,140 @@
+INFO 11-11 08:26:53 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 08:26:53 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-11 08:26:53 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+INFO 11-11 08:26:54 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-11 08:26:55 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[2m2026-11-11T08:27:11.840809Z[0m [32m INFO[0m [2mpatch_indexer_kv_dtype._apply_indexer_kv_dtype_int8_patch[0m[2m:[0m Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[2m2026-11-11T08:27:11.849927Z[0m [32m INFO[0m [2mpatch_kv_cache_dtype._apply_kv_cache_dtype_int8_patch[0m[2m:[0m Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[2m2026-11-11T08:27:11.927306Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[2m2026-11-11T08:27:12.024513Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[2m2026-11-11T08:27:12.748394Z[0m [33mWARNING[0m [2mindexer_topk[0m[2m:[0m Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[2m2026-11-11T08:27:13.053637Z[0m [32m INFO[0m [2margs.create_kv_events_config[0m[2m:[0m Using user-provided kv_events_config KVEventsConfig(enable_kv_cache_events=True, publisher='zmq', endpoint='tcp://*:24770', replay_endpoint=None, buffer_steps=10000, hwm=100000, max_queue_size=100000, topic='kv-events')
+[2m2026-11-11T08:27:13.053850Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: KVEventsConfig(enable_kv_cache_events=True, publisher='zmq', endpoint='tcp://*:24770', replay_endpoint=None, buffer_steps=10000, hwm=100000, max_queue_size=100000, topic='kv-events') (use_kv_events=True)
+[2m2026-11-11T08:27:13.053956Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Forward pass metrics enabled: scheduler_cls set to InstrumentedScheduler (port=27885)
+[2m2026-11-11T08:27:14.200285Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=20274, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[2m2026-11-11T08:27:14.221005Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: File(/evidence/kv-routing/discovery)
+[2m2026-11-11T08:27:14.221281Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[2m2026-11-11T08:27:14.222854Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:20274
+[2m2026-11-11T08:27:14.222929Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:20274
+[2m2026-11-11T08:27:14.222975Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:20274 [3mpolicy[0m[2m=[0mWorker
+[2m2026-11-11T08:27:14.223807Z[0m [32m INFO[0m [2mgraceful_shutdown.install_signal_handlers[0m[2m:[0m Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[2m2026-11-11T08:27:14.224524Z[0m [33mWARNING[0m [2mprometheus.setup_multiprocess_prometheus[0m[2m:[0m Found PROMETHEUS_MULTIPROC_DIR was set by user. This directory must be wiped between vLLM runs or you will find inaccurate metrics. Unset the variable and vLLM will properly handle cleanup.
+[2m2026-11-11T08:27:35.658825Z[0m [32m INFO[0m [2mmodel.__post_init__[0m[2m:[0m Resolved architecture: Qwen3ForCausalLM
+[2m2026-11-11T08:27:35.659613Z[0m [32m INFO[0m [2mmodel.get_and_verify_max_len[0m[2m:[0m Using max model len 4096
+[2m2026-11-11T08:27:35.858748Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[2m2026-11-11T08:27:35.859035Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[2m2026-11-11T08:27:35.859863Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[2m2026-11-11T08:27:35.860196Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+[2m2026-11-11T08:27:35.861532Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[2m2026-11-11T08:27:35.862362Z[0m [33mWARNING[0m [2mplatform._fix_incompatible_config[0m[2m:[0m GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[2m2026-11-11T08:27:35.862606Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[2m2026-11-11T08:27:35.879951Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m Dynamic EPLB is False
+[2m2026-11-11T08:27:35.880232Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m The number of redundant experts is 0
+[2m2026-11-11T08:27:35.880692Z[0m [32m INFO[0m [2mascend_config.derive_and_validate[0m[2m:[0m FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[2m2026-11-11T08:27:35.887440Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+[2m2026-11-11T08:27:35.887836Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[2m2026-11-11T08:27:35.888206Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-11-11T08:27:35.890394Z[0m [33mWARNING[0m [2mmodel.get_diff_sampling_param[0m[2m:[0m Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+INFO 11-11 08:27:48 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 08:27:48 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-11 08:27:48 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 08:27:48 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-11 08:27:49 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+INFO 11-11 08:28:01 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+INFO 11-11 08:28:01 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+INFO 11-11 08:28:01 [ascend_config.py:334] Dynamic EPLB is False
+INFO 11-11 08:28:01 [ascend_config.py:335] The number of redundant experts is 0
+Process EngineCore:
+Traceback (most recent call last):
+  File "/usr/local/python3.12.16/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/local/python3.12.16/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/vllm-workspace/vllm-ascend/vllm_ascend/patch/platform/patch_engine_core.py", line 47, in _run_engine_core_patch_func
+    ascend_config = init_ascend_config(vllm_config)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vllm-workspace/vllm-ascend/vllm_ascend/ascend_config.py", line 1916, in init_ascend_config
+    new_config = AscendConfig(  # type: ignore[call-arg]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py", line 121, in __init__
+    s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for AscendConfig
+consolidator_endpoints
+  Unexpected keyword argument [type=unexpected_keyword_argument, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.13/v/unexpected_keyword_argument
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/__main__.py", line 18, in <module>
+    main()
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 1055, in main
+    uvloop.run(worker())
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+    return __asyncio.run(
+           ^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+    return await main
+           ^^^^^^^^^^
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 284, in worker
+    await factory.create(
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/worker_factory.py", line 900, in create
+    await self._create_decode_worker(
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/worker_factory.py", line 1338, in _create_decode_worker
+    await self._run_decode_worker(
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/worker_factory.py", line 1430, in _run_decode_worker
+    ) = self.setup_vllm_engine(config, factory, fpm_worker_id=fpm_worker_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 618, in setup_vllm_engine
+    result = _setup_vllm_engine(config, stat_logger, fpm_worker_id, resources)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/venv/lib/python3.12/site-packages/dynamo/vllm/main.py", line 805, in _setup_vllm_engine
+    engine_client = AsyncLLM.from_vllm_config(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vllm-workspace/vllm/vllm/v1/engine/async_llm.py", line 235, in from_vllm_config
+    return cls(
+           ^^^^
+  File "/vllm-workspace/vllm/vllm/v1/engine/async_llm.py", line 169, in __init__
+    self.engine_core = EngineCoreClient.make_async_mp_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 163, in make_async_mp_client
+    return AsyncMPClient(
+           ^^^^^^^^^^^^^^
+  File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 1060, in __init__
+    super().__init__(
+  File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 656, in __init__
+    with launch_core_engines(
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+    wait_for_engine_startup(
+  File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[2m2026-11-11T08:28:04.500262Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m2 [3mruntimes[0m[2m=[0m1
+[ERROR] 2026-11-11-08:28:05 (PID:516, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception

@@ -1,0 +1,536 @@
+{
+  "passed": true,
+  "date_utc": "2026-11-12T08:57:40Z",
+  "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a",
+  "source_sha256": {
+    "Cargo.lock": "a282cbc74fefc85ee7d2490e765d1697c6aef9dddba1228a1edecd7034e4fb5e",
+    "lib/bindings/python/Cargo.lock": "ae09cb8cf3a57fe8f65867a91ed4c066f1d7798392869c7a7e0f2d8112064c52",
+    "lib/bindings/kvbm/Cargo.lock": "fd3e267d01e86ec0ef1f1ff2de74ab8d24a6eaad949c829c12761208c915d612",
+    "lib/runtime/examples/Cargo.lock": "ea31c02ef8f2f9c594cbe3bd5c025bbda04bf2bb3d5f0a09dc9765b39539b224",
+    "lib/platform/src/lib.rs": "c63d8c7489c672201bdfc6d71af1a30734b0f64b67dabb4b3c7fa76b4c10f200",
+    "lib/runtime/src/distributed.rs": "19b80b38b70cfe2162f295d40a4a59388ac6c8cb71dbe135085f4754fd0e6bb9",
+    "lib/runtime/src/component.rs": "556b508dcf8f381844b593666954c5c4635d84925216cd8f36553c6ba31d80b3",
+    "lib/runtime/src/component/endpoint.rs": "031b8311975e6982dc594dc78d3d458e5963dc4804acc54dfe946263da752b8c",
+    "lib/runtime/src/pipeline/network/egress/push_router.rs": "2d80cf04e8d4ed536b2f38a06d0a19e1a4f14c8f4e40918203536cec25f50b6c",
+    "lib/bindings/python/rust/lib.rs": "5a03ef6ccdb828d8a7235a201179240450a19d6ff2d96b8e34ab93723132e1c9",
+    "lib/bindings/python/rust/backend.rs": "06ada3ca6c6fdce70b94fa2609c5dbfe1ac06830d827b706618c6d919698dc83",
+    "lib/backend-common/src/worker.rs": "d1f0757e12dbe2592dd4546a011155bdba9ddec22438f972f90e8df85dc93c24",
+    "components/src/dynamo/vllm/main.py": "39c1049c2449d0385c84b5bb82a43093d44b2dd12a707b6db1560e854d2fa8b5",
+    "adapter/platforms/ascend/bringup/ascend-serve.sh": "9d09bdb7691b40d9703e11e37c9539f27877bfd48d9dcecd06079e6985e434a2",
+    "adapter/platforms/ascend/bringup/ascend-kv-serve.sh": "14f240e58a2de71ac500ce4a21e388e4856130f150d54c136b23e882e95eada9",
+    "adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py": "15c43c80156236bcb4cbca3bb38561cee10f19941ee713aa8e5186a98aac67d3",
+    "container/platforms/ascend.json": "c4d0e3ae0d754a1bf9df102c8c0bef9296eb66866b1f27f282b29294d5683f44",
+    "components/src/dynamo/common/platform/__init__.py": "1f74067e85424e14d3b74c4da00eb4f29c7918e52f27245f7bdc0360866d6f81",
+    "components/src/dynamo/common/platform/ascend.py": "b9629433e42a0f7b41c7b91ae933580c6439d209f96cbf67a3de45cde9f781b6",
+    "components/src/dynamo/common/platform/ascend_mooncake.py": "6713774c9c7fd589a824a4dd724aa4712340542816f0ab107057a22d6bfb12c0",
+    "components/src/dynamo/common/platform/kubernetes.py": "449e9738c88cbf176b658505e55ec4672846c19f3570572ede9ddba8dba670f5",
+    "components/src/dynamo/common/platform/preflight.py": "a815bdc71f46e4e0fd873527deee59b1fc2f6742f30d2dae391dcdfb2b720e0a",
+    "components/src/dynamo/common/platform/profile.py": "22215f9ef7e077f41ee410d3f8289ca85eda51b53d2a84f23d1a8b60bba4b22a",
+    "components/src/dynamo/common/platform/providers.py": "468cb26dcfc6ca4267f0cbdfd1fd079df3e5350ee958236bd308535bd09c430b",
+    "components/src/dynamo/common/platform/registry.py": "f2cd96d9f0f64289b3ed57dbd0b640cf70218ad46e395d7ba2ae831a2699c784",
+    "components/src/dynamo/common/platform/telemetry.py": "ecddb4e2b0ba8b23158546d33936abb87c7d83dbe18a578bccb3e245ea6482fe",
+    "components/src/dynamo/common/platform/versions.py": "412b1b3c75e4ba236c0560afad52619661aaa161d1d57b6e9e8fdd5a3a012033"
+  },
+  "stack": {
+    "id": "ascend",
+    "architecture": "arm64",
+    "python": "python3",
+    "base_image": "quay.io/ascend/vllm-ascend@sha256:28351d337b7f9367073344240fa4e28d99794d549d577eaf317689950064150a",
+    "versions": {
+      "vllm": "0.30.0+empty",
+      "torch": "2.10.0+cpu",
+      "vllm-ascend": "0.30.0",
+      "torch-npu": "2.10.0.post7"
+    },
+    "protected_packages": [
+      "vllm",
+      "vllm-ascend",
+      "torch",
+      "torch-npu",
+      "torchvision",
+      "torchaudio",
+      "triton-ascend",
+      "mooncake-transfer-engine",
+      "mooncake-transfer-engine-npu",
+      "triton"
+    ],
+    "runtime_features": [
+      "mm-routing",
+      "request-trace-s3",
+      "kv-indexer",
+      "slot-tracker",
+      "select-service",
+      "ais-forward-pass"
+    ],
+    "kvbm_features": [],
+    "gms": false,
+    "omni": "deferred",
+    "kernel_mode": "vendor-host-staging",
+    "nixl_link_mode": "runtime-capi"
+  },
+  "cuda_hardware_verified": false,
+  "unknown_platform_rejection": {
+    "code": "unknown_platform",
+    "provider": "heyi-unregistered-negative-probe",
+    "message": "no registered provider",
+    "retryable": false
+  },
+  "explicit_cpu_selection": {
+    "schema_version": 1,
+    "platform_id": "cpu",
+    "device_kind": "cpu",
+    "provider_version": "1",
+    "software": {},
+    "devices": [],
+    "capabilities": {
+      "runtime.control": {
+        "state": "available",
+        "provider": "cpu",
+        "reason": "CPU control plane requires no accelerator SDK",
+        "conditions": {}
+      }
+    }
+  },
+  "configuration_rejections": {
+    "schema_version": "cpu: unsupported_schema: requires platform schema 1",
+    "provider_version": "platform already frozen with a different configuration"
+  },
+  "workers": [
+    {
+      "instance_id": 14476330496074810264,
+      "device_type": null,
+      "platform": {
+        "schema_version": 1,
+        "platform_id": "ascend",
+        "device_kind": "accelerator",
+        "provider_version": "1",
+        "software": {
+          "cann": "9.2.1",
+          "driver": "24.1.rc3",
+          "torch": "2.10.0+cpu",
+          "torch-npu": "2.10.0.post7",
+          "vllm": "0.30.0+empty",
+          "vllm-ascend": "0.30.0"
+        },
+        "devices": [
+          {
+            "ordinal": 0,
+            "uuid": "ascend-die:c7f42a6c8120c4b355bc2972808080e0104301e3",
+            "architecture": "Ascend910B3",
+            "memory_bytes": 65464696832,
+            "pci_bus_id": "0000:c2:00.0"
+          }
+        ],
+        "capabilities": {
+          "device.compute": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "device identity, model and memory queried through selected provider",
+            "conditions": {}
+          },
+          "device.rdma": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "engine.expert_parallel": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.lora": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.quantization": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.speculative": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.text": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "platform backend installed; requested topology and model support are validated by vLLM at initialization",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "gms.vmm": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "tested 910B3/CANN 9.1/HDK 26.1.1 rejects read-only VMM access and POSIX allocation; GMS provider unavailable",
+            "conditions": {}
+          },
+          "kv.events": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "vLLM ZMQ events and prefix caching enabled",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "kvbm.offload": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "pd.transfer": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "power.control": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          }
+        }
+      }
+    },
+    {
+      "instance_id": 2299585494346502555,
+      "device_type": null,
+      "platform": {
+        "schema_version": 1,
+        "platform_id": "ascend",
+        "device_kind": "accelerator",
+        "provider_version": "1",
+        "software": {
+          "cann": "9.2.1",
+          "driver": "24.1.rc3",
+          "torch": "2.10.0+cpu",
+          "torch-npu": "2.10.0.post7",
+          "vllm": "0.30.0+empty",
+          "vllm-ascend": "0.30.0"
+        },
+        "devices": [
+          {
+            "ordinal": 0,
+            "uuid": "ascend-die:d43c2a6c80c046795638b172808080e0104301e3",
+            "architecture": "Ascend910B3",
+            "memory_bytes": 65464696832,
+            "pci_bus_id": "0000:c1:00.0"
+          }
+        ],
+        "capabilities": {
+          "device.compute": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "device identity, model and memory queried through selected provider",
+            "conditions": {}
+          },
+          "device.rdma": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "engine.expert_parallel": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.lora": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.quantization": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.speculative": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "not enabled in this configuration",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "engine.text": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "platform backend installed; requested topology and model support are validated by vLLM at initialization",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "gms.vmm": {
+            "state": "unavailable",
+            "provider": "ascend",
+            "reason": "tested 910B3/CANN 9.1/HDK 26.1.1 rejects read-only VMM access and POSIX allocation; GMS provider unavailable",
+            "conditions": {}
+          },
+          "kv.events": {
+            "state": "available",
+            "provider": "ascend",
+            "reason": "vLLM ZMQ events and prefix caching enabled",
+            "conditions": {
+              "dp": "1",
+              "eager": "true",
+              "engine": "vllm",
+              "expert_parallel": "false",
+              "gms": "false",
+              "headless": "false",
+              "kv_events": "true",
+              "kvbm": "false",
+              "local_dp": "None",
+              "lora": "none",
+              "model": "/models/Qwen3-0.6B",
+              "nnodes": "1",
+              "pd_connector": "none",
+              "pp": "1",
+              "quantization": "none",
+              "speculative": "null",
+              "task": "text",
+              "tp": "1"
+            }
+          },
+          "kvbm.offload": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "pd.transfer": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          },
+          "power.control": {
+            "state": "unknown",
+            "provider": "ascend",
+            "reason": "not probed or certified by M01",
+            "conditions": {}
+          }
+        }
+      }
+    }
+  ],
+  "required_capability_rejection": {
+    "capability": "pd.transfer",
+    "exit_code": 1,
+    "diagnostic": "dynamo.common.platform.registry.PlatformError: ascend: missing_capability: pd.transfer: not probed or certified by M01",
+    "discovery_files": 0
+  }
+}

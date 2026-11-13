@@ -1,0 +1,61 @@
+mkdir -p /home/metax/CJ_workspace/dynamo/.worktrees/source-1.6.2-ascend-20261111/.worktrees/dynamo-1.6.2-ascend-20261111/deploy/operator/bin
+# Use a large maxDescLen to ensure all field comments are included as OpenAPI descriptions
+# allowDangerousTypes=true is needed for float fields in the API (e.g. kvTransferPolicy.preferredWeight)
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/controller-gen rbac:roleName=manager-role,headerFile=hack/boilerplate.yaml.txt crd:maxDescLen=100000,allowDangerousTypes=true,generateEmbeddedObjectMeta=true webhook paths="./..." output:rbac:artifacts:config=../helm/charts/platform/components/operator/files output:crd:artifacts:config=config/crd/bases
+echo "Removing name from mainContainer required fields"
+Removing name from mainContainer required fields
+for file in config/crd/bases/*.yaml; do \
+	/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '(.. | select(has("mainContainer")) | .mainContainer.required) |= (. - ["name"])' -i --indent 2 $file || exit 1; \
+done
+echo "Removing containers from extraPodSpec required fields"
+Removing containers from extraPodSpec required fields
+for file in config/crd/bases/*.yaml; do \
+	/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '(.. | select(has("extraPodSpec")) | .extraPodSpec.required) |= (. - ["containers"])' -i --indent 2 $file || exit 1; \
+done
+echo "Removing name from standalone v1beta1 DynamoComponentDeployment required fields"
+Removing name from standalone v1beta1 DynamoComponentDeployment required fields
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '(.spec.versions[] | select(.name == "v1beta1") | .schema.openAPIV3Schema.properties.spec.required) |= (. - ["name"])' -i --indent 2 config/crd/bases/nvidia.com_dynamocomponentdeployments.yaml
+echo "Removing DGD-only provider overrides from standalone DynamoComponentDeployment schemas"
+Removing DGD-only provider overrides from standalone DynamoComponentDeployment schemas
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '(.spec.versions[].schema.openAPIV3Schema.properties.spec.properties) |= del(.providerOverride) | (.spec.versions[].schema.openAPIV3Schema.properties.spec.properties.roles.items.properties) |= del(.providerOverride)' -i --indent 2 config/crd/bases/nvidia.com_dynamocomponentdeployments.yaml
+echo "Removing DGD-only LPX fields and validation rules from standalone DynamoComponentDeployment schemas"
+Removing DGD-only LPX fields and validation rules from standalone DynamoComponentDeployment schemas
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '(.spec.versions[].schema.openAPIV3Schema.properties.spec) |= (del(.properties.lpx) | (select(has("x-kubernetes-validations"))."x-kubernetes-validations") |= map(select(.rule | test("\\b(self|oldSelf)\\.lpx\\b") | not)))' -i --indent 2 config/crd/bases/nvidia.com_dynamocomponentdeployments.yaml
+# PodTemplateSpec is an external Kubernetes type, so its item-level markers cannot be declared on the API field.
+# Item-scoped rules avoid unbounded list comprehensions without imposing maxItems on the public API.
+# The annotation value bound matches Kubernetes' total annotation size limit.
+echo "Adding nested v1beta1 pod template CEL validation"
+Adding nested v1beta1 pod template CEL validation
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval 'with(.spec.versions[] | select(.name == "v1beta1") | .schema.openAPIV3Schema.properties.spec.properties.podTemplate.properties; .spec.properties.containers.items."x-kubernetes-validations" = [{"rule": "self.name == \"main\" || (has(self.image) && self.image != \"\")", "message": "sidecar containers must specify a non-empty image"}] | .spec.properties.initContainers.items."x-kubernetes-validations" = [{"rule": "has(self.image) && self.image != \"\"", "message": "init containers must specify a non-empty image"}] | .metadata.properties.annotations."x-kubernetes-validations" = [{"rule": "!(\"nvidia.com/vllm-distributed-executor-backend\" in self) || self[\"nvidia.com/vllm-distributed-executor-backend\"].lowerAscii() in [\"mp\", \"ray\"]", "message": "podTemplate backend annotation must be mp or ray, case-insensitively"}] | .metadata.properties.annotations.additionalProperties.maxLength = 262144)' -i --indent 2 config/crd/bases/nvidia.com_dynamocomponentdeployments.yaml
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval 'with(.spec.versions[] | select(.name == "v1beta1") | .schema.openAPIV3Schema.properties.spec.properties.roles.items.properties.podTemplate.properties; .spec.properties.containers.items."x-kubernetes-validations" = [{"rule": "self.name == \"main\" || (has(self.image) && self.image != \"\")", "message": "sidecar containers must specify a non-empty image"}] | .spec.properties.initContainers.items."x-kubernetes-validations" = [{"rule": "has(self.image) && self.image != \"\"", "message": "init containers must specify a non-empty image"}] | .metadata.properties.annotations."x-kubernetes-validations" = [{"rule": "!(\"nvidia.com/vllm-distributed-executor-backend\" in self) || self[\"nvidia.com/vllm-distributed-executor-backend\"].lowerAscii() in [\"mp\", \"ray\"]", "message": "podTemplate backend annotation must be mp or ray, case-insensitively"}] | .metadata.properties.annotations.additionalProperties.maxLength = 262144)' -i --indent 2 config/crd/bases/nvidia.com_dynamocomponentdeployments.yaml
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval 'with(.spec.versions[] | select(.name == "v1beta1") | .schema.openAPIV3Schema.properties.spec.properties.components.items.properties.podTemplate.properties; .spec.properties.containers.items."x-kubernetes-validations" = [{"rule": "self.name == \"main\" || (has(self.image) && self.image != \"\")", "message": "sidecar containers must specify a non-empty image"}] | .spec.properties.initContainers.items."x-kubernetes-validations" = [{"rule": "has(self.image) && self.image != \"\"", "message": "init containers must specify a non-empty image"}] | .metadata.properties.annotations."x-kubernetes-validations" = [{"rule": "!(\"nvidia.com/vllm-distributed-executor-backend\" in self) || self[\"nvidia.com/vllm-distributed-executor-backend\"].lowerAscii() in [\"mp\", \"ray\"]", "message": "podTemplate backend annotation must be mp or ray, case-insensitively"}] | .metadata.properties.annotations.additionalProperties.maxLength = 262144)' -i --indent 2 config/crd/bases/nvidia.com_dynamographdeployments.yaml
+/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval 'with(.spec.versions[] | select(.name == "v1beta1") | .schema.openAPIV3Schema.properties.spec.properties.components.items.properties.roles.items.properties.podTemplate.properties; .spec.properties.containers.items."x-kubernetes-validations" = [{"rule": "self.name == \"main\" || (has(self.image) && self.image != \"\")", "message": "sidecar containers must specify a non-empty image"}] | .spec.properties.initContainers.items."x-kubernetes-validations" = [{"rule": "has(self.image) && self.image != \"\"", "message": "init containers must specify a non-empty image"}] | .metadata.properties.annotations."x-kubernetes-validations" = [{"rule": "!(\"nvidia.com/vllm-distributed-executor-backend\" in self) || self[\"nvidia.com/vllm-distributed-executor-backend\"].lowerAscii() in [\"mp\", \"ray\"]", "message": "podTemplate backend annotation must be mp or ray, case-insensitively"}] | .metadata.properties.annotations.additionalProperties.maxLength = 262144)' -i --indent 2 config/crd/bases/nvidia.com_dynamographdeployments.yaml
+echo "Fixing PluginSpec parameters field: json.RawMessage needs x-kubernetes-preserve-unknown-fields instead of type: string"
+Fixing PluginSpec parameters field: json.RawMessage needs x-kubernetes-preserve-unknown-fields instead of type: string
+for file in config/crd/bases/*.yaml; do \
+	/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '(.. | select(has("parameters")) | .parameters | select(has("format") and .format == "byte")) |= (del(.format) | del(.type) | .x-kubernetes-preserve-unknown-fields = true)' -i --indent 2 $file || exit 1; \
+done
+echo "Adding CA-less conversion webhook to multi-version CRD files"
+Adding CA-less conversion webhook to multi-version CRD files
+for file in config/crd/bases/*.yaml; do \
+	/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval 'with(select(.spec.versions | length > 1); .spec.conversion = {"strategy": "Webhook", "webhook": {"clientConfig": {"service": {"namespace": "dynamo-system", "name": "dynamo-operator-webhook-service", "path": "/convert"}}, "conversionReviewVersions": ["v1"]}} | .spec.conversion.webhook.clientConfig head_comment = "CA will be patched in by the Dynamo operator or other means, depending on cert mode auto or manual")' -i --indent 2 $file || exit 1; \
+done
+echo "Adding NVIDIA header to CRD files"
+Adding NVIDIA header to CRD files
+for file in config/crd/bases/*.yaml; do \
+	if ! head -20 "$file" | grep -q "NVIDIA CORPORATION"; then \
+		{ printf '%s\n' \
+			'# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.' \
+			'# SPDX-License-Identifier: Apache-2.0' \
+			''; \
+		  cat "$file"; \
+		} > "$file.tmp" && mv "$file.tmp" "$file"; \
+	fi; \
+done
+echo "Adding helm.sh/resource-policy: keep annotation to CRD files"
+Adding helm.sh/resource-policy: keep annotation to CRD files
+for file in config/crd/bases/*.yaml; do \
+	if ! /var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '.metadata.annotations."helm.sh/resource-policy"' "$file" | grep -q "keep"; then \
+		/var/tmp/dynamo-upgrade-162-build-cache/go-bin/yq eval '.metadata.annotations."helm.sh/resource-policy" = "keep"' -i "$file"; \
+	fi; \
+done

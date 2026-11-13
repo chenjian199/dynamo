@@ -1,0 +1,969 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "meta.helm.sh/release-name": "heyi-upgrade162",
+                    "meta.helm.sh/release-namespace": "heyi-upgrade162"
+                },
+                "creationTimestamp": "2026-11-11T09:10:03Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/component": "manager",
+                    "app.kubernetes.io/created-by": "dynamo-operator",
+                    "app.kubernetes.io/instance": "heyi-upgrade162",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "app.kubernetes.io/name": "dynamo-operator",
+                    "app.kubernetes.io/part-of": "dynamo-operator",
+                    "app.kubernetes.io/version": "1.6.2",
+                    "control-plane": "controller-manager",
+                    "helm.sh/chart": "dynamo-operator-1.6.2"
+                },
+                "name": "heyi-upgrade162-dynamo-operator-controller-manager",
+                "namespace": "heyi-upgrade162",
+                "resourceVersion": "298329195",
+                "uid": "abf66a9d-ca4b-477c-b683-5d66cf7ad416"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/instance": "heyi-upgrade162",
+                        "app.kubernetes.io/name": "dynamo-operator",
+                        "control-plane": "controller-manager"
+                    }
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "checksum/config": "ede802bb16ba55717c352b6dae0766d213f6870c3cf81a8628b0d4ac755d342b",
+                            "kubectl.kubernetes.io/default-container": "manager"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app.kubernetes.io/instance": "heyi-upgrade162",
+                            "app.kubernetes.io/name": "dynamo-operator",
+                            "control-plane": "controller-manager"
+                        }
+                    },
+                    "spec": {
+                        "affinity": {
+                            "nodeAffinity": {
+                                "requiredDuringSchedulingIgnoredDuringExecution": {
+                                    "nodeSelectorTerms": [
+                                        {
+                                            "matchExpressions": [
+                                                {
+                                                    "key": "kubernetes.io/hostname",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "master-02-45d4a763"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "containers": [
+                            {
+                                "args": [
+                                    "--config=/etc/dynamo-operator/config.yaml",
+                                    "--operator-version=1.6.2",
+                                    "--operator-image=heyi/dynamo-operator:1.6.2-heyi-upgrade-5cbe424879-arm64",
+                                    "--operator-image-pull-policy=IfNotPresent",
+                                    "--dgdr-default-image=heyi/dynamo:1.6.2-ascend0.30-5cbe424879-tools"
+                                ],
+                                "command": [
+                                    "/manager"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "KUBERNETES_CLUSTER_DOMAIN",
+                                        "value": "cluster.local"
+                                    },
+                                    {
+                                        "name": "POD_SERVICE_ACCOUNT",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "spec.serviceAccountName"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "image": "heyi/dynamo-operator:1.6.2-heyi-upgrade-5cbe424879-arm64",
+                                "imagePullPolicy": "IfNotPresent",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/healthz",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 15,
+                                    "periodSeconds": 20,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "name": "manager",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "name": "metrics",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 9443,
+                                        "name": "webhook-server",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/readyz",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 5,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "1024m",
+                                        "memory": "2Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "512m",
+                                        "memory": "1Gi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/etc/dynamo-operator",
+                                        "name": "operator-config",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/tmp/k8s-webhook-server/serving-certs",
+                                        "name": "cert",
+                                        "readOnly": true
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "initContainers": [
+                            {
+                                "args": [
+                                    "--crds-dir=/opt/dynamo-operator/crds/",
+                                    "--version=1.6.2",
+                                    "--lpx-enabled=false",
+                                    "--conversion-webhook-service-name=heyi-upgrade162-dynamo-operator-webhook-service",
+                                    "--conversion-webhook-service-namespace=heyi-upgrade162"
+                                ],
+                                "command": [
+                                    "/crd-apply"
+                                ],
+                                "image": "heyi/dynamo-operator:1.6.2-heyi-upgrade-5cbe424879-arm64",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "crd-apply",
+                                "resources": {},
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "runAsNonRoot": true
+                        },
+                        "serviceAccount": "heyi-upgrade162-dynamo-operator-controller-manager",
+                        "serviceAccountName": "heyi-upgrade162-dynamo-operator-controller-manager",
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "heyi-upgrade162-dynamo-operator-config"
+                                },
+                                "name": "operator-config"
+                            },
+                            {
+                                "name": "cert",
+                                "secret": {
+                                    "defaultMode": 420,
+                                    "optional": true,
+                                    "secretName": "webhook-server-cert"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-11-11T09:10:20Z",
+                        "lastUpdateTime": "2026-11-11T09:10:20Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-11-11T09:10:03Z",
+                        "lastUpdateTime": "2026-11-11T09:10:20Z",
+                        "message": "ReplicaSet \"heyi-upgrade162-dynamo-operator-controller-manager-694bb485b\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "72c8110a5bc9ed1340950195e96c183a226a46b404a91d92c024f5c37a343aeb"
+                },
+                "creationTimestamp": "2026-11-11T09:12:41Z",
+                "generation": 1,
+                "labels": {
+                    "nvidia.com/dynamo-component": "frontend",
+                    "nvidia.com/dynamo-graph-deployment-name": "upgrade-aggregate-55",
+                    "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-aggregate-55"
+                },
+                "name": "upgrade-aggregate-55-frontend",
+                "namespace": "heyi-upgrade162",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "upgrade-aggregate-55-frontend",
+                        "uid": "bb8905c9-0c37-44a7-8c21-99c141d6e52e"
+                    }
+                ],
+                "resourceVersion": "298330341",
+                "uid": "8717fdf6-b113-4838-9754-7352961b14b9"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "nvidia.com/selector": "upgrade-aggregate-55-frontend"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "nvidia.com/dynamo-component": "frontend",
+                            "nvidia.com/dynamo-component-type": "frontend",
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                            "nvidia.com/dynamo-discovery-enabled": "true",
+                            "nvidia.com/dynamo-graph-deployment-name": "upgrade-aggregate-55",
+                            "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-aggregate-55",
+                            "nvidia.com/metrics-enabled": "true",
+                            "nvidia.com/selector": "upgrade-aggregate-55-frontend"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "python",
+                                    "-m",
+                                    "dynamo.frontend",
+                                    "--router-mode",
+                                    "kv"
+                                ],
+                                "command": [
+                                    "/opt/dynamo/bin/entrypoint.sh"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "DYNAMO_PORT",
+                                        "value": "8000"
+                                    },
+                                    {
+                                        "name": "DYN_COMPONENT",
+                                        "value": "frontend"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "kubernetes"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_HTTP_PORT",
+                                        "value": "8000"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "heyi-upgrade162-upgrade-aggregate-55"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE_PREFIX",
+                                        "value": "heyi-upgrade162-upgrade-aggregate-55"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE_PREFIX_STRICT",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAME",
+                                        "value": "upgrade-aggregate-55"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                                        "value": "heyi-upgrade162"
+                                    },
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "cpu"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "OMP_NUM_THREADS",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "name": "POD_NAME",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_UID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.uid"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "PYTHONUNBUFFERED",
+                                        "value": "1"
+                                    }
+                                ],
+                                "image": "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 15,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "name": "main",
+                                "ports": [
+                                    {
+                                        "containerPort": 8000,
+                                        "name": "http",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": "http",
+                                        "scheme": "HTTP"
+                                    },
+                                    "initialDelaySeconds": 10,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 3
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "8",
+                                        "memory": "32Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "1",
+                                        "memory": "2Gi"
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shared-memory"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "arm64",
+                            "kubernetes.io/hostname": "master"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000
+                        },
+                        "serviceAccount": "upgrade-aggregate-55-k8s-service-discovery",
+                        "serviceAccountName": "upgrade-aggregate-55-k8s-service-discovery",
+                        "terminationGracePeriodSeconds": 60,
+                        "volumes": [
+                            {
+                                "hostPath": {
+                                    "path": "/data/dynamo-regression-models/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "8Gi"
+                                },
+                                "name": "shared-memory"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-11-11T09:12:53Z",
+                        "lastUpdateTime": "2026-11-11T09:12:53Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-11-11T09:12:41Z",
+                        "lastUpdateTime": "2026-11-11T09:12:53Z",
+                        "message": "ReplicaSet \"upgrade-aggregate-55-frontend-748ff9b5ff\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "d5cbf44865cb42b44e87ff2694dee0cd9f3e1d5d5a1ceb1a116b42d13de9454a"
+                },
+                "creationTimestamp": "2026-11-11T09:12:41Z",
+                "generation": 1,
+                "labels": {
+                    "nvidia.com/dynamo-component": "worker",
+                    "nvidia.com/dynamo-graph-deployment-name": "upgrade-aggregate-55",
+                    "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-aggregate-55",
+                    "nvidia.com/dynamo-worker-hash": "fa485b33"
+                },
+                "name": "upgrade-aggregate-55-worker-fa485b33",
+                "namespace": "heyi-upgrade162",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "nvidia.com/v1beta1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "DynamoComponentDeployment",
+                        "name": "upgrade-aggregate-55-worker-fa485b33",
+                        "uid": "5ea7665c-a08b-4e2f-a974-898f0c27616c"
+                    }
+                ],
+                "resourceVersion": "298330199",
+                "uid": "31d09095-22ff-4e0e-ae3e-d502e676da51"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 2,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "nvidia.com/selector": "upgrade-aggregate-55-worker-fa485b33"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "nvidia.com/dynamo-component": "worker",
+                            "nvidia.com/dynamo-component-type": "worker",
+                            "nvidia.com/dynamo-discovery-backend": "kubernetes",
+                            "nvidia.com/dynamo-discovery-enabled": "true",
+                            "nvidia.com/dynamo-graph-deployment-name": "upgrade-aggregate-55",
+                            "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-aggregate-55",
+                            "nvidia.com/dynamo-worker-hash": "fa485b33",
+                            "nvidia.com/metrics-enabled": "true",
+                            "nvidia.com/selector": "upgrade-aggregate-55-worker-fa485b33"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "args": [
+                                    "python",
+                                    "-m",
+                                    "dynamo.vllm",
+                                    "--model",
+                                    "/models/Qwen3-0.6B",
+                                    "--served-model-name",
+                                    "m08-model",
+                                    "--enforce-eager",
+                                    "--tensor-parallel-size",
+                                    "1",
+                                    "--max-model-len",
+                                    "1024",
+                                    "--max-num-seqs",
+                                    "8",
+                                    "--gpu-memory-utilization",
+                                    "0.3",
+                                    "--block-size",
+                                    "128",
+                                    "--disable-custom-all-reduce",
+                                    "--kv-events-config",
+                                    "{\"enable_kv_cache_events\": true, \"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\"}",
+                                    "--enable-prefix-caching"
+                                ],
+                                "command": [
+                                    "/opt/dynamo/bin/entrypoint.sh"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "ASCEND_TRANSFER_TIMEOUT",
+                                        "value": "30000"
+                                    },
+                                    {
+                                        "name": "DYN_COMPONENT",
+                                        "value": "worker"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "kubernetes"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_FORWARDPASS_METRIC_PORT",
+                                        "value": "20380"
+                                    },
+                                    {
+                                        "name": "DYN_HEALTH_CHECK_ENABLED",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "heyi-upgrade162-upgrade-aggregate-55"
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE_WORKER_SUFFIX",
+                                        "value": "fa485b33"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAME",
+                                        "value": "upgrade-aggregate-55"
+                                    },
+                                    {
+                                        "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                                        "value": "heyi-upgrade162"
+                                    },
+                                    {
+                                        "name": "DYN_PLATFORM",
+                                        "value": "ascend"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_ROUTER_USE_KV_EVENTS",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_ENABLED",
+                                        "value": "true"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_PORT",
+                                        "value": "9090"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+                                        "value": "[\"generate\"]"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_ENABLE",
+                                        "value": "n"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_EXPORTER",
+                                        "value": "prometheus"
+                                    },
+                                    {
+                                        "name": "NIXL_TELEMETRY_PROMETHEUS_PORT",
+                                        "value": "19090"
+                                    },
+                                    {
+                                        "name": "OMP_NUM_THREADS",
+                                        "value": "4"
+                                    },
+                                    {
+                                        "name": "POD_NAME",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_NAMESPACE",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.namespace"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "POD_UID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.uid"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "PYTHONUNBUFFERED",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "VLLM_HOST_IP",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "status.podIP"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                                        "value": "60"
+                                    },
+                                    {
+                                        "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                                        "value": "20090"
+                                    }
+                                ],
+                                "image": "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime",
+                                "imagePullPolicy": "Never",
+                                "livenessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 5,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 4
+                                },
+                                "name": "main",
+                                "ports": [
+                                    {
+                                        "containerPort": 9090,
+                                        "name": "system",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 19090,
+                                        "name": "nixl",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 4
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "8",
+                                        "huawei.com/Ascend910": "1",
+                                        "memory": "32Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "1",
+                                        "huawei.com/Ascend910": "1",
+                                        "memory": "2Gi"
+                                    }
+                                },
+                                "startupProbe": {
+                                    "failureThreshold": 720,
+                                    "httpGet": {
+                                        "path": "/live",
+                                        "port": "system",
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/models/Qwen3-0.6B",
+                                        "name": "models",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/Ascend/driver",
+                                        "name": "ascend-driver",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/dcmi",
+                                        "name": "ascend-dcmi",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/usr/local/sbin/npu-smi",
+                                        "name": "ascend-smi",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shared-memory"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "nodeSelector": {
+                            "kubernetes.io/arch": "arm64",
+                            "kubernetes.io/hostname": "master"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000
+                        },
+                        "serviceAccount": "upgrade-aggregate-55-k8s-service-discovery",
+                        "serviceAccountName": "upgrade-aggregate-55-k8s-service-discovery",
+                        "terminationGracePeriodSeconds": 60,
+                        "tolerations": [
+                            {
+                                "effect": "NoSchedule",
+                                "key": "huawei.com/Ascend910",
+                                "operator": "Exists"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "hostPath": {
+                                    "path": "/data/dynamo-regression-models/Qwen3-0.6B",
+                                    "type": "Directory"
+                                },
+                                "name": "models"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/Ascend/driver",
+                                    "type": "Directory"
+                                },
+                                "name": "ascend-driver"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/dcmi",
+                                    "type": "Directory"
+                                },
+                                "name": "ascend-dcmi"
+                            },
+                            {
+                                "hostPath": {
+                                    "path": "/usr/local/sbin/npu-smi",
+                                    "type": "File"
+                                },
+                                "name": "ascend-smi"
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "8Gi"
+                                },
+                                "name": "shared-memory"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-11-11T09:12:41Z",
+                        "lastUpdateTime": "2026-11-11T09:12:41Z",
+                        "message": "Deployment does not have minimum availability.",
+                        "reason": "MinimumReplicasUnavailable",
+                        "status": "False",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-11-11T09:12:41Z",
+                        "lastUpdateTime": "2026-11-11T09:12:41Z",
+                        "message": "ReplicaSet \"upgrade-aggregate-55-worker-fa485b33-85d96759c7\" is progressing.",
+                        "reason": "ReplicaSetUpdated",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "replicas": 2,
+                "unavailableReplicas": 2,
+                "updatedReplicas": 2
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

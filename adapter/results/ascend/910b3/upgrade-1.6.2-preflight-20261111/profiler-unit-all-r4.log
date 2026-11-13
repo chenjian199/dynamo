@@ -1,0 +1,73 @@
+........................................................................ [ 15%]
+........................................................................ [ 30%]
+........................................................................ [ 46%]
+........................................................................ [ 61%]
+........................................................................ [ 77%]
+..........................................................F............. [ 92%]
+..................................                                       [100%]
+=================================== FAILURES ===================================
+______________ test_materialize_dgd_inaccessible_model_path[True] ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7999321910>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7f7999320e90>
+explicit_trust = True
+
+    @pytest.mark.parametrize("explicit_trust", [False, True])
+    def test_materialize_dgd_inaccessible_model_path(
+        tmp_path, monkeypatch, caplog, explicit_trust
+    ):
+        model_path = tmp_path / "model"
+        model_path.mkdir()
+        (model_path / "config.json").write_text("{}")
+        error = PermissionError(errno.EACCES, "Cannot inspect model", str(model_path))
+        original_stat = Path.stat
+    
+        def stat(self, *args, **kwargs):
+            if self == model_path:
+                raise error
+            return original_stat(self, *args, **kwargs)
+    
+        monkeypatch.setattr(Path, "stat", stat)
+        config = _make_dgd_with_workers("decode")
+        if explicit_trust:
+            _main_container(_components_by_name(config)["decode"])["args"].append(
+                "--trust-remote-code"
+            )
+        original_config = copy.deepcopy(config)
+    
+        if explicit_trust:
+            result = materialize_dgd(
+                config,
+                purpose=DGDMaterializationPurpose.FINAL_OUTPUT,
+                runtime_backend="vllm",
+                model_name_or_path=str(model_path),
+            )
+>           assert result == original_config
+E           AssertionError: assert {'apiVersion'...: 'decode'}]}} == {'apiVersion'...: 'decode'}]}}
+E             
+E             Omitting 3 identical items, use -vv to show
+E             Differing items:
+E             {'spec': {'backendFramework': 'vllm', 'components': [{'name': 'Frontend', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'frontend'}, {'name': 'decode', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'decode'}]}} != {'spec': {'components': [{'name': 'Frontend', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'frontend'}, {'name': 'decode', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'decode'}]}}
+E             Use -v to get more diff
+
+caplog     = <_pytest.logging.LogCaptureFixture object at 0x7f7999320e90>
+config     = {'apiVersion': 'nvidia.com/v1beta1', 'kind': 'DynamoGraphDeployment', 'metadata': {'name': 'test'}, 'spec': {'componen...: [...]}}, 'type': 'frontend'}, {'name': 'decode', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'decode'}]}}
+error      = PermissionError(13, 'Cannot inspect model')
+explicit_trust = True
+model_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0/model')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7999321910>
+original_config = {'apiVersion': 'nvidia.com/v1beta1', 'kind': 'DynamoGraphDeployment', 'metadata': {'name': 'test'}, 'spec': {'componen...: [...]}}, 'type': 'frontend'}, {'name': 'decode', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'decode'}]}}
+original_stat = <function Path.stat at 0x7f7c9d074c20>
+result     = {'apiVersion': 'nvidia.com/v1beta1', 'kind': 'DynamoGraphDeployment', 'metadata': {'name': 'test'}, 'spec': {'backendF...: [...]}}, 'type': 'frontend'}, {'name': 'decode', 'podTemplate': {'spec': {'containers': [...]}}, 'type': 'decode'}]}}
+stat       = <function test_materialize_dgd_inaccessible_model_path.<locals>.stat at 0x7f7999118c20>
+tmp_path   = PosixPath('/tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0')
+
+components/src/dynamo/profiler/tests/unit/test_profiler_protocol.py:1851: AssertionError
+----------------------------- Captured stderr call -----------------------------
+[2m2026-11-11T10:39:04.305909Z[0m [33m WARN[0m [2mmodel_info.model_has_auto_map[0m[2m:[0m model_has_auto_map: unexpected error reading config.json for /tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0/model: [Errno 13] Cannot inspect model: '/tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0/model' — auto_map detection is inconclusive; returning True for the caller's trust policy check.
+------------------------------ Captured log call -------------------------------
+WARNING  dynamo.profiler.utils.model_info:model_info.py:191 model_has_auto_map: unexpected error reading config.json for /tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0/model: [Errno 13] Cannot inspect model: '/tmp/pytest-of-root/pytest-0/test_materialize_dgd_inaccessi0/model' — auto_map detection is inconclusive; returning True for the caller's trust policy check.
+=========================== short test summary info ============================
+FAILED components/src/dynamo/profiler/tests/unit/test_profiler_protocol.py::test_materialize_dgd_inaccessible_model_path[True]
+1 failed, 465 passed in 168.86s (0:02:48)

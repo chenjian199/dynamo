@@ -1,0 +1,493 @@
+{
+  "passed": true,
+  "config": {
+    "platform": "ascend",
+    "dp": "2",
+    "block_size": "128",
+    "expected_blocks": "73",
+    "output": "/evidence/results/lora-dp2/kv.json"
+  },
+  "events": {
+    "0": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ],
+    "1": [
+      "AllBlocksCleared",
+      "BlockStored",
+      "AllBlocksCleared",
+      "BlockStored"
+    ]
+  },
+  "worker_id": 11927109022285445899,
+  "platform": {
+    "schema_version": 1,
+    "platform_id": "ascend",
+    "device_kind": "accelerator",
+    "provider_version": "1",
+    "software": {
+      "cann": "9.2.1",
+      "driver": "25.2.0",
+      "torch": "2.10.0+cpu",
+      "torch-npu": "2.10.0.post7",
+      "vllm": "0.30.0+empty",
+      "vllm-ascend": "0.30.0"
+    },
+    "devices": [
+      {
+        "ordinal": 0,
+        "uuid": "ascend-die:ea612a648080c5dd2570eb72808080e0104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:01:00.0"
+      },
+      {
+        "ordinal": 1,
+        "uuid": "ascend-die:185f2a6c8100527513312b72808080e0104301e3",
+        "architecture": "Ascend910B3",
+        "memory_bytes": 65452113920,
+        "pci_bus_id": "0000:02:00.0"
+      }
+    ],
+    "capabilities": {
+      "device.compute": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "device identity, model and memory queried through selected provider",
+        "conditions": {}
+      },
+      "device.rdma": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "engine.expert_parallel": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "gms": "false",
+          "headless": "false",
+          "kv_events": "true",
+          "kvbm": "false",
+          "local_dp": "2",
+          "lora": "true",
+          "model": "/models/Qwen3-0.6B",
+          "nnodes": "1",
+          "pd_connector": "none",
+          "pp": "1",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.lora": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "requested aggregate engine integration; requires successful model initialization",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "gms": "false",
+          "headless": "false",
+          "kv_events": "true",
+          "kvbm": "false",
+          "local_dp": "2",
+          "lora": "true",
+          "model": "/models/Qwen3-0.6B",
+          "nnodes": "1",
+          "pd_connector": "none",
+          "pp": "1",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.quantization": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "gms": "false",
+          "headless": "false",
+          "kv_events": "true",
+          "kvbm": "false",
+          "local_dp": "2",
+          "lora": "true",
+          "model": "/models/Qwen3-0.6B",
+          "nnodes": "1",
+          "pd_connector": "none",
+          "pp": "1",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.speculative": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "not enabled in this configuration",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "gms": "false",
+          "headless": "false",
+          "kv_events": "true",
+          "kvbm": "false",
+          "local_dp": "2",
+          "lora": "true",
+          "model": "/models/Qwen3-0.6B",
+          "nnodes": "1",
+          "pd_connector": "none",
+          "pp": "1",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "engine.text": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "platform backend installed; requested topology and model support are validated by vLLM at initialization",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "gms": "false",
+          "headless": "false",
+          "kv_events": "true",
+          "kvbm": "false",
+          "local_dp": "2",
+          "lora": "true",
+          "model": "/models/Qwen3-0.6B",
+          "nnodes": "1",
+          "pd_connector": "none",
+          "pp": "1",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "gms.vmm": {
+        "state": "unavailable",
+        "provider": "ascend",
+        "reason": "tested 910B3/CANN 9.1/HDK 26.1.1 rejects read-only VMM access and POSIX allocation; GMS provider unavailable",
+        "conditions": {}
+      },
+      "kv.events": {
+        "state": "available",
+        "provider": "ascend",
+        "reason": "vLLM ZMQ events and prefix caching enabled",
+        "conditions": {
+          "dp": "2",
+          "eager": "true",
+          "engine": "vllm",
+          "expert_parallel": "false",
+          "gms": "false",
+          "headless": "false",
+          "kv_events": "true",
+          "kvbm": "false",
+          "local_dp": "2",
+          "lora": "true",
+          "model": "/models/Qwen3-0.6B",
+          "nnodes": "1",
+          "pd_connector": "none",
+          "pp": "1",
+          "quantization": "none",
+          "speculative": "null",
+          "task": "text",
+          "tp": "1"
+        }
+      },
+      "kvbm.offload": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "pd.transfer": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      },
+      "power.control": {
+        "state": "unknown",
+        "provider": "ascend",
+        "reason": "not probed or certified by M01",
+        "conditions": {}
+      }
+    }
+  },
+  "seeds": [
+    {
+      "id": "cmpl-7cacabdb-d93a-47ba-be95-40e40a3b2a88",
+      "choices": [
+        {
+          "text": "\n\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1794396894,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 11927109022285445899,
+          "prefill_dp_rank": 0,
+          "decode_worker_id": 11927109022285445899,
+          "decode_dp_rank": 0
+        },
+        "timing": {
+          "request_received_ms": 1794396894838,
+          "prefill_wait_time_ms": 0.552352,
+          "prefill_time_ms": 91.56671,
+          "ttft_ms": 92.119062,
+          "total_time_ms": 92.215793,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    },
+    {
+      "id": "cmpl-74ebf037-d5cb-45fe-8125-75f21cf85ba4",
+      "choices": [
+        {
+          "text": "\n",
+          "index": 0,
+          "finish_reason": "length"
+        }
+      ],
+      "created": 1794396894,
+      "model": "m03-model",
+      "system_fingerprint": null,
+      "object": "text_completion",
+      "usage": {
+        "prompt_tokens": 257,
+        "completion_tokens": 1,
+        "total_tokens": 258,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        }
+      },
+      "nvext": {
+        "worker_id": {
+          "prefill_worker_id": 11927109022285445899,
+          "prefill_dp_rank": 1,
+          "decode_worker_id": 11927109022285445899,
+          "decode_dp_rank": 1
+        },
+        "timing": {
+          "request_received_ms": 1794396894838,
+          "prefill_wait_time_ms": 0.5272220000000001,
+          "prefill_time_ms": 86.57356200000001,
+          "ttft_ms": 87.100784,
+          "total_time_ms": 87.231344,
+          "kv_hit_rate": 0.0,
+          "router_queue_depth": 0
+        }
+      }
+    }
+  ],
+  "warm": [
+    {
+      "overlap": {
+        "block_size": 128,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 11927109022285445899,
+            "dp_rank": 0,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null
+          },
+          {
+            "worker_id": 11927109022285445899,
+            "dp_rank": 1,
+            "device_blocks": 0,
+            "host_pinned_blocks": 0,
+            "disk_blocks": 0,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-b40b00b0-07e1-461d-a60c-7580867d8b12",
+        "choices": [
+          {
+            "text": "\n\n",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1794396894,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 256
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 11927109022285445899,
+            "prefill_dp_rank": 0,
+            "decode_worker_id": 11927109022285445899,
+            "decode_dp_rank": 0
+          },
+          "timing": {
+            "request_received_ms": 1794396894932,
+            "prefill_wait_time_ms": 0.40914100000000003,
+            "prefill_time_ms": 77.093837,
+            "ttft_ms": 77.502978,
+            "total_time_ms": 77.537658,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    },
+    {
+      "overlap": {
+        "block_size": 128,
+        "num_blocks": 2,
+        "workers": [
+          {
+            "worker_id": 11927109022285445899,
+            "dp_rank": 0,
+            "device_blocks": 0,
+            "host_pinned_blocks": 0,
+            "disk_blocks": 0,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null
+          },
+          {
+            "worker_id": 11927109022285445899,
+            "dp_rank": 1,
+            "device_blocks": 2,
+            "host_pinned_blocks": 2,
+            "disk_blocks": 2,
+            "host_pinned_extension_blocks": 0,
+            "disk_extension_blocks": 0,
+            "shared_beyond_device_blocks": null
+          }
+        ],
+        "shared_cache": {
+          "enabled": false,
+          "total_hit_blocks": 0,
+          "ranges": [],
+          "error": null
+        }
+      },
+      "response": {
+        "id": "cmpl-af71b07a-5bc4-4a9d-ad63-b94c2ade76da",
+        "choices": [
+          {
+            "text": "\n",
+            "index": 0,
+            "finish_reason": "length"
+          }
+        ],
+        "created": 1794396895,
+        "model": "m03-model",
+        "system_fingerprint": null,
+        "object": "text_completion",
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 1,
+          "total_tokens": 258,
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 256
+          }
+        },
+        "nvext": {
+          "worker_id": {
+            "prefill_worker_id": 11927109022285445899,
+            "prefill_dp_rank": 1,
+            "decode_worker_id": 11927109022285445899,
+            "decode_dp_rank": 1
+          },
+          "timing": {
+            "request_received_ms": 1794396895012,
+            "prefill_wait_time_ms": 0.336191,
+            "prefill_time_ms": 71.596106,
+            "ttft_ms": 71.932297,
+            "total_time_ms": 71.96390699999999,
+            "kv_hit_rate": 0.6666666666666666,
+            "router_queue_depth": 0
+          }
+        }
+      }
+    }
+  ],
+  "capacity": [
+    {
+      "labels": {
+        "dp_rank": "0",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 73.0
+    },
+    {
+      "labels": {
+        "dp_rank": "1",
+        "dynamo_component": "backend",
+        "model": "m03-model"
+      },
+      "value": 73.0
+    }
+  ]
+}

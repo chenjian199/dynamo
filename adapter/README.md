@@ -13,6 +13,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ## 快速开始
 
+跟随新的 Dynamo 稳定版时，使用 [上游升级工作流](upgrades/README.md)：固定旧上游 / HEYI / 新上游三方身份，在隔离 worktree 中迁移，再复用本目录的 M01–M10 验收。当前待准备镜像见 [1.6.2 升级说明](upgrades/images-1.6.2.md)；升级意向不会改写现有已验证基线。
+
 ```bash
 # 在仓库根目录；可使用现有开发环境或独立 CPU 虚拟环境。
 python3 -m pip install -r adapter/workflow/requirements.txt
@@ -38,6 +40,7 @@ python3 -m adapter.workflow status --campaign adapter/results/metax/C500/onboard
 | 目录 | 内容 |
 | --- | --- |
 | [contracts](contracts/README.md) | 顶层规则、[数据格式](contracts/schemas/README.md)、结构化遗留项 |
+| [upgrades](upgrades/README.md) | 上游升级目标、迁移控制层设计、镜像准备与操作顺序 |
 | [modules/<模块>/features/<功能>](modules/README.md) | 稳定编号、范围、依赖、断言与功能入口 |
 | [modules/<模块>/common](modules/README.md) | 本模块共享工具；各模块 README → common README → 功能组 README 可逐层查看脚本作用 |
 | [workflow](workflow/README.md) | 预检、状态、执行器、AI handoff、证据门禁和报告；regression/cluster 是跨模块回归库 |

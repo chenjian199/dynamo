@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-11-10T06:59:58.911072+00:00",
+  "scope": "downloaded-image-metadata-only",
+  "all_planned_images_confirmed": false,
+  "inputs": {
+    "adapter/upgrades/targets/dynamo-1.6.2.yaml": "db8c399823eed1de7e517eecf6cac215abbb324f1d5f33cb1bc9f6ef3eaf8c13",
+    "adapter/workflow/upgrade/images.py": "b6d7552545a71cf8b1fec990c89dfcbff24d4345af5d663e3f6a162916c397b7"
+  },
+  "platforms": {
+    "metax": {
+      "host": "63metax",
+      "machine": "x86_64",
+      "status": "image-metadata-confirmed",
+      "runtime": "docker",
+      "receipt": "images/metax.json",
+      "alternative_receipt": "images/metax-py312-alternative.json"
+    },
+    "ascend": {
+      "host": "master-02",
+      "ssh_target": "huawei-52",
+      "status": "image-metadata-confirmed",
+      "runtime": "docker",
+      "receipt": "images/ascend.json",
+      "cri_target_tag_found": false
+    },
+    "cuda": {
+      "host": "worker06",
+      "ssh_target": "h800-6",
+      "status": "needs-image-location",
+      "expected_image": "nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.6.2",
+      "expected_vllm": "0.31.0",
+      "target_tag_found_in_checked_stores": false,
+      "inventory": "observations/cuda-inventory.stdout.txt",
+      "bounded_archive_search": "observations/cuda-archives.stdout.txt"
+    }
+  },
+  "limitations": [
+    "Package metadata only; accelerator runtime and inference untested.",
+    "Ascend old Docker CLI rejects --pull; metadata collected via Docker Engine API instead.",
+    "CUDA archive search is bounded and does not prove absence across all paths or archive contents.",
+    "Current platform version locks and adaptation qualification states unchanged."
+  ]
+}

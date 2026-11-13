@@ -1,0 +1,90 @@
+2026-10-29 08:10:44 - dynamo.profiler.profile_sla - INFO - Profiler config: model=/models/Qwen3-0.6B, backend=vllm, system=h800_sxm, total_gpus=2, isl=128, osl=16, ttft=10000.0, itl=1000.0, e2e_latency=None, strategy=thorough, picking=load_match
+2026-10-29 08:10:44 - aiconfigurator_core.sdk.utils - INFO - Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+2026-10-29 08:10:44 - aiconfigurator_core.sdk.utils - INFO - Loaded model config for /models/Qwen3-0.6B: architecture=Qwen3ForCausalLM, layers=28, n=16, n_kv=8, d=128, hidden_size=1024, inter_size=3072, vocab=151936, context=40960, topk=0, num_experts=0, moe_inter_size=3072, extra_params={'architecture': 'Qwen3ForCausalLM', 'use_qk_norm': True}
+2026-10-29 08:10:44 - dynamo.profiler.thorough - WARNING - THOROUGH mode: only disagg configurations are supported.
+2026-10-29 08:10:44 - aiconfigurator.generator.naive - INFO - Estimated model weight size for /models/Qwen3-0.6B: 1.00 GiB (0.54B params)
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - AIC disagg support for /models/Qwen3-0.6B on h800_sxm/vllm: False
+2026-10-29 08:10:44 - aiconfigurator.generator.naive - INFO - TP calculation: model=1.00GiB, vram=80.00GiB, required=1.50GiB (1.5x), min_tp=1, selected_tp=1, fit=True, required_tp=1
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Minimum GPUs per engine (memory fit): 1
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Parallel lists: is_moe=False, enable_wideep=False, min_gpus=1, prefill_max_gpus=2, decode_max_gpus=2, prefill_num_gpu_list=[1, 2, 4, 8], prefill_dp_list=[1], prefill_moe_ep_list=[1]
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Enumerated 2 prefill configs, 2 decode configs
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Building prefill DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Building prefill DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Building decode DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Building decode DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+2026-10-29 08:10:44 - aiconfigurator.generator.enumerate - INFO - Enumeration complete: 2 prefill DGDs, 2 decode DGDs
+2026-10-29 08:10:44 - dynamo.profiler.thorough - INFO - Enumerated 2 prefill candidates, 2 decode candidates
+2026-10-29 08:10:44 - dynamo.profiler.utils.dgd_override - WARNING - DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+2026-10-29 08:10:44 - dynamo.profiler.utils.dgd_override - WARNING - DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+2026-10-29 08:10:44 - dynamo.profiler.utils.dgd_override - WARNING - DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+2026-10-29 08:10:44 - dynamo.profiler.utils.dgd_override - WARNING - DGD override: spec.components[name=VllmPrefillWorker]: ignored because the generated blueprint has no such component
+2026-10-29 08:10:44 - dynamo.profiler.thorough - INFO - Materialized 2 prefill + 2 decode benchmark candidates.
+2026-10-29 08:10:44 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+2026-10-29 08:10:44 - dynamo.profiler.thorough - INFO - Profiling prefill candidate tp1 with 1 GPUs...
+2026-10-29 08:10:44 - dynamo.profiler.thorough - INFO - Waiting for prefill deployment to be ready...
+2026-10-29 08:12:04 - dynamo.profiler.thorough - INFO - Prefill deployment ready
+2026-10-29 08:12:04 - dynamo.profiler.utils.aiperf - INFO - Running aiperf with isl 128
+2026-10-29 08:12:17 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:12:17 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+2026-10-29 08:12:17 - dynamo.profiler.thorough - INFO - Profiling prefill candidate tp2 with 2 GPUs...
+2026-10-29 08:12:17 - dynamo.profiler.thorough - INFO - Waiting for prefill deployment to be ready...
+2026-10-29 08:13:57 - dynamo.profiler.thorough - INFO - Prefill deployment ready
+2026-10-29 08:13:57 - dynamo.profiler.utils.aiperf - INFO - Running aiperf with isl 128
+2026-10-29 08:14:09 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:14:09 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+2026-10-29 08:14:09 - dynamo.profiler.thorough - INFO - Profiling decode candidate tp1 with 1 GPUs...
+2026-10-29 08:14:10 - dynamo.profiler.thorough - INFO - Waiting for decode deployment to be ready...
+2026-10-29 08:15:30 - dynamo.profiler.thorough - INFO - Decode deployment ready
+2026-10-29 08:15:30 - dynamo.profiler.utils.config_modifiers.vllm - INFO - Found KV cache: 204677 per rank x 1 = 204677 total
+2026-10-29 08:15:30 - dynamo.profiler.thorough - INFO - Sweeping num_request: [1, 285, 569, 853, 1137, 1421]
+2026-10-29 08:15:30 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1...
+2026-10-29 08:15:56 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:15:56 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 285...
+2026-10-29 08:16:24 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:16:24 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 569...
+2026-10-29 08:16:57 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:16:57 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 853...
+2026-10-29 08:17:30 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:17:30 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1137...
+2026-10-29 08:18:04 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:18:04 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1421...
+2026-10-29 08:18:41 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:18:41 - dynamo.profiler.utils.config_modifiers.vllm - WARNING - Port not found in configuration args, using default port: 8000
+2026-10-29 08:18:41 - dynamo.profiler.thorough - INFO - Profiling decode candidate tp2 with 2 GPUs...
+2026-10-29 08:18:41 - dynamo.profiler.thorough - INFO - Waiting for decode deployment to be ready...
+2026-10-29 08:20:22 - dynamo.profiler.thorough - INFO - Decode deployment ready
+2026-10-29 08:20:22 - dynamo.profiler.utils.config_modifiers.vllm - INFO - Found KV cache: 419072 per rank x 1 = 419072 total
+2026-10-29 08:20:22 - dynamo.profiler.thorough - INFO - Sweeping num_request: [1, 400, 800, 1200, 1600, 2000]
+2026-10-29 08:20:22 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1...
+2026-10-29 08:20:49 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:20:49 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 400...
+2026-10-29 08:21:22 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:21:22 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 800...
+2026-10-29 08:21:55 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:21:55 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1200...
+2026-10-29 08:22:30 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:22:30 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 1600...
+2026-10-29 08:23:11 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:23:11 - dynamo.profiler.utils.aiperf - INFO - Profiling decode with num_request 2000...
+2026-10-29 08:23:55 - dynamo.profiler.utils.aiperf - INFO - AIperf profiling completed successfully
+2026-10-29 08:23:55 - aiconfigurator_core.sdk.perf_database - WARNING - Legacy perf-data layout (<backend>/<version>) found under /usr/local/lib/python3.12/dist-packages/aiconfigurator_core/systems/data/b200_sxm; migrate to <family>/<backend>/<version> (Collector V3 design §3)
+2026-10-29 08:23:55 - aiconfigurator_core.sdk.perf_database - WARNING - Legacy perf-data layout (<backend>/<version>) found under /usr/local/lib/python3.12/dist-packages/aiconfigurator_core/systems/data/h200_sxm; migrate to <family>/<backend>/<version> (Collector V3 design §3)
+2026-10-29 08:23:56 - aiconfigurator_core.sdk.perf_database - INFO - database not found for h800_sxm, vllm
+2026-10-29 08:23:56 - aiconfigurator_core.sdk.perf_database - INFO - database not found for h800_sxm, vllm
+2026-10-29 08:23:56 - aiconfigurator_core.sdk.perf_database - ERROR - No database version available for system='h800_sxm', backend='vllm'
+2026-10-29 08:23:56 - aiconfigurator.generator.rendering.engine - WARNING - Fact self-resolution failed; continuing without facts.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/dist-packages/aiconfigurator/generator/rendering/engine.py", line 353, in render_backend_templates
+    resolved_facts = resolve_facts_for_request(_raw_param_values, backend, version)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/aiconfigurator/generator/facts/request_resolution.py", line 165, in resolve_facts_for_request
+    facts = resolve_facts(
+            ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/aiconfigurator/generator/facts/resolve.py", line 104, in resolve_facts
+    raise KeyError(f"Unknown hardware profile {hardware!r}. Available profiles: {sorted(profiles)}")
+KeyError: "Unknown hardware profile 'h800_sxm'. Available profiles: ['b200', 'b60', 'gb200', 'h100', 'h20', 'h200']"
+2026-10-29 08:23:56 - dynamo.profiler.profile_sla - INFO - Selected prefill: tp1 (1 GPUs, tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1), decode: tp1 (1 GPUs, tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1)
+2026-10-29 08:23:56 - dynamo.profiler.profile_sla - INFO - Final DGD config saved to /data/final_config.yaml
+2026-10-29 08:23:56 - dynamo.profiler.profile_sla - INFO - Performing final cleanup of any remaining deployments...
+2026-10-29 08:23:56 - deploy.utils.dynamo_deployment - INFO - No deployments to clean up
+2026-10-29 08:23:56 - dynamo.profiler.profile_sla - INFO - Final cleanup completed.

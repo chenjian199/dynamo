@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "ssh",
+    "-F",
+    "/var/tmp/dynamo-regression-1028/ssh-config-upgrade-fresh",
+    "-o",
+    "BatchMode=yes",
+    "huawei-52",
+    "env DOCKER_HOST=unix:///run/dynamo-m10-docker.sock /data/dynamo-m10/docker-bin/docker run --rm --name heyi-upgrade162-closure-connector-cpu --network none -e PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 -e DYN_PLATFORM=ascend -v /usr/local/Ascend/driver:/usr/local/Ascend/driver:ro -v /root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/connector-tests:/audit:ro --entrypoint /opt/dynamo/bin/entrypoint.sh heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime /opt/dynamo/venv/bin/python -m pytest --noconftest -p no:cacheprovider -c /dev/null -q /audit/test_pd_metadata.py"
+  ],
+  "returncode": 0,
+  "log_sha256": "d6b3e7cf6bddcc1c9773e75b8f715daacad2884aa060916e8a3edbfe62dfd69d",
+  "evidence_kind": "installed_image_cpu_contract_test_not_hardware_qualification"
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "ssh",
+    "-F",
+    "/var/tmp/dynamo-regression-1028/ssh-config-upgrade-fresh",
+    "huawei-52",
+    "env DOCKER_HOST=unix:///run/dynamo-m10-docker.sock /data/dynamo-m10/docker-bin/docker run --rm --name heyi-upgrade162-closure-media-cpu --network none -e PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 -e PYTHONPATH=/audit/components/src:/opt/dynamo/profiler-support -e DYN_PLATFORM=cpu -e TORCH_DEVICE_BACKEND_AUTOLOAD=0 -v /data/dynamo-upgrade-1.6.2-20261111/media-closure-inputs:/audit:ro -w /audit --entrypoint /opt/dynamo/tools-venv/bin/python heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-tools -m pytest --noconftest -p no:cacheprovider -p pytest_asyncio.plugin -c pyproject.toml -o addopts= -o filterwarnings= -q components/src/dynamo/common/tests/multimodal/test_video_loader.py components/src/dynamo/common/tests/multimodal/test_media_lifecycle.py components/src/dynamo/common/tests/multimodal/test_tensor_contract.py"
+  ],
+  "returncode": 2,
+  "started": 1794456396.756068,
+  "elapsed_seconds": 5.924522638320923,
+  "log_sha256": "2119b8419fa463e1baee57e673283c4ec78e8811989f9129c65bab2ed9d39a95",
+  "evidence_kind": "source_overlay_cpu_unit_tests_not_final_image_or_hardware_qualification",
+  "source_manifest": "media-source-inputs.json"
+}

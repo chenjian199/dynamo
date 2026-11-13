@@ -1,0 +1,102 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "upgrade-offline-hysteresis-reuse-r1",
+    "namespace": "heyi-upgrade162",
+    "labels": {
+      "heyi.io/campaign": "heyi-upgrade162"
+    }
+  },
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "containers": [
+      {
+        "name": "main",
+        "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-tools",
+        "imagePullPolicy": "Never",
+        "command": [
+          "bash",
+          "-ec",
+          "/opt/dynamo/tools-venv/bin/python /offline/offline-profile.py --input /offline/input.json --output /offline/output --reuse-profile && /opt/dynamo/tools-venv/bin/python /offline/prepare-online.py --input /offline/input.json --profile /offline/output --output /offline/online-r1.yaml && /opt/dynamo/tools-venv/bin/python /offline/bind-online-r1.py && touch /offline/reuse-r1.ready && sleep 3000"
+        ],
+        "env": [
+          {
+            "name": "DYN_PLATFORM",
+            "value": "cpu"
+          },
+          {
+            "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+            "value": "0"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "K3S_DATA_DIR",
+            "value": "/tmp/m09-k3s"
+          }
+        ],
+        "resources": {
+          "requests": {
+            "cpu": "1",
+            "memory": "2Gi"
+          },
+          "limits": {
+            "cpu": "4",
+            "memory": "8Gi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "offline-work",
+            "mountPath": "/offline"
+          },
+          {
+            "name": "models",
+            "mountPath": "/models/Qwen3-0.6B",
+            "readOnly": true
+          },
+          {
+            "name": "capacity",
+            "mountPath": "/opt/dynamo/platform-capacity",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "offline-work",
+        "hostPath": {
+          "path": "/data/dynamo-upgrade-1.6.2-20261111/profiling-r5",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "models",
+        "hostPath": {
+          "path": "/data/weight/Qwen3-0.6B",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "capacity",
+        "configMap": {
+          "name": "m10-capacity"
+        }
+      }
+    ],
+    "restartPolicy": "Never",
+    "activeDeadlineSeconds": 4200,
+    "securityContext": {
+      "runAsUser": 0,
+      "runAsGroup": 0
+    },
+    "serviceAccountName": "m10-offline-tools"
+  }
+}

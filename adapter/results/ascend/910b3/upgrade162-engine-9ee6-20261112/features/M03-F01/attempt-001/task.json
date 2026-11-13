@@ -1,0 +1,76 @@
+{
+  "feature_id": "M03-F01",
+  "prepare": [],
+  "run": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/engine-case-controller.py",
+        "run",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M03-F01-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m03-engine-integration/common/engine/run-case.py"
+      ],
+      "case_id": "M03-F01-C01",
+      "optional": false
+    }
+  ],
+  "observe": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/engine-case-controller.py",
+        "observe",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M03-F01-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m03-engine-integration/common/engine/run-case.py"
+      ],
+      "case_id": "M03-F01-C01",
+      "optional": false
+    }
+  ],
+  "cleanup": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/engine-case-controller.py",
+        "cleanup",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M03-F01-C01",
+        "--entrypoint",
+        "{repo}/adapter/modules/m03-engine-integration/common/engine/run-case.py"
+      ],
+      "case_id": "M03-F01-C01",
+      "optional": false
+    }
+  ],
+  "resources": [],
+  "case_ids": [
+    "M03-F01-C01"
+  ],
+  "recipe_sources": {
+    "adapter/modules/m03-engine-integration/common/engine/run-case.py": "77f22bc5b98adff4a91b1ec8102eee626ee2c3f79835227e36ca9acf70aeb79d"
+  },
+  "bindings_sha256": {
+    "M03-F01-C01": "d22b6ed35af0d8f60a0cd282addbe3feb3ccc209ac10e1b4d2ca9b3aa45e996c"
+  },
+  "verify": [
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python3",
+        "-m",
+        "adapter.workflow.evidence.verify",
+        "--envelope",
+        "{attempt}/envelope.json"
+      ]
+    }
+  ]
+}

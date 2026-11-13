@@ -1,0 +1,84 @@
+{
+  "spec": {
+    "entrypoint": "adapter/modules/m01-platform-contract/common/discovery/platform-smoke.py",
+    "entrypoint_sha256": "15c43c80156236bcb4cbca3bb38561cee10f19941ee713aa8e5186a98aac67d3",
+    "image_id": "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+    "image_reference": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+    "source": "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50",
+    "output": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M01-F01-C01/attempt-001",
+    "container_name": "heyi-close-fe6dfd18-m01-f01-c01-attempt-001",
+    "model_path": "/data/weight/Qwen3-0.6B",
+    "model": {
+      "id": "Qwen3-0.6B",
+      "path": "/data/weight/Qwen3-0.6B",
+      "revision": "sha256:ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+      "manifest": "heyi-upgrade-162-manifest-ae67e66d6a53.json",
+      "manifest_sha256": "b61ad956b1d13c3c3c84e4da97d1881de5a9fba4c49c895675c6060d0050afae"
+    },
+    "namespace": "close-fe6dfd18-m01-f01-c01"
+  },
+  "started": 1794473383.8641846,
+  "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a",
+  "commands": [
+    [
+      "python3",
+      "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50/adapter/workflow/assets.py",
+      "{\"id\": \"Qwen3-0.6B\", \"path\": \"/data/weight/Qwen3-0.6B\", \"revision\": \"sha256:ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2\", \"manifest\": \"heyi-upgrade-162-manifest-ae67e66d6a53.json\", \"manifest_sha256\": \"b61ad956b1d13c3c3c84e4da97d1881de5a9fba4c49c895675c6060d0050afae\"}"
+    ],
+    [
+      "npu-smi",
+      "info"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "image",
+      "inspect",
+      "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "-d",
+      "--name",
+      "heyi-close-fe6dfd18-m01-f01-c01-attempt-001",
+      "--network",
+      "host",
+      "--shm-size",
+      "8g",
+      "--user",
+      "0",
+      "-e",
+      "HF_HUB_OFFLINE=1",
+      "-e",
+      "OMP_NUM_THREADS=4",
+      "-e",
+      "PYTHONUNBUFFERED=1",
+      "--mount",
+      "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50,dst=/harness,readonly",
+      "--mount",
+      "type=bind,src=/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M01-F01-C01/attempt-001,dst=/evidence",
+      "--mount",
+      "type=bind,src=/data/weight/Qwen3-0.6B,dst=/models/Qwen3-0.6B,readonly",
+      "--device",
+      "/dev/davinci0",
+      "--device",
+      "/dev/davinci1",
+      "--device",
+      "/dev/davinci_manager",
+      "--device",
+      "/dev/devmm_svm",
+      "--device",
+      "/dev/hisi_hdc",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "--mount",
+      "type=bind,src=/usr/local/dcmi,dst=/usr/local/dcmi,readonly",
+      "--mount",
+      "type=bind,src=/usr/local/sbin/npu-smi,dst=/usr/local/sbin/npu-smi,readonly",
+      "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+      "sleep",
+      "infinity"
+    ]
+  ],
+  "container_id": "d521360867043adb36690c5b7dfeae5cd505635200e1ee43f1f66c1d7c762168"
+}

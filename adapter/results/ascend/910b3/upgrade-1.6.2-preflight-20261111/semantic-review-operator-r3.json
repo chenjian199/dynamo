@@ -1,0 +1,48 @@
+{
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "reviewer": "Codex / GPT-6; semantic review, live qualification separate",
+  "records": [
+    {
+      "path": "deploy/operator/api/v1beta1/dynamographdeploymentrequest_types.go",
+      "disposition": "retain",
+      "reason": "Retain Ascend/MetaX/H800 capacity identifiers alongside all target enums; declaring a SKU does not imply an AIS performance database. Final thorough sampling uses measurements, and missing AIS hardware facts are not forged.",
+      "target_diff_sha256": "2df107389c8da7fb563a1476fc03147e0073a3cfd920e61e5e6ab7f86b91cd05"
+    },
+    {
+      "path": "deploy/operator/internal/gpu/discovery.go",
+      "disposition": "retain",
+      "reason": "Only added H800 token/rule and attribution relative to1.6.2; existing cloud discovery and CUDA/AMD matching unchanged.",
+      "target_diff_sha256": "bd2d72b3daa8455833031aa9b51ce6aa9976a779c4fad69f7e015fa6b0a5b87c"
+    },
+    {
+      "path": "deploy/operator/internal/dynamo/graph.go",
+      "disposition": "retain",
+      "reason": "Validate original component and rendered Pod so defaults cannot introduce a conflicting vendor; preserve upstream provider and volume generation.",
+      "target_diff_sha256": "908ebce41dc7f7c0a21c941799f85bf29e3dde5bf24319df62a93aca88962767"
+    },
+    {
+      "path": "deploy/operator/internal/webhook/validation/shared_v1beta1.go",
+      "disposition": "retain",
+      "reason": "Run shared platform validation with alpha/beta field-path mapping; no bypass of upstream provider or schema validation.",
+      "target_diff_sha256": "fc005069d4825cb1fa68eb037630f839e7b209008b6cda71a41cae4f962b7c58"
+    },
+    {
+      "path": "deploy/operator/internal/webhook/validation/dynamographdeployment.go",
+      "disposition": "retain",
+      "reason": "Same-vendor accelerator check in DGD is retained, CPU helpers remain at Pod layer, and shared component validation receives correct converted alpha error paths.",
+      "target_diff_sha256": "8deaf654f34dfb8063726725cb7cba0995ada001bb5e2df1f30c3d99e72b28ed"
+    },
+    {
+      "path": "deploy/operator/internal/platform/resources.go",
+      "disposition": "retain",
+      "reason": "Exact whole-device names and integer allocation units; literal vendor identity must match requests, including init containers. CUDA MIG detection retained; vendor scalar path explicitly rejects unqualified DRA semantics.",
+      "target_diff_sha256": "c2d5aea5fbf8a1e39ba442a802105aa60112acfc68ec90179f1ca5df3b19b879"
+    },
+    {
+      "path": "deploy/operator/internal/dynamo/platform.go",
+      "disposition": "retain",
+      "reason": "Resolve Pod platform and require positive whole-device vendor worker reservation. Existing vendor GMS/failover/checkpoint and soft-sharing limitations stay explicit; this is not a new claim of support.",
+      "target_diff_sha256": "033391806e189ad78787033aeb1a5d41a5d0b532a559bf5cf89570d7ba8afd94"
+    }
+  ]
+}

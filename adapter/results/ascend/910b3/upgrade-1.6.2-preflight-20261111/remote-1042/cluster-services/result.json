@@ -1,0 +1,58 @@
+{
+  "started": 1794392257.0555818,
+  "steps": [
+    {
+      "argv": [
+        "kubectl",
+        "apply",
+        "--server-side",
+        "--force-conflicts",
+        "--field-manager=heyi-upgrade162",
+        "-f",
+        "/data/dynamo-upgrade-1.6.2-20261111/cluster-services/grove-crds.yaml"
+      ],
+      "exit_code": 0,
+      "log": "grove-crds-apply.log"
+    },
+    {
+      "argv": [
+        "/root/CJ_workspace/m08-1029/linux-arm64/helm",
+        "upgrade",
+        "--install",
+        "heyi-grove",
+        "/data/dynamo-upgrade-1.6.2-20261111/grove-charts-v0.1.0-alpha.14.tgz",
+        "-n",
+        "grove-system",
+        "--create-namespace",
+        "-f",
+        "/data/dynamo-upgrade-1.6.2-20261111/cluster-services/grove-values.json",
+        "--wait",
+        "--timeout",
+        "8m"
+      ],
+      "exit_code": 0,
+      "log": "grove-install.log"
+    },
+    {
+      "argv": [
+        "/root/CJ_workspace/m08-1029/linux-arm64/helm",
+        "upgrade",
+        "--install",
+        "heyi-kai",
+        "/root/CJ_workspace/m08-1029/kai-scheduler-v0.17.0.tgz",
+        "-n",
+        "kai-scheduler",
+        "--create-namespace",
+        "-f",
+        "/data/dynamo-upgrade-1.6.2-20261111/cluster-services/kai-values.json",
+        "--wait",
+        "--timeout",
+        "8m"
+      ],
+      "exit_code": 0,
+      "log": "kai-install.log"
+    }
+  ],
+  "passed": true,
+  "finished": 1794392299.5023835
+}

@@ -1,0 +1,76 @@
+{
+  "feature_id": "M02-F04",
+  "prepare": [],
+  "run": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/offline-case-controller.py",
+        "run",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F04-C01",
+        "--entrypoint",
+        "{repo}/container/platforms/audit.py"
+      ],
+      "case_id": "M02-F04-C01",
+      "optional": false
+    }
+  ],
+  "observe": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/offline-case-controller.py",
+        "observe",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F04-C01",
+        "--entrypoint",
+        "{repo}/container/platforms/audit.py"
+      ],
+      "case_id": "M02-F04-C01",
+      "optional": false
+    }
+  ],
+  "cleanup": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/offline-case-controller.py",
+        "cleanup",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F04-C01",
+        "--entrypoint",
+        "{repo}/container/platforms/audit.py"
+      ],
+      "case_id": "M02-F04-C01",
+      "optional": false
+    }
+  ],
+  "resources": [],
+  "case_ids": [
+    "M02-F04-C01"
+  ],
+  "recipe_sources": {
+    "container/platforms/audit.py": "7f9da02a1a4f1874bcf370cb89bf096631812c712bda676815ca804fb7f8b7ea"
+  },
+  "bindings_sha256": {
+    "M02-F04-C01": "900b57e4d91db67eb753204445cfb6614a3acb49d5162fc76cbbf4224c6dbbab"
+  },
+  "verify": [
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python3",
+        "-m",
+        "adapter.workflow.evidence.verify",
+        "--envelope",
+        "{attempt}/envelope.json"
+      ]
+    }
+  ]
+}

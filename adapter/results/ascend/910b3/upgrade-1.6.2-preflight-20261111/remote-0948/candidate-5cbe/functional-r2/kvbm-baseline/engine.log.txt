@@ -1,0 +1,273 @@
+[ENGINE] INFO 11-11 09:03:33 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 09:03:33 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 09:03:33 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 09:03:34 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 09:03:35 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] /vllm-workspace/vllm/vllm/entrypoints/openai/api_server.py:24: DeprecationWarning: `vllm.entrypoints.openai.api_server` is deprecated and will likely beunsupported in a future version. Use the corresponding function from `vllm.entrypoints.launchers` instead.
+[ENGINE]   warnings.warn(
+[ENGINE] /vllm-workspace/vllm/vllm/entrypoints/openai/api_server.py:51: DeprecationWarning: The `python -m vllm.entrypoints.openai.api_server` command is deprecated and may be removed in a future release. Please use `vllm server` instead.
+[ENGINE]   warnings.warn(
+[ENGINE] INFO 11-11 09:03:51 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 09:03:51 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 09:03:51 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] INFO 11-11 09:03:51 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] WARNING 11-11 09:03:52 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:347] 
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:347]        █     █     █▄   ▄█
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.30.0
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /models/Qwen3-0.6B
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:347] 
+[ENGINE] (APIServer pid=417) INFO 11-11 09:03:52 [api_utils.py:286] non-default args: {'host': '127.0.0.1', 'port': 21206, 'model': '/models/Qwen3-0.6B', 'dtype': 'bfloat16', 'max_model_len': 2048, 'enforce_eager': True, 'served_model_name': ['m06-model'], 'tensor_parallel_size': 2, 'disable_custom_all_reduce': True, 'block_size': 128, 'gpu_memory_utilization': 0.15, 'num_gpu_blocks_override': 16, 'enable_prefix_caching': True, 'max_num_seqs': 2}
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [model.py:692] Resolved architecture: Qwen3ForCausalLM
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [model.py:2030] Using max model len 2048
+[ENGINE] (APIServer pid=417) WARNING 11-11 09:04:16 [vllm.py:1547] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[ENGINE] (APIServer pid=417) WARNING 11-11 09:04:16 [vllm.py:1570] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [kernel.py:416] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [vllm.py:1780] Cudagraph is disabled under eager mode
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [utils.py:225] No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[ENGINE] (APIServer pid=417) WARNING 11-11 09:04:16 [platform.py:731] GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [platform.py:945] The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [platform.py:1219] Compilation disabled, using eager mode by default
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [platform.py:1464] Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[ENGINE] (APIServer pid=417) INFO 11-11 09:04:16 [compilation.py:336] Enabled custom fusions: norm_quant, act_quant
+[ENGINE] INFO 11-11 09:04:27 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 09:04:27 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 09:04:27 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 09:04:28 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 09:04:29 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] INFO 11-11 09:04:43 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 09:04:43 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 09:04:43 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] INFO 11-11 09:04:43 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] INFO 11-11 09:04:43 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:04:43 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:04:43 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:04:43 [core.py:123] Initializing a V1 LLM engine (v0.30.0) with config: model='/models/Qwen3-0.6B', speculative_config=None, tokenizer='/models/Qwen3-0.6B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=2, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=npu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=m06-model, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'vllm_ascend.compilation.compiler_interface.AscendCompiler', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, moe_backend='auto', sparse_indexer_topk_backend='auto', linear_backend='auto', linear_backend_per_quant=None)
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:04:43 [multiproc_executor.py:153] DP group leader: node_rank=0, node_rank_within_dp=0, master_addr=127.0.0.1, mq_connect_ip=192.168.7.7 (local), world_size=2, local_world_size=2
+[ENGINE] INFO 11-11 09:04:48 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 09:04:48 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 09:04:48 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] INFO 11-11 09:04:48 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 09:04:48 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 09:04:48 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 09:04:49 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 09:04:49 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 09:04:50 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] INFO 11-11 09:04:50 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] INFO 11-11 09:05:06 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 09:05:06 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 09:05:06 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 09:05:06 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 09:05:06 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] INFO 11-11 09:05:06 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] INFO 11-11 09:05:06 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] INFO 11-11 09:05:06 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] WARNING 11-11 09:05:08 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] WARNING 11-11 09:05:08 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] WARNING 11-11 09:05:30 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+[ENGINE] WARNING 11-11 09:05:30 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+[ENGINE] INFO 11-11 09:05:31 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] INFO 11-11 09:05:31 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] INFO 11-11 09:05:31 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] INFO 11-11 09:05:31 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] INFO 11-11 09:05:31 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] INFO 11-11 09:05:31 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] (Worker pid=485) INFO 11-11 09:05:32 [parallel_state.py:1827] world_size=2 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_d55ad44149924daebc211b8ef704eeef backend=hccl
+[ENGINE] (Worker pid=486) INFO 11-11 09:05:32 [parallel_state.py:1827] world_size=2 rank=1 local_rank=1 distributed_init_method=file:///tmp/vllm_dist_d55ad44149924daebc211b8ef704eeef backend=hccl
+[ENGINE] [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank 0[Gloo] Rank  is connected to 11 peer ranks.  is connected to Expected number of connected peer ranks is : 11 peer ranks. 
+[ENGINE] Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank [Gloo] Rank 00 is connected to  is connected to 0 peer ranks. 0Expected number of connected peer ranks is :  peer ranks. 0Expected number of connected peer ranks is : 0
+[ENGINE] 
+[ENGINE] [Gloo] Rank [Gloo] Rank 0 is connected to 00 peer ranks. Expected number of connected peer ranks is :  is connected to 00
+[ENGINE]  peer ranks. Expected number of connected peer ranks is : 0
+[ENGINE] [Gloo] Rank [Gloo] Rank 0 is connected to 00 is connected to 0 peer ranks.  peer ranks. Expected number of connected peer ranks is : Expected number of connected peer ranks is : 00
+[ENGINE] 
+[ENGINE] [Gloo] Rank 0 is connected to [Gloo] Rank 0 peer ranks. Expected number of connected peer ranks is : 00 is connected to 
+[ENGINE] 0 peer ranks. Expected number of connected peer ranks is : 0
+[ENGINE] (Worker pid=485) INFO 11-11 09:05:33 [parallel_state.py:2267] rank 0 in world size 2 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, ETP rank 0, EP rank N/A, EPLB rank N/A
+[ENGINE] [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [rank0]:[W1111 09:05:33.856884351 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[ENGINE] [rank1]:[W1111 09:05:33.858697453 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[ENGINE] (Worker pid=485) INFO 11-11 09:05:33 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker pid=486) INFO 11-11 09:05:33 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:33 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+[ENGINE] (Worker_TP1 pid=486) INFO 11-11 09:05:33 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:34 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker_TP1 pid=486) INFO 11-11 09:05:34 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:34 [weight_utils.py:895] Filesystem type for checkpoints: XFS. Checkpoint size: 1.40 GiB. Available RAM: 474.47 GiB.
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:34 [weight_utils.py:918] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+[ENGINE] (Worker_TP0 pid=485) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+[ENGINE] (Worker_TP0 pid=485) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.16s/it]
+[ENGINE] (Worker_TP0 pid=485) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.16s/it]
+[ENGINE] (Worker_TP0 pid=485) 
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:35 [default_loader.py:430] Loading weights took 1.23 seconds
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:38 [model_runner_v1.py:4476] Loading model weights took 0.5846 GB
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:38 [model_runner_v1.py:4563] Model runner load_model total time: 4.82 seconds
+[ENGINE] (Worker_TP1 pid=486) INFO 11-11 09:05:38 [model_runner_v1.py:4476] Loading model weights took 0.5846 GB
+[ENGINE] (Worker_TP1 pid=486) INFO 11-11 09:05:38 [model_runner_v1.py:4563] Model runner load_model total time: 5.00 seconds
+[ENGINE] (EngineCore pid=462) WARNING 11-11 09:05:38 [torch_utils.py:275] OMP_NUM_THREADS=4 is set; leaving Torch threads at 4 for serving. Multi-threaded torch CPU ops during serving can degrade performance through spin-wait contention and cgroup CPU-quota throttling.
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:05:38 [utils.py:320] Using LBNHC KV cache layout.
+[ENGINE] (Worker_TP0 pid=485) INFO 11-11 09:05:50 [worker.py:660] Available KV cache memory: 8.09 GiB
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:05:50 [kv_cache_utils.py:2711] Overriding num_gpu_blocks=1182 with num_gpu_blocks_override=16
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:05:50 [kv_cache_utils.py:2711] Overriding num_gpu_blocks=1182 with num_gpu_blocks_override=16
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366] EngineCore failed to start.
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366] Traceback (most recent call last):
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1328, in run_engine_core
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     return func(*args, **kwargs)
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1085, in __init__
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     super().__init__(
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm-ascend/vllm_ascend/patch/platform/patch_profiling_chunk.py", line 198, in _patched_engine_core_init
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     original_init(self, *args, **kwargs)
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 145, in __init__
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     kv_cache_config = self._initialize_kv_caches(vllm_config)
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     return func(*args, **kwargs)
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 319, in _initialize_kv_caches
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     kv_cache_configs = get_kv_cache_configs(
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]                        ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/v1/core/kv_cache_utils.py", line 2737, in get_kv_cache_configs
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     _check_enough_kv_cache_memory(
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]   File "/vllm-workspace/vllm/vllm/v1/core/kv_cache_utils.py", line 899, in _check_enough_kv_cache_memory
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366]     raise ValueError(
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:50 [core.py:1366] ValueError: To serve at least one request with the model's max seq len (2048), (0.11 GiB KV cache is needed, which is larger than the available KV cache memory (0.1 GiB). Based on the available memory, the estimated maximum model length is 1920. Try increasing `gpu_memory_utilization` (which also controls CPU memory on the CPU backend) or decreasing `max_model_len` when initializing the engine. See https://docs.vllm.ai/en/latest/configuration/conserving_memory/ for more details.
+[ENGINE] (EngineCore pid=462) ERROR 11-11 09:05:57 [multiproc_executor.py:314] Worker proc VllmWorker-0 died unexpectedly (exit code: None), shutting down executor.
+[ENGINE] (EngineCore pid=462) INFO 11-11 09:05:57 [multiproc_executor.py:472] [shutdown] Executor: waiting for worker exit count=2
+[ENGINE] (EngineCore pid=462) Process EngineCore:
+[ENGINE] (EngineCore pid=462) Traceback (most recent call last):
+[ENGINE] (EngineCore pid=462)   File "/usr/local/python3.12.16/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+[ENGINE] (EngineCore pid=462)     self.run()
+[ENGINE] (EngineCore pid=462)   File "/usr/local/python3.12.16/lib/python3.12/multiprocessing/process.py", line 108, in run
+[ENGINE] (EngineCore pid=462)     self._target(*self._args, **self._kwargs)
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm-ascend/vllm_ascend/patch/platform/patch_engine_core.py", line 56, in _run_engine_core_patch_func
+[ENGINE] (EngineCore pid=462)     return _OriginalRunEngineCore(*args, dp_rank=dp_rank, local_dp_rank=local_dp_rank, **kwargs)
+[ENGINE] (EngineCore pid=462)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1370, in run_engine_core
+[ENGINE] (EngineCore pid=462)     raise e
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1328, in run_engine_core
+[ENGINE] (EngineCore pid=462)     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+[ENGINE] (EngineCore pid=462)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (EngineCore pid=462)     return func(*args, **kwargs)
+[ENGINE] (EngineCore pid=462)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1085, in __init__
+[ENGINE] (EngineCore pid=462)     super().__init__(
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm-ascend/vllm_ascend/patch/platform/patch_profiling_chunk.py", line 198, in _patched_engine_core_init
+[ENGINE] (EngineCore pid=462)     original_init(self, *args, **kwargs)
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 145, in __init__
+[ENGINE] (EngineCore pid=462)     kv_cache_config = self._initialize_kv_caches(vllm_config)
+[ENGINE] (EngineCore pid=462)                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (EngineCore pid=462)     return func(*args, **kwargs)
+[ENGINE] (EngineCore pid=462)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 319, in _initialize_kv_caches
+[ENGINE] (EngineCore pid=462)     kv_cache_configs = get_kv_cache_configs(
+[ENGINE] (EngineCore pid=462)                        ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/core/kv_cache_utils.py", line 2737, in get_kv_cache_configs
+[ENGINE] (EngineCore pid=462)     _check_enough_kv_cache_memory(
+[ENGINE] (EngineCore pid=462)   File "/vllm-workspace/vllm/vllm/v1/core/kv_cache_utils.py", line 899, in _check_enough_kv_cache_memory
+[ENGINE] (EngineCore pid=462)     raise ValueError(
+[ENGINE] (EngineCore pid=462) ValueError: To serve at least one request with the model's max seq len (2048), (0.11 GiB KV cache is needed, which is larger than the available KV cache memory (0.1 GiB). Based on the available memory, the estimated maximum model length is 1920. Try increasing `gpu_memory_utilization` (which also controls CPU memory on the CPU backend) or decreasing `max_model_len` when initializing the engine. See https://docs.vllm.ai/en/latest/configuration/conserving_memory/ for more details.
+[ENGINE] (APIServer pid=417) Traceback (most recent call last):
+[ENGINE] (APIServer pid=417)   File "<frozen runpy>", line 198, in _run_module_as_main
+[ENGINE] (APIServer pid=417)   File "<frozen runpy>", line 88, in _run_code
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/entrypoints/openai/api_server.py", line 59, in <module>
+[ENGINE] (APIServer pid=417)     main()
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/entrypoints/launchers/api_server/entry.py", line 226, in main
+[ENGINE] (APIServer pid=417)     uvloop.run(run_server(args))
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/site-packages/uvloop/__init__.py", line 96, in run
+[ENGINE] (APIServer pid=417)     return __asyncio.run(
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 195, in run
+[ENGINE] (APIServer pid=417)     return runner.run(main)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 118, in run
+[ENGINE] (APIServer pid=417)     return self._loop.run_until_complete(task)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/site-packages/uvloop/__init__.py", line 48, in wrapper
+[ENGINE] (APIServer pid=417)     return await main
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/entrypoints/launchers/api_server/entry.py", line 176, in run_server
+[ENGINE] (APIServer pid=417)     await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/entrypoints/launchers/api_server/entry.py", line 190, in run_server_worker
+[ENGINE] (APIServer pid=417)     async with build_async_engine_client(
+[ENGINE] (APIServer pid=417)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 210, in __aenter__
+[ENGINE] (APIServer pid=417)     return await anext(self.gen)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/entrypoints/launchers/api_server/entry.py", line 58, in build_async_engine_client
+[ENGINE] (APIServer pid=417)     async with build_async_engine_client_from_engine_args(
+[ENGINE] (APIServer pid=417)                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 210, in __aenter__
+[ENGINE] (APIServer pid=417)     return await anext(self.gen)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/entrypoints/launchers/api_server/entry.py", line 94, in build_async_engine_client_from_engine_args
+[ENGINE] (APIServer pid=417)     async_llm = AsyncLLM.from_vllm_config(
+[ENGINE] (APIServer pid=417)                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/async_llm.py", line 235, in from_vllm_config
+[ENGINE] (APIServer pid=417)     return cls(
+[ENGINE] (APIServer pid=417)            ^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/async_llm.py", line 169, in __init__
+[ENGINE] (APIServer pid=417)     self.engine_core = EngineCoreClient.make_async_mp_client(
+[ENGINE] (APIServer pid=417)                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (APIServer pid=417)     return func(*args, **kwargs)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 163, in make_async_mp_client
+[ENGINE] (APIServer pid=417)     return AsyncMPClient(
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/tracing/otel.py", line 178, in sync_wrapper
+[ENGINE] (APIServer pid=417)     return func(*args, **kwargs)
+[ENGINE] (APIServer pid=417)            ^^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 1060, in __init__
+[ENGINE] (APIServer pid=417)     super().__init__(
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/core_client.py", line 656, in __init__
+[ENGINE] (APIServer pid=417)     with launch_core_engines(
+[ENGINE] (APIServer pid=417)          ^^^^^^^^^^^^^^^^^^^^
+[ENGINE] (APIServer pid=417)   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 144, in __exit__
+[ENGINE] (APIServer pid=417)     next(self.gen)
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+[ENGINE] (APIServer pid=417)     wait_for_engine_startup(
+[ENGINE] (APIServer pid=417)   File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+[ENGINE] (APIServer pid=417)     raise RuntimeError(
+[ENGINE] (APIServer pid=417) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[ENGINE] (APIServer pid=417) [ERROR] 2026-11-11-09:06:01 (PID:417, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 2 leaked shared_memory objects to clean up at shutdown
+[ENGINE]   warnings.warn('resource_tracker: There appear to be %d '

@@ -1,0 +1,394 @@
+[
+  {
+    "apiVersion": "nvidia.com/v1beta1",
+    "kind": "DynamoGraphDeployment",
+    "metadata": {
+      "name": "vllm-agg-a7e83cc5"
+    },
+    "spec": {
+      "components": [
+        {
+          "name": "Frontend",
+          "type": "frontend",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "command": [
+                    "python3"
+                  ],
+                  "args": [
+                    "-m",
+                    "dynamo.frontend",
+                    "--model-name",
+                    "/models/Qwen3-0.6B",
+                    "--model-path",
+                    "/models/Qwen3-0.6B"
+                  ],
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "decode",
+          "type": "decode",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "workingDir": "/workspace/examples/backends/vllm",
+                  "command": [
+                    "python3",
+                    "-m",
+                    "dynamo.vllm"
+                  ],
+                  "args": [
+                    "--tensor-parallel-size",
+                    "1",
+                    "--pipeline-parallel-size",
+                    "1",
+                    "--max-num-seqs",
+                    "1",
+                    "--max-num-batched-tokens",
+                    "1628",
+                    "--kv-transfer-config",
+                    "{\"kv_connector\":\"NixlConnector\",\"kv_role\":\"kv_producer\"}",
+                    "--model",
+                    "/models/Qwen3-0.6B",
+                    "--served-model-name",
+                    "/models/Qwen3-0.6B",
+                    "--no-enable-prefix-caching"
+                  ],
+                  "resources": {
+                    "limits": {
+                      "nvidia.com/gpu": "1"
+                    },
+                    "requests": {
+                      "ephemeral-storage": "2Gi",
+                      "nvidia.com/gpu": "1"
+                    }
+                  },
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "apiVersion": "nvidia.com/v1beta1",
+    "kind": "DynamoGraphDeployment",
+    "metadata": {
+      "name": "vllm-agg-b7122d76"
+    },
+    "spec": {
+      "components": [
+        {
+          "name": "Frontend",
+          "type": "frontend",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "command": [
+                    "python3"
+                  ],
+                  "args": [
+                    "-m",
+                    "dynamo.frontend",
+                    "--model-name",
+                    "/models/Qwen3-0.6B",
+                    "--model-path",
+                    "/models/Qwen3-0.6B"
+                  ],
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "decode",
+          "type": "decode",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "workingDir": "/workspace/examples/backends/vllm",
+                  "command": [
+                    "python3",
+                    "-m",
+                    "dynamo.vllm"
+                  ],
+                  "args": [
+                    "--tensor-parallel-size",
+                    "2",
+                    "--pipeline-parallel-size",
+                    "1",
+                    "--max-num-seqs",
+                    "1",
+                    "--max-num-batched-tokens",
+                    "1628",
+                    "--kv-transfer-config",
+                    "{\"kv_connector\":\"NixlConnector\",\"kv_role\":\"kv_producer\"}",
+                    "--model",
+                    "/models/Qwen3-0.6B",
+                    "--served-model-name",
+                    "/models/Qwen3-0.6B",
+                    "--no-enable-prefix-caching"
+                  ],
+                  "resources": {
+                    "limits": {
+                      "nvidia.com/gpu": "2"
+                    },
+                    "requests": {
+                      "ephemeral-storage": "2Gi",
+                      "nvidia.com/gpu": "2"
+                    }
+                  },
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "apiVersion": "nvidia.com/v1beta1",
+    "kind": "DynamoGraphDeployment",
+    "metadata": {
+      "name": "vllm-agg-1238f254"
+    },
+    "spec": {
+      "components": [
+        {
+          "name": "Frontend",
+          "type": "frontend",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "command": [
+                    "python3"
+                  ],
+                  "args": [
+                    "-m",
+                    "dynamo.frontend",
+                    "--model-name",
+                    "/models/Qwen3-0.6B",
+                    "--model-path",
+                    "/models/Qwen3-0.6B"
+                  ],
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "decode",
+          "type": "decode",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "workingDir": "/workspace/examples/backends/vllm",
+                  "command": [
+                    "python3",
+                    "-m",
+                    "dynamo.vllm"
+                  ],
+                  "args": [
+                    "--tensor-parallel-size",
+                    "1",
+                    "--pipeline-parallel-size",
+                    "1",
+                    "--max-num-seqs",
+                    "512",
+                    "--max-num-batched-tokens",
+                    "512",
+                    "--kv-transfer-config",
+                    "{\"kv_connector\":\"NixlConnector\",\"kv_role\":\"kv_consumer\"}",
+                    "--model",
+                    "/models/Qwen3-0.6B",
+                    "--served-model-name",
+                    "/models/Qwen3-0.6B",
+                    "--enable-prefix-caching"
+                  ],
+                  "resources": {
+                    "limits": {
+                      "nvidia.com/gpu": "1"
+                    },
+                    "requests": {
+                      "ephemeral-storage": "2Gi",
+                      "nvidia.com/gpu": "1"
+                    }
+                  },
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "apiVersion": "nvidia.com/v1beta1",
+    "kind": "DynamoGraphDeployment",
+    "metadata": {
+      "name": "vllm-agg-08440c06"
+    },
+    "spec": {
+      "components": [
+        {
+          "name": "Frontend",
+          "type": "frontend",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "command": [
+                    "python3"
+                  ],
+                  "args": [
+                    "-m",
+                    "dynamo.frontend",
+                    "--model-name",
+                    "/models/Qwen3-0.6B",
+                    "--model-path",
+                    "/models/Qwen3-0.6B"
+                  ],
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "decode",
+          "type": "decode",
+          "replicas": 1,
+          "podTemplate": {
+            "spec": {
+              "containers": [
+                {
+                  "name": "main",
+                  "image": "heyi/dynamo:1.6.2-ascend0.30-49ef509336-runtime",
+                  "workingDir": "/workspace/examples/backends/vllm",
+                  "command": [
+                    "python3",
+                    "-m",
+                    "dynamo.vllm"
+                  ],
+                  "args": [
+                    "--tensor-parallel-size",
+                    "2",
+                    "--pipeline-parallel-size",
+                    "1",
+                    "--max-num-seqs",
+                    "512",
+                    "--max-num-batched-tokens",
+                    "512",
+                    "--kv-transfer-config",
+                    "{\"kv_connector\":\"NixlConnector\",\"kv_role\":\"kv_consumer\"}",
+                    "--model",
+                    "/models/Qwen3-0.6B",
+                    "--served-model-name",
+                    "/models/Qwen3-0.6B",
+                    "--enable-prefix-caching"
+                  ],
+                  "resources": {
+                    "limits": {
+                      "nvidia.com/gpu": "2"
+                    },
+                    "requests": {
+                      "ephemeral-storage": "2Gi",
+                      "nvidia.com/gpu": "2"
+                    }
+                  },
+                  "envFrom": [
+                    {
+                      "secretRef": {
+                        "name": "hf-token-secret"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+]

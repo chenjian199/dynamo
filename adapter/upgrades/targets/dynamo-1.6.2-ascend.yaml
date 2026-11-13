@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 HEYI. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# User scope 2026-11-11: prioritize the full Ascend upgrade; CUDA and MetaX multi-node testing deferred.
+# This platform-specific session does not qualify the deferred platforms.
+schema_version: 1
+id: dynamo-1.6.2-ascend
+upstream_url: https://github.com/ai-dynamo/dynamo.git
+refs:
+  base: v1.5.1
+  heyi: HEAD
+  target: v1.6.2
+target_commit: 28f9765d98ded77149a94d0defee6d54e97f6741
+platforms:
+  ascend:
+    architecture: arm64
+    vllm: 0.30.0
+    repository: quay.io/ascend/vllm-ascend
+    image: quay.io/ascend/vllm-ascend:v0.30.0
+    python: python3
+    plugin: vllm-ascend
+    sources:
+    - https://docs.vllm.ai/projects/ascend/en/v0.30.0/getting_started/installation.html
+    - https://github.com/vllm-project/vllm-ascend/releases/tag/v0.30.0
+mandatory_features:
+- M01-F01
+- M01-F02
+- M02-F01
+- M03-F01
+- M10-F01
+- M10-F02
+- M10-F03
+- M10-F04
+checks:
+- - git
+  - diff
+  - --check
+  - HEAD^
+  - HEAD
+- - python3
+  - -m
+  - pytest
+  - -c
+  - adapter/workflow/tests/pytest.ini
+  - -q
+  - adapter/workflow/tests
+- - python3
+  - adapter/tools/check-workflow.py
+  - --require-ready
+- - python3
+  - scripts/validate_skills.py
+check_timeout_seconds: 600
+comparison_limits:
+  min_throughput_ratio: 0.9
+  max_latency_ratio: 1.1

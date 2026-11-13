@@ -1,0 +1,40 @@
+{
+  "id": "099be841457e7e032bed62c05ff9d70b3de8eaec4e2bde3010f3604217f38e20",
+  "argv": [
+    "docker",
+    "create",
+    "--name",
+    "heyi-upgrade162-interleaved-probe-r2",
+    "--network",
+    "none",
+    "--entrypoint",
+    "bash",
+    "--device",
+    "/dev/davinci6",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-49ef/interleaved-npu-probe-r2,dst=/probe,readonly",
+    "--device",
+    "/dev/davinci_manager",
+    "--device",
+    "/dev/devmm_svm",
+    "--device",
+    "/dev/hisi_hdc",
+    "--mount",
+    "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+    "--mount",
+    "type=bind,src=/usr/local/dcmi,dst=/usr/local/dcmi,readonly",
+    "sha256:74224d25260decde6abdd26c6ebc383faadbaf792115631bdbe966793742c4db",
+    "-lc",
+    "source /usr/local/Ascend/ascend-toolkit/set_env.sh && python3 /probe/probe.py"
+  ],
+  "source_sha256": {
+    "platform_events.py": "47418dfeb607a431e3c8d05b4e99a48209432bb1b5c403d6dd75f657875e8a19",
+    "probe.py": "991c14bae8b646b7e8bcb7055ac01fa569da4787b3b2c0d59b12f921e9d3ab02"
+  },
+  "exit_code": 0,
+  "cleanup": {
+    "code": 0,
+    "stdout": "099be841457e7e032bed62c05ff9d70b3de8eaec4e2bde3010f3604217f38e20\n",
+    "stderr": ""
+  }
+}

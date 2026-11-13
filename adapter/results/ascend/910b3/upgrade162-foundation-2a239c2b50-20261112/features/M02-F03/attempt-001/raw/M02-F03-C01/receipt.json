@@ -1,0 +1,340 @@
+{
+  "spec": {
+    "entrypoint": "adapter/modules/m02-build-packaging/common/images/dev-validate.py",
+    "entrypoint_sha256": "bf067c8e89729d1ee85886a3a5a47e7961f98f352bdf65934af60cd7fb1d32c0",
+    "image_id": "sha256:a287d189026db25571d0703ebd0b0c4599bc04e6d4403091ed536c62c6692daa",
+    "image_reference": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+    "source": "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50",
+    "output": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001",
+    "container_name": "heyi-close-fe6dfd18-m02-f03-c01-attempt-001",
+    "model_path": "/data/weight/Qwen3-0.6B",
+    "models": [
+      {
+        "id": "Qwen3-0.6B",
+        "path": "/data/weight/Qwen3-0.6B",
+        "revision": "sha256:ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+        "manifest": "heyi-upgrade-162-manifest-ae67e66d6a53.json",
+        "manifest_sha256": "b61ad956b1d13c3c3c84e4da97d1881de5a9fba4c49c895675c6060d0050afae"
+      }
+    ],
+    "devices": [
+      0,
+      1
+    ],
+    "namespace": "close-fe6dfd18-m02-f03-c01",
+    "images": {
+      "runtime": {
+        "reference": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "config_id": "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+        "repo_digests": [
+          "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      },
+      "dev": {
+        "reference": "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16",
+        "config_id": "sha256:a287d189026db25571d0703ebd0b0c4599bc04e6d4403091ed536c62c6692daa",
+        "repo_digests": [
+          "docker.io/heyi/dynamo@sha256:22de028d5ddf920d6e697617c54b231a6ab871132255e0ade080d06341e16a16"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      },
+      "tools": {
+        "reference": "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384",
+        "config_id": "sha256:950992087fd28d0cf4a13641a20af72c032f374ce9ad03c269b4339ba2d79aa0",
+        "repo_digests": [
+          "docker.io/heyi/dynamo@sha256:e080cb0331850c784a0e9dec7fad75bcceda0c694ddc6421b24f1121166d6384"
+        ],
+        "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a"
+      }
+    }
+  },
+  "started": 1794477808.8354897,
+  "commands": [
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "-d",
+      "--name",
+      "heyi-close-fe6dfd18-m02-f03-c01-attempt-001",
+      "--network",
+      "host",
+      "--user",
+      "0",
+      "-e",
+      "DYN_PLATFORM=ascend",
+      "-e",
+      "CARGO_HOME=/build-cache/cargo",
+      "-e",
+      "RUSTUP_HOME=/build-cache/rustup",
+      "-e",
+      "CARGO_TARGET_DIR=/build-cache/targets/ascend/closure-2a239c2b50-dev",
+      "-e",
+      "CARGO_BUILD_JOBS=12",
+      "--mount",
+      "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/cache,dst=/build-cache",
+      "--mount",
+      "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/editable-cases/heyi-close-fe6dfd18-m02-f03-c01-attempt-001/source,dst=/workspace/dynamo",
+      "--mount",
+      "type=bind,src=/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001,dst=/evidence",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "sha256:a287d189026db25571d0703ebd0b0c4599bc04e6d4403091ed536c62c6692daa",
+      "sleep",
+      "infinity"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "inspect",
+      "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f",
+      "/opt/dynamo/bin/entrypoint.sh",
+      "bash",
+      "/opt/dynamo/bin/dev-editable.sh",
+      "all"
+    ],
+    [
+      "python3",
+      "/data/dynamo-upgrade-1.6.2-20261111/editable-cases/heyi-close-fe6dfd18-m02-f03-c01-attempt-001/source/adapter/modules/m02-build-packaging/common/images/dev-validate.py",
+      "--container",
+      "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f",
+      "--build",
+      "/data/dynamo-upgrade-1.6.2-20261111/candidate-2a239c2b50/dev-build",
+      "--output",
+      "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001/dev-validation.json"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f",
+      "/opt/dynamo/bin/entrypoint.sh",
+      "python",
+      "-c",
+      "import json,importlib.metadata as m; print(json.dumps({n:m.version(n) for n in (\"vllm\",\"vllm-ascend\",\"torch\",\"torch-npu\")}))"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "-d",
+      "--name",
+      "heyi-close-fe6dfd18-m02-f03-c01-attempt-001-runtime",
+      "--network",
+      "none",
+      "--user",
+      "0",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "sha256:8fdd4a2fff8d4fef480aaf5e50996baf54a6d3b7d4e392dc9ceb0181e7719cef",
+      "sleep",
+      "infinity"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "inspect",
+      "d1676324da87374b20b98599db5f76578838b814b886db193f63fd0d7215de52"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "cp",
+      "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50/adapter/modules/m10-validation/common/regression/check-installed.py",
+      "d1676324da87374b20b98599db5f76578838b814b886db193f63fd0d7215de52:/tmp/check-installed.py"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "-e",
+      "DYN_PLATFORM=ascend",
+      "d1676324da87374b20b98599db5f76578838b814b886db193f63fd0d7215de52",
+      "/opt/dynamo/venv/bin/python",
+      "/tmp/check-installed.py",
+      "--role",
+      "runtime"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "run",
+      "-d",
+      "--name",
+      "heyi-close-fe6dfd18-m02-f03-c01-attempt-001-tools",
+      "--network",
+      "none",
+      "--user",
+      "0",
+      "--mount",
+      "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+      "sha256:950992087fd28d0cf4a13641a20af72c032f374ce9ad03c269b4339ba2d79aa0",
+      "sleep",
+      "infinity"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "inspect",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "cp",
+      "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50/adapter/modules/m10-validation/common/regression/check-installed.py",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a:/tmp/check-installed.py"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "-e",
+      "DYN_PLATFORM=ascend",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a",
+      "/opt/dynamo/venv/bin/python",
+      "/tmp/check-installed.py",
+      "--role",
+      "runtime"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a",
+      "/opt/dynamo/tools-venv/bin/python",
+      "-c",
+      "import importlib,json,sys,pathlib,importlib.metadata as m\nmodules={}\nfor name in ('dynamo.profiler','dynamo.planner','aisimulate','aiperf'):\n module=importlib.import_module(name);modules[name]=str(pathlib.Path(module.__file__).resolve())\nprint(json.dumps({'executable':sys.executable,'prefix':sys.prefix,'paths':sys.path,'modules':modules,'versions':{n:m.version(n) for n in ('ai-dynamo','aisimulate','aiperf')}}))\n"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a",
+      "/opt/dynamo/tools-venv/bin/python",
+      "-m",
+      "dynamo.profiler",
+      "--help"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a",
+      "/opt/dynamo/tools-venv/bin/python",
+      "-m",
+      "dynamo.planner",
+      "--help"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "exec",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a",
+      "/opt/dynamo/tools-venv/bin/python",
+      "-m",
+      "pip",
+      "check"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "cp",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a:/opt/dynamo/tools-build/before.json",
+      "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001/tools-runtime-before.json"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "cp",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a:/opt/dynamo/tools-build/after.json",
+      "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001/tools-runtime-after.json"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "rm",
+      "-f",
+      "d1676324da87374b20b98599db5f76578838b814b886db193f63fd0d7215de52"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "ps",
+      "-aq",
+      "--filter",
+      "name=^/heyi-close-fe6dfd18-m02-f03-c01-attempt-001-runtime$"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "rm",
+      "-f",
+      "abb483bd11430af1e29a2f2f2f0da0049019ee333f93c302e36a2867b26c663a"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "ps",
+      "-aq",
+      "--filter",
+      "name=^/heyi-close-fe6dfd18-m02-f03-c01-attempt-001-tools$"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "rm",
+      "-f",
+      "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f"
+    ],
+    [
+      "/data/dynamo-m10/docker-bin/docker",
+      "ps",
+      "-aq",
+      "--filter",
+      "name=^/heyi-close-fe6dfd18-m02-f03-c01-attempt-001$"
+    ]
+  ],
+  "source_commit": "2a239c2b500ea7e48c86b7216b9878158db4802a",
+  "container_id": "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f",
+  "run_command": [
+    "python3",
+    "/data/dynamo-upgrade-1.6.2-20261111/editable-cases/heyi-close-fe6dfd18-m02-f03-c01-attempt-001/source/adapter/modules/m02-build-packaging/common/images/dev-validate.py",
+    "--container",
+    "d5eeae7a92a43cabca8c99a5c913238398eb7afcdcc5710d814ed271d8237a6f",
+    "--build",
+    "/data/dynamo-upgrade-1.6.2-20261111/candidate-2a239c2b50/dev-build",
+    "--output",
+    "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade162-foundation-2a239c2b50-20261112/M02-F03-C01/attempt-001/dev-validation.json"
+  ],
+  "exit_code": 0,
+  "extra_cleanup": {
+    "runtime": {
+      "returncode": 0,
+      "remaining_ids": []
+    },
+    "tools": {
+      "returncode": 0,
+      "remaining_ids": []
+    }
+  },
+  "remove_returncode": 0,
+  "remaining_container_ids": [],
+  "finished": 1794477860.1982048,
+  "files": {
+    "tools-runtime-before.json": "6e8564c14cc196dd294620cd3de69543850e902dcf6de81fda0329c113e3950b",
+    "ownership.json": "f1c75daab2097b8aab6922ad36896deb98f81818a876a65de724b92118d1bcd6",
+    "dynamo.planner-help.txt": "ef2ad406676ae7e3916a340c4ca5589a38ea707a8d727d459db8c14cf8166e7e",
+    "runtime-inspect.json": "2e197d6a753315a2a327846ce299673ca2dd05ba3459811d8d5fc82411742eb7",
+    "dynamo.profiler-help.txt": "02595062815cadecb2f2cb7959a85c6b7b2464681443235a3b8f9180eb6a4890",
+    "dev-validation.json.license": "350c6fea9b97168b9abeffe83965145e1f9e8ecb056d113b60062e7259f1eaae",
+    "tools-runtime-after.json": "6e8564c14cc196dd294620cd3de69543850e902dcf6de81fda0329c113e3950b",
+    "tools-installed.json": "6fb852efe61fd9388e5079ff7b77012bfc2ec38fb806febcecab3890ce826bb3",
+    "runtime-remove.txt": "5ecfc1a9c4736381bfd1a1e04286bae3b925005cf9fe662830f6878127b65410",
+    "tools-copy.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime-installed.json": "6fb852efe61fd9388e5079ff7b77012bfc2ec38fb806febcecab3890ce826bb3",
+    "after-copy.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime-absence.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "editable.log": "a44540ed834a015ce36cfc879d74944f699ad4f1b32b3c4f259da6d5c86a8dc3",
+    "tools-absence.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools-create.txt": "c1f72f035c2493a2908bbb8a7b2c51b3466fafa7ebf62a75a0782c251dae666e",
+    "remove.txt": "59fedba31ae4a1a92bda64fafb485d616083857c044af0f756a0b9ce66c0e1df",
+    "create.txt": "59fedba31ae4a1a92bda64fafb485d616083857c044af0f756a0b9ce66c0e1df",
+    "container-inspect.json": "8ce80eda6598412d47850b77f9665e882517157044a8b02a7eb060cb48450886",
+    "validate.log": "80f90ef090e698aaa4f70c5daddc38b4301360273366c8f02c3ead57839e7593",
+    "tools-inspect.json": "17da6eddd92ae2c361bfe912b5766589ec716538e7eb5230625ec1ba1f778132",
+    "runtime-create.txt": "5ecfc1a9c4736381bfd1a1e04286bae3b925005cf9fe662830f6878127b65410",
+    "versions.json": "cccb05632720f22f0740e4702046c9f7e68e6a938f294302ff90cd0b414c5f54",
+    "dev-validation.json": "8c0d491b6e0c67129576a416c99741f5dc9f89ca033631f6fe38e70b3da483f6",
+    "before-copy.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "absence.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools-isolation.json": "de7a85f9124f41d9e462edd6b9c436ae37ecac17b1e8f64a09487bf385dc9f5d",
+    "runtime-copy.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools-remove.txt": "c1f72f035c2493a2908bbb8a7b2c51b3466fafa7ebf62a75a0782c251dae666e",
+    "tools-pip-check.txt": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "feature_id": "M02-F02",
+  "prepare": [],
+  "run": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/wheel-case-controller.py",
+        "run",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F02-C01",
+        "--entrypoint",
+        "{repo}/container/platforms/build-wheels.sh"
+      ],
+      "case_id": "M02-F02-C01",
+      "optional": false
+    }
+  ],
+  "observe": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/wheel-case-controller.py",
+        "observe",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F02-C01",
+        "--entrypoint",
+        "{repo}/container/platforms/build-wheels.sh"
+      ],
+      "case_id": "M02-F02-C01",
+      "optional": false
+    }
+  ],
+  "cleanup": [
+    {
+      "argv": [
+        "python3",
+        "/home/metax/CJ_workspace/dynamo/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/wheel-case-controller.py",
+        "cleanup",
+        "--attempt",
+        "{attempt}",
+        "--case",
+        "M02-F02-C01",
+        "--entrypoint",
+        "{repo}/container/platforms/build-wheels.sh"
+      ],
+      "case_id": "M02-F02-C01",
+      "optional": false
+    }
+  ],
+  "resources": [],
+  "case_ids": [
+    "M02-F02-C01"
+  ],
+  "recipe_sources": {
+    "container/platforms/build-wheels.sh": "54c06cc93194c2f089eb039a993a8773708f28dee32d07224e88ce8902fa5d5e"
+  },
+  "bindings_sha256": {
+    "M02-F02-C01": "87cd6a4792059c5b459381841a0a3c43126478cf1e2698aab73f9e6fc86d176e"
+  },
+  "verify": [
+    {
+      "argv": [
+        "/var/tmp/adapter-workflow/venv/bin/python3",
+        "-m",
+        "adapter.workflow.evidence.verify",
+        "--envelope",
+        "{attempt}/envelope.json"
+      ]
+    }
+  ]
+}

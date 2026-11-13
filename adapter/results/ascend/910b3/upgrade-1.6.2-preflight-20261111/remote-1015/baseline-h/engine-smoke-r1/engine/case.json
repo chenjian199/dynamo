@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "started": "2026-11-11T09:47:52Z",
+  "command": [
+    "bash",
+    "/harness/adapter/modules/m03-engine-integration/common/engine/serve.sh"
+  ],
+  "environment": {
+    "PLATFORM": "ascend",
+    "TP": "1",
+    "DP": "1",
+    "DEVICES": "0",
+    "MODEL_PATH": "/models/Qwen3-0.6B"
+  },
+  "source_commit": "bd801c6234aae2827042c8abf268395d4582e5eb",
+  "packages": {
+    "vllm": "0.23.0+empty",
+    "torch": "2.10.0+cpu",
+    "ai-dynamo": "1.5.1",
+    "vllm-ascend": "0.23.0"
+  },
+  "harness_sha256": {
+    "adapter/modules/m03-engine-integration/common/engine/serve.sh": "f5a87449011f05352999b3865b3a06ba1be52c6acc6559a93a5b464d4a2f2cc0",
+    "adapter/modules/m03-engine-integration/common/engine/rank-smoke.py": "50a3268585bc3ae1aee36e8ac336b31d25c0efb59d341f185ba4a30ff7d803cb",
+    "adapter/modules/m03-engine-integration/common/engine/advanced-smoke.py": "51bdfc19e4b70d82daf87c7101e813c8673034ede50ef6f93e8a1b5d8bc85719",
+    "adapter/modules/m03-engine-integration/common/engine/create-lora.py": "8269ebd876bce6bfbedad861fefbc7d94f201bc37bccc839db57029a86dda976",
+    "adapter/modules/m03-engine-integration/common/engine/create-quantized.py": "4a141e6cde7a95599a57839cc2f0221b0daaab05a57de2f58ea97d06dc89ff9c",
+    "adapter/modules/m03-engine-integration/common/engine/run-case.py": "8cad0010ad86c2aeb1548714c3c7a4f4de5ac9d1038383af722648dcd16554c3",
+    "adapter/modules/m07-gms-multimodal/common/media/test_multimodal.py": "8c82f207d5dbfbdeec943249429435a5366e6b03c375a594bd0f63949265e9bf"
+  },
+  "model_config": {
+    "architectures": [
+      "Qwen3ForCausalLM"
+    ],
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "bos_token_id": 151643,
+    "eos_token_id": 151645,
+    "head_dim": 128,
+    "hidden_act": "silu",
+    "hidden_size": 1024,
+    "initializer_range": 0.02,
+    "intermediate_size": 3072,
+    "max_position_embeddings": 40960,
+    "max_window_layers": 28,
+    "model_type": "qwen3",
+    "num_attention_heads": 16,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 8,
+    "rms_norm_eps": 1e-06,
+    "rope_scaling": null,
+    "rope_theta": 1000000,
+    "sliding_window": null,
+    "tie_word_embeddings": true,
+    "torch_dtype": "bfloat16",
+    "transformers_version": "4.51.0",
+    "use_cache": true,
+    "use_sliding_window": false,
+    "vocab_size": 151936
+  },
+  "model_config_sha256": "660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+  "model_files": {
+    "model.safetensors": {
+      "size": 1503300328,
+      "mtime_ns": 1775533998892000000
+    }
+  },
+  "engine_blocks_per_rank": 73,
+  "shutdown": "graceful",
+  "server_log": {
+    "path": "/evidence/engine/server.log",
+    "sha256": "fb14e472ec6cfa7468b8001af05ddf7d2c91b97c03f141354b7b7b8a48f927e4"
+  }
+}

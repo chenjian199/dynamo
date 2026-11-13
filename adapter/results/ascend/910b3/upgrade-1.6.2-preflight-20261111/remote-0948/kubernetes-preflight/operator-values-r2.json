@@ -1,0 +1,159 @@
+{
+  "grovePreflight": {
+    "enabled": true,
+    "image": "docker.io/library/python:3.12-slim",
+    "imagePullSecrets": [],
+    "activeDeadlineSeconds": 120,
+    "affinity": {},
+    "podSecurityContext": null,
+    "namespace": "",
+    "deploymentName": ""
+  },
+  "enabled": true,
+  "upgradeCRD": true,
+  "env": [],
+  "natsAddr": "",
+  "etcdAddr": "",
+  "modelExpressURL": "",
+  "lpx": {
+    "enabled": false,
+    "modelRegistryURL": ""
+  },
+  "namespaceRestriction": {
+    "enabled": false,
+    "targetNamespace": null,
+    "lease": {
+      "duration": "30s",
+      "renewInterval": "10s"
+    }
+  },
+  "gpuDiscovery": {
+    "enabled": true
+  },
+  "discoveryBackend": "kubernetes",
+  "controllerManager": {
+    "tolerations": [],
+    "affinity": {
+      "nodeAffinity": {
+        "requiredDuringSchedulingIgnoredDuringExecution": {
+          "nodeSelectorTerms": [
+            {
+              "matchExpressions": [
+                {
+                  "key": "kubernetes.io/hostname",
+                  "operator": "In",
+                  "values": [
+                    "master-02-45d4a763"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "leaderElection": {
+      "id": "",
+      "namespace": ""
+    },
+    "manager": {
+      "image": {
+        "repository": "heyi/dynamo-operator",
+        "tag": "1.6.2-heyi-upgrade-5cbe424879-arm64",
+        "pullPolicy": "IfNotPresent"
+      },
+      "args": [
+        "--health-probe-bind-address=:8081",
+        "--metrics-bind-address=127.0.0.1:8080"
+      ],
+      "dgdrDefaultImage": "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-tools"
+    }
+  },
+  "imagePullSecrets": [],
+  "dynamo": {
+    "groveTerminationDelay": "4h",
+    "dockerRegistry": {
+      "useKubernetesSecret": false,
+      "server": null,
+      "username": null,
+      "password": null,
+      "existingSecretName": null,
+      "secure": true
+    },
+    "ingress": {
+      "enabled": false,
+      "className": null,
+      "tlsSecretName": "my-tls-secret"
+    },
+    "istio": {
+      "enabled": false,
+      "gateway": null
+    },
+    "ingressHostSuffix": "",
+    "virtualServiceSupportsHTTPS": false,
+    "serviceMesh": {
+      "enabled": false,
+      "provider": "istio",
+      "istio": {
+        "tlsMode": "SIMPLE",
+        "insecureSkipVerify": true,
+        "clientCertificate": "",
+        "privateKey": "",
+        "caCertificates": ""
+      }
+    },
+    "metrics": {
+      "prometheusEndpoint": ""
+    },
+    "mpiRun": {
+      "secretName": "mpi-run-ssh-secret"
+    }
+  },
+  "webhook": {
+    "certificateSecret": {
+      "name": "webhook-server-cert",
+      "external": false
+    },
+    "caBundle": "",
+    "failurePolicy": "Fail",
+    "podCheckpointRestoreFailurePolicy": "Ignore",
+    "timeoutSeconds": 10,
+    "namespaceSelector": {},
+    "certManager": {
+      "enabled": false,
+      "certificate": {
+        "duration": "8760h",
+        "renewBefore": "360h",
+        "rootCA": {
+          "duration": "87600h",
+          "renewBefore": "720h"
+        }
+      }
+    }
+  },
+  "checkpoint": {
+    "enabled": false
+  },
+  "global": {
+    "etcd": {
+      "install": false
+    },
+    "nats": {
+      "install": false
+    },
+    "kai-scheduler": {
+      "install": false,
+      "enabled": false
+    },
+    "volcano-scheduler": {
+      "enabled": false
+    },
+    "grove": {
+      "install": false,
+      "enabled": false
+    },
+    "snapshot": {
+      "install": false
+    }
+  }
+}

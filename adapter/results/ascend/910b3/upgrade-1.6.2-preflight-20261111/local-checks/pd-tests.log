@@ -1,0 +1,39 @@
+[LogService] File logging is disabled due to failure on creating directory "//mxlog/umd/" 
+INFO 11-11 14:55:04 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 14:55:04 [__init__.py:54] - metax -> vllm_metax:register
+INFO 11-11 14:55:04 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 14:55:04 [__init__.py:237] Platform plugin metax is activated
+INFO 11-11 14:55:04 [envs.py:136] vllm-metax would try to sets VLLM_USE_FLASHINFER_SAMPLER default to False. Reason: controlled by VLLM_METAX_USE_FLASHINFER_SAMPLER; disabled by default
+INFO 11-11 14:55:04 [envs.py:136] vllm-metax would try to sets VLLM_ENGINE_READY_TIMEOUT_S default to 7200. Reason: set timeout to 7200s for model loading
+INFO 11-11 14:55:04 [envs.py:136] vllm-metax would try to sets VLLM_FLOAT32_MATMUL_PRECISION default to high. Reason: set float32 matmul precision to high for better performance on Maca platform
+INFO 11-11 14:55:04 [envs.py:136] vllm-metax would try to sets VLLM_USE_V2_MODEL_RUNNER default to False. Reason: v2 model runner is still under development and not fully tested on Maca platform, disable it by default
+INFO 11-11 14:55:04 [envs.py:136] vllm-metax would try to sets VLLM_USE_DEEP_GEMM_E8M0 default to False. Reason: USE_DEEP_GEMM_E8M0 default to false on Maca platform
+
+==================================== ERRORS ====================================
+_ ERROR collecting components/src/dynamo/vllm/tests/test_vllm_kv_connector_protocols.py _
+components/src/dynamo/vllm/tests/test_vllm_kv_connector_protocols.py:557: in <module>
+    _real_mooncake_spec = importlib.util.find_spec(_MOONCAKE_MOD)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib.util>:91: in find_spec
+    ???
+/opt/conda/lib/python3.12/site-packages/vllm/__init__.py:14: in <module>
+    import vllm.env_override  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/vllm/env_override.py:643: in <module>
+    _patch_fxgraphcache_pickle_if_needed()
+/opt/conda/lib/python3.12/site-packages/vllm/env_override.py:638: in _patch_fxgraphcache_pickle_if_needed
+    from torch._inductor.codecache import BypassFxGraphCache, FxGraphCachePickler
+/opt/conda/lib/python3.12/site-packages/torch/_inductor/codecache.py:2669: in <module>
+    _HEADER_DIR = os.path.join(default_cache_dir(), "precompiled_headers")
+                               ^^^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/site-packages/torch/_inductor/runtime/cache_dir_utils.py:23: in default_cache_dir
+    sanitized_username = re.sub(r'[\\/:*?"<>|]', "_", getpass.getuser())
+                                                      ^^^^^^^^^^^^^^^^^
+/opt/conda/lib/python3.12/getpass.py:169: in getuser
+    return pwd.getpwuid(os.getuid())[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'getpwuid(): uid not found: 1000'
+=========================== short test summary info ============================
+ERROR components/src/dynamo/vllm/tests/test_vllm_kv_connector_protocols.py - ...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 5.18s

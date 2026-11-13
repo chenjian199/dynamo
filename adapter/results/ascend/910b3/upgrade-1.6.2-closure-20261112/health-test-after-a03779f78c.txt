@@ -1,0 +1,25 @@
+{"source": "a03779f78c22d0db64fc8553766c97796debbd80", "mode": "diagnostic installed runtime wheel overlay; no NPU, not final-image qualification", "wheel_sha256": "36c0414011394288fb148443f9be26b8adb253a31a9b73c45ece7195b84e66cf", "argv": ["/data/dynamo-m10/docker-bin/docker", "run", "--rm", "--name", "heyi-upgrade162-health-a037-overlay", "--network", "none", "--mount", "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-a03779f78c/artifacts/wheels/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl,dst=/input/runtime.whl,readonly", "--mount", "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/test_health_check_shutdown.py,dst=/test_health_check_shutdown.py,readonly", "-e", "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1", "-e", "TORCH_DEVICE_BACKEND_AUTOLOAD=0", "--entrypoint", "/bin/bash", "sha256:3ffd28fee081ae257f16d33102f39a611784bc174a0c8ebe8f1a46e47c71b311", "-c", "set -eu; cp /input/runtime.whl /tmp/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl; /opt/dynamo/venv/bin/python -m pip install --no-index --no-deps --force-reinstall /tmp/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl; /opt/dynamo/venv/bin/python -m pytest --noconftest -c /dev/null -p no:cacheprovider -q /test_health_check_shutdown.py"]}
+Processing /tmp/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl
+Installing collected packages: ai-dynamo-runtime
+  Attempting uninstall: ai-dynamo-runtime
+    Found existing installation: ai-dynamo-runtime 1.6.2
+    Uninstalling ai-dynamo-runtime-1.6.2:
+      Successfully uninstalled ai-dynamo-runtime-1.6.2
+Successfully installed ai-dynamo-runtime-1.6.2
+..                                                                       [100%]
+=============================== warnings summary ===============================
+../../test_health_check_shutdown.py:14
+  /test_health_check_shutdown.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.pre_merge - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.pre_merge, pytest.mark.integration, pytest.mark.gpu_0]
+
+../../test_health_check_shutdown.py:14
+  /test_health_check_shutdown.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.pre_merge, pytest.mark.integration, pytest.mark.gpu_0]
+
+../../test_health_check_shutdown.py:14
+  /test_health_check_shutdown.py:14: PytestUnknownMarkWarning: Unknown pytest.mark.gpu_0 - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.pre_merge, pytest.mark.integration, pytest.mark.gpu_0]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 3 warnings in 9.59s
+{"returncode": 0, "completed_at": 1794460237.8897188}

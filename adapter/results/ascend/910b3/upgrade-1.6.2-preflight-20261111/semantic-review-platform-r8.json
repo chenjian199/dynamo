@@ -1,0 +1,72 @@
+{
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "reviewer": "Codex; semantic source review distinct from feature qualification",
+  "records": [
+    {
+      "path": "components/src/dynamo/common/platform/__init__.py",
+      "disposition": "retain",
+      "reason": "Retain lazy global registry export; importing the package itself does not load a vendor SDK. Providers load only after explicit selection.",
+      "target_diff_sha256": "89d63f2f52c5278807062dadcba15655587c4f6b9c499fc5262b069a681faf6a"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/ascend.py",
+      "disposition": "retain",
+      "reason": "Retain DCMI die identity, logical-to-physical ACL mapping, checked FFI return codes and runtime software versions. Reject zero die identity; do not use ordinal as global ID. Final installed 0.30 workers and NPU tests demonstrate the selected ABI on both nodes; no driver equality requirement added.",
+      "target_diff_sha256": "80252f51781c1471716f4f6b5c7758702d6e0ef6b6e229c5f7afb639ae798ac1"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/ascend_mooncake.py",
+      "disposition": "retain",
+      "reason": "Retain active CANN-path libllm_datadist preload before Mooncake. Uses configured absolute SDK roots rather than old version path; keeps explicit missing-library failure. Original9.1 load-order rationale is historical, while current0.30 final RDMA and2P3D exercise9.2.1 successfully.",
+      "target_diff_sha256": "ea48e3ba24905c46bd5adb66a5472323cb574bf25289e1b6a5ad92debfcf3984"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/kubernetes.py",
+      "disposition": "retain",
+      "reason": "Retain standard whole-device resource names and explicit literal vendor platform agreement. Preserve implicit CUDA and limits-first behavior. Reject mixed platforms and unsupported virtual allocation units; DRA counts still come from Operator status.",
+      "target_diff_sha256": "344bd24ac5fc32a3a7bb52ff8436ec254b6ae51eae1b77ab26ae7440156aeeb8"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/preflight.py",
+      "disposition": "retain",
+      "reason": "Retain positive native TP passthrough for aggregate and ordinary PD; only explicit HEYI two-way split remains1->2. Keep KVBM local-dense TP1/2 scope and unavailable Ascend GMS provider explicit rather than treating them as certified. Hybrid alias is valid with no module or actual MooncakeConnector class plus explicit hybrid module. Final PP2,splitTP,2P3D passed; final Hybrid recorded separately.",
+      "target_diff_sha256": "2fc6a70210c93d156d98dceead67d774acfd3f8eb37caee8bbaa81abfe49292b"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/profile.py",
+      "disposition": "retain",
+      "reason": "Retain immutable strict profile identity, byte hashes, bounded freshness and exact file inventory. Reject changed topology/engine/image, path escapes, altered NPZ/raw data and timestamps. Real54-export profile reuse and restart fingerprint matched.",
+      "target_diff_sha256": "6d23e41a81ee6d04225f5e30b51f8784bc7e49ee72640c6f080c4bc3853236a3"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/providers.py",
+      "disposition": "retain",
+      "reason": "Retain SDK lazy loading and capability eligibility distinct from serving readiness. No aggregate topology whitelist or global/local device-count comparison; unknown RDMA/power remain unknown. Ascend GMS unavailability means provider not implemented; historical9.1 error is not a fresh9.2.1 hardware result. KVBM restrictions match preflight scope.",
+      "target_diff_sha256": "c9b5d12bc345417069d21aa2dd00fc20f90b64988a156ac1a16a842b5fffdc8e"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/registry.py",
+      "disposition": "retain",
+      "reason": "Retain locked provider/context selection, duplicate-ID rejection, descriptor copies and structured SDK failures. Requirements check available state and bound context; initialization failure does not freeze a successful descriptor.",
+      "target_diff_sha256": "35799cf678bc99e847fe5b40398688e79cc28a3d89494aa7dac2d0f8eeccfc4b"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/telemetry.py",
+      "disposition": "retain",
+      "reason": "Retain read-only timestamped gauges with explicit unavailable/stale/error states, stable device identity and checked units. Network failure is not zero utilization; scraper timestamps are labelled and not SDK freshness claims. No power writes or readiness changes.",
+      "target_diff_sha256": "df12cf2f57616a943911290f241e61f60e1832ddc0bc320fbcc1e2844c970987"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/versions.py",
+      "disposition": "rewrite",
+      "reason": "Rewrite Ascend pin to0.30 while preserving intentionally deferred CUDA0.28 and MetaX0.26 baselines. Require plugin/core base version equality and accept local vendor suffixes; installed0.30+empty verified. Do not interpret this Ascend-only candidate as upgrading other platforms.",
+      "target_diff_sha256": "c2fb4d2627f0fd16e7251bb55fac52fb8553b8623159467b6ce6ffbe089ef22c"
+    },
+    {
+      "path": "components/src/dynamo/common/platform/tests/test_versions.py",
+      "disposition": "retain",
+      "reason": "Retain vendor suffix positive cases and wrong-version negative cases for all three pins. Test derives expected pin but independently supplies incorrect versions; current installed audit separately verifies real engine metadata.",
+      "target_diff_sha256": "571bf019c176df1e17d5e28ce906c06bded42c40f61ea80b59cdc459c3134ebb"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "command": [
+      "ssh",
+      "-F",
+      "/var/tmp/dynamo-regression-1028/ssh-config-upgrade-fresh",
+      "-o",
+      "BatchMode=yes",
+      "huawei-52",
+      "hostname; kubectl get nodes -o wide; kubectl -n heyi-upgrade162 get pods -o wide; k3s ctr -n k8s.io images ls | grep 1aabe; npu-smi info; sha256sum /data/weight/Qwen3-0.6B/heyi-upgrade-162-manifest-ae67e66d6a53.json"
+    ],
+    "started": "2026-11-12T03:41:22.017483+00:00",
+    "returncode": 0,
+    "path": "adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/52-inventory.txt",
+    "sha256": "ec2568012289f1aab893e0c5ff13983d0f5143dba36061086b64d4dcbd8736a0"
+  },
+  {
+    "command": [
+      "ssh",
+      "-F",
+      "/var/tmp/dynamo-regression-1028/ssh-config-upgrade-fresh",
+      "-o",
+      "BatchMode=yes",
+      "huawei-55",
+      "hostname; k3s ctr -n k8s.io images ls | grep 1aabe; npu-smi info; sha256sum /data/dynamo-regression-models/Qwen3-0.6B/heyi-upgrade-162-manifest-ae67e66d6a53.json"
+    ],
+    "started": "2026-11-12T03:41:25.491590+00:00",
+    "returncode": 0,
+    "path": "adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/55-inventory.txt",
+    "sha256": "e35b4a254bbe0335a4e4743bbc8ceef817b2387b0f064081160604b1ebdf412c"
+  },
+  {
+    "command": [
+      "ssh",
+      "-F",
+      "/var/tmp/dynamo-regression-1028/ssh-config-upgrade-fresh",
+      "-o",
+      "BatchMode=yes",
+      "huawei-52",
+      "env DOCKER_HOST=unix:///run/dynamo-m10-docker.sock /data/dynamo-m10/docker-bin/docker run --rm --network none --entrypoint /bin/cat heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime /vllm-workspace/vllm/vllm/distributed/kv_transfer/kv_connector/v1/multi_connector.py"
+    ],
+    "started": "2026-11-12T03:41:28.229436+00:00",
+    "returncode": 0,
+    "path": "adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/multi-connector-030.txt",
+    "sha256": "12d8387239f3194f2cb63ccbd64824648047210323572d66671e6a1eed349fc3"
+  }
+]

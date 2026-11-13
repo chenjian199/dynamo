@@ -1,0 +1,73 @@
+{
+  "source_commit": "a97c71d2b17feba59ce73da5b2844e604b3b684b",
+  "cases": [
+    {
+      "name": "cpu-platform",
+      "argv": [
+        "docker",
+        "exec",
+        "87581019ab7fef6535de0fb0e91220a757db3c2dec3fa6fa1aecb8951750a676",
+        "/opt/dynamo/bin/entrypoint.sh",
+        "timeout",
+        "60",
+        "python",
+        "/test/container/platforms/cpu-smoke.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "native-kvbm",
+      "argv": [
+        "docker",
+        "exec",
+        "87581019ab7fef6535de0fb0e91220a757db3c2dec3fa6fa1aecb8951750a676",
+        "/opt/dynamo/bin/entrypoint.sh",
+        "timeout",
+        "1200",
+        "python",
+        "/test/container/platforms/native-smoke.py",
+        "--platform",
+        "ascend",
+        "--devices",
+        "0,1",
+        "--output",
+        "/evidence/native-kvbm"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "kv-routing",
+      "argv": [
+        "docker",
+        "exec",
+        "87581019ab7fef6535de0fb0e91220a757db3c2dec3fa6fa1aecb8951750a676",
+        "/opt/dynamo/bin/entrypoint.sh",
+        "timeout",
+        "1200",
+        "python",
+        "/test/container/platforms/smoke.py",
+        "--platform",
+        "ascend",
+        "--devices",
+        "0,1",
+        "--model",
+        "/models/Qwen3-0.6B",
+        "--output",
+        "/evidence/kv-routing"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "certified": false,
+  "image": {
+    "tag": "heyi/dynamo:1.6.2-ascend0.30-a97c71d2b1-runtime",
+    "id": "sha256:26b68876a523635c9c1c473b299487bd832c595229fb076c979069c17eddef1f"
+  },
+  "harness_sha256": "4f15a3ef9a89d00fef8067fe4470a7b7dc39255a5a0642e368b3b4c5f358ddac",
+  "container_id": "87581019ab7fef6535de0fb0e91220a757db3c2dec3fa6fa1aecb8951750a676",
+  "cleanup": {
+    "exit_code": 0,
+    "stdout": "87581019ab7fef6535de0fb0e91220a757db3c2dec3fa6fa1aecb8951750a676\n",
+    "stderr": ""
+  }
+}

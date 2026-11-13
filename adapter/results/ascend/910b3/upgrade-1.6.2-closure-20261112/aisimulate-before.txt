@@ -1,0 +1,54 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________ test_dynamo_declares_matching_aisimulate_requirements _____________
+
+    def test_dynamo_declares_matching_aisimulate_requirements() -> None:
+        pyproject, cargo = _root_configs()
+        python_requirement = _python_requirement(pyproject)
+        python_versions = _python_version_range(python_requirement)
+        container_requirement = _requirements_file_aisimulate_requirement(
+            AISIMULATE_REQUIREMENTS
+        )
+    
+        assert python_requirement.marker is not None
+        environment = default_environment()
+        environment["python_version"] = "3.10"
+        assert not python_requirement.marker.evaluate(environment)
+        environment["python_version"] = "3.11"
+        assert python_requirement.marker.evaluate(environment)
+        environment["python_version"] = "3.12"
+        assert python_requirement.marker.evaluate(environment)
+        environment["python_version"] = "3.13"
+        assert python_requirement.marker.evaluate(environment)
+        environment["python_version"] = "3.14"
+        assert not python_requirement.marker.evaluate(environment)
+        assert container_requirement.marker is None
+        assert _python_version_range(container_requirement) == python_versions
+        with (ROOT / "benchmarks/pyproject.toml").open("rb") as handle:
+            benchmarks = tomllib.load(handle)
+>       assert _python_version_range(_python_requirement(benchmarks)) == python_versions
+
+tests/dependencies/test_aisimulate_consistency.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pyproject = {'build-system': {'build-backend': 'setuptools.build_meta', 'requires': ['setuptools>=42', 'wheel']}, 'project': {'aut......]}}, 'setuptools': {'package-data': {'prefix_data_generator': ['**/*.py']}, 'packages': ['prefix_data_generator']}}}
+
+    def _python_requirement(pyproject: dict) -> Requirement:
+        matches = [
+            Requirement(requirement)
+>           for requirement in pyproject["project"]["optional-dependencies"]["simulation"]
+            if canonicalize_name(Requirement(requirement).name) == "aisimulate"
+        ]
+E       KeyError: 'optional-dependencies'
+
+tests/dependencies/test_aisimulate_consistency.py:57: KeyError
+=============================== warnings summary ===============================
+../../../../../../../../var/tmp/adapter-workflow/venv/lib/python3.10/site-packages/_pytest/config/__init__.py:1474
+  /var/tmp/adapter-workflow/venv/lib/python3.10/site-packages/_pytest/config/__init__.py:1474: PytestConfigWarning: Unknown config option: asyncio_mode
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/dependencies/test_aisimulate_consistency.py::test_dynamo_declares_matching_aisimulate_requirements
+1 failed, 4 deselected, 1 warning in 0.07s

@@ -1,0 +1,262 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "closure-deepseek-parity-2a239c2b50",
+    "namespace": "heyi-upgrade162",
+    "labels": {
+      "heyi.io/campaign": "upgrade-1.6.2-ascend-scoped-20261112"
+    }
+  },
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "master",
+      "kubernetes.io/arch": "arm64"
+    },
+    "containers": [
+      {
+        "name": "main",
+        "image": "docker.io/heyi/dynamo@sha256:8a65f2c472e1c47ac6d30326b6d517aa6716b273c0438d8888e56d944b51ef26",
+        "imagePullPolicy": "Never",
+        "command": [
+          "/opt/dynamo/bin/entrypoint.sh"
+        ],
+        "args": [
+          "python",
+          "/controller/deepseek-paired-diagnostic-run.py"
+        ],
+        "env": [
+          {
+            "name": "HF_HUB_OFFLINE",
+            "value": "1"
+          },
+          {
+            "name": "DYN_REQUEST_PLANE",
+            "value": "tcp"
+          },
+          {
+            "name": "DYN_EVENT_PLANE",
+            "value": "zmq"
+          },
+          {
+            "name": "DYN_PLATFORM",
+            "value": "ascend"
+          },
+          {
+            "name": "VLLM_HOST_IP",
+            "valueFrom": {
+              "fieldRef": {
+                "fieldPath": "status.podIP"
+              }
+            }
+          },
+          {
+            "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+            "value": "20090"
+          },
+          {
+            "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+            "value": "60"
+          },
+          {
+            "name": "ASCEND_TRANSFER_TIMEOUT",
+            "value": "30000"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "GOMAXPROCS",
+            "value": "8"
+          },
+          {
+            "name": "SPT_NOENV",
+            "value": "1"
+          },
+          {
+            "name": "OMP_NUM_THREADS",
+            "value": "4"
+          },
+          {
+            "name": "PLATFORM",
+            "value": "ascend"
+          },
+          {
+            "name": "MODEL_PATH",
+            "value": "/models/DeepSeek-V4-Flash-w8a8-mtp"
+          },
+          {
+            "name": "TP",
+            "value": "8"
+          },
+          {
+            "name": "DP",
+            "value": "1"
+          },
+          {
+            "name": "DEVICES",
+            "value": "0,1,2,3,4,5,6,7"
+          },
+          {
+            "name": "_PROFILE_OVERRIDE_VLLM_KV_CACHE_BYTES",
+            "value": "8589934592"
+          },
+          {
+            "name": "OMP_PROC_BIND",
+            "value": "false"
+          },
+          {
+            "name": "HCCL_BUFFSIZE",
+            "value": "1024"
+          },
+          {
+            "name": "HCCL_OP_EXPANSION_MODE",
+            "value": "AIV"
+          },
+          {
+            "name": "HCCL_CONNECT_TIMEOUT",
+            "value": "300"
+          },
+          {
+            "name": "HCCL_EXEC_TIMEOUT",
+            "value": "300"
+          },
+          {
+            "name": "TASK_QUEUE_ENABLE",
+            "value": "1"
+          },
+          {
+            "name": "PYTORCH_NPU_ALLOC_CONF",
+            "value": "expandable_segments:True"
+          },
+          {
+            "name": "VLLM_BATCH_INVARIANT",
+            "value": "1"
+          }
+        ],
+        "resources": {
+          "requests": {
+            "cpu": "16",
+            "memory": "128Gi",
+            "huawei.com/Ascend910": "8"
+          },
+          "limits": {
+            "cpu": "32",
+            "memory": "192Gi",
+            "huawei.com/Ascend910": "8"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "models",
+            "mountPath": "/models/DeepSeek-V4-Flash-w8a8-mtp",
+            "readOnly": true
+          },
+          {
+            "name": "ascend-driver",
+            "mountPath": "/usr/local/Ascend/driver",
+            "readOnly": true
+          },
+          {
+            "name": "ascend-dcmi",
+            "mountPath": "/usr/local/dcmi",
+            "readOnly": true
+          },
+          {
+            "name": "ascend-smi",
+            "mountPath": "/usr/local/sbin/npu-smi",
+            "readOnly": true
+          },
+          {
+            "name": "harness",
+            "mountPath": "/harness",
+            "readOnly": true
+          },
+          {
+            "name": "evidence",
+            "mountPath": "/evidence"
+          },
+          {
+            "name": "shm",
+            "mountPath": "/dev/shm"
+          },
+          {
+            "name": "controller",
+            "mountPath": "/controller",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "models",
+        "hostPath": {
+          "path": "/data/DeepSeek-V4-Flash-w8a8-mtp",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "ascend-driver",
+        "hostPath": {
+          "path": "/usr/local/Ascend/driver",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "ascend-dcmi",
+        "hostPath": {
+          "path": "/usr/local/dcmi",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "ascend-smi",
+        "hostPath": {
+          "path": "/usr/local/bin/npu-smi",
+          "type": "File"
+        }
+      },
+      {
+        "name": "harness",
+        "hostPath": {
+          "path": "/data/dynamo-upgrade-1.6.2-20261111/source-2a239c2b50",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "evidence",
+        "hostPath": {
+          "path": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112/deepseek-parity-diagnostic-2a239c2b50",
+          "type": "DirectoryOrCreate"
+        }
+      },
+      {
+        "name": "shm",
+        "emptyDir": {
+          "medium": "Memory",
+          "sizeLimit": "32Gi"
+        }
+      },
+      {
+        "name": "controller",
+        "hostPath": {
+          "path": "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/adapter/results/ascend/910b3/upgrade-1.6.2-closure-20261112",
+          "type": "Directory"
+        }
+      }
+    ],
+    "tolerations": [
+      {
+        "key": "huawei.com/Ascend910",
+        "operator": "Exists",
+        "effect": "NoSchedule"
+      }
+    ],
+    "terminationGracePeriodSeconds": 90,
+    "restartPolicy": "Never",
+    "activeDeadlineSeconds": 4400,
+    "automountServiceAccountToken": false
+  }
+}

@@ -1,0 +1,54 @@
+[LogService] File logging is disabled due to failure on creating directory "//mxlog/umd/" 
+INFO 11-11 15:34:31 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 15:34:31 [__init__.py:54] - metax -> vllm_metax:register
+INFO 11-11 15:34:31 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 15:34:31 [__init__.py:237] Platform plugin metax is activated
+INFO 11-11 15:34:31 [envs.py:136] vllm-metax would try to sets VLLM_USE_FLASHINFER_SAMPLER default to False. Reason: controlled by VLLM_METAX_USE_FLASHINFER_SAMPLER; disabled by default
+INFO 11-11 15:34:31 [envs.py:136] vllm-metax would try to sets VLLM_ENGINE_READY_TIMEOUT_S default to 7200. Reason: set timeout to 7200s for model loading
+INFO 11-11 15:34:31 [envs.py:136] vllm-metax would try to sets VLLM_FLOAT32_MATMUL_PRECISION default to high. Reason: set float32 matmul precision to high for better performance on Maca platform
+INFO 11-11 15:34:31 [envs.py:136] vllm-metax would try to sets VLLM_USE_V2_MODEL_RUNNER default to False. Reason: v2 model runner is still under development and not fully tested on Maca platform, disable it by default
+INFO 11-11 15:34:31 [envs.py:136] vllm-metax would try to sets VLLM_USE_DEEP_GEMM_E8M0 default to False. Reason: USE_DEEP_GEMM_E8M0 default to false on Maca platform
+INFO 11-11 15:34:39 [importing.py:53] Triton is installed but 0 active driver(s) found (expected 1). Disabling Triton to prevent runtime errors.
+INFO 11-11 15:34:39 [importing.py:88] Triton not installed or not compatible; certain GPU-related functions will not be available.
+
+==================================== ERRORS ====================================
+_ ERROR collecting components/src/dynamo/vllm/tests/test_platform_integration.py _
+ImportError while importing test module '/workspace/dynamo/components/src/dynamo/vllm/tests/test_platform_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/conda/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+components/src/dynamo/vllm/tests/test_platform_integration.py:19: in <module>
+    from dynamo.vllm.worker_factory import _DecodeWorkerLifecycle
+E   ImportError: cannot import name '_DecodeWorkerLifecycle' from 'dynamo.vllm.worker_factory' (/workspace/dynamo/components/src/dynamo/vllm/worker_factory.py)
+------------------------------- Captured stdout --------------------------------
+INFO Print the version information of mcoplib during compilation.
+
+Version info:Mcoplib_Version = '0.4.11'
+Build_Maca_Version = '3.8.0.25'
+Build_Torch_Version = '2.10.0+metax3.8.0.9'
+Min_Compatibility_Maca_Version = '3.7.0'
+GIT_BRANCH = 'HEAD'
+GIT_COMMIT = 'a3b69de'
+Vllm Op Version = 0.26.0
+SGlang Op Version  = 0.5.17 
+
+INFO Staring Check the torch version compatibility of the operating environment.
+
+INFO: Torch version compatibility check passed: build=2.10.0+metax3.8.0.9, runtime=2.10.0+metax3.8.2.2.
+
+INFO Staring Check the current MACA version of the operating environment.
+
+INFO: Release major.minor matching,  successful:3.8. 
+
+INFO Staring Check the MACA minimum compatibility version of the operating environment.
+
+INFO: MACA minimum compatibility check passed: 3.8.2 >= 3.7.0.
+
+[ERROR] `min_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /opt/conda/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+[ERROR] `max_frames` is part of Qwen3VLVideoProcessorInitKwargs, but not documented. Make sure to add it to the docstring of the function in /opt/conda/lib/python3.12/site-packages/transformers/models/qwen3_vl/video_processing_qwen3_vl.py.
+=========================== short test summary info ============================
+ERROR components/src/dynamo/vllm/tests/test_platform_integration.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 13.65s

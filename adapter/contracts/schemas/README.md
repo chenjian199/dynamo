@@ -21,3 +21,5 @@ SPDX-License-Identifier: Apache-2.0
 Schema 通过只表示结构符合要求。功能依赖是否完整、模型和镜像身份是否一致、命令是否调用规定入口、证据是否真实且满足断言，还分别由 [范围解析](../../workflow/scope.py)、[任务校验](../../workflow/state/README.md) 和 [证据认证](../../workflow/evidence/README.md) 检查。结果中的 `passed: true` 本身不能让功能通过。
 
 编写输入可先参考 [环境模板](../../environments/examples/README.md) 和已有 `feature.yaml`。格式变更需要同步生产者、消费者及 [契约测试](../../workflow/tests/README.md)；验收语义变化还需要递增相应功能 revision。公共结构检查入口见 [contracts](../README.md)。
+
+[upgrade-plan.schema.json](upgrade-plan.schema.json) 校验上游升级意向，包括 B/H/T、官方目标提交、平台镜像/架构/引擎、必测功能、静态检查及配对回归预算。它不代替 `container/platforms/*.json` 版本锁；只有镜像被实际观察并在候选源码更新 canonical stack 后，才进入 M01–M10 验收身份。升级过程见 [工作流说明](../../upgrades/README.md)。

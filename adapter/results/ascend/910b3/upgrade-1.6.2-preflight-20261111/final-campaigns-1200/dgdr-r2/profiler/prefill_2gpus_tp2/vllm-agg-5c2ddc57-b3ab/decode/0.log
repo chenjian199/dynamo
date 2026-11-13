@@ -1,0 +1,312 @@
+INFO 11-11 11:20:51 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 11:20:51 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-11 11:20:51 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+INFO 11-11 11:20:51 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-11 11:20:52 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[2m2026-11-11T11:21:05.860014Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS is deprecated and no longer used. System health is now determined by endpoints that register with health check payloads. Please update your configuration to register health check payloads directly on endpoints.
+[2m2026-11-11T11:21:05.860130Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_ENABLED is deprecated. System metrics server is now controlled solely by DYN_SYSTEM_PORT. Set DYN_SYSTEM_PORT to a positive value to enable the server, or set to -1 to disable (default).
+[2m2026-11-11T11:21:08.238127Z[0m [32m INFO[0m [2mnixl_telemetry.allow_nixl_telemetry_capture[0m[2m:[0m Pinned NIXL telemetry to the NOP exporter
+[2m2026-11-11T11:21:09.019377Z[0m [32m INFO[0m [2mpatch_indexer_kv_dtype._apply_indexer_kv_dtype_int8_patch[0m[2m:[0m Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[2m2026-11-11T11:21:09.028306Z[0m [32m INFO[0m [2mpatch_kv_cache_dtype._apply_kv_cache_dtype_int8_patch[0m[2m:[0m Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[2m2026-11-11T11:21:09.107095Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[2m2026-11-11T11:21:09.200158Z[0m [32m INFO[0m [2m__init__._wrapper[0m[2m:[0m Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[2m2026-11-11T11:21:09.914093Z[0m [33mWARNING[0m [2mindexer_topk[0m[2m:[0m Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[2m2026-11-11T11:21:10.222132Z[0m [32m INFO[0m [2margs.create_kv_events_config[0m[2m:[0m No kv_events_config required: prefix caching is disabled
+[2m2026-11-11T11:21:10.222252Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Using kv_events_config for publishing vLLM kv events over zmq: None (use_kv_events=False)
+[2m2026-11-11T11:21:10.222348Z[0m [32m INFO[0m [2margs.update_engine_config_with_dynamo[0m[2m:[0m Forward pass metrics enabled: scheduler_cls set to InstrumentedScheduler (port=20380)
+[2m2026-11-11T11:21:12.100238Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS is deprecated and no longer used. System health is now determined by endpoints that register with health check payloads. Please update your configuration to register health check payloads directly on endpoints.
+[2m2026-11-11T11:21:12.100286Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_ENABLED is deprecated. System metrics server is now controlled solely by DYN_SYSTEM_PORT. Set DYN_SYSTEM_PORT to a positive value to enable the server, or set to -1 to disable (default).
+[2m2026-11-11T11:21:12.100991Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=9090, use_endpoint_health_status=["generate"]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=true, canary_wait_time_secs=10, health_check_request_timeout_secs=3
+[2m2026-11-11T11:21:12.119582Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS is deprecated and no longer used. System health is now determined by endpoints that register with health check payloads. Please update your configuration to register health check payloads directly on endpoints.
+[2m2026-11-11T11:21:12.119614Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_ENABLED is deprecated. System metrics server is now controlled solely by DYN_SYSTEM_PORT. Set DYN_SYSTEM_PORT to a positive value to enable the server, or set to -1 to disable (default).
+[2m2026-11-11T11:21:12.120179Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing Kubernetes discovery backend
+[2m2026-11-11T11:21:12.120249Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::utils[0m[2m:[0m Pod identity loaded from environment variables
+[2m2026-11-11T11:21:12.120265Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS is deprecated and no longer used. System health is now determined by endpoints that register with health check payloads. Please update your configuration to register health check payloads directly on endpoints.
+[2m2026-11-11T11:21:12.120288Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_ENABLED is deprecated. System metrics server is now controlled solely by DYN_SYSTEM_PORT. Set DYN_SYSTEM_PORT to a positive value to enable the server, or set to -1 to disable (default).
+[2m2026-11-11T11:21:12.120772Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Initializing KubeDiscoveryClient: mode=Pod, target=Pod("vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt"), cr_name=vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt, instance_id=2f55ada67f165, namespace=heyi-upgrade162, pod_uid=95a772df-6aba-4317-98dc-b0a9a0587340
+[2m2026-11-11T11:21:12.121661Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Discovery daemon started
+[2m2026-11-11T11:21:12.121722Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[2m2026-11-11T11:21:12.121751Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::daemon[0m[2m:[0m Discovery daemon starting
+[2m2026-11-11T11:21:12.121877Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::daemon[0m[2m:[0m Daemon watching EndpointSlices (pod mode)
+[2m2026-11-11T11:21:12.122006Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::daemon[0m[2m:[0m Daemon watching DynamoWorkerMetadata CRs in namespace: heyi-upgrade162
+[2m2026-11-11T11:21:12.123041Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Starting health check tasks for 0 endpoints with canary_wait_time: 10s
+[2m2026-11-11T11:21:12.123083Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Dynamic endpoint discovery monitor started
+[2m2026-11-11T11:21:12.123096Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m HealthCheckManager started successfully with channel-based endpoint discovery
+[2m2026-11-11T11:21:12.123106Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Health check manager started (canary_wait_time: 10s, request_timeout: 3s)
+[2m2026-11-11T11:21:12.123126Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Starting dynamic endpoint discovery monitor with channel-based notifications
+[2m2026-11-11T11:21:12.123194Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:9090
+[2m2026-11-11T11:21:12.123240Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:9090
+[2m2026-11-11T11:21:12.123274Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:9090 [3mpolicy[0m[2m=[0mWorker
+[2m2026-11-11T11:21:12.124317Z[0m [32m INFO[0m [2mgraceful_shutdown.install_signal_handlers[0m[2m:[0m Signal handlers set up for graceful shutdown (discovery unregister + grace period)
+[2m2026-11-11T11:21:12.125242Z[0m [33mWARNING[0m [2mprometheus.setup_multiprocess_prometheus[0m[2m:[0m Found PROMETHEUS_MULTIPROC_DIR was set by user. This directory must be wiped between vLLM runs or you will find inaccurate metrics. Unset the variable and vLLM will properly handle cleanup.
+[2m2026-11-11T11:21:12.127901Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_PORT_8000_TCP_ADDR
+[2m2026-11-11T11:21:12.128042Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_PORT_9090_TCP
+[2m2026-11-11T11:21:12.128134Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_SERVICE_PORT
+[2m2026-11-11T11:21:12.128219Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_SERVICE_HOST
+[2m2026-11-11T11:21:12.128313Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_PORT_8000_TCP
+[2m2026-11-11T11:21:12.128398Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_SERVICE_HOST
+[2m2026-11-11T11:21:12.128471Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_PORT_8000_TCP_PORT
+[2m2026-11-11T11:21:12.128541Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_SERVICE_PORT_SYSTEM
+[2m2026-11-11T11:21:12.128611Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_SERVICE_PORT_SYSTEM
+[2m2026-11-11T11:21:12.128682Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_PORT_9090_TCP_PORT
+[2m2026-11-11T11:21:12.128751Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_SERVICE_PORT
+[2m2026-11-11T11:21:12.128817Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_PORT
+[2m2026-11-11T11:21:12.128886Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_PORT_8000_TCP_PORT
+[2m2026-11-11T11:21:12.128956Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_SERVICE_HOST
+[2m2026-11-11T11:21:12.129024Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_PORT_9090_TCP_ADDR
+[2m2026-11-11T11:21:12.129092Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_PORT
+[2m2026-11-11T11:21:12.129161Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_SERVICE_PORT_HTTP
+[2m2026-11-11T11:21:12.129230Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_PORT_9090_TCP_PORT
+[2m2026-11-11T11:21:12.129297Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_PORT_9090_TCP
+[2m2026-11-11T11:21:12.129366Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_PORT_8000_TCP_ADDR
+[2m2026-11-11T11:21:12.129431Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_PORT_9090_TCP_PROTO
+[2m2026-11-11T11:21:12.129499Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_PORT
+[2m2026-11-11T11:21:12.129562Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_PORT_9090_TCP_PROTO
+[2m2026-11-11T11:21:12.129628Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_PORT_8000_TCP_PROTO
+[2m2026-11-11T11:21:12.129692Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_PORT_8000_TCP
+[2m2026-11-11T11:21:12.129759Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_PORT_9090_TCP_ADDR
+[2m2026-11-11T11:21:12.129825Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_SERVICE_HOST
+[2m2026-11-11T11:21:12.129889Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_DECODE_6C42598F_SERVICE_PORT
+[2m2026-11-11T11:21:12.129955Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_5C2DDC57_B3AB_FRONTEND_SERVICE_PORT_HTTP
+[2m2026-11-11T11:21:12.130029Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_SERVICE_PORT
+[2m2026-11-11T11:21:12.130097Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_VLLMDECODEWORKER_D08101AC_PORT
+[2m2026-11-11T11:21:12.130163Z[0m [33mWARNING[0m [2menvs.validate_environ[0m[2m:[0m Unknown vLLM environment variable detected: VLLM_AGG_D998B6B2_CB34_FRONTEND_PORT_8000_TCP_PROTO
+[2m2026-11-11T11:21:12.204106Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::daemon[0m[2m:[0m Discovery daemon completed its initial sync [3minstances[0m[2m=[0m4
+[2m2026-11-11T11:21:15.273721Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[2m2026-11-11T11:21:25.273022Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[2m2026-11-11T11:21:35.060521Z[0m [32m INFO[0m [2mmodel.__post_init__[0m[2m:[0m Resolved architecture: Qwen3ForCausalLM
+[2m2026-11-11T11:21:35.061737Z[0m [32m INFO[0m [2mmodel.get_and_verify_max_len[0m[2m:[0m Using max model len 1024
+[2m2026-11-11T11:21:35.271222Z[0m [32m INFO[0m [2mscheduler.__post_init__[0m[2m:[0m Chunked prefill is enabled with max_num_batched_tokens=1628.
+[2m2026-11-11T11:21:35.271453Z[0m [33mWARNING[0m [2mscheduler.verify_max_model_len[0m[2m:[0m max_num_batched_tokens (1628) exceeds max_num_seqs * max_model_len (1024). This may lead to unexpected behavior.
+[2m2026-11-11T11:21:35.272930Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[2m2026-11-11T11:21:35.302703Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[2m2026-11-11T11:21:35.302944Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[2m2026-11-11T11:21:35.304078Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[2m2026-11-11T11:21:35.304555Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+[2m2026-11-11T11:21:35.306330Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[2m2026-11-11T11:21:35.308635Z[0m [33mWARNING[0m [2mplatform._fix_incompatible_config[0m[2m:[0m GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[2m2026-11-11T11:21:35.308907Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[2m2026-11-11T11:21:35.337121Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m Dynamic EPLB is False
+[2m2026-11-11T11:21:35.337401Z[0m [32m INFO[0m [2mascend_config._validate_config[0m[2m:[0m The number of redundant experts is 0
+[2m2026-11-11T11:21:35.337862Z[0m [32m INFO[0m [2mascend_config.derive_and_validate[0m[2m:[0m FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[2m2026-11-11T11:21:35.355036Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+[2m2026-11-11T11:21:35.355486Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[2m2026-11-11T11:21:35.355948Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+[2m2026-11-11T11:21:35.358172Z[0m [33mWARNING[0m [2mmodel.get_diff_sampling_param[0m[2m:[0m Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[2m2026-11-11T11:21:45.273553Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+INFO 11-11 11:21:47 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 11:21:47 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-11 11:21:47 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 11:21:47 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-11 11:21:48 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[2m2026-11-11T11:21:55.272996Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+INFO 11-11 11:22:02 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+INFO 11-11 11:22:02 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+INFO 11-11 11:22:02 [ascend_config.py:334] Dynamic EPLB is False
+INFO 11-11 11:22:02 [ascend_config.py:335] The number of redundant experts is 0
+INFO 11-11 11:22:02 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+(EngineCore pid=338) INFO 11-11 11:22:02 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+(EngineCore pid=338) INFO 11-11 11:22:02 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+(EngineCore pid=338) INFO 11-11 11:22:02 [core.py:123] Initializing a V1 LLM engine (v0.30.0) with config: model='/models/Qwen3-0.6B', speculative_config=None, tokenizer='/models/Qwen3-0.6B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=1024, download_dir=None, load_format=auto, tensor_parallel_size=2, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=npu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=/models/Qwen3-0.6B, enable_prefix_caching=False, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'vllm_ascend.compilation.compiler_interface.AscendCompiler', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [1628], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, moe_backend='auto', sparse_indexer_topk_backend='auto', linear_backend='auto', linear_backend_per_quant=None)
+(EngineCore pid=338) INFO 11-11 11:22:02 [multiproc_executor.py:153] DP group leader: node_rank=0, node_rank_within_dp=0, master_addr=127.0.0.1, mq_connect_ip=10.42.5.223 (local), world_size=2, local_world_size=2
+[2m2026-11-11T11:22:05.272652Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+INFO 11-11 11:22:07 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 11:22:07 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-11 11:22:07 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 11-11 11:22:07 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+INFO 11-11 11:22:07 [__init__.py:54] - ascend -> vllm_ascend:register
+INFO 11-11 11:22:07 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+INFO 11-11 11:22:07 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-11 11:22:07 [__init__.py:272] Platform plugin ascend is activated
+INFO 11-11 11:22:08 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+INFO 11-11 11:22:08 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[2m2026-11-11T11:22:15.273646Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+INFO 11-11 11:22:22 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+INFO 11-11 11:22:22 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+INFO 11-11 11:22:22 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+INFO 11-11 11:22:22 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+INFO 11-11 11:22:22 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+INFO 11-11 11:22:22 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+INFO 11-11 11:22:22 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+INFO 11-11 11:22:22 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+WARNING 11-11 11:22:23 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+WARNING 11-11 11:22:23 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[2m2026-11-11T11:22:25.272911Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[2m2026-11-11T11:22:35.272768Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+WARNING 11-11 11:22:43 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+WARNING 11-11 11:22:43 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+INFO 11-11 11:22:44 [ascend_config.py:334] Dynamic EPLB is False
+INFO 11-11 11:22:44 [ascend_config.py:334] Dynamic EPLB is False
+INFO 11-11 11:22:44 [ascend_config.py:335] The number of redundant experts is 0
+INFO 11-11 11:22:44 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+INFO 11-11 11:22:44 [ascend_config.py:335] The number of redundant experts is 0
+INFO 11-11 11:22:44 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[2m2026-11-11T11:22:45.273035Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+(Worker pid=352) INFO 11-11 11:22:46 [parallel_state.py:1827] world_size=2 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_6686106f99b64eb985d4fbf0d4acc46d backend=hccl
+(Worker pid=353) INFO 11-11 11:22:46 [parallel_state.py:1827] world_size=2 rank=1 local_rank=1 distributed_init_method=file:///tmp/vllm_dist_6686106f99b64eb985d4fbf0d4acc46d backend=hccl
+[Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+(Worker pid=352) INFO 11-11 11:22:46 [parallel_state.py:2267] rank 0 in world size 2 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, ETP rank 0, EP rank N/A, EPLB rank N/A
+[Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : [Gloo] Rank 1
+1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[rank1]:[W1111 11:22:46.306773780 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[rank0]:[W1111 11:22:46.311218575 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+(Worker pid=353) INFO 11-11 11:22:47 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(Worker pid=352) INFO 11-11 11:22:47 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(Worker_TP1 pid=353) INFO 11-11 11:22:47 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+(Worker_TP0 pid=352) INFO 11-11 11:22:47 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+(Worker_TP1 pid=353) INFO 11-11 11:22:47 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(Worker_TP0 pid=352) INFO 11-11 11:22:47 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+(Worker_TP0 pid=352) INFO 11-11 11:22:48 [weight_utils.py:895] Filesystem type for checkpoints: XFS. Checkpoint size: 1.40 GiB. Available RAM: 460.44 GiB.
+(Worker_TP0 pid=352) INFO 11-11 11:22:48 [weight_utils.py:918] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(Worker_TP0 pid=352) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+(Worker_TP0 pid=352) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.53s/it]
+(Worker_TP0 pid=352) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:01<00:00,  1.53s/it]
+(Worker_TP0 pid=352) 
+(Worker_TP0 pid=352) INFO 11-11 11:22:49 [default_loader.py:430] Loading weights took 1.60 seconds
+(Worker_TP1 pid=353) INFO 11-11 11:22:50 [model_runner_v1.py:4476] Loading model weights took 0.5846 GB
+(Worker_TP1 pid=353) INFO 11-11 11:22:50 [model_runner_v1.py:4563] Model runner load_model total time: 3.69 seconds
+(Worker_TP0 pid=352) INFO 11-11 11:22:51 [model_runner_v1.py:4476] Loading model weights took 0.5846 GB
+(Worker_TP0 pid=352) INFO 11-11 11:22:51 [model_runner_v1.py:4563] Model runner load_model total time: 4.45 seconds
+(EngineCore pid=338) INFO 11-11 11:22:51 [utils.py:320] Using LBNHC KV cache layout.
+[2m2026-11-11T11:22:55.273390Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+(Worker_TP0 pid=352) INFO 11-11 11:23:01 [worker.py:660] Available KV cache memory: 17.24 GiB
+(EngineCore pid=338) INFO 11-11 11:23:02 [kv_cache_utils.py:2395] NPU KV cache size: 322,688 tokens, Maximum concurrency for 1,024 tokens per request: 315.12x
+(Worker_TP0 pid=352) INFO 11-11 11:23:02 [kernel_warmup.py:44] Starting Triton kernel warmup.
+(Worker_TP1 pid=353) INFO 11-11 11:23:02 [kernel_warmup.py:44] Starting Triton kernel warmup.
+(Worker_TP0 pid=352) INFO 11-11 11:23:02 [kernel_warmup.py:36] rejection_sampler Triton warmup complete in 0.000s.
+(Worker_TP1 pid=353) INFO 11-11 11:23:02 [kernel_warmup.py:36] rejection_sampler Triton warmup complete in 0.000s.
+(Worker_TP0 pid=352) [WARNING] AutoBlockify disabled for kernel 'token_bin_counts_and_mask_kernel'. Unsafe ops: atomic operations. Enabling may cause correctness issues. The compiler keeps AutoBlockify disabled for this kernel.
+(Worker_TP1 pid=353) [WARNING] AutoBlockify disabled for kernel 'token_bin_counts_and_mask_kernel'. Unsafe ops: atomic operations. Enabling may cause correctness issues. The compiler keeps AutoBlockify disabled for this kernel.
+[2m2026-11-11T11:23:05.273425Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+(Worker_TP0 pid=352) INFO 11-11 11:23:08 [kernel_warmup.py:36] penalties Triton warmup complete in 6.861s.
+(Worker_TP0 pid=352) INFO 11-11 11:23:08 [kernel_warmup.py:36] rms Triton warmup complete in 0.000s.
+(Worker_TP0 pid=352) INFO 11-11 11:23:08 [kernel_warmup.py:36] indexer Triton warmup complete in 0.000s.
+(Worker_TP1 pid=353) INFO 11-11 11:23:08 [kernel_warmup.py:36] penalties Triton warmup complete in 6.861s.
+(Worker_TP0 pid=352) INFO 11-11 11:23:08 [kernel_warmup.py:53] Triton kernel warmup finished in 6.862s.
+(Worker_TP1 pid=353) INFO 11-11 11:23:08 [kernel_warmup.py:36] rms Triton warmup complete in 0.000s.
+(Worker_TP1 pid=353) INFO 11-11 11:23:08 [kernel_warmup.py:36] indexer Triton warmup complete in 0.000s.
+(Worker_TP1 pid=353) INFO 11-11 11:23:08 [kernel_warmup.py:53] Triton kernel warmup finished in 6.862s.
+(Worker_TP0 pid=352) INFO 11-11 11:23:08 [worker.py:950] Free memory on device (60.52/60.97 GiB) on startup. Desired GPU memory utilization is (0.3, 18.29 GiB). Actual usage: 0.58 GiB for weights, 0.04 GiB for peak activation, 0.43 GiB for non-torch memory, 0.0 GiB for NPU graph memory. Replace gpu_memory_utilization with `--kv-cache-memory=18352372121` (17.09 GiB) to fit into requested memory, or `--kv-cache-memory=63698890752` (59.32 GiB) to fully utilize NPU free memory. Current KV cache memory: 17.24 GiB. After warmup: torch reserved memory 17.84 GiB, torch allocated memory 17.82 GiB.
+(Worker_TP1 pid=353) INFO 11-11 11:23:09 [worker.py:950] Free memory on device (60.58/60.97 GiB) on startup. Desired GPU memory utilization is (0.3, 18.29 GiB). Actual usage: 0.58 GiB for weights, 0.04 GiB for peak activation, 0.43 GiB for non-torch memory, 0.0 GiB for NPU graph memory. Replace gpu_memory_utilization with `--kv-cache-memory=18352638361` (17.09 GiB) to fit into requested memory, or `--kv-cache-memory=63761199104` (59.38 GiB) to fully utilize NPU free memory. Current KV cache memory: 17.24 GiB. After warmup: torch reserved memory 17.84 GiB, torch allocated memory 17.82 GiB.
+(Worker_TP0 pid=352) INFO 11-11 11:23:10 [cpu_binding.py:539] [cpu_bind_mode] mode=topo_affinity rank=0 visible_npus=[0, 1]
+(Worker_TP0 pid=352) WARNING 11-11 11:23:10 [worker.py:971] Bind cpus failed in rank0: CPUs available in 'Cpus_allowed_list' conflict with NUMA affinity. Skip binding cpu.
+(Worker_TP1 pid=353) INFO 11-11 11:23:10 [cpu_binding.py:539] [cpu_bind_mode] mode=topo_affinity rank=1 visible_npus=[0, 1]
+(Worker_TP1 pid=353) WARNING 11-11 11:23:10 [worker.py:971] Bind cpus failed in rank1: CPUs available in 'Cpus_allowed_list' conflict with NUMA affinity. Skip binding cpu.
+(EngineCore pid=338) INFO 11-11 11:23:10 [core.py:379] init engine (profile, create kv cache, warmup model) took 19.09 s
+(EngineCore pid=338) WARNING 11-11 11:23:12 [scheduler.py:224] Using custom scheduler class dynamo.vllm.instrumented_scheduler.InstrumentedScheduler. This scheduler interface is not public and compatibility may not be maintained. If you have subclassed Scheduler instead of AsyncScheduler, you will see degraded performance due to async scheduling being disabled.
+[2m2026-11-11T11:23:12.160086Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS is deprecated and no longer used. System health is now determined by endpoints that register with health check payloads. Please update your configuration to register health check payloads directly on endpoints.
+[2m2026-11-11T11:23:12.160190Z[0m [33m WARN[0m [2mdynamo_runtime::config[0m[2m:[0m DYN_SYSTEM_ENABLED is deprecated. System metrics server is now controlled solely by DYN_SYSTEM_PORT. Set DYN_SYSTEM_PORT to a positive value to enable the server, or set to -1 to disable (default).
+[2m2026-11-11T11:23:12.241297Z[0m [32m INFO[0m [2minstrumented_scheduler.__init__[0m[2m:[0m InstrumentedScheduler: ZMQ PUB bound on tcp://*:20380 (worker_id=832720513528165, dp_rank=0)
+(EngineCore pid=338) [2m2026-11-11T11:23:12.872886Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+(EngineCore pid=338) [2m2026-11-11T11:23:12.873106Z[0m [33mWARNING[0m [2mvllm.__post_init__[0m[2m:[0m Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+(EngineCore pid=338) [2m2026-11-11T11:23:12.873903Z[0m [32m INFO[0m [2mkernel.set_platform_defaults[0m[2m:[0m Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+(EngineCore pid=338) [2m2026-11-11T11:23:12.874189Z[0m [32m INFO[0m [2mvllm.__post_init__[0m[2m:[0m Cudagraph is disabled under eager mode
+[2m2026-11-11T11:23:12.886154Z[0m [32m INFO[0m [2mmain._setup_vllm_engine[0m[2m:[0m worker for /models/Qwen3-0.6B has been initialized
+[2m2026-11-11T11:23:12.892447Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m Configured shared event-plane ZMQ context [3mio_threads[0m[2m=[0m4
+[2m2026-11-11T11:23:12.893076Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:33869 [3mtopic[0m[2m=[0mkv_metrics [3msndhwm[0m[2m=[0m100000
+[2m2026-11-11T11:23:12.893291Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://10.42.5.223:33869
+[2m2026-11-11T11:23:12.893349Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering event channel: scope=Endpoint { endpoint: EndpointId { namespace: "heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f", component: "backend", name: "generate" } }, topic=kv_metrics, instance_id=1029fd75d74681
+[2m2026-11-11T11:23:12.905985Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388729")
+[2m2026-11-11T11:23:12.906037Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mkv_metrics [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m4549768207877761
+(EngineCore pid=338) [2m2026-11-11T11:23:13.174057Z[0m [33mWARNING[0m [2mindexer_topk[0m[2m:[0m Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+(EngineCore pid=338) [2m2026-11-11T11:23:13.313141Z[0m [32m INFO[0m [2mutils.maybe_auto_detect_quantization[0m[2m:[0m No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+(EngineCore pid=338) [2m2026-11-11T11:23:13.313843Z[0m [32m INFO[0m [2mplatform._fix_incompatible_config[0m[2m:[0m The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+(EngineCore pid=338) [2m2026-11-11T11:23:13.320669Z[0m [32m INFO[0m [2mplatform._update_compilation_modes[0m[2m:[0m Compilation disabled, using eager mode by default
+(EngineCore pid=338) [2m2026-11-11T11:23:13.321045Z[0m [32m INFO[0m [2mplatform._set_pytorch_npu_alloc_env[0m[2m:[0m Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+(EngineCore pid=338) [2m2026-11-11T11:23:13.321405Z[0m [32m INFO[0m [2mcompilation.log_enabled_passes[0m[2m:[0m Enabled custom fusions: norm_quant, act_quant
+(EngineCore pid=338) [2m2026-11-11T11:23:13.322280Z[0m [31mERROR[0m [2mcore._invoke_utility_method[0m[2m:[0m Invocation of get_kv_cache_group_metadata method failed
+(EngineCore pid=338) Traceback (most recent call last):
+(EngineCore pid=338)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1599, in _invoke_utility_method
+(EngineCore pid=338)     result = get_result()
+(EngineCore pid=338)              ^^^^^^^^^^^^
+(EngineCore pid=338)   File "/vllm-workspace/vllm/vllm/v1/engine/core.py", line 1553, in <lambda>
+(EngineCore pid=338)     (method := getattr(self, method_name))
+(EngineCore pid=338)                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=338) AttributeError: 'EngineCoreProc' object has no attribute 'get_kv_cache_group_metadata'
+[2m2026-11-11T11:23:13.364656Z[0m [33m WARN[0m [2mcache_info.configure_kv_event_block_size[0m[2m:[0m Failed to fetch KV cache group metadata; falling back to vLLM cache_config.block_size: Call to get_kv_cache_group_metadata method failed: 'EngineCoreProc' object has no attribute 'get_kv_cache_group_metadata'
+[2m2026-11-11T11:23:13.364814Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-11T11:23:13.365326Z[0m [32m INFO[0m [2mengine_monitor.__init__[0m[2m:[0m VllmEngineMonitor initialized and health check task started.
+[2m2026-11-11T11:23:13.365479Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-11T11:23:13.366119Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-11T11:23:13.366251Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-11T11:23:13.367937Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:45887 [3mtopic[0m[2m=[0mforward-pass-metrics [3msndhwm[0m[2m=[0m100000
+[2m2026-11-11T11:23:13.368135Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://10.42.5.223:45887
+[2m2026-11-11T11:23:13.368177Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering event channel: scope=Endpoint { endpoint: EndpointId { namespace: "heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f", component: "backend", name: "generate" } }, topic=forward-pass-metrics, instance_id=9af0189ee31fc
+[2m2026-11-11T11:23:13.374969Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388732")
+[2m2026-11-11T11:23:13.375016Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mforward-pass-metrics [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m2725695934312956
+[2m2026-11-11T11:23:13.375185Z[0m [32m INFO[0m [2mmain.setup_fpm_relay[0m[2m:[0m FPM relay for dp_rank=0 subscribing to tcp://127.0.0.1:20380
+[2m2026-11-11T11:23:13.375732Z[0m [32m INFO[0m [2mdynamo_llm::fpm_publisher[0m[2m:[0m FPM relay: connected to tcp://127.0.0.1:20380
+[2m2026-11-11T11:23:13.375947Z[0m [32m INFO[0m [2mworker_factory.register_engine_routes[0m[2m:[0m Registered engine routes: control/sleep, control/wake_up, control/scale_elastic_ep, control/ep_capacity, control/start_profile, control/stop_profile, and RL admin routes: abort_request, destroy_weights_update_group, flush_cache, get_weight_version, init_weights_update_group, liveness_probe, pause_generation, resume_generation, set_weight_version, update_weights_from_disk, update_weights_from_distributed, update_weights_from_tensor
+[2m2026-11-11T11:23:13.376055Z[0m [32m INFO[0m [2mworker_factory._run_decode_worker[0m[2m:[0m Registering model with endpoint types: chat,completions
+[2m2026-11-11T11:23:13.377975Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane::zmq_transport[0m[2m:[0m ZMQ PUB transport bound with configured HWM [3mendpoint[0m[2m=[0mtcp://0.0.0.0:43415 [3mtopic[0m[2m=[0mactive_sequences_events [3msndhwm[0m[2m=[0m100000
+[2m2026-11-11T11:23:13.378125Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m direct ZMQ publisher advertised endpoint [3mpublic_endpoint[0m[2m=[0mtcp://10.42.5.223:43415
+[2m2026-11-11T11:23:13.378167Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering event channel: scope=Endpoint { endpoint: EndpointId { namespace: "heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f", component: "backend", name: "generate" } }, topic=active_sequences_events, instance_id=dd7efce3c42bb
+[2m2026-11-11T11:23:13.386275Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388733")
+[2m2026-11-11T11:23:13.386360Z[0m [32m INFO[0m [2mdynamo_runtime::transports::event_plane[0m[2m:[0m EventPublisher registered with discovery (direct mode) [3mtopic[0m[2m=[0mactive_sequences_events [3mtransport[0m[2m=[0mZmq [3mpublisher_id[0m[2m=[0m3896599654449851
+[2m2026-11-11T11:23:13.386796Z[0m [33m WARN[0m [2mdp_topology.get_dp_range_for_worker[0m[2m:[0m vLLM selects internal DP load balancing. If you are launching multiple workers for DP deployment, hybrid or external load balancing is recommended.
+[2m2026-11-11T11:23:13.387481Z[0m [32m INFO[0m [2mmain.register_vllm_model[0m[2m:[0m Published vLLM engine-native generate capability
+[2m2026-11-11T11:23:13.387631Z[0m [32m INFO[0m [2mmain.register_vllm_model[0m[2m:[0m Getting engine runtime configuration metadata from vLLM engine for chat,completions...
+[2m2026-11-11T11:23:13.444095Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m KubeDiscoveryClient::list returning 0 instances for query=EndpointModels { namespace: "heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f", component: "backend", endpoint: "generate" }
+[2m2026-11-11T11:23:13.444191Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering model card: namespace=heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f, component=backend, endpoint=generate, instance_id=2f55ada67f165
+[2m2026-11-11T11:23:13.459097Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388734")
+[2m2026-11-11T11:23:13.459243Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m KubeDiscoveryClient::list returning 0 instances for query=EndpointModels { namespace: "heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f", component: "backend", endpoint: "generate" }
+[2m2026-11-11T11:23:13.459284Z[0m [32m INFO[0m [2m_core[0m[2m:[0m Registered base model '/models/Qwen3-0.6B' MDC
+[2m2026-11-11T11:23:13.461855Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m10.42.5.223:0 [3mport_source[0m[2m=[0m"OS-assigned"
+[2m2026-11-11T11:23:13.461889Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+[2m2026-11-11T11:23:13.461904Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+[2m2026-11-11T11:23:13.461975Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 10.42.5.223:0
+[2m2026-11-11T11:23:13.462016Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m10.42.5.223:0 [3mactual[0m[2m=[0m10.42.5.223:39631
+[2m2026-11-11T11:23:13.462041Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m10.42.5.223:39631 [3madvertised_addr[0m[2m=[0m10.42.5.223:39631
+[2m2026-11-11T11:23:13.462121Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f.backend.get_perf_metrics' with shared TCP server on 10.42.5.223:39631
+[2m2026-11-11T11:23:13.462152Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f.backend.generate' with shared TCP server on 10.42.5.223:39631
+[2m2026-11-11T11:23:13.462171Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f.backend.clear_kv_blocks' with shared TCP server on 10.42.5.223:39631
+[2m2026-11-11T11:23:13.462233Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering endpoint: namespace=heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f, component=backend, endpoint=generate, instance_id=2f55ada67f165
+[2m2026-11-11T11:23:13.462595Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Spawning health check task for new endpoint: generate
+[2m2026-11-11T11:23:13.462626Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Spawned health check task for endpoint: generate
+[2m2026-11-11T11:23:13.462664Z[0m [32m INFO[0m [2mdynamo_runtime::health_check[0m[2m:[0m Health check task started for: generate
+[2m2026-11-11T11:23:13.482075Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388735")
+[2m2026-11-11T11:23:13.482561Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering endpoint: namespace=heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f, component=backend, endpoint=clear_kv_blocks, instance_id=2f55ada67f165
+[2m2026-11-11T11:23:13.510716Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388736")
+[2m2026-11-11T11:23:13.511519Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube[0m[2m:[0m Registering endpoint: namespace=heyi-upgrade162-vllm-agg-5c2ddc57-b3ab-6c42598f, component=backend, endpoint=get_perf_metrics, instance_id=2f55ada67f165
+[2m2026-11-11T11:23:13.555832Z[0m [32m INFO[0m [2mdynamo_runtime::discovery::kube::crd[0m[2m:[0m Applied DynamoWorkerMetadata CR [3mnamespace[0m[2m=[0m"heyi-upgrade162" [3mcr_name[0m[2m=[0m"vllm-agg-5c2ddc57-b3ab-decode-6c42598f-cf8868d8-lfvpt" [3mresource_version[0m[2m=[0mSome("298388738")
+[2m2026-11-11T11:23:15.273075Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[2m2026-11-11T11:23:23.511770Z[0m [33mWARNING[0m [2minput_processor.process_inputs[0m[2m:[0m Passing raw prompts to InputProcessor is deprecated and will be removed in the future. You should instead pass the outputs of Renderer.render_cmpl() or Renderer.render_chat().
+[2m2026-11-11T11:23:25.273678Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[2m2026-11-11T11:23:26.464578Z[0m [33m WARN[0m [2mdynamo_runtime::health_check[0m[2m:[0m Health check timeout for generate
+[2m2026-11-11T11:23:33.380763Z[0m [32m INFO[0m [2mloggers.log[0m[2m:[0m Engine 000: Avg prompt throughput: 0.1 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 0 reqs, Waiting: 0 reqs, NPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%
+[2m2026-11-11T11:23:43.383282Z[0m [32m INFO[0m [2mloggers.log[0m[2m:[0m Engine 000: Avg prompt throughput: 0.1 tokens/s, Avg generation throughput: 0.1 tokens/s, Running: 0 reqs, Waiting: 0 reqs, NPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%

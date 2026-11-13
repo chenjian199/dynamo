@@ -1,0 +1,117 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 9.67kB done
+#1 DONE 0.0s
+
+#2 [context compliance] load .dockerignore
+#2 transferring compliance: 2B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for nvcr.io/nvidia/distroless/go:v4.1.7
+#3 ...
+
+#4 [internal] load metadata for docker.m.daocloud.io/library/python:3.12-slim
+#4 DONE 0.5s
+
+#5 [internal] load metadata for docker.m.daocloud.io/library/golang:1.27.3
+#5 ...
+
+#3 [internal] load metadata for nvcr.io/nvidia/distroless/go:v4.1.7
+#3 DONE 1.7s
+
+#5 [internal] load metadata for docker.m.daocloud.io/library/golang:1.27.3
+#5 DONE 1.9s
+
+#6 [internal] load .dockerignore
+#6 transferring context: 847B done
+#6 DONE 0.0s
+
+#7 [stage-8 1/7] FROM nvcr.io/nvidia/distroless/go:v4.1.7@sha256:9ef7b9ac43cbf4c833fd5d98689dc09b06a29e5ec3451796b037aa27928fe532
+#7 DONE 0.0s
+
+#8 [licenses 1/8] FROM docker.m.daocloud.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#8 DONE 0.0s
+
+#9 [base 1/7] FROM docker.m.daocloud.io/library/golang:1.27.3@sha256:e519d3b0a5b285e5aa53ab9eef02bc6bbb9cb04608389b743a136a9ce75f0d1e
+#9 DONE 0.0s
+
+#10 [context compliance] load from client
+#10 transferring compliance: 6.64kB done
+#10 DONE 0.0s
+
+#11 [internal] load build context
+#11 transferring context: 6.64MB 0.1s done
+#11 DONE 0.1s
+
+#12 [builder 2/4] RUN --mount=type=cache,target=/go/pkg/mod,sharing=shared     --mount=type=cache,target=/root/.cache/go-build,sharing=shared     GOBIN=/usr/local/bin go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.7.0 &&     git init -q &&     git -c user.email=build@dynamo -c user.name=build add -A &&     git -c user.email=build@dynamo -c user.name=build commit -q -m sbom &&     cyclonedx-gomod app -licenses -json -main ./cmd -output /sbom-go.cdx.json .
+#12 CACHED
+
+#13 [stage-8 3/7] COPY --from=builder /workspace/crd-apply .
+#13 CACHED
+
+#14 [stage-8 4/7] COPY --from=builder /workspace/dgd-apply-overrides .
+#14 CACHED
+
+#15 [licenses 5/8] COPY --from=builder /sbom-go-licenses /tmp/go-licenses
+#15 CACHED
+
+#16 [licenses 7/8] RUN python3 -m compliance.policy.validate         --policy /opt/compliance/policy/licenses.toml         --input /legal/osrb-deps.csv
+#16 CACHED
+
+#17 [stage-8 5/7] COPY --from=builder /workspace/config/crd/bases/ /opt/dynamo-operator/crds/
+#17 CACHED
+
+#18 [stage-8 2/7] COPY --from=builder /workspace/manager .
+#18 CACHED
+
+#19 [base 6/7] RUN go mod download
+#19 CACHED
+
+#20 [base 4/7] WORKDIR /workspace
+#20 CACHED
+
+#21 [builder 1/4] RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o manager ./cmd/main.go &&     CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o crd-apply ./cmd/crd-apply/main.go &&     CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o dgd-apply-overrides ./cmd/dgd-apply-overrides
+#21 CACHED
+
+#22 [base 5/7] COPY go.mod go.sum ./
+#22 CACHED
+
+#23 [base 7/7] COPY . .
+#23 CACHED
+
+#24 [builder 3/4] RUN --mount=type=cache,target=/go/pkg/mod,sharing=shared     mkdir -p /sbom-go-licenses && cd /go/pkg/mod &&     find . -path ./cache -prune -o -type f         ( -iname 'LICENSE*' -o -iname 'LICENCE*' -o -iname 'COPYING*'            -o -iname 'NOTICE*' -o -iname 'UNLICENSE*' ) -print |     while IFS= read -r lf; do         rel="${lf#./}"; dest="/sbom-go-licenses/$(dirname "$rel")";         mkdir -p "$dest" && cp "$lf" "$dest/" 2>/dev/null || true;     done;     echo "go license harvest: $(find /sbom-go-licenses -type f 2>/dev/null | wc -l) files"; true
+#24 CACHED
+
+#25 [licenses 4/8] COPY --from=builder /sbom-go.cdx.json /tmp/sbom-go.cdx.json
+#25 CACHED
+
+#26 [base 3/7] RUN apt-get update && apt-get install -y --no-install-recommends git python3-pip && apt-get clean && rm -rf /var/lib/apt/lists/*     && pip3 install --no-cache-dir pydantic --break-system-packages
+#26 CACHED
+
+#27 [licenses 2/8] RUN mkdir -p /legal /sboms
+#27 CACHED
+
+#28 [builder 4/4] RUN --mount=type=cache,target=/go/pkg/mod,sharing=shared     if [ "false" = "true" ]; then         go mod vendor -o /tmp/go-vendor ;     else         mkdir -p /tmp/go-vendor ;     fi
+#28 CACHED
+
+#29 [licenses 3/8] COPY --from=compliance . /opt/compliance
+#29 CACHED
+
+#30 [base 2/7] RUN echo "Building for linux/arm64"
+#30 CACHED
+
+#31 [licenses 6/8] RUN python3 -m compliance.generators     --ecosystem go     --go-sbom /tmp/sbom-go.cdx.json     --go-licenses-dir /tmp/go-licenses     --output-dir /legal     --policy /opt/compliance/policy/licenses.toml          -v
+#31 CACHED
+
+#32 [stage-8 6/7] COPY --from=licenses /legal /legal
+#32 CACHED
+
+#33 exporting to image
+#33 exporting layers done
+#33 writing image sha256:e47bd27dacdd78bf76b5ab3bd0f2ddae3b84d7668da474ae3db34c284c2eed24 done
+#33 naming to docker.io/heyi/dynamo-operator:1.6.2-heyi-upgrade-1aabe435ad-arm64 done
+#33 DONE 0.0s
+
+#34 resolving provenance for metadata file
+#34 DONE 0.0s

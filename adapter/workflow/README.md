@@ -110,3 +110,7 @@ Codex、Claude、OpenAI Responses 使用相同 envelope 与持久化历史。API
 交付状态 artifacts_sealed 仅表示完成归档。随后执行 M10 功能门禁并 `release --campaign ... --output <campaign>/release.json`，重新核验必需功能/依赖，记录 optional 失败和已接受暂缓。不能以 tar 存在宣称全部模块或所有拓扑已认证。外部历史封存包保持原字节，不为目录迁移改写旧包。
 
 完整检查：`python3 adapter/tools/check-workflow.py --require-ready`。验收范围与仍暂缓的事项见 [validation.md](validation.md) 和 [finalization.md](finalization.md)。
+
+## 跟随上游升级
+
+`python3 -m adapter.workflow upgrade` 是 [升级控制层](upgrade/README.md)。它冻结 B/H/T 和厂商目标，分析迁移与证据失效，交接本操作手册的 doctor、compile、automate、release 和 deliver；不会新增另一套功能认证标准。完整操作顺序和 1.6.2 镜像地址见 [upgrades](../upgrades/README.md)。

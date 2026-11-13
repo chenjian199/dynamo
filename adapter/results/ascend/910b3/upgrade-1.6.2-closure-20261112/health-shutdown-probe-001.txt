@@ -1,0 +1,38 @@
+[2m2026-11-12T04:47:15.181678Z[0m [32m INFO[0m [2mdynamo_runtime::worker[0m[2m:[0m dynamo runtime configuration: num_worker_threads=192, max_blocking_threads=192, system_host=0.0.0.0, system_port=0, use_endpoint_health_status=[]starting_health_status=NotReady, system_health_path=/health, system_live_path=/live, health_check_enabled=false, canary_wait_time_secs=1, health_check_request_timeout_secs=2
+[2m2026-11-12T04:47:15.198083Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Memory
+[2m2026-11-12T04:47:15.198974Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m"auto" [3mport[0m[2m=[0mOS-assigned
+[2m2026-11-12T04:47:15.200955Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] binding to: 0.0.0.0:0
+[2m2026-11-12T04:47:15.201041Z[0m [32m INFO[0m [2mdynamo_runtime::system_status_server[0m[2m:[0m [spawn_system_status_server] system status server bound to: 0.0.0.0:39407
+[2m2026-11-12T04:47:15.201111Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m System HTTP listener started [3maddress[0m[2m=[0m0.0.0.0:39407 [3mpolicy[0m[2m=[0mWorker
+[2m2026-11-12T04:47:15.203544Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Creating TCP request plane server [3mbind_addr[0m[2m=[0m127.0.0.1:0 [3mport_source[0m[2m=[0m"OS-assigned"
+[2m2026-11-12T04:47:15.203595Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Initializing TCP server with dispatcher (concurrency=10000, queue=40000)
+[2m2026-11-12T04:47:15.203631Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Started TCP worker dispatcher with concurrency limit 10000
+[2m2026-11-12T04:47:15.203738Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Binding TCP server to 127.0.0.1:0
+[2m2026-11-12T04:47:15.203769Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m TCP server bound successfully [3mrequested[0m[2m=[0m127.0.0.1:0 [3mactual[0m[2m=[0m127.0.0.1:39753
+[2m2026-11-12T04:47:15.203790Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m TCP request plane server started [3mactual_addr[0m[2m=[0m127.0.0.1:39753 [3madvertised_addr[0m[2m=[0m127.0.0.1:39753
+[2m2026-11-12T04:47:15.203974Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Registered endpoint 'shutdown-probe.backend.generate' with shared TCP server on 127.0.0.1:39753
+[2m2026-11-12T04:47:21.212560Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime readiness withdrawn for shutdown
+[2m2026-11-12T04:47:21.212610Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-11-12T04:47:21.212722Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-11-12T04:47:21.212774Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-11-12T04:47:21.212785Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 1
+[2m2026-11-12T04:47:21.212872Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::ingress::shared_tcp_endpoint[0m[2m:[0m Unregistered TCP endpoint handler [3mendpoint_name[0m[2m=[0mgenerate [3mendpoint_path[0m[2m=[0m870618f79fd89220/shutdown-probe/backend/generate
+[2m2026-11-12T04:47:21.212966Z[0m [32m INFO[0m [2mdynamo_runtime::utils::graceful_shutdown[0m[2m:[0m Last endpoint completed, notifying all waiters
+[2m2026-11-12T04:47:21.213154Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+Traceback (most recent call last):
+  File "/probe.py", line 43, in <module>
+    asyncio.run(main())
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/probe.py", line 25, in main
+    assert calls, 'canary callback not observed before shutdown'
+           ^^^^^
+AssertionError: canary callback not observed before shutdown
+[2m2026-11-12T04:47:21.465502Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m2 [3mruntimes[0m[2m=[0m1

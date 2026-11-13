@@ -1,0 +1,40 @@
+{
+  "started": 1794395457.0591755,
+  "image": {
+    "exit_code": 0,
+    "tag": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-dev",
+    "id": "sha256:271673e548ad5ebf05bed9cb1019e8590105f51630dc8a5700c4f75a4a68aafe"
+  },
+  "source_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "argv": [
+    "docker",
+    "run",
+    "-d",
+    "--name",
+    "heyi-upgrade162-dev-1aabe-r1",
+    "--network",
+    "host",
+    "--user",
+    "0",
+    "-e",
+    "CARGO_BUILD_JOBS=8",
+    "-e",
+    "CARGO_HOME=/build-cache/cargo",
+    "-e",
+    "RUSTUP_HOME=/build-cache/rustup",
+    "-e",
+    "CARGO_TARGET_DIR=/build-cache/target",
+    "-e",
+    "CARGO_NET_OFFLINE=true",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/cache,dst=/build-cache",
+    "--mount",
+    "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/candidate-1aabe/dev-editable-r1/source,dst=/workspace/dynamo",
+    "--mount",
+    "type=bind,src=/usr/local/Ascend/driver,dst=/usr/local/Ascend/driver,readonly",
+    "sha256:271673e548ad5ebf05bed9cb1019e8590105f51630dc8a5700c4f75a4a68aafe",
+    "sleep",
+    "infinity"
+  ],
+  "container_id": "fb70e1b15d1f3b17df73a7cab36d116e2375f2f9fa9b8f8ef095467803278ab6"
+}

@@ -1,0 +1,273 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "creationTimestamp": "2026-11-11T11:16:48Z",
+    "labels": {
+      "heyi.io/campaign": "heyi-upgrade162"
+    },
+    "name": "upgrade-offline-final-r3",
+    "namespace": "heyi-upgrade162",
+    "resourceVersion": "298406184",
+    "uid": "dd2f3c2c-a504-4c16-806f-9aada2bb587c"
+  },
+  "spec": {
+    "activeDeadlineSeconds": 3600,
+    "containers": [
+      {
+        "command": [
+          "/opt/dynamo/tools-venv/bin/python",
+          "/offline/offline-profile.py",
+          "--input",
+          "/offline/input.json",
+          "--output",
+          "/offline/output"
+        ],
+        "env": [
+          {
+            "name": "DYN_PLATFORM",
+            "value": "cpu"
+          },
+          {
+            "name": "TORCH_DEVICE_BACKEND_AUTOLOAD",
+            "value": "0"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "K3S_DATA_DIR",
+            "value": "/tmp/m09-k3s"
+          }
+        ],
+        "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-tools",
+        "imagePullPolicy": "Never",
+        "name": "main",
+        "resources": {
+          "limits": {
+            "cpu": "4",
+            "memory": "8Gi"
+          },
+          "requests": {
+            "cpu": "1",
+            "memory": "2Gi"
+          }
+        },
+        "terminationMessagePath": "/dev/termination-log",
+        "terminationMessagePolicy": "File",
+        "volumeMounts": [
+          {
+            "mountPath": "/offline",
+            "name": "offline-work"
+          },
+          {
+            "mountPath": "/models/Qwen3-0.6B",
+            "name": "models",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/opt/dynamo/platform-capacity",
+            "name": "capacity",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+            "name": "kube-api-access-nh5v4",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "dnsPolicy": "ClusterFirst",
+    "enableServiceLinks": true,
+    "nodeName": "master-02-45d4a763",
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master-02-45d4a763"
+    },
+    "preemptionPolicy": "PreemptLowerPriority",
+    "priority": 0,
+    "restartPolicy": "Never",
+    "schedulerName": "default-scheduler",
+    "securityContext": {
+      "runAsGroup": 0,
+      "runAsUser": 0
+    },
+    "serviceAccount": "m10-offline-tools",
+    "serviceAccountName": "m10-offline-tools",
+    "terminationGracePeriodSeconds": 30,
+    "tolerations": [
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/not-ready",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/unreachable",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      }
+    ],
+    "volumes": [
+      {
+        "hostPath": {
+          "path": "/data/dynamo-upgrade-1.6.2-20261111/profiling-r3",
+          "type": "Directory"
+        },
+        "name": "offline-work"
+      },
+      {
+        "hostPath": {
+          "path": "/data/weight/Qwen3-0.6B",
+          "type": "Directory"
+        },
+        "name": "models"
+      },
+      {
+        "configMap": {
+          "defaultMode": 420,
+          "name": "m10-capacity"
+        },
+        "name": "capacity"
+      },
+      {
+        "name": "kube-api-access-nh5v4",
+        "projected": {
+          "defaultMode": 420,
+          "sources": [
+            {
+              "serviceAccountToken": {
+                "expirationSeconds": 3607,
+                "path": "token"
+              }
+            },
+            {
+              "configMap": {
+                "items": [
+                  {
+                    "key": "ca.crt",
+                    "path": "ca.crt"
+                  }
+                ],
+                "name": "kube-root-ca.crt"
+              }
+            },
+            {
+              "downwardAPI": {
+                "items": [
+                  {
+                    "fieldRef": {
+                      "apiVersion": "v1",
+                      "fieldPath": "metadata.namespace"
+                    },
+                    "path": "namespace"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:58:57Z",
+        "status": "False",
+        "type": "PodReadyToStartContainers"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:16:48Z",
+        "reason": "PodCompleted",
+        "status": "True",
+        "type": "Initialized"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:58:55Z",
+        "reason": "PodCompleted",
+        "status": "False",
+        "type": "Ready"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:58:55Z",
+        "reason": "PodCompleted",
+        "status": "False",
+        "type": "ContainersReady"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T11:16:48Z",
+        "status": "True",
+        "type": "PodScheduled"
+      }
+    ],
+    "containerStatuses": [
+      {
+        "containerID": "containerd://1ee63fbedb7bdb2df79cbaf22b8e36a5648075c74c3282fef9c7dcc22aa5b7ef",
+        "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-tools",
+        "imageID": "sha256:d363e7c13df7983e9c9963d9ba2826011ad0d3488405d4b3c6af659369ead5bf",
+        "lastState": {},
+        "name": "main",
+        "ready": false,
+        "restartCount": 0,
+        "started": false,
+        "state": {
+          "terminated": {
+            "containerID": "containerd://1ee63fbedb7bdb2df79cbaf22b8e36a5648075c74c3282fef9c7dcc22aa5b7ef",
+            "exitCode": 0,
+            "finishedAt": "2026-11-11T11:58:55Z",
+            "reason": "Completed",
+            "startedAt": "2026-11-11T11:16:49Z"
+          }
+        },
+        "volumeMounts": [
+          {
+            "mountPath": "/offline",
+            "name": "offline-work"
+          },
+          {
+            "mountPath": "/models/Qwen3-0.6B",
+            "name": "models",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/opt/dynamo/platform-capacity",
+            "name": "capacity",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+            "name": "kube-api-access-nh5v4",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          }
+        ]
+      }
+    ],
+    "hostIP": "192.168.7.7",
+    "hostIPs": [
+      {
+        "ip": "192.168.7.7"
+      }
+    ],
+    "phase": "Succeeded",
+    "podIP": "10.42.5.216",
+    "podIPs": [
+      {
+        "ip": "10.42.5.216"
+      }
+    ],
+    "qosClass": "Burstable",
+    "startTime": "2026-11-11T11:16:48Z"
+  }
+}

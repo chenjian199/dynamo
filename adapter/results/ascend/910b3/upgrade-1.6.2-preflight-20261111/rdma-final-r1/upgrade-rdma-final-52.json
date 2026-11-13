@@ -1,0 +1,151 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "upgrade-rdma-final-52",
+    "namespace": "heyi-upgrade162",
+    "labels": {
+      "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+    }
+  },
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "master-02-45d4a763",
+      "kubernetes.io/arch": "arm64"
+    },
+    "containers": [
+      {
+        "name": "main",
+        "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+        "imagePullPolicy": "Never",
+        "command": [
+          "/opt/dynamo/bin/entrypoint.sh"
+        ],
+        "args": [
+          "sleep",
+          "850"
+        ],
+        "env": [
+          {
+            "name": "HF_HUB_OFFLINE",
+            "value": "1"
+          },
+          {
+            "name": "VLLM_HOST_IP",
+            "valueFrom": {
+              "fieldRef": {
+                "fieldPath": "status.podIP"
+              }
+            }
+          },
+          {
+            "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+            "value": "20090"
+          },
+          {
+            "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+            "value": "60"
+          },
+          {
+            "name": "ASCEND_TRANSFER_TIMEOUT",
+            "value": "30000"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "GOMAXPROCS",
+            "value": "4"
+          },
+          {
+            "name": "SPT_NOENV",
+            "value": "1"
+          },
+          {
+            "name": "OMP_NUM_THREADS",
+            "value": "4"
+          },
+          {
+            "name": "DYN_PLATFORM",
+            "value": "ascend"
+          }
+        ],
+        "resources": {
+          "requests": {
+            "cpu": "4",
+            "memory": "16Gi",
+            "huawei.com/Ascend910": "1"
+          },
+          "limits": {
+            "cpu": "16",
+            "memory": "64Gi",
+            "huawei.com/Ascend910": "1"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "ascend-driver",
+            "mountPath": "/usr/local/Ascend/driver",
+            "readOnly": true
+          },
+          {
+            "name": "ascend-dcmi",
+            "mountPath": "/usr/local/dcmi",
+            "readOnly": true
+          },
+          {
+            "name": "ascend-smi",
+            "mountPath": "/usr/local/sbin/npu-smi",
+            "readOnly": true
+          },
+          {
+            "name": "shm",
+            "mountPath": "/dev/shm"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "ascend-driver",
+        "hostPath": {
+          "path": "/usr/local/Ascend/driver",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "ascend-dcmi",
+        "hostPath": {
+          "path": "/usr/local/dcmi",
+          "type": "Directory"
+        }
+      },
+      {
+        "name": "ascend-smi",
+        "hostPath": {
+          "path": "/usr/local/bin/npu-smi",
+          "type": "File"
+        }
+      },
+      {
+        "name": "shm",
+        "emptyDir": {
+          "medium": "Memory",
+          "sizeLimit": "8Gi"
+        }
+      }
+    ],
+    "tolerations": [
+      {
+        "key": "huawei.com/Ascend910",
+        "operator": "Exists",
+        "effect": "NoSchedule"
+      }
+    ],
+    "terminationGracePeriodSeconds": 90,
+    "restartPolicy": "Never",
+    "activeDeadlineSeconds": 900,
+    "automountServiceAccountToken": false
+  }
+}

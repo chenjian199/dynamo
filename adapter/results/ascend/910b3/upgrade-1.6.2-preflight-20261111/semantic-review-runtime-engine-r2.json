@@ -1,0 +1,127 @@
+{
+  "candidate_commit": "1aabe435ad56922cf7e12f92f64df2dc39531ccb",
+  "target_commit": "28f9765d98ded77149a94d0defee6d54e97f6741",
+  "reviewer": "Codex / GPT-6; semantic review, not hardware qualification",
+  "records": [
+    {
+      "path": "components/src/dynamo/common/backend/worker.py",
+      "disposition": "retain",
+      "reason": "Optional platform descriptor is passed to the Rust WorkerConfig; new upstream response-plane and lifecycle configuration remain intact.",
+      "target_diff_sha256": "a99dd90e37658b2f618a963c037811663f82262581165fcf6e26b483dc29ee96"
+    },
+    {
+      "path": "components/src/dynamo/vllm/capacity.py",
+      "disposition": "retain",
+      "reason": "Prefer engine-native token capacity; legacy collective RPC uses engine group-aware capacity, takes the minimum rank value, validates types, and preserves upstream per-rank block/token-budget helpers. Final DP2 and offline profiler exercise this metadata.",
+      "target_diff_sha256": "81035033af6eda6e50c7b81d6d8f6912340a94bf6af464e99f7030c5002b0a6a"
+    },
+    {
+      "path": "components/src/dynamo/vllm/instrumented_scheduler.py",
+      "disposition": "retain",
+      "reason": "Idle reset drains actual engine and connector events on the scheduler thread, including partial connector-reset failure; does not synthesize clear events or change upstream scheduler loops.",
+      "target_diff_sha256": "7747e9b79d35b348426ef0a9a6641e97a4640de8d5e9f32b4ce789930797e7a7"
+    },
+    {
+      "path": "components/src/dynamo/vllm/publisher.py",
+      "disposition": "upstream_replaced",
+      "reason": "Compared candidate to target: only HEYI attribution differs; upstream 1.6.2 publisher implementation is used without a vendor replacement.",
+      "target_diff_sha256": "24bac842c6cd78ad6597414fa37b99997bfef4b27f961161d0b508012eed421d"
+    },
+    {
+      "path": "components/src/dynamo/vllm/worker_factory.py",
+      "disposition": "retain",
+      "reason": "Lazy encoder import keeps optional NIXL dependencies outside text startup; lifecycle detaches ownership before nested-finally cleanup. Prometheus/shared-embedding cleanup ownership remains with lifecycle after successful setup.",
+      "target_diff_sha256": "19ad848a8c18d778019439b65e48ce95cc965c7747e04d7da27149dc397ff88e"
+    },
+    {
+      "path": "components/src/dynamo/vllm/handlers.py",
+      "disposition": "retain",
+      "reason": "Vendor error mapping and explicit-platform PD contracts wrap the upstream handoff shape. ExitStack attempts all registered cleanup callbacks; engine shutdown remains in lifecycle finally. No new TP allowlist.",
+      "target_diff_sha256": "0424143adc7767f99167196ae6b32d86a9c554d408a9fd9a246fc5d45f010f06"
+    },
+    {
+      "path": "components/src/dynamo/vllm/main.py",
+      "disposition": "retain",
+      "reason": "Prepare and freeze platform before endpoint registration; validation uses actual engine config; resource stack rolls back partial startup and transfers ownership only after success. Upstream structural-tag, video, token-budget and KV-hint metadata publication retained.",
+      "target_diff_sha256": "39a5dc6c1cdb1702b413fcd25ec82f6c82d7af9d8d0f993fbde13a52d6779d7a"
+    },
+    {
+      "path": "components/src/dynamo/vllm/kv_connector_protocols.py",
+      "disposition": "retain",
+      "reason": "Distinguishes upstream Mooncake from Ascend module-specific legacy/hybrid wire formats. Wrapper resolution keeps child config and resets inherited module. Vendor0.30 hybrid module exports MooncakeConnector; malformed explicit alias pairing is intentionally rejected. Hybrid live qualification remains pending.",
+      "target_diff_sha256": "ea0239a58e0c462f5a0cd81cb512b5092d97b064027b34dddc393f17aee8553d"
+    },
+    {
+      "path": "lib/backend-common/src/worker.rs",
+      "disposition": "retain",
+      "reason": "Optional validated platform is configured before component/discovery creation; default None preserves legacy workers and invalid descriptors map to InvalidArgument.",
+      "target_diff_sha256": "f71cd1a4a8f54d41511ab6d4e79949ac9ae3efe3da9c5c65570c67c3b8c21835"
+    },
+    {
+      "path": "lib/bindings/python/rust/backend.rs",
+      "disposition": "retain",
+      "reason": "Optional final constructor keyword platform is depythonized into Rust descriptor; all upstream arguments retained.",
+      "target_diff_sha256": "9c556da8891b365d12f18d93bf30de59e24a47115c8054ea4027f80d290d2bca"
+    },
+    {
+      "path": "lib/bindings/python/rust/lib.rs",
+      "disposition": "retain",
+      "reason": "Expose runtime configure_platform and serialized instance/runtime platform getters; Rust validation and frozen identity remain authoritative.",
+      "target_diff_sha256": "5b93cbcb7e6e80090b0bad482c5384275c6b832fb73a029eb3293d08875a60ed"
+    },
+    {
+      "path": "lib/runtime/src/component.rs",
+      "disposition": "retain",
+      "reason": "Optional serde-default platform keeps legacy wire decoding; platform device_kind takes priority with CPU/CUDA fallback, and unsupported descriptor schema fails deserialization.",
+      "target_diff_sha256": "cb1598c9093fa09e86718db212fc9e6a9a948fbf9258c05ebcdd66069abd581d"
+    },
+    {
+      "path": "lib/runtime/src/component/endpoint.rs",
+      "disposition": "retain",
+      "reason": "Freeze identity before each registration/health target; only CUDA reports legacy CUDA device_type, other accelerators carry explicit platform metadata. No explicit descriptor preserves historical CUDA mask inference.",
+      "target_diff_sha256": "fe667919b492f385d4c139d164275fdfc2a39be437b19d24194e9de7a68a6074"
+    },
+    {
+      "path": "lib/runtime/src/distributed.rs",
+      "disposition": "retain",
+      "reason": "Arc OnceLock shares frozen identity across clones; repeated identical configuration is allowed, conflicting or late identity changes rejected; explicit environment selection must match and CPU auto-configures.",
+      "target_diff_sha256": "beb50caea0033468933b7590039332582e99cd189153533672702a6bcce3ca45"
+    },
+    {
+      "path": "lib/runtime/src/discovery/mod.rs",
+      "disposition": "retain",
+      "reason": "Propagate optional platform from DiscoverySpec into Instance alongside upstream request_plane_codec; no transport shape replacement.",
+      "target_diff_sha256": "a95a40d4523aa0ab1fa1672de6d64bb6c5137bbd1fca84f6a28557084981ade2"
+    },
+    {
+      "path": "lib/runtime/src/pipeline/network/egress/push_router.rs",
+      "disposition": "retain",
+      "reason": "Device-aware routes consume declared device_kind; explicit Ascend/MetaX accelerators route as accelerators. Unknown device identity is excluded instead of guessed; CPU/CUDA fallback remains in Instance.",
+      "target_diff_sha256": "f4d696d1c0aa9940b17c87b6c221976686ad23470ef4158afc2f851aa30bb84d"
+    },
+    {
+      "path": "lib/runtime/src/discovery/kube.rs",
+      "disposition": "retain",
+      "reason": "Inspected full target-to-candidate diff: only HEYI attribution and platform:None additions to test fixture literals; upstream discovery implementation unchanged.",
+      "target_diff_sha256": "338604c5ae9dd1c7466149118e260b63f652572e48395498ef738f7004fc944d"
+    },
+    {
+      "path": "lib/runtime/src/discovery/kv_store.rs",
+      "disposition": "retain",
+      "reason": "Inspected full target-to-candidate diff: only HEYI attribution and platform:None additions to test fixture literals; upstream discovery implementation unchanged.",
+      "target_diff_sha256": "374db65a4f45270cedd72a4ab974b72880426c6db316525936f8cee981b7a35b"
+    },
+    {
+      "path": "lib/runtime/src/discovery/metadata.rs",
+      "disposition": "retain",
+      "reason": "Inspected full target-to-candidate diff: only HEYI attribution and platform:None additions to test fixture literals; upstream discovery implementation unchanged.",
+      "target_diff_sha256": "9c2f5872b18f3d362de2d74af6ebe98be0c4293e9389a5fb426e7022a3002a14"
+    },
+    {
+      "path": "lib/runtime/src/discovery/mock.rs",
+      "disposition": "retain",
+      "reason": "Inspected full target-to-candidate diff: only HEYI attribution and platform:None additions to test fixture literals; upstream discovery implementation unchanged.",
+      "target_diff_sha256": "49dabb58e6f201e9d4c044c35a4182497120072af4a7319764c40b08b3ddb557"
+    }
+  ]
+}

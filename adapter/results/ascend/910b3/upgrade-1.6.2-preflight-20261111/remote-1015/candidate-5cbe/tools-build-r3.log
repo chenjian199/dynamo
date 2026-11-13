@@ -1,0 +1,307 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from tools.Dockerfile
+#1 transferring dockerfile: 2.58kB done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${RUNTIME_IMAGE} results in empty or invalid base image name (line 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [stage-0  1/14] FROM docker.io/heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.68kB done
+#5 DONE 0.0s
+
+#6 [stage-0  3/14] COPY audit.py requirements-tools.txt requirements-planner.txt requirements-tools-constraints.txt patch-aiperf.py patch-aiperf-local-fast.py ./
+#6 CACHED
+
+#7 [stage-0  2/14] WORKDIR /opt/dynamo/tools-build
+#7 CACHED
+
+#8 [stage-0  4/14] COPY wheels ./wheels
+#8 CACHED
+
+#9 [stage-0  5/14] RUN --mount=type=cache,target=/root/.cache/pip /opt/dynamo/venv/bin/python audit.py snapshot before.json &&     env -u PYTHONPATH /opt/dynamo/venv/bin/python -m venv /opt/dynamo/tools-venv &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --no-index --no-deps wheels/*.whl &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --cache-dir /root/.cache/pip --timeout 120 --retries 5 --find-links ./wheels --only-binary aisimulate -c requirements-tools-constraints.txt -r requirements-tools.txt -r requirements-planner.txt /opt/dynamo/artifacts/wheels/ai_dynamo*.whl /opt/dynamo/artifacts/wheels/kvbm*.whl /opt/dynamo/artifacts/wheels/gpu_memory_service*.whl pytest==8.4.2 pytest-asyncio==1.2.0 PyYAML blake3 pillow
+#9 7.068 Processing ./wheels/aisimulate-0.13.0-cp311-abi3-manylinux_2_28_aarch64.whl
+#9 7.236 Installing collected packages: aisimulate
+#9 10.65 Successfully installed aisimulate-0.13.0
+#9 11.43 Looking in indexes: https://pypi.tuna.tsinghua.edu.cn/simple
+#9 11.43 Looking in links: ./wheels
+#9 11.44 Processing /opt/dynamo/artifacts/wheels/ai_dynamo-1.6.2-py3-none-any.whl
+#9 11.47 Processing /opt/dynamo/artifacts/wheels/ai_dynamo_runtime-1.6.2-cp310-abi3-linux_aarch64.whl
+#9 11.56 Processing /opt/dynamo/artifacts/wheels/kvbm-1.6.2-cp310-abi3-linux_aarch64.whl
+#9 11.58 Processing /opt/dynamo/artifacts/wheels/gpu_memory_service-0.9.0-cp312-cp312-linux_aarch64.whl
+#9 12.24 Collecting pytest==8.4.2
+#9 12.43   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl (365 kB)
+#9 12.65 Collecting pytest-asyncio==1.2.0
+#9 12.84   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/04/93/2fa34714b7a4ae72f2f8dad66ba17dd9a2c793220719e736dda28b7aec27/pytest_asyncio-1.2.0-py3-none-any.whl (15 kB)
+#9 13.09 Collecting PyYAML
+#9 13.29   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/ed/23/7a778b6bd0b9a8039df8b1b1d80e2e2ad78aa04171592c8a5c43a56a6af4/pyyaml-6.0.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (775 kB)
+#9 13.65 Collecting blake3
+#9 13.85   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/44/1f/6ae6f6ee6c17968ab6de0bb7a2dc7e7740062b498ff43c96012ccdff4444/blake3-1.0.11-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (369 kB)
+#9 14.39 Collecting pillow
+#9 14.59   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/3b/bb/9e30e8ed18c20800ee327a12107d5249ad8dc444867b3adfcc21654e3c71/pillow-13.0.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (6.5 MB)
+#9 14.62 Requirement already satisfied: aisimulate==0.13.0 in /opt/dynamo/tools-venv/lib/python3.12/site-packages (from -r requirements-tools.txt (line 4)) (0.13.0)
+#9 15.07 Collecting pandas==2.3.3 (from -r requirements-tools.txt (line 5))
+#9 15.29   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/57/56/cf2dbe1a3f5271370669475ead12ce77c61726ffd19a35546e31aa8edf4e/pandas-2.3.3-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl (11.7 MB)
+#9 15.60 Collecting aiofiles==24.1.0 (from -r requirements-tools.txt (line 6))
+#9 15.79   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/a5/45/30bb92d442636f570cb5651bc661f52b610e2eec3f891a5dc3a4c3667db0/aiofiles-24.1.0-py3-none-any.whl (15 kB)
+#9 16.02 Collecting kubernetes==32.0.1 (from -r requirements-tools.txt (line 7))
+#9 16.23   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/08/10/9f8af3e6f569685ce3af7faab51c8dd9d93b9c38eba339ca31c746119447/kubernetes-32.0.1-py2.py3-none-any.whl (2.0 MB)
+#9 16.48 Collecting kubernetes-asyncio==32.0.0 (from -r requirements-tools.txt (line 8))
+#9 16.69   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/d6/d0/046ab1a8edad497d134432565fc7710fc3134eeb2f08ec147a08d1509f06/kubernetes_asyncio-32.0.0-py3-none-any.whl (2.0 MB)
+#9 16.92 Collecting plotext==5.3.2 (from -r requirements-tools.txt (line 9))
+#9 17.13   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/f6/1e/12fe7c40cd2099a1f454518754ed229b01beaf3bbb343127f0cc13ce6c22/plotext-5.3.2-py3-none-any.whl (64 kB)
+#9 17.42 Collecting plotly==6.4.0 (from -r requirements-tools.txt (line 10))
+#9 17.63   Using cached https://pypi.tuna.tsinghua.edu.cn/packages/78/ae/89b45ccccfeebc464c9233de5675990f75241b8ee4cd63227800fdf577d1/plotly-6.4.0-py3-none-any.whl (9.9 MB)
+#9 18.13 Collecting scipy<2,>=1.14 (from -r requirements-tools.txt (line 11))
+#9 18.41   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/75/9a/2e71719f31eaefe0e3a1706c4a1ded94e664bfd95ffca2b219a671faee01/scipy-1.18.1-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (34.0 MB)
+#9 21.30      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 34.0/34.0 MB 15.8 MB/s eta 0:00:00
+#9 21.56 Collecting aiperf==0.13.0 (from -r requirements-tools.txt (line 12))
+#9 21.75   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/37/13/1f4a02dfe54158ae99b8ae2c0d3d593d2ed4d37b04ea983ee764c2719561/aiperf-0.13.0-py3-none-any.whl (6.8 MB)
+#9 22.10      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 18.5 MB/s eta 0:00:00
+#9 22.32 Collecting cmdstanpy==1.3.0 (from -r requirements-planner.txt (line 4))
+#9 22.50   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ef/04/7bbe85aa6abf99236cc657ceb5a629f63a82a01910a095533111ea3860f3/cmdstanpy-1.3.0-py3-none-any.whl (99 kB)
+#9 22.70 Collecting dateparser==1.4.3 (from -r requirements-planner.txt (line 5))
+#9 22.88   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/30/5f/63f927b5ffd1cc2c030fc2bd362bf920890e8806cf42f701198de5b3f9c7/dateparser-1.4.3-py3-none-any.whl (322 kB)
+#9 23.12 Collecting filterpy==1.4.5 (from -r requirements-planner.txt (line 6))
+#9 23.33   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f6/1d/ac8914360460fafa1990890259b7fa5ef7ba4cd59014e782e4ab3ab144d8/filterpy-1.4.5.zip (177 kB)
+#9 23.36   Installing build dependencies: started
+#9 27.68   Installing build dependencies: finished with status 'done'
+#9 27.68   Getting requirements to build wheel: started
+#9 28.00   Getting requirements to build wheel: finished with status 'done'
+#9 28.01   Preparing metadata (pyproject.toml): started
+#9 28.33   Preparing metadata (pyproject.toml): finished with status 'done'
+#9 28.66 Collecting holidays==0.83 (from -r requirements-planner.txt (line 7))
+#9 28.92   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/3c/96/70e8c138643ad2895efd96b1b8ca4f00209beea1fed5f5d02b74ab057ee6/holidays-0.83-py3-none-any.whl (1.3 MB)
+#9 28.95      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 43.1 MB/s eta 0:00:00
+#9 29.22 Collecting httmock==1.4.0 (from -r requirements-planner.txt (line 8))
+#9 29.45   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ce/99/f950e23335affb58ae116aaf32565258a732b2b570aa961764df2ac0540d/httmock-1.4.0-py3-none-any.whl (4.8 kB)
+#9 29.75 Collecting importlib_resources==7.1.0 (from -r requirements-planner.txt (line 9))
+#9 30.01   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/8a/db/55a262f3606bebcae07cc14095338471ad7c0bbcaa37707e6f0ee49725b7/importlib_resources-7.1.0-py3-none-any.whl (37 kB)
+#9 30.31 Collecting joblib==1.5.2 (from -r requirements-planner.txt (line 10))
+#9 30.46   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1e/e8/685f47e0d754320684db4425a0967f7d3fa70126bffd76110b7009a0090f/joblib-1.5.2-py3-none-any.whl (308 kB)
+#9 30.76 Collecting patsy==1.0.2 (from -r requirements-planner.txt (line 11))
+#9 30.93   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f1/70/ba4b949bdc0490ab78d545459acd7702b211dfccf7eb89bbc1060f52818d/patsy-1.0.2-py2.py3-none-any.whl (233 kB)
+#9 31.22 Collecting pmdarima==2.1.1 (from -r requirements-planner.txt (line 12))
+#9 31.45   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/cb/1f/e869861148c689472254c6c8519be5d9aac26056cb9e2549db3396078ae6/pmdarima-2.1.1-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (670 kB)
+#9 31.48      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 670.4/670.4 kB 26.7 MB/s eta 0:00:00
+#9 31.74 Collecting prometheus-api-client==0.6.0 (from -r requirements-planner.txt (line 13))
+#9 32.00   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/fb/24/0c06c1d10aada3f9b44174c743e48d25e19f953ee9de5caf2c30099c342d/prometheus_api_client-0.6.0-py3-none-any.whl (30 kB)
+#9 32.29 Collecting prophet==1.2.1 (from -r requirements-planner.txt (line 14))
+#9 32.54   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/bf/51/facbb0dc3c0e2a54cf976b2e75e2f9400e85875a072e33df1aa16f3e1744/prophet-1.2.1-py3-none-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl (11.9 MB)
+#9 34.28      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.9/11.9 MB 6.8 MB/s eta 0:00:00
+#9 34.81 Collecting scikit-learn==1.7.2 (from -r requirements-planner.txt (line 15))
+#9 35.12   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/82/70/8bf44b933837ba8494ca0fc9a9ab60f1c13b062ad0197f60a56e2fc4c43e/scikit_learn-1.7.2-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (9.3 MB)
+#9 36.14      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.3/9.3 MB 9.1 MB/s eta 0:00:00
+#9 36.55 Collecting stanio==0.5.1 (from -r requirements-planner.txt (line 16))
+#9 36.88   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/56/87/37a80e4d5bd453c33262d8fb618b6840fd98d24ed08e046a4a9b10177fa3/stanio-0.5.1-py3-none-any.whl (8.1 kB)
+#9 37.32 Collecting statsmodels==0.14.6 (from -r requirements-planner.txt (line 17))
+#9 37.67   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/48/f5/3a73b51e6450c31652c53a8e12e24eac64e3824be816c0c2316e7dbdcb7d/statsmodels-0.14.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (10.1 MB)
+#9 38.89      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.1/10.1 MB 8.2 MB/s eta 0:00:00
+#9 39.24 Collecting threadpoolctl==3.6.0 (from -r requirements-planner.txt (line 18))
+#9 39.55   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
+#9 39.89 Collecting tzlocal==5.4.5 (from -r requirements-planner.txt (line 19))
+#9 40.22   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/7b/c1/9be4e1a8a30db8729a86628073910e56f85aaf8a659e053f376a2e6ea5a8/tzlocal-5.4.5-py3-none-any.whl (18 kB)
+#9 40.56 Collecting iniconfig>=1 (from pytest==8.4.2)
+#9 40.87   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/56/43/4ca9e49d27a1fcf6bece6f6aec0ea46bb9112489b93d4b688fb415457bdb/iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+#9 41.06 Collecting packaging>=20 (from pytest==8.4.2)
+#9 41.14   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl (129 kB)
+#9 41.24 Collecting pluggy<2,>=1.5 (from pytest==8.4.2)
+#9 41.35   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/40/9e/2b38731e0fc536806f16490e1a12d7f0dc2a1235aa8cc07bcc75416a7daa/pluggy-1.7.0-py3-none-any.whl (27 kB)
+#9 41.56 Collecting pygments>=2.7.2 (from pytest==8.4.2)
+#9 41.78   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl (1.3 MB)
+#9 41.92      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 9.2 MB/s eta 0:00:00
+#9 42.22 Collecting typing-extensions>=4.12 (from pytest-asyncio==1.2.0)
+#9 42.47   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#9 42.76 Collecting chex==0.1.87 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 43.02   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/46/dd/c1ff2eb8fbf95a8ca804abb1cc3ce70b283ee7b4bc653c3abac245670400/chex-0.1.87-py3-none-any.whl (99 kB)
+#9 43.30 Collecting flax==0.10.0 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 43.53   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/65/00/c19d0108f3ce4da076f41e59019149d53f3319ee96a3db880c5f01ba40ac/flax-0.10.0-py3-none-any.whl (420 kB)
+#9 43.84 Collecting google-vizier==0.1.21 (from google-vizier[jax]==0.1.21->aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 44.07   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/66/b6/00c7d87a565d98727dcd857e65b3bf6e2c09d060e680fbea6e44abc90fc5/google_vizier-0.1.21-py3-none-any.whl (799 kB)
+#9 44.16      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 799.6/799.6 kB 9.4 MB/s eta 0:00:00
+#9 44.46 Collecting googleapis-common-protos<1.75.4 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 44.69   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/1a/7a/7d79170c6ce6f12e109df2b3879d6b934010cf4f99aea8de8b7e5408c174/googleapis_common_protos-1.75.3-py3-none-any.whl (306 kB)
+#9 44.99 Collecting jinja2>=3.1.0 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 45.23   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl (134 kB)
+#9 45.53 Collecting jax==0.4.38 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 45.80   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/22/49/b4418a7a892c0dd64442bbbeef54e1cdfe722dfc5a7bf0d611d3f5f90e99/jax-0.4.38-py3-none-any.whl (2.2 MB)
+#9 46.17      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 5.7 MB/s eta 0:00:00
+#9 46.60 Collecting jaxlib==0.4.38 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 46.85   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/53/25/dd670d8bdf3799ece76d12cfe6a6a250ea256057aa4b0fcace4753a99d2d/jaxlib-0.4.38-cp312-cp312-manylinux2014_aarch64.whl (93.3 MB)
+#9 391.7      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 93.3/93.3 MB 184.3 kB/s eta 0:00:00
+#9 398.0 Collecting matplotlib>=3.9.4 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 398.4   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/f4/84/32549e7a462dc311aed2ab62e5d2538028840b5c53a8be0195c789937c3d/matplotlib-3.11.2-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl (10.7 MB)
+#9 458.5      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 181.8 kB/s eta 0:00:00
+#9 469.6 Collecting numpy<3,>=2.1 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 469.8   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/dc/96/8319e2457ae4333c62c815c7006b869a4f60985c1e01024c2f8c6c040fe5/numpy-2.5.4-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (15.7 MB)
+#9 540.6      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.7/15.7 MB 228.6 kB/s eta 0:00:00
+#9 541.0 Collecting prettytable>=3.16.0 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 541.2   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/fe/be/2e6798ace5cc036f5d05d36b7b2fd85346f1a708c87060890b070d0ec607/prettytable-3.18.0-py3-none-any.whl (37 kB)
+#9 546.5 Collecting pydantic>=2.5 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 546.6   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/72/b8/b864503789ef5c58597d2a7b4adbee62c26440ab1e682581fc6838df8947/pydantic-2.14.3-py3-none-any.whl (494 kB)
+#9 552.0 Collecting psutil<8,>=7.0 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 552.2   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/63/65/37648c0c158dc222aba51c089eb3bdfa238e621674dc42d48706e639204f/psutil-7.2.2-cp36-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (156 kB)
+#9 556.2 Collecting ijson<4,>=3.4 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 556.4   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/6b/20/d0da64fe537fb1aba9c7b09381f8155ce8ddfbd30cff1a5ee47757e0217f/ijson-3.6.0-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (150 kB)
+#9 560.9 Collecting pyarrow>=15.0.0 (from aisimulate==0.13.0->-r requirements-tools.txt (line 4))
+#9 561.2   Downloading https://pypi.tuna.tsinghua.edu.cn/packages/ab/7e/da9831bfcaaa908ae6d5d049c04c2233a5a7e216d6b961e22861056ef3fd/pyarrow-26.0.1-cp312-cp312-manylinux_2_28_aarch64.whl (51.8 MB)
+#9 687.6      ╸                                        1.0/51.8 MB 187.2 kB/s eta 0:04:32
+#9 689.1 
+#9 689.1 [notice] A new release of pip is available: 25.0.1 -> 26.3
+#9 689.1 [notice] To update, run: python -m pip install --upgrade pip
+#9 689.1 ERROR: Exception:
+#9 689.1 Traceback (most recent call last):
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 438, in _error_catcher
+#9 689.1     yield
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 561, in read
+#9 689.1     data = self._fp_read(amt) if not fp_closed else b""
+#9 689.1            ^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 527, in _fp_read
+#9 689.1     return self._fp.read(amt) if amt is not None else self._fp.read()
+#9 689.1            ^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/cachecontrol/filewrapper.py", line 98, in read
+#9 689.1     data: bytes = self.__fp.read(amt)
+#9 689.1                   ^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/usr/local/python3.12.16/lib/python3.12/http/client.py", line 494, in read
+#9 689.1     s = self.fp.read(amt)
+#9 689.1         ^^^^^^^^^^^^^^^^^
+#9 689.1   File "/usr/local/python3.12.16/lib/python3.12/socket.py", line 720, in readinto
+#9 689.1     return self._sock.recv_into(b)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/usr/local/python3.12.16/lib/python3.12/ssl.py", line 1264, in recv_into
+#9 689.1     return self.read(nbytes, buffer)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/usr/local/python3.12.16/lib/python3.12/ssl.py", line 1116, in read
+#9 689.1     return self._sslobj.read(len, buffer)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1 TimeoutError: The read operation timed out
+#9 689.1 
+#9 689.1 During handling of the above exception, another exception occurred:
+#9 689.1 
+#9 689.1 Traceback (most recent call last):
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 106, in _run_wrapper
+#9 689.1     status = _inner_run()
+#9 689.1              ^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 97, in _inner_run
+#9 689.1     return self.run(options, args)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/cli/req_command.py", line 67, in wrapper
+#9 689.1     return func(self, options, args)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/commands/install.py", line 386, in run
+#9 689.1     requirement_set = resolver.resolve(
+#9 689.1                       ^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/resolver.py", line 95, in resolve
+#9 689.1     result = self._result = resolver.resolve(
+#9 689.1                             ^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers.py", line 546, in resolve
+#9 689.1     state = resolution.resolve(requirements, max_rounds=max_rounds)
+#9 689.1             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers.py", line 427, in resolve
+#9 689.1     failure_causes = self._attempt_to_pin_criterion(name)
+#9 689.1                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers.py", line 239, in _attempt_to_pin_criterion
+#9 689.1     criteria = self._get_updated_criteria(candidate)
+#9 689.1                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers.py", line 230, in _get_updated_criteria
+#9 689.1     self._add_to_criteria(criteria, requirement, parent=candidate)
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers.py", line 173, in _add_to_criteria
+#9 689.1     if not criterion.candidates:
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/resolvelib/structs.py", line 156, in __bool__
+#9 689.1     return bool(self._sequence)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/found_candidates.py", line 174, in __bool__
+#9 689.1     return any(self)
+#9 689.1            ^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/found_candidates.py", line 162, in <genexpr>
+#9 689.1     return (c for c in iterator if id(c) not in self._incompatible_ids)
+#9 689.1                        ^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/found_candidates.py", line 53, in _iter_built
+#9 689.1     candidate = func()
+#9 689.1                 ^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/factory.py", line 187, in _make_candidate_from_link
+#9 689.1     base: Optional[BaseCandidate] = self._make_base_candidate_from_link(
+#9 689.1                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/factory.py", line 233, in _make_base_candidate_from_link
+#9 689.1     self._link_candidate_cache[link] = LinkCandidate(
+#9 689.1                                        ^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 304, in __init__
+#9 689.1     super().__init__(
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 159, in __init__
+#9 689.1     self.dist = self._prepare()
+#9 689.1                 ^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 236, in _prepare
+#9 689.1     dist = self._prepare_distribution()
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 315, in _prepare_distribution
+#9 689.1     return preparer.prepare_linked_requirement(self._ireq, parallel_builds=True)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 527, in prepare_linked_requirement
+#9 689.1     return self._prepare_linked_requirement(req, parallel_builds)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 598, in _prepare_linked_requirement
+#9 689.1     local_file = unpack_url(
+#9 689.1                  ^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 170, in unpack_url
+#9 689.1     file = get_http_url(
+#9 689.1            ^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 111, in get_http_url
+#9 689.1     from_path, content_type = download(link, temp_dir.path)
+#9 689.1                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/network/download.py", line 148, in __call__
+#9 689.1     for chunk in chunks:
+#9 689.1                  ^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/cli/progress_bars.py", line 55, in _rich_progress_bar
+#9 689.1     for chunk in iterable:
+#9 689.1                  ^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_internal/network/utils.py", line 65, in response_chunks
+#9 689.1     for chunk in response.raw.stream(
+#9 689.1                  ^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 622, in stream
+#9 689.1     data = self.read(amt=amt, decode_content=decode_content)
+#9 689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 560, in read
+#9 689.1     with self._error_catcher():
+#9 689.1          ^^^^^^^^^^^^^^^^^^^^^
+#9 689.1   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 158, in __exit__
+#9 689.1     self.gen.throw(value)
+#9 689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 443, in _error_catcher
+#9 689.1     raise ReadTimeoutError(self._pool, None, "Read timed out.")
+#9 689.1 pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='pypi.tuna.tsinghua.edu.cn', port=443): Read timed out.
+#9 ERROR: process "/bin/bash -c /opt/dynamo/venv/bin/python audit.py snapshot before.json &&     env -u PYTHONPATH /opt/dynamo/venv/bin/python -m venv /opt/dynamo/tools-venv &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --no-index --no-deps wheels/*.whl &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --cache-dir /root/.cache/pip --timeout 120 --retries 5 --find-links ./wheels --only-binary aisimulate -c requirements-tools-constraints.txt -r requirements-tools.txt -r requirements-planner.txt /opt/dynamo/artifacts/wheels/ai_dynamo*.whl /opt/dynamo/artifacts/wheels/kvbm*.whl /opt/dynamo/artifacts/wheels/gpu_memory_service*.whl pytest==8.4.2 pytest-asyncio==1.2.0 PyYAML blake3 pillow" did not complete successfully: exit code: 2
+------
+ > [stage-0  5/14] RUN --mount=type=cache,target=/root/.cache/pip /opt/dynamo/venv/bin/python audit.py snapshot before.json &&     env -u PYTHONPATH /opt/dynamo/venv/bin/python -m venv /opt/dynamo/tools-venv &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --no-index --no-deps wheels/*.whl &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --cache-dir /root/.cache/pip --timeout 120 --retries 5 --find-links ./wheels --only-binary aisimulate -c requirements-tools-constraints.txt -r requirements-tools.txt -r requirements-planner.txt /opt/dynamo/artifacts/wheels/ai_dynamo*.whl /opt/dynamo/artifacts/wheels/kvbm*.whl /opt/dynamo/artifacts/wheels/gpu_memory_service*.whl pytest==8.4.2 pytest-asyncio==1.2.0 PyYAML blake3 pillow:
+689.1     data = self.read(amt=amt, decode_content=decode_content)
+689.1            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 560, in read
+689.1     with self._error_catcher():
+689.1          ^^^^^^^^^^^^^^^^^^^^^
+689.1   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 158, in __exit__
+689.1     self.gen.throw(value)
+689.1   File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 443, in _error_catcher
+689.1     raise ReadTimeoutError(self._pool, None, "Read timed out.")
+689.1 pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='pypi.tuna.tsinghua.edu.cn', port=443): Read timed out.
+------
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - InvalidDefaultArgInFrom: Default value for ARG ${RUNTIME_IMAGE} results in empty or invalid base image name (line 4)
+tools.Dockerfile:13
+--------------------
+  12 |     # to the independent Profiler/Planner interpreter.
+  13 | >>> RUN --mount=type=cache,target=/root/.cache/pip /opt/dynamo/venv/bin/python audit.py snapshot before.json && \
+  14 | >>>     env -u PYTHONPATH /opt/dynamo/venv/bin/python -m venv /opt/dynamo/tools-venv && \
+  15 | >>>     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --no-index --no-deps wheels/*.whl && \
+  16 | >>>     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --cache-dir /root/.cache/pip --timeout 120 --retries 5 --find-links ./wheels --only-binary aisimulate -c requirements-tools-constraints.txt -r requirements-tools.txt -r requirements-planner.txt /opt/dynamo/artifacts/wheels/ai_dynamo*.whl /opt/dynamo/artifacts/wheels/kvbm*.whl /opt/dynamo/artifacts/wheels/gpu_memory_service*.whl pytest==8.4.2 pytest-asyncio==1.2.0 PyYAML blake3 pillow
+  17 |     RUN env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip check && \
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/bash -c /opt/dynamo/venv/bin/python audit.py snapshot before.json &&     env -u PYTHONPATH /opt/dynamo/venv/bin/python -m venv /opt/dynamo/tools-venv &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --no-index --no-deps wheels/*.whl &&     env -u PYTHONPATH /opt/dynamo/tools-venv/bin/python -m pip install --cache-dir /root/.cache/pip --timeout 120 --retries 5 --find-links ./wheels --only-binary aisimulate -c requirements-tools-constraints.txt -r requirements-tools.txt -r requirements-planner.txt /opt/dynamo/artifacts/wheels/ai_dynamo*.whl /opt/dynamo/artifacts/wheels/kvbm*.whl /opt/dynamo/artifacts/wheels/gpu_memory_service*.whl pytest==8.4.2 pytest-asyncio==1.2.0 PyYAML blake3 pillow" did not complete successfully: exit code: 2

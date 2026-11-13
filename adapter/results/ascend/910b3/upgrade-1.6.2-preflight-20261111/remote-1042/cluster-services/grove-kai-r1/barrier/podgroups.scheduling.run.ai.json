@@ -1,0 +1,88 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "scheduling.run.ai/v2alpha2",
+            "kind": "PodGroup",
+            "metadata": {
+                "annotations": {
+                    "kai.scheduler/skip-podgrouper": "true",
+                    "nvidia.com/last-applied-generation": "1",
+                    "nvidia.com/last-applied-hash": "7c2c1c1f228852406ebb6b33162b5e1961d70f9c6451862650f4eb5438c20b20"
+                },
+                "creationTimestamp": "2026-11-11T10:21:01Z",
+                "generation": 1,
+                "labels": {
+                    "app.kubernetes.io/component": "podgang",
+                    "app.kubernetes.io/managed-by": "grove-operator",
+                    "app.kubernetes.io/part-of": "upgrade-grove-kai",
+                    "grove.io/epoch": "1794392456610173853",
+                    "grove.io/podcliqueset-generation-hash": "5688669b6895c79744f4",
+                    "grove.io/podcliqueset-replica-index": "0",
+                    "grove.io/podgang-role": "Anchor",
+                    "grove.io/scheduler-name": "kai-scheduler",
+                    "nvidia.com/dynamo-graph-deployment-name": "upgrade-grove-kai"
+                },
+                "name": "upgrade-grove-kai-0-1794392456610173853",
+                "namespace": "heyi-upgrade162",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "scheduler.grove.io/v1alpha1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "PodGang",
+                        "name": "upgrade-grove-kai-0-1794392456610173853",
+                        "uid": "81f48f25-a453-434d-8b91-c516ea0fe938"
+                    }
+                ],
+                "resourceVersion": "298358880",
+                "uid": "4a4ca771-73e1-4e96-88a7-a838936f182f"
+            },
+            "spec": {
+                "minMember": 3,
+                "queue": "default-queue",
+                "subGroups": [
+                    {
+                        "minMember": 1,
+                        "name": "upgrade-grove-kai-0-frontend"
+                    },
+                    {
+                        "minMember": 2,
+                        "name": "upgrade-grove-kai-0-worker"
+                    }
+                ],
+                "topologyConstraint": {}
+            },
+            "status": {
+                "resourcesStatus": {
+                    "requested": {
+                        "cpu": "3",
+                        "huawei.com/Ascend910": "2",
+                        "memory": "6Gi"
+                    }
+                },
+                "schedulingConditions": [
+                    {
+                        "lastTransitionTime": "2026-11-11T10:21:03Z",
+                        "message": "PodSchedulingErrors: Resources were found for 1 pods from all sub-groups while sub-group upgrade-grove-kai-0-worker requires 2 pods for gang scheduling. Additional pods cannot be scheduled in this sub-group due to: no nodes with enough resources were found: 1 node has DiskPressure condition. \n1 node has MemoryPressure condition. \n1 node has NotReady condition. \n1 node has PIDPressure condition. \n4 node(s) didn't have enough resources: huawei.com/Ascend910. \n4 node(s) didn't match Pod's node affinity/selector..",
+                        "nodePool": "default",
+                        "reason": "Unschedulable",
+                        "reasons": [
+                            {
+                                "message": "Resources were found for 1 pods from all sub-groups while sub-group upgrade-grove-kai-0-worker requires 2 pods for gang scheduling. Additional pods cannot be scheduled in this sub-group due to: no nodes with enough resources were found: 1 node has DiskPressure condition. \n1 node has MemoryPressure condition. \n1 node has NotReady condition. \n1 node has PIDPressure condition. \n4 node(s) didn't have enough resources: huawei.com/Ascend910. \n4 node(s) didn't match Pod's node affinity/selector.",
+                                "reason": "PodSchedulingErrors"
+                            }
+                        ],
+                        "status": "True",
+                        "transitionID": "1",
+                        "type": "UnschedulableOnNodePool"
+                    }
+                ]
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

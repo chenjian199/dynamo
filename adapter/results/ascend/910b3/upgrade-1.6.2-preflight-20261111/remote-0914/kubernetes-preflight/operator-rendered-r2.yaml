@@ -1,0 +1,2034 @@
+---
+# Source: dynamo-operator/templates/component-serviceaccount.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: heyi-upgrade162-dynamo-operator-component
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    nvidia.com/dynamo-component-pod: "true"
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    {}
+---
+# Source: dynamo-operator/templates/serviceaccount.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: heyi-upgrade162-dynamo-operator-controller-manager
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    {}
+---
+# Source: dynamo-operator/templates/operator-config.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heyi-upgrade162-dynamo-operator-config
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.yaml: |
+    apiVersion: operator.config.dynamo.nvidia.com/v1alpha1
+    kind: OperatorConfiguration
+    server:
+      metrics:
+        bindAddress: "0.0.0.0"
+        secure: true
+      webhook:
+        certProvisionMode: "auto"
+        secretName: "webhook-server-cert"
+        serviceName: heyi-upgrade162-dynamo-operator-webhook-service
+    leaderElection:
+      enabled: true
+      id: "dynamo.nvidia.com"
+      namespace: "kube-system"
+    orchestrators:
+      kaiScheduler:
+        enabled: false
+      volcanoScheduler:
+        enabled: false
+      grove:
+        enabled: false
+        terminationDelay: "4h"
+    serviceMesh:
+      enabled: false
+    rbac:
+      plannerClusterRoleName: heyi-upgrade162-dynamo-operator-planner
+      dgdrProfilingClusterRoleName: heyi-upgrade162-dynamo-operator-dgdr-profiling
+      eppClusterRoleName: heyi-upgrade162-dynamo-operator-epp
+    mpi:
+      sshSecretName: "mpi-run-ssh-secret"
+      sshSecretNamespace: "heyi-upgrade162"
+    lpx:
+      enabled: false
+---
+# Source: dynamo-operator/templates/epp.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-epp
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+# Gateway API inference resources
+- apiGroups: ["inference.networking.x-k8s.io"]
+  resources: ["inferencepools", "inferenceobjectives", "inferencemodelrewrites"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["inference.networking.k8s.io"]
+  resources: ["inferencepools"]
+  verbs: ["get", "watch", "list"]
+# Core resources for pod discovery
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+# Dynamo k8s service discovery - endpointslices
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
+  verbs: ["get", "list", "watch"]
+# Dynamo k8s service discovery - worker metadata CRs
+- apiGroups: ["nvidia.com"]
+  resources: ["dynamoworkermetadatas"]
+  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+# Authentication/authorization
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+# Source: dynamo-operator/templates/gpu-discovery-rbac.yaml
+# Grants the operator read-only node access for GPU hardware discovery.
+# Nodes are cluster-scoped resources that cannot be granted via a namespace-scoped Role,
+# so they are always provided as a dedicated ClusterRole when GPU discovery is enabled.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-gpu-discovery
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+# Source: dynamo-operator/templates/leader-election-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-leader-election-role
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Helm selects a namespaced Role or cluster-wide ClusterRole for the generated rules.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-manager-role
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - events
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - pods/log
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - serviceaccounts
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - grove.io
+  resources:
+  - clustertopologybindings
+  - podcliques
+  - podcliquescalinggroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - grove.io
+  resources:
+  - podcliques/scale
+  - podcliquescalinggroups/scale
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - grove.io
+  resources:
+  - podcliquesets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - grove.io
+  resources:
+  - podcliquesets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - inference.networking.k8s.io
+  resources:
+  - inferencepools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - leaderworkerset.x-k8s.io
+  resources:
+  - leaderworkersets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - destinationrules
+  - virtualservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingressclasses
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamocomponentdeployments
+  - dynamographdeploymentrequests
+  - dynamographdeployments
+  - dynamographdeploymentscalingadapters
+  - dynamomodels
+  - lpxgraphdeployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamocomponentdeployments/finalizers
+  - dynamographdeploymentrequests/finalizers
+  - dynamographdeployments/finalizers
+  - dynamomodels/finalizers
+  - lpxgraphdeployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamocomponentdeployments/status
+  - dynamographdeploymentrequests/status
+  - dynamographdeployments/status
+  - dynamographdeploymentscalingadapters/status
+  - dynamomodels/status
+  - lpxgraphdeployments/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nvidia.com
+  resources:
+  - podsnapshots
+  verbs:
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - nvidia.com
+  resources:
+  - snapshotjobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - resource.k8s.io
+  resources:
+  - deviceclasses
+  - resourceclaims
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - resource.k8s.io
+  resources:
+  - resourceclaimtemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - scheduling.lpu.nvidia.com
+  resources:
+  - lpupipelinerequests
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - scheduling.run.ai
+  resources:
+  - queues
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - scheduling.volcano.sh
+  resources:
+  - podgroups
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+# WARNING: +kubebuilder:rbac markers are the default source for operator RBAC.
+# Add rules below only when they are inherently Helm-specific and cannot be
+# represented by markers. Audit them separately from controller reconciliation RBAC.
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - delete
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - delete
+  - patch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - update
+- apiGroups:
+  - inference.networking.x-k8s.io
+  resources:
+  - inferencepools
+  - inferenceobjectives
+  - inferencemodelrewrites
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamoworkermetadatas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamocomponentdeployments/finalizers
+  - dynamographdeploymentrequests/finalizers
+  - dynamographdeployments/finalizers
+  - dynamomodels/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamocomponentdeployments/status
+  - dynamographdeploymentrequests/status
+  - dynamographdeployments/status
+  - dynamographdeploymentscalingadapters/status
+  - dynamomodels/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nvidia.com
+  resources:
+  - dynamographdeploymentscalingadapters/scale
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - patch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - delete
+  - patch
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm keeps ClusterTopologyBinding access separate because a namespace-restricted Role cannot grant it.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-clustertopologybinding-reader
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - grove.io
+  resources:
+  - clustertopologybindings
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm keeps Queue access separate because a namespace-restricted Role cannot grant it.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-queue-reader
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - scheduling.run.ai
+  resources:
+  - queues
+  verbs:
+  - get
+  - list
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm keeps DeviceClass access separate because a namespace-restricted Role cannot grant it.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-deviceclass-reader
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - resource.k8s.io
+  resources:
+  - deviceclasses
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: dynamo-operator/templates/metrics-auth-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-metrics-auth
+  labels:
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+# Source: dynamo-operator/templates/planner.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-planner
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups: ["nvidia.com"]
+  resources: ["dynamographdeployments"]
+  verbs: ["get", "list", "create", "update", "patch"]
+- apiGroups: ["nvidia.com"]
+  resources: ["dynamographdeploymentscalingadapters/scale"]
+  # Read the authoritative target to detect superseded asynchronous requests.
+  verbs: ["get", "patch"]
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["nvidia.com"]
+  resources: ["dynamoworkermetadatas"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+# Read Pod lifecycle state to distinguish pending startup from drain before
+# reversing a scale-up. Also used for power-annotation settlement when enabled.
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list"]
+---
+# Source: dynamo-operator/templates/profiling-job-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-dgdr-profiling
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: dgdr-profiling
+rules:
+# ConfigMaps - needed for saving profiling results
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["create", "get", "update", "patch", "delete"]
+# DynamoGraphDeploymentRequests - needed to get DGDR info
+- apiGroups: ["nvidia.com"]
+  resources: ["dynamographdeploymentrequests"]
+  verbs: ["get"]
+# DynamoGraphDeployments - needed for online profiling to create test deployments
+# The operator will handle creating the actual pods, services, and deployments
+- apiGroups: ["nvidia.com"]
+  resources: ["dynamographdeployments"]
+  verbs: ["get", "create", "delete", "list", "watch"]
+# Pods - needed for listing pods by label selector and getting logs from test deployments
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list", "get", "create", "delete"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get"]
+---
+# Source: dynamo-operator/templates/topology-label-rbac.yaml
+# Grants the operator read-only node access for topology label copy.
+# Nodes are cluster-scoped resources that cannot be granted via a namespace-scoped Role,
+# so this is always provided as a dedicated ClusterRole.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-topology-label
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get"]
+---
+# Source: dynamo-operator/templates/webhook-rbac.yaml
+# ClusterRole for patching cluster-scoped webhook configurations.
+# Only the cluster-wide operator may also patch CRD conversion CA bundles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-webhook-injector
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - validatingwebhookconfigurations
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+---
+# Source: dynamo-operator/templates/gpu-discovery-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-gpu-discovery
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-gpu-discovery
+subjects:
+  - kind: ServiceAccount
+    name: heyi-upgrade162-dynamo-operator-controller-manager
+    namespace: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/leader-election-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-leader-election-rolebinding
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'heyi-upgrade162-dynamo-operator-leader-election-role'
+subjects:
+- kind: ServiceAccount
+  name: 'heyi-upgrade162-dynamo-operator-controller-manager'
+  namespace: 'heyi-upgrade162'
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm binds the selected manager role kind to this release's controller ServiceAccount.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-manager-rolebinding
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: 'heyi-upgrade162-dynamo-operator-manager-role'
+subjects:
+- kind: ServiceAccount
+  name: 'heyi-upgrade162-dynamo-operator-controller-manager'
+  namespace: 'heyi-upgrade162'
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm binds the separate cluster-scoped ClusterTopologyBinding grant to the controller ServiceAccount.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-clustertopologybinding-reader-binding
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-clustertopologybinding-reader
+subjects:
+- kind: ServiceAccount
+  name: 'heyi-upgrade162-dynamo-operator-controller-manager'
+  namespace: 'heyi-upgrade162'
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm binds the separate cluster-scoped Queue grant to the controller ServiceAccount.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-queue-reader-binding
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-queue-reader
+subjects:
+- kind: ServiceAccount
+  name: 'heyi-upgrade162-dynamo-operator-controller-manager'
+  namespace: 'heyi-upgrade162'
+---
+# Source: dynamo-operator/templates/manager-rbac.yaml
+# Helm binds the separate cluster-scoped DeviceClass grant to the controller ServiceAccount.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-deviceclass-reader-binding
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-deviceclass-reader
+subjects:
+- kind: ServiceAccount
+  name: 'heyi-upgrade162-dynamo-operator-controller-manager'
+  namespace: 'heyi-upgrade162'
+---
+# Source: dynamo-operator/templates/metrics-auth-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-metrics-auth
+  labels:
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-metrics-auth
+subjects:
+- kind: ServiceAccount
+  name: heyi-upgrade162-dynamo-operator-controller-manager
+  namespace: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/profiling-job-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-dgdr-profiling
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: dgdr-profiling
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-dgdr-profiling
+subjects:
+- kind: ServiceAccount
+  name: dgdr-profiling-job
+  namespace: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/topology-label-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-topology-label
+  labels:
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-topology-label
+subjects:
+  - kind: ServiceAccount
+    name: heyi-upgrade162-dynamo-operator-controller-manager
+    namespace: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/webhook-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-webhook-injector-binding
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: heyi-upgrade162-dynamo-operator-heyi-upgrade162-webhook-injector
+subjects:
+- kind: ServiceAccount
+  name: heyi-upgrade162-dynamo-operator-controller-manager
+  namespace: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/webhook-rbac.yaml
+# Role to manage the webhook certificate secret (create placeholder, read, update)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: heyi-upgrade162-dynamo-operator-webhook-cert-manager
+  namespace: heyi-upgrade162
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  resourceNames:
+  - webhook-server-cert
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+---
+# Source: dynamo-operator/templates/webhook-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: heyi-upgrade162-dynamo-operator-webhook-cert-manager
+  namespace: heyi-upgrade162
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: heyi-upgrade162-dynamo-operator-webhook-cert-manager
+subjects:
+- kind: ServiceAccount
+  name: heyi-upgrade162-dynamo-operator-controller-manager
+  namespace: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/metrics-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: heyi-upgrade162-dynamo-operator
+  labels:
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    control-plane: controller-manager
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  selector:
+    control-plane: controller-manager
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+  ports:
+  - name: metrics
+    port: 8080
+    protocol: TCP
+    targetPort: metrics
+---
+# Source: dynamo-operator/templates/webhook-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: heyi-upgrade162-dynamo-operator-webhook-service
+  namespace: heyi-upgrade162
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 9443
+    name: webhook
+  selector:
+    control-plane: controller-manager
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+---
+# Source: dynamo-operator/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heyi-upgrade162-dynamo-operator-controller-manager
+  labels:
+    app.kubernetes.io/component: manager
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    control-plane: controller-manager
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+      app.kubernetes.io/name: dynamo-operator
+      app.kubernetes.io/instance: heyi-upgrade162
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+        app.kubernetes.io/name: dynamo-operator
+        app.kubernetes.io/instance: heyi-upgrade162
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+        checksum/config: ede802bb16ba55717c352b6dae0766d213f6870c3cf81a8628b0d4ac755d342b
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - master-02-45d4a763
+      initContainers:
+      - name: crd-apply
+        image: heyi/dynamo-operator:1.6.2-heyi-upgrade-5cbe424879-arm64
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        command: ["/crd-apply"]
+        args:
+          - "--crds-dir=/opt/dynamo-operator/crds/"
+          - "--version=1.6.2"
+          - "--lpx-enabled=false"
+          - "--conversion-webhook-service-name=heyi-upgrade162-dynamo-operator-webhook-service"
+          - "--conversion-webhook-service-namespace=heyi-upgrade162"
+      containers:
+      - args:
+        - --config=/etc/dynamo-operator/config.yaml
+        - --operator-version=1.6.2
+        - "--operator-image=heyi/dynamo-operator:1.6.2-heyi-upgrade-5cbe424879-arm64"
+        - "--operator-image-pull-policy=IfNotPresent"
+        - "--dgdr-default-image=heyi/dynamo:1.6.2-ascend0.30-5cbe424879-tools"
+        command:
+        - /manager
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: "cluster.local"
+        - name: POD_SERVICE_ACCOUNT
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        imagePullPolicy: "IfNotPresent"
+        image: heyi/dynamo-operator:1.6.2-heyi-upgrade-5cbe424879-arm64
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 1024m
+            memory: 2Gi
+          requests:
+            cpu: 512m
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - mountPath: /etc/dynamo-operator
+          name: operator-config
+          readOnly: true
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: heyi-upgrade162-dynamo-operator-controller-manager
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: operator-config
+        configMap:
+          name: heyi-upgrade162-dynamo-operator-config
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: webhook-server-cert
+          # Allow the pod to start before the secret exists so the
+          # in-operator cert-controller can bootstrap it at runtime.
+          optional: true
+---
+# Source: dynamo-operator/templates/deployment.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/epp.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# RBAC for `epp-serviceaccount`: EPP components the operator builds from a
+# DynamoGraphDeployment, which run the Dynamo runtime (`DYN_EPP_MODE=dynamo`).
+# The grants below are what that mode reads. Standalone mode is a separate code
+# path that reads a different set, carried on its own ServiceAccount and Role
+# (deploy/inference-gateway/ext-proc/examples/onramp/agg.yaml). Grant standalone
+# permissions there.
+# Cluster-wide mode: ClusterRole for EPP
+---
+# Source: dynamo-operator/templates/gpu-discovery-preflight.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Best-effort template-time check for cluster-scoped RBAC access required by GPU discovery.
+# Runs only when namespaceRestriction.enabled=true and gpuDiscovery.enabled=true (the default).
+#
+# Limitation: Helm's lookup function can only test list/get access, not create. This check
+# verifies the installer can read ClusterRole resources as a proxy for full cluster RBAC
+# access. In the rare case where an installer has create but not list permissions, this
+# check will false-fail; if that happens Helm's native error on the actual ClusterRole
+# creation (in gpu-discovery-rbac.yaml) will still be clear about the missing permission.
+---
+# Source: dynamo-operator/templates/gpu-discovery-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/metrics-auth-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Grants the operator delegated-auth permissions (TokenReview + SubjectAccessReview)
+# required by controller-runtime's WithAuthenticationAndAuthorization metrics filter
+# (cmd/main.go FilterProvider). These are cluster-scoped resources that cannot be
+# granted via a namespace-scoped Role, so they are always provided as a dedicated
+# ClusterRole regardless of namespace-restriction mode.
+---
+# Source: dynamo-operator/templates/metrics-service.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# metricsService.enabled: null/true = create, false = skip.
+# The Service is a core K8s resource (no CRD dependency), so null and true
+# both result in creation. Only explicit false disables it.
+---
+# Source: dynamo-operator/templates/operator-servicemonitor.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Tri-state for ServiceMonitor creation (metricsService.enabled):
+#   null  = auto-detect via .Capabilities (works with helm install/upgrade)
+#   true  = always create (use with helm template / GitOps)
+#   false = never create (opt-out even if prometheus-operator is installed)
+---
+# Source: dynamo-operator/templates/planner.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Cluster-wide mode: ClusterRole for planner.
+# Even though this is a ClusterRole, the operator binds it via a namespace-scoped
+# RoleBinding (internal/rbac/manager.go EnsureServiceAccountWithRBAC), so all
+# permissions — including pods/list — are effective only in the DGD's namespace.
+---
+# Source: dynamo-operator/templates/profiling-job-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Cluster-wide mode: ClusterRole for DGDR profiling jobs
+---
+# Source: dynamo-operator/templates/prometheus.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Tri-state for PodMonitor creation (dynamo.metrics.podMonitors.enabled):
+#   null  = auto-detect via .Capabilities (works with helm install/upgrade)
+#   true  = always create (use with helm template / GitOps)
+#   false = never create (opt-out even if prometheus-operator is installed)
+---
+# Source: dynamo-operator/templates/regcred-secret.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/topology-label-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/validate-values.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/webhook-certificates.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/webhook-configuration.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/webhook-rbac.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/webhook-service.yaml
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+# Source: dynamo-operator/templates/webhook-configuration.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: heyi-upgrade162-dynamo-operator-mutating
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    nvidia.com/dynamo-operator-namespace: heyi-upgrade162
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /mutate/nvidia.com/v1beta1/dynamographdeployments
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: mdynamographdeployment.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamographdeployments
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /mutate-nvidia-com-v1beta1-dynamocomponentdeployment
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: mdynamocomponentdeploymentv1beta1.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamocomponentdeployments
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /mutate-nvidia-com-v1beta1-dynamographdeploymentrequest
+  failurePolicy: Fail
+  name: mdynamographdeploymentrequestv1beta1.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamographdeploymentrequests
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /mutate-core-v1-pod-checkpoint-restore
+  failurePolicy: Ignore
+  name: mpodcheckpointrestore.kb.io
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    # Pod checkpoint restore injects pod spec fields before creation. It is
+    # intentionally CREATE-only because pod UPDATE cannot apply that mutation.
+    operations:
+    - CREATE
+    resources:
+    - pods
+  sideEffects: None
+  timeoutSeconds: 10
+---
+# Source: dynamo-operator/templates/webhook-configuration.yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: heyi-upgrade162-dynamo-operator-validating
+  labels:
+    app.kubernetes.io/component: webhook
+    app.kubernetes.io/created-by: dynamo-operator
+    app.kubernetes.io/part-of: dynamo-operator
+    nvidia.com/dynamo-operator-namespace: heyi-upgrade162
+    helm.sh/chart: dynamo-operator-1.6.2
+    app.kubernetes.io/name: dynamo-operator
+    app.kubernetes.io/instance: heyi-upgrade162
+    app.kubernetes.io/version: "1.6.2"
+    app.kubernetes.io/managed-by: Helm
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /validate/nvidia.com/v1beta1/dynamocomponentdeployments
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: vdynamocomponentdeployment.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamocomponentdeployments
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /validate/nvidia.com/v1beta1/dynamographdeployments
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  name: vdynamographdeployment.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamographdeployments
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /validate-nvidia-com-v1alpha1-dynamomodel
+  failurePolicy: Fail
+  name: vdynamomodel.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamomodels
+  sideEffects: None
+  timeoutSeconds: 10
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: heyi-upgrade162-dynamo-operator-webhook-service
+      namespace: heyi-upgrade162
+      path: /validate-nvidia-com-v1beta1-dynamographdeploymentrequest
+  failurePolicy: Fail
+  name: vdynamographdeploymentrequest.kb.io
+  rules:
+  - apiGroups:
+    - nvidia.com
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dynamographdeploymentrequests
+  sideEffects: None
+  timeoutSeconds: 10

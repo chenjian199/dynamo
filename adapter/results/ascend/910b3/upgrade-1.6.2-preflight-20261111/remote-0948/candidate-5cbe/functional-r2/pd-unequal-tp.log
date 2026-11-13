@@ -1,0 +1,41 @@
+Main server process died with exit code 1 while waiting for health check
+=== Last 20 lines from /evidence/pd-unequal-tp/decode.log.txt ===
+[DECODE]          ^^^^^^^^^^^^^^^^^^^^
+[DECODE]   File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 144, in __exit__
+[DECODE]     next(self.gen)
+[DECODE]   File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+[DECODE]     wait_for_engine_startup(
+[DECODE]   File "/vllm-workspace/vllm/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+[DECODE]     raise RuntimeError(
+[DECODE] RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+[DECODE] [2m2026-11-11T09:21:31.011758Z[0m [32m INFO[0m [2m_core[0m[2m:[0m tasks still running at interpreter exit; continuing without them [3malive_tasks[0m[2m=[0m3 [3mruntimes[0m[2m=[0m1
+[DECODE] [2m2026-11-11T09:21:31.564570Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE] [ERROR] 2026-11-11-09:21:31 (PID:414, Device:-1, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[DECODE] [2m2026-11-11T09:21:31.969466Z[0m [2mDEBUG[0m [2mcontextlib._exit_wrapper[0m[2m:[0m [shutdown] HfRenderer
+[DECODE] [2m2026-11-11T09:21:32.566364Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE] [2m2026-11-11T09:21:33.568270Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE] /usr/local/python3.12.16/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 2 leaked shared_memory objects to clean up at shutdown
+[DECODE]   warnings.warn('resource_tracker: There appear to be %d '
+[DECODE] [2m2026-11-11T09:21:34.570045Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE] [2m2026-11-11T09:21:35.572158Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE] [2m2026-11-11T09:21:36.574283Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+[DECODE] [2m2026-11-11T09:21:37.576259Z[0m [31mERROR[0m [2mtower_http::trace::on_failure[0m[2m:[0m response failed [3mclassification[0m[2m=[0mStatus code: 503 Service Unavailable [3mlatency[0m[2m=[0m0 ms
+=== End of log tail ===
+Traceback (most recent call last):
+  File "/harness/adapter/modules/m05-pd-transfer/common/transfer/run.py", line 840, in <module>
+    main()
+  File "/harness/adapter/modules/m05-pd-transfer/common/transfer/run.py", line 465, in main
+    stack.enter_context(process)
+  File "/usr/local/python3.12.16/lib/python3.12/contextlib.py", line 526, in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+  File "/harness/tests/utils/managed_process.py", line 240, in __enter__
+    self._check_urls(self.timeout - elapsed)
+  File "/harness/tests/utils/managed_process.py", line 707, in _check_urls
+    elapsed += self._check_url(url, timeout - elapsed)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/harness/tests/utils/managed_process.py", line 723, in _check_url
+    self._check_process_alive("while waiting for health check")
+  File "/harness/tests/utils/managed_process.py", line 675, in _check_process_alive
+    raise RuntimeError(
+RuntimeError: Main server process exited with code 1 while waiting for health check

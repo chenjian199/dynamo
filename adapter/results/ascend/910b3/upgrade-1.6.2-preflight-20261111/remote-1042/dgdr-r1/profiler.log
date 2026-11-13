@@ -1,0 +1,74 @@
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+[2m2026-11-11T10:25:38.249384Z[0m [32m INFO[0m [2mprofile_sla._extract_profiler_params[0m[2m:[0m Profiler config: model=/models/Qwen3-0.6B, backend=vllm, system=ascend_910b3, total_gpus=2, isl=128, osl=16, ttft=10000.0, itl=1000.0, e2e_latency=None, strategy=thorough, picking=load_match
+[2m2026-11-11T10:25:38.250164Z[0m [32m INFO[0m [2mutils._infer_quantization_fields[0m[2m:[0m Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+[2m2026-11-11T10:25:38.250333Z[0m [32m INFO[0m [2mutils.get_model_config_from_model_path[0m[2m:[0m Loaded model config for /models/Qwen3-0.6B: architecture=Qwen3ForCausalLM, layers=28, n=16, n_kv=8, d=128, hidden_size=1024, inter_size=3072, vocab=151936, context=40960, topk=0, num_experts=0, moe_inter_size=3072, extra_params={'architecture': 'Qwen3ForCausalLM', 'use_qk_norm': True}, encoder_config=None
+[2m2026-11-11T10:25:38.326140Z[0m [33m WARN[0m [2mthorough.run_thorough[0m[2m:[0m THOROUGH mode: only disagg configurations are supported.
+[2m2026-11-11T10:25:38.328247Z[0m [32m INFO[0m [2mnaive._estimate_weight_bytes_from_config[0m[2m:[0m Estimated model weight size for /models/Qwen3-0.6B: 1.00 GiB (0.54B params)
+[2m2026-11-11T10:25:38.333615Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m AIC disagg support for /models/Qwen3-0.6B on ascend_910b3/vllm: False
+[2m2026-11-11T10:25:38.333777Z[0m [32m INFO[0m [2mnaive._calculate_min_tp[0m[2m:[0m TP calculation: model=1.00GiB, vram=64.00GiB, required=1.50GiB (1.5x), min_tp=1, selected_tp=1, fit=True, required_tp=1
+[2m2026-11-11T10:25:38.334089Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Minimum GPUs per engine (memory fit): 1
+[2m2026-11-11T10:25:38.334213Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Parallel lists: is_moe=False, enable_wideep=False, min_gpus=1, prefill_max_gpus=2, decode_max_gpus=2, prefill_num_gpu_list=[1, 2, 4, 8], prefill_dp_list=[1], prefill_moe_ep_list=[1]
+[2m2026-11-11T10:25:38.334347Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumerated 2 prefill configs, 2 decode configs
+[2m2026-11-11T10:25:38.334445Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T10:25:38.544785Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building prefill DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T10:25:38.586313Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=1 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T10:25:38.627477Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Building decode DGD: tp=2 pp=1 dp=1 moe_tp=1 moe_ep=1
+[2m2026-11-11T10:25:38.668496Z[0m [32m INFO[0m [2menumerate.enumerate_profiling_configs[0m[2m:[0m Enumeration complete: 2 prefill DGDs, 2 decode DGDs
+[2m2026-11-11T10:25:38.668653Z[0m [32m INFO[0m [2mthorough.run_thorough[0m[2m:[0m Enumerated 2 prefill candidates, 2 decode candidates
+[2m2026-11-11T10:25:39.034168Z[0m [31mERROR[0m [2mprofile_sla.run_profile[0m[2m:[0m Profile job failed with error
+Traceback (most recent call last):
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/profile_sla.py", line 443, in run_profile
+    ) = await _execute_strategy(
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/profile_sla.py", line 183, in _execute_strategy
+    pick_result = await run_thorough(
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/thorough.py", line 454, in run_thorough
+    candidate.dgd_config = materialize_dgd(
+                           ^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/utils/dgd_materialization.py", line 72, in materialize_dgd
+    return _materialize_dgd_document(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/utils/dgd_materialization.py", line 103, in _materialize_dgd_document
+    materialized = apply_dgd_overrides(materialized, override)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/utils/dgd_override.py", line 160, in apply_dgd_overrides
+    raise DGDOverrideError(f"failed to apply DGD override: {detail}")
+dynamo.profiler.utils.dgd_override.DGDOverrideError: failed to apply DGD override: dgd-apply-overrides: apply DGD override: spec.components[name=VllmDecodeWorker]: deprecated override target "VllmDecodeWorker" belongs to backend "vllm" and cannot be translated for generated backend ""
+[2m2026-11-11T10:25:39.035901Z[0m [32m INFO[0m [2mprofile_sla.run_profile[0m[2m:[0m Performing final cleanup of any remaining deployments...
+[2m2026-11-11T10:25:39.036061Z[0m [32m INFO[0m [2mdynamo_deployment.cleanup_remaining_deployments[0m[2m:[0m No deployments to clean up
+[2m2026-11-11T10:25:39.036165Z[0m [32m INFO[0m [2mprofile_sla.run_profile[0m[2m:[0m Final cleanup completed.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/__main__.py", line 222, in <module>
+    main()
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/__main__.py", line 218, in main
+    asyncio.run(run_profile(dgdr, ops))
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/profile_sla.py", line 443, in run_profile
+    ) = await _execute_strategy(
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/profile_sla.py", line 183, in _execute_strategy
+    pick_result = await run_thorough(
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/thorough.py", line 454, in run_thorough
+    candidate.dgd_config = materialize_dgd(
+                           ^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/utils/dgd_materialization.py", line 72, in materialize_dgd
+    return _materialize_dgd_document(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/utils/dgd_materialization.py", line 103, in _materialize_dgd_document
+    materialized = apply_dgd_overrides(materialized, override)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/dynamo/tools-venv/lib/python3.12/site-packages/dynamo/profiler/utils/dgd_override.py", line 160, in apply_dgd_overrides
+    raise DGDOverrideError(f"failed to apply DGD override: {detail}")
+dynamo.profiler.utils.dgd_override.DGDOverrideError: failed to apply DGD override: dgd-apply-overrides: apply DGD override: spec.components[name=VllmDecodeWorker]: deprecated override target "VllmDecodeWorker" belongs to backend "vllm" and cannot be translated for generated backend ""

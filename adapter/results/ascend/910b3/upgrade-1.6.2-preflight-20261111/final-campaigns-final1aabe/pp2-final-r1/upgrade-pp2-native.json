@@ -1,0 +1,300 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "annotations": {
+      "ascend.kubectl.kubernetes.io/ascend-910-configuration": "{\"pod_name\":\"upgrade-pp2-native\",\"server_id\":\"192.168.7.5\",\"super_pod_id\":-1,\"devices\":[{\"device_id\":\"1\",\"device_ip\":\"10.52.11.42\",\"super_device_id\":\"4291035137\"},{\"device_id\":\"2\",\"device_ip\":\"10.52.11.49\",\"super_device_id\":\"4291297282\"}]}",
+      "huawei.com/AscendReal": "Ascend910-1,Ascend910-2",
+      "huawei.com/kltDev": "Ascend910-1,Ascend910-2"
+    },
+    "creationTimestamp": "2026-11-11T12:15:39Z",
+    "labels": {
+      "app": "upgrade-pp2-native",
+      "heyi.io/campaign": "upgrade-1.6.2-ascend-20261111"
+    },
+    "name": "upgrade-pp2-native",
+    "namespace": "heyi-upgrade162",
+    "resourceVersion": "298415621",
+    "uid": "71fbe421-eb20-4ce4-a8b1-2a62c21c93b2"
+  },
+  "spec": {
+    "activeDeadlineSeconds": 1800,
+    "automountServiceAccountToken": false,
+    "containers": [
+      {
+        "args": [
+          "source /usr/local/Ascend/ascend-toolkit/set_env.sh && exec python3 -m vllm.entrypoints.openai.api_server --model /models/Qwen3-0.6B --served-model-name upgrade-compare --tensor-parallel-size 1 --pipeline-parallel-size 2 --dtype bfloat16 --enforce-eager --disable-custom-all-reduce --no-enable-prefix-caching --max-model-len 2048 --max-num-seqs 8 --max-num-batched-tokens 2048 --kv-cache-memory-bytes 536870912 --gpu-memory-utilization 0.2 --block-size 128 --host 0.0.0.0 --port 8000"
+        ],
+        "command": [
+          "bash",
+          "-lc"
+        ],
+        "env": [
+          {
+            "name": "HF_HUB_OFFLINE",
+            "value": "1"
+          },
+          {
+            "name": "VLLM_HOST_IP",
+            "valueFrom": {
+              "fieldRef": {
+                "apiVersion": "v1",
+                "fieldPath": "status.podIP"
+              }
+            }
+          },
+          {
+            "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+            "value": "20090"
+          },
+          {
+            "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+            "value": "60"
+          },
+          {
+            "name": "ASCEND_TRANSFER_TIMEOUT",
+            "value": "30000"
+          },
+          {
+            "name": "PYTHONUNBUFFERED",
+            "value": "1"
+          },
+          {
+            "name": "GOMAXPROCS",
+            "value": "4"
+          },
+          {
+            "name": "SPT_NOENV",
+            "value": "1"
+          },
+          {
+            "name": "OMP_NUM_THREADS",
+            "value": "4"
+          }
+        ],
+        "image": "quay.io/ascend/vllm-ascend:v0.30.0",
+        "imagePullPolicy": "Never",
+        "name": "main",
+        "readinessProbe": {
+          "failureThreshold": 120,
+          "httpGet": {
+            "path": "/health",
+            "port": 8000,
+            "scheme": "HTTP"
+          },
+          "initialDelaySeconds": 10,
+          "periodSeconds": 5,
+          "successThreshold": 1,
+          "timeoutSeconds": 1
+        },
+        "resources": {
+          "limits": {
+            "cpu": "16",
+            "huawei.com/Ascend910": "2",
+            "memory": "64Gi"
+          },
+          "requests": {
+            "cpu": "4",
+            "huawei.com/Ascend910": "2",
+            "memory": "16Gi"
+          }
+        },
+        "terminationMessagePath": "/dev/termination-log",
+        "terminationMessagePolicy": "File",
+        "volumeMounts": [
+          {
+            "mountPath": "/models/Qwen3-0.6B",
+            "name": "models",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/usr/local/Ascend/driver",
+            "name": "ascend-driver",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/usr/local/dcmi",
+            "name": "ascend-dcmi",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/usr/local/sbin/npu-smi",
+            "name": "ascend-smi",
+            "readOnly": true
+          },
+          {
+            "mountPath": "/dev/shm",
+            "name": "shm"
+          }
+        ]
+      }
+    ],
+    "dnsPolicy": "ClusterFirst",
+    "enableServiceLinks": true,
+    "nodeName": "master",
+    "nodeSelector": {
+      "kubernetes.io/arch": "arm64",
+      "kubernetes.io/hostname": "master"
+    },
+    "preemptionPolicy": "PreemptLowerPriority",
+    "priority": 0,
+    "restartPolicy": "Never",
+    "schedulerName": "default-scheduler",
+    "securityContext": {},
+    "serviceAccount": "default",
+    "serviceAccountName": "default",
+    "terminationGracePeriodSeconds": 90,
+    "tolerations": [
+      {
+        "effect": "NoSchedule",
+        "key": "huawei.com/Ascend910",
+        "operator": "Exists"
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/not-ready",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      },
+      {
+        "effect": "NoExecute",
+        "key": "node.kubernetes.io/unreachable",
+        "operator": "Exists",
+        "tolerationSeconds": 300
+      }
+    ],
+    "volumes": [
+      {
+        "hostPath": {
+          "path": "/data/dynamo-regression-models/Qwen3-0.6B",
+          "type": "Directory"
+        },
+        "name": "models"
+      },
+      {
+        "hostPath": {
+          "path": "/usr/local/Ascend/driver",
+          "type": "Directory"
+        },
+        "name": "ascend-driver"
+      },
+      {
+        "hostPath": {
+          "path": "/usr/local/dcmi",
+          "type": "Directory"
+        },
+        "name": "ascend-dcmi"
+      },
+      {
+        "hostPath": {
+          "path": "/usr/local/bin/npu-smi",
+          "type": "File"
+        },
+        "name": "ascend-smi"
+      },
+      {
+        "emptyDir": {
+          "medium": "Memory",
+          "sizeLimit": "8Gi"
+        },
+        "name": "shm"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T12:15:40Z",
+        "status": "True",
+        "type": "PodReadyToStartContainers"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T12:15:39Z",
+        "status": "True",
+        "type": "Initialized"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T12:17:59Z",
+        "status": "True",
+        "type": "Ready"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T12:17:59Z",
+        "status": "True",
+        "type": "ContainersReady"
+      },
+      {
+        "lastProbeTime": null,
+        "lastTransitionTime": "2026-11-11T12:15:39Z",
+        "status": "True",
+        "type": "PodScheduled"
+      }
+    ],
+    "containerStatuses": [
+      {
+        "containerID": "containerd://3485d354fb7ce4f7c8bae8ae52a80fa1a9f3a82d62e54dd2d100fed5a58be4be",
+        "image": "quay.io/ascend/vllm-ascend:v0.30.0",
+        "imageID": "sha256:74224d25260decde6abdd26c6ebc383faadbaf792115631bdbe966793742c4db",
+        "lastState": {},
+        "name": "main",
+        "ready": true,
+        "restartCount": 0,
+        "started": true,
+        "state": {
+          "running": {
+            "startedAt": "2026-11-11T12:15:40Z"
+          }
+        },
+        "volumeMounts": [
+          {
+            "mountPath": "/models/Qwen3-0.6B",
+            "name": "models",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/usr/local/Ascend/driver",
+            "name": "ascend-driver",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/usr/local/dcmi",
+            "name": "ascend-dcmi",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/usr/local/sbin/npu-smi",
+            "name": "ascend-smi",
+            "readOnly": true,
+            "recursiveReadOnly": "Disabled"
+          },
+          {
+            "mountPath": "/dev/shm",
+            "name": "shm"
+          }
+        ]
+      }
+    ],
+    "hostIP": "192.168.7.5",
+    "hostIPs": [
+      {
+        "ip": "192.168.7.5"
+      }
+    ],
+    "phase": "Running",
+    "podIP": "10.42.0.53",
+    "podIPs": [
+      {
+        "ip": "10.42.0.53"
+      }
+    ],
+    "qosClass": "Burstable",
+    "startTime": "2026-11-11T12:15:39Z"
+  }
+}

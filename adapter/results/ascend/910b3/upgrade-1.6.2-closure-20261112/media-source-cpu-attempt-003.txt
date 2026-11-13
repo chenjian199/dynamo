@@ -1,0 +1,83 @@
+Traceback (most recent call last):
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 397, in from_name
+    return next(cls.discover(name=name))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 860, in import_plugin
+    __import__(importspec)
+  File "/tmp/pytest-plugins/pytest_asyncio/__init__.py", line 9, in <module>
+    __version__ = version(__name__)
+                  ^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 889, in version
+    return distribution(distribution_name).version
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 862, in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 399, in from_name
+    raise PackageNotFoundError(name)
+importlib.metadata.PackageNotFoundError: No package metadata was found for pytest_asyncio
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/pytest/__main__.py", line 9, in <module>
+    raise SystemExit(pytest.console_main())
+                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 201, in console_main
+    code = main()
+           ^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 156, in main
+    config = _prepareconfig(args, plugins)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 342, in _prepareconfig
+    config = pluginmanager.hook.pytest_cmdline_parse(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/pluggy/_caller.py", line 197, in __call__
+    return self._hookexec(
+           ^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/pluggy/_manager.py", line 183, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/pluggy/_execution.py", line 195, in _multicall
+    raise exception
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/pluggy/_execution.py", line 167, in _multicall
+    teardown.throw(exception)
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/helpconfig.py", line 112, in pytest_cmdline_parse
+    config = yield
+             ^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/pluggy/_execution.py", line 147, in _multicall
+    res = hook_impl.function(*args)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 1146, in pytest_cmdline_parse
+    self.parse(args)
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 1527, in parse
+    self._preparse(args, addopts=addopts)
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 1405, in _preparse
+    self.pluginmanager.consider_preparse(args, exclude_only=False)
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 789, in consider_preparse
+    self.consider_pluginarg(parg)
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 812, in consider_pluginarg
+    self.import_plugin(arg, consider_entry_points=True)
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 862, in import_plugin
+    raise ImportError(
+  File "/usr/local/python3.12.16/lib/python3.12/site-packages/_pytest/config/__init__.py", line 860, in import_plugin
+    __import__(importspec)
+  File "/tmp/pytest-plugins/pytest_asyncio/__init__.py", line 9, in <module>
+    __version__ = version(__name__)
+                  ^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 889, in version
+    return distribution(distribution_name).version
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 862, in distribution
+    return Distribution.from_name(distribution_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.16/lib/python3.12/importlib/metadata/__init__.py", line 399, in from_name
+    raise PackageNotFoundError(name)
+ImportError: Error importing plugin "pytest_asyncio.plugin": pytest_asyncio

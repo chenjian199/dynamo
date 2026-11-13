@@ -1,0 +1,41 @@
+{
+  "tools": {
+    "pid": 3056874,
+    "argv": [
+      "docker",
+      "buildx",
+      "build",
+      "--load",
+      "--network",
+      "host",
+      "--progress",
+      "plain",
+      "--build-arg",
+      "RUNTIME_IMAGE=heyi/dynamo:1.6.2-ascend0.30-5cbe424879-runtime",
+      "-f",
+      "/data/dynamo-upgrade-1.6.2-20261111/candidate-5cbe/tools-context/tools.Dockerfile",
+      "-t",
+      "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-tools",
+      "/data/dynamo-upgrade-1.6.2-20261111/candidate-5cbe/tools-context"
+    ]
+  },
+  "dev": {
+    "pid": 3056875,
+    "argv": [
+      "python3",
+      "/root/CJ_workspace/dynamo-upgrade-1.6.2-20261111/container/platform-build.py",
+      "--device",
+      "ascend",
+      "--target",
+      "dev",
+      "--runtime-image",
+      "sha256:25e659744dbd88b82498fb3aacc89e298e76de2698d4d2e36e68b35161a2b08c",
+      "--tag",
+      "heyi/dynamo:1.6.2-ascend0.30-5cbe424879-dev",
+      "--output",
+      "/data/dynamo-upgrade-1.6.2-20261111/candidate-5cbe/dev-build",
+      "--rust-mirror",
+      "rsproxy"
+    ]
+  }
+}

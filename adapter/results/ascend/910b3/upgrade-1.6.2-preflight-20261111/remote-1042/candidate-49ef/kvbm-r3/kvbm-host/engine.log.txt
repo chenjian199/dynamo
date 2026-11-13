@@ -1,0 +1,414 @@
+[ENGINE] INFO 11-11 10:03:30 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 10:03:30 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 10:03:30 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 10:03:30 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 10:03:31 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] /vllm-workspace/vllm/vllm/entrypoints/openai/api_server.py:24: DeprecationWarning: `vllm.entrypoints.openai.api_server` is deprecated and will likely beunsupported in a future version. Use the corresponding function from `vllm.entrypoints.launchers` instead.
+[ENGINE]   warnings.warn(
+[ENGINE] /vllm-workspace/vllm/vllm/entrypoints/openai/api_server.py:51: DeprecationWarning: The `python -m vllm.entrypoints.openai.api_server` command is deprecated and may be removed in a future release. Please use `vllm server` instead.
+[ENGINE]   warnings.warn(
+[ENGINE] INFO 11-11 10:03:47 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 10:03:47 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 10:03:47 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] INFO 11-11 10:03:47 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] WARNING 11-11 10:03:48 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:48 [api_utils.py:347] 
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:48 [api_utils.py:347]        █     █     █▄   ▄█
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:48 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.30.0
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:48 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /models/Qwen3-0.6B
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:48 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:48 [api_utils.py:347] 
+[ENGINE] (APIServer pid=416) INFO 11-11 10:03:49 [api_utils.py:286] non-default args: {'host': '127.0.0.1', 'port': 21055, 'model': '/models/Qwen3-0.6B', 'dtype': 'bfloat16', 'max_model_len': 2048, 'enforce_eager': True, 'served_model_name': ['m06-model'], 'tensor_parallel_size': 2, 'disable_custom_all_reduce': True, 'block_size': 128, 'gpu_memory_utilization': 0.15, 'num_gpu_blocks_override': 17, 'enable_prefix_caching': True, 'max_num_seqs': 2, 'kv_transfer_config': KVTransferConfig(kv_connector='DynamoConnector', engine_id='0bed5652-1089-4b8f-9296-caccd12abb05', kv_buffer_device='npu', kv_buffer_size=1000000000.0, kv_role='kv_both', kv_rank=None, kv_parallel_size=1, kv_ip='127.0.0.1', kv_port=14579, kv_connector_extra_config={}, kv_connector_module_path='kvbm.vllm_integration.connector', enable_permute_local_kv=False, kv_load_failure_policy='fail')}
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [model.py:692] Resolved architecture: Qwen3ForCausalLM
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [model.py:2030] Using max model len 2048
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:04:12 [vllm.py:1547] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:04:12 [vllm.py:1570] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [kernel.py:416] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [vllm.py:1780] Cudagraph is disabled under eager mode
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [utils.py:225] No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:04:12 [platform.py:731] GPU-specific parameter is not supported on Ascend. parameter=disable_cascade_attn, value=True, action: resetting to False.
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [platform.py:945] The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [platform.py:1219] Compilation disabled, using eager mode by default
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [platform.py:1464] Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [nixl_utils.py:32] Setting UCX_RCACHE_MAX_UNRELEASED to '1024' to avoid a rare memory leak in UCX when using NIXL.
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:04:12 [nixl_utils.py:62] NIXL is not available
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:04:12 [nixl_utils.py:64] NIXL agent config is not available
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:04:12 [vllm.py:2022] Turning off hybrid kv cache manager because `--kv-transfer-config` selects a KV connector that does not support it. Impact: hybrid SSM models (e.g. Jamba, Bamba) require HMA and will fail at startup without it; models with sliding window attention will run with reduced performance. To add HMA support to a KV connector, subclass `SupportsHMA` defined in kv_connector/v1/base.py (for MultiConnector, all child connectors must support HMA).
+[ENGINE] (APIServer pid=416) INFO 11-11 10:04:12 [compilation.py:336] Enabled custom fusions: norm_quant, act_quant
+[ENGINE] INFO 11-11 10:04:24 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 10:04:24 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 10:04:24 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 10:04:25 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 10:04:26 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] INFO 11-11 10:04:41 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 10:04:41 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 10:04:41 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] INFO 11-11 10:04:41 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] INFO 11-11 10:04:41 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:04:41 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:04:41 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:04:41 [core.py:123] Initializing a V1 LLM engine (v0.30.0) with config: model='/models/Qwen3-0.6B', speculative_config=None, tokenizer='/models/Qwen3-0.6B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=2048, download_dir=None, load_format=auto, tensor_parallel_size=2, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=True, quantization=None, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=npu, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=m06-model, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'vllm_ascend.compilation.compiler_interface.AscendCompiler', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [2048], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'size_asserts': False, 'alignment_asserts': False, 'scalar_asserts': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 1, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': True, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, moe_backend='auto', sparse_indexer_topk_backend='auto', linear_backend='auto', linear_backend_per_quant=None)
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:04:41 [multiproc_executor.py:153] DP group leader: node_rank=0, node_rank_within_dp=0, master_addr=127.0.0.1, mq_connect_ip=192.168.7.7 (local), world_size=2, local_world_size=2
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:52] Available plugins for group vllm.platform_plugins:
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:54] - ascend -> vllm_ascend:register
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:57] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 10:04:46 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+[ENGINE]   @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[ENGINE] INFO 11-11 10:04:47 [__init__.py:272] Platform plugin ascend is activated
+[ENGINE] INFO 11-11 10:04:47 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] INFO 11-11 10:04:48 [platform.py:74] Breakable CUDAGraph on Ascend is opt-in; using VLLM_USE_BREAKABLE_CUDAGRAPH=0.
+[ENGINE] INFO 11-11 10:05:03 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 10:05:03 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 10:05:03 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] INFO 11-11 10:05:03 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] INFO 11-11 10:05:04 [patch_indexer_kv_dtype.py:102] Patched AttentionConfig.indexer_kv_dtype to accept 'int8' (DeepSeek V4 Ascend indexer K cache dtype).
+[ENGINE] INFO 11-11 10:05:04 [patch_kv_cache_dtype.py:117] Patched CacheConfig.cache_dtype to accept 'int8' and 'mxfp8' (Ascend KV cache dtypes).
+[ENGINE] INFO 11-11 10:05:04 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.netloader.netloader.ModelNetLoaderElastic'>` with load format `netloader`
+[ENGINE] INFO 11-11 10:05:04 [__init__.py:112] Registered model loader `<class 'vllm_ascend.model_loader.rfork.rfork_loader.RForkModelLoader'>` with load format `rfork`
+[ENGINE] WARNING 11-11 10:05:05 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] WARNING 11-11 10:05:05 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] WARNING 11-11 10:05:25 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+[ENGINE] WARNING 11-11 10:05:25 [patch_triton.py:332] NPU Triton causal_conv1d_update is unavailable (cannot import name 'causal_conv1d_update_npu' from 'vllm_ascend.ops.triton.mamba.causal_conv1d' (/vllm-workspace/vllm-ascend/vllm_ascend/ops/triton/mamba/causal_conv1d.py)); falling back to the PyTorch implementation, which syncs per request and therefore stalls ACL graph capture at decode-FULL.
+[ENGINE] INFO 11-11 10:05:26 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] INFO 11-11 10:05:26 [ascend_config.py:334] Dynamic EPLB is False
+[ENGINE] INFO 11-11 10:05:26 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] INFO 11-11 10:05:26 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] INFO 11-11 10:05:26 [ascend_config.py:335] The number of redundant experts is 0
+[ENGINE] INFO 11-11 10:05:26 [ascend_config.py:771] FlashComm1 is disabled. Using flashinfer_all2allv as the all2all backend.
+[ENGINE] (Worker pid=679) INFO 11-11 10:05:28 [parallel_state.py:1827] world_size=2 rank=1 local_rank=1 distributed_init_method=file:///tmp/vllm_dist_aa5f1efb2778438eaa4f1dde5845a8f1 backend=hccl
+[ENGINE] (Worker pid=678) INFO 11-11 10:05:28 [parallel_state.py:1827] world_size=2 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_aa5f1efb2778438eaa4f1dde5845a8f1 backend=hccl
+[ENGINE] [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank [Gloo] Rank 10 is connected to 1 is connected to  peer ranks. 1Expected number of connected peer ranks is :  peer ranks. 1Expected number of connected peer ranks is : 
+[ENGINE] 1
+[ENGINE] [Gloo] Rank [Gloo] Rank 00 is connected to  is connected to 00 peer ranks.  peer ranks. Expected number of connected peer ranks is : Expected number of connected peer ranks is : 00
+[ENGINE] 
+[ENGINE] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[ENGINE] [Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[ENGINE] [Gloo] Rank [Gloo] Rank 0 is connected to 0 is connected to 00 peer ranks.  peer ranks. Expected number of connected peer ranks is : 0Expected number of connected peer ranks is : 
+[ENGINE] 0
+[ENGINE] [Gloo] Rank 0 is connected to 0 peer ranks. [Gloo] Rank Expected number of connected peer ranks is : 00
+[ENGINE]  is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[ENGINE] (Worker pid=678) INFO 11-11 10:05:28 [parallel_state.py:2267] rank 0 in world size 2 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, ETP rank 0, EP rank N/A, EPLB rank N/A
+[ENGINE] [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+[ENGINE] [rank0]:[W1111 10:05:28.323553265 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[ENGINE] [rank1]:[W1111 10:05:28.333067072 NPUCachingAllocator.cpp:204] Warning: The current CANN and HDK(driver) versions require processing for 32 padding size, with memory allocation. (function operator())
+[ENGINE] (Worker pid=679) INFO 11-11 10:05:29 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker pid=678) INFO 11-11 10:05:29 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:29 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:29 [model_runner_v1.py:4389] Starting to load model /models/Qwen3-0.6B...
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:30 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:30 [platform.py:1487] FA3 will not be enabled when rl_config.enable_training_consistency is false. Note that Ascend NPU will use its registered plugin backend instead.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:30 [weight_utils.py:895] Filesystem type for checkpoints: XFS. Checkpoint size: 1.40 GiB. Available RAM: 464.44 GiB.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:30 [weight_utils.py:918] Auto-prefetch is disabled because the filesystem (XFS) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+[ENGINE] (Worker_TP0 pid=678) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+[ENGINE] (Worker_TP0 pid=678) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  2.64it/s]
+[ENGINE] (Worker_TP0 pid=678) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  2.64it/s]
+[ENGINE] (Worker_TP0 pid=678) 
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:30 [default_loader.py:430] Loading weights took 0.45 seconds
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:33 [model_runner_v1.py:4476] Loading model weights took 0.5846 GB
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:33 [model_runner_v1.py:4563] Model runner load_model total time: 3.90 seconds
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:33 [model_runner_v1.py:4476] Loading model weights took 0.5846 GB
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:33 [model_runner_v1.py:4563] Model runner load_model total time: 4.77 seconds
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:33 [torch_utils.py:275] OMP_NUM_THREADS=4 is set; leaving Torch threads at 4 for serving. Multi-threaded torch CPU ops during serving can degrade performance through spin-wait contention and cgroup CPU-quota throttling.
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:34 [nixl_utils.py:62] NIXL is not available
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:34 [nixl_utils.py:64] NIXL agent config is not available
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:34 [utils.py:320] Using LBNHC KV cache layout.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:44 [worker.py:660] Available KV cache memory: 8.09 GiB
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:44 [kv_cache_utils.py:2711] Overriding num_gpu_blocks=1182 with num_gpu_blocks_override=17
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:44 [kv_cache_utils.py:2711] Overriding num_gpu_blocks=1182 with num_gpu_blocks_override=17
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:44 [kv_cache_utils.py:2395] NPU KV cache size: 2,176 tokens, Maximum concurrency for 2,048 tokens per request: 1.06x
+[ENGINE] (Worker_TP0 pid=678) WARNING 11-11 10:05:44 [nixl_utils.py:62] NIXL is not available
+[ENGINE] (Worker_TP0 pid=678) WARNING 11-11 10:05:44 [nixl_utils.py:64] NIXL agent config is not available
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:44 [factory.py:62] Creating v1 connector with name: DynamoConnector and engine_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] (Worker_TP1 pid=679) WARNING 11-11 10:05:44 [base.py:217] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+[ENGINE] (Worker_TP0 pid=678) [2m2026-11-11T10:05:44.091125Z[0m [32m INFO[0m [2m_core::block_manager::vllm::connector::worker[0m[2m:[0m KvConnectorWorker initialized with worker_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] INFO 11-11 10:05:44 [factory.py:62] Creating v1 connector with name: DynamoConnector and engine_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] (Worker_TP0 pid=678) WARNING 11-11 10:05:44 [base.py:217] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+[ENGINE] [2m2026-11-11T10:05:44.091647Z[0m [32m INFO[0m [2m_core::block_manager::vllm::connector::worker[0m[2m:[0m KvConnectorWorker initialized with worker_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] [2m2026-11-11T10:05:44.125544Z[0m [32m INFO[0m [2m_core::block_manager::vllm::connector::worker[0m[2m:[0m Auto-detected device layout from tensor shape: LayerSeparate { outer_contiguous: false }
+[ENGINE] [2m2026-11-11T10:05:44.125783Z[0m [32m INFO[0m [2m_core::block_manager::vllm::connector::worker[0m[2m:[0m Auto-detected device layout from tensor shape: LayerSeparate { outer_contiguous: false }
+[ENGINE] [2m2026-11-11T10:05:44.126004Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m Initializing KvbmWorker with params: num_device_blocks=17, page_size=128, dtype_width_bytes=2
+[ENGINE] [2m2026-11-11T10:05:44.126070Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m Initializing KvbmWorker with params: num_device_blocks=17, page_size=128, dtype_width_bytes=2
+[ENGINE] [2m2026-11-11T10:05:44.126854Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m ZmqActiveMessageWorker: Bound to sub: tcp://127.0.0.1:21498 and push: tcp://127.0.0.1:21453
+[ENGINE] [2m2026-11-11T10:05:44.126889Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m ZmqActiveMessageWorker: Bound to sub: tcp://127.0.0.1:21498 and push: tcp://127.0.0.1:21453
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:44 [kernel_warmup.py:44] Starting Triton kernel warmup.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:44 [kernel_warmup.py:44] Starting Triton kernel warmup.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:44 [kernel_warmup.py:36] rejection_sampler Triton warmup complete in 0.000s.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:44 [kernel_warmup.py:36] rejection_sampler Triton warmup complete in 0.000s.
+[ENGINE] (Worker_TP1 pid=679) [WARNING] AutoBlockify disabled for kernel 'token_bin_counts_and_mask_kernel'. Unsafe ops: atomic operations. Enabling may cause correctness issues. The compiler keeps AutoBlockify disabled for this kernel.
+[ENGINE] (Worker_TP0 pid=678) [WARNING] AutoBlockify disabled for kernel 'token_bin_counts_and_mask_kernel'. Unsafe ops: atomic operations. Enabling may cause correctness issues. The compiler keeps AutoBlockify disabled for this kernel.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:50 [kernel_warmup.py:36] penalties Triton warmup complete in 6.469s.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:50 [kernel_warmup.py:36] rms Triton warmup complete in 0.000s.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:50 [kernel_warmup.py:36] indexer Triton warmup complete in 0.000s.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:50 [kernel_warmup.py:53] Triton kernel warmup finished in 6.470s.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:50 [kernel_warmup.py:36] penalties Triton warmup complete in 6.470s.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:50 [kernel_warmup.py:36] rms Triton warmup complete in 0.000s.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:50 [kernel_warmup.py:36] indexer Triton warmup complete in 0.000s.
+[ENGINE] (Worker_TP1 pid=679) (Worker_TP0 pid=678) INFO 11-11 10:05:50 [kernel_warmup.py:53] Triton kernel warmup finished in 6.471s.
+[ENGINE] INFO 11-11 10:05:50 [worker.py:950] Free memory on device (60.58/60.97 GiB) on startup. Desired GPU memory utilization is (0.15, 9.15 GiB). Actual usage: 0.58 GiB for weights, 0.05 GiB for peak activation, 0.43 GiB for non-torch memory, 0.0 GiB for NPU graph memory. Replace gpu_memory_utilization with `--kv-cache-memory=8525618380` (7.94 GiB) to fit into requested memory, or `--kv-cache-memory=63754797056` (59.38 GiB) to fully utilize NPU free memory. Current KV cache memory: 8.09 GiB. After warmup: torch reserved memory 0.79 GiB, torch allocated memory 0.76 GiB.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:50 [worker.py:950] Free memory on device (60.58/60.97 GiB) on startup. Desired GPU memory utilization is (0.15, 9.15 GiB). Actual usage: 0.58 GiB for weights, 0.05 GiB for peak activation, 0.43 GiB for non-torch memory, 0.0 GiB for NPU graph memory. Replace gpu_memory_utilization with `--kv-cache-memory=8525364428` (7.94 GiB) to fit into requested memory, or `--kv-cache-memory=63754137600` (59.38 GiB) to fully utilize NPU free memory. Current KV cache memory: 8.09 GiB. After warmup: torch reserved memory 0.79 GiB, torch allocated memory 0.76 GiB.
+[ENGINE] (Worker_TP1 pid=679) INFO 11-11 10:05:52 [cpu_binding.py:539] [cpu_bind_mode] mode=topo_affinity rank=1 visible_npus=[0, 1]
+[ENGINE] (Worker_TP1 pid=679) WARNING 11-11 10:05:52 [worker.py:971] Bind cpus failed in rank1: CPUs available in 'Cpus_allowed_list' conflict with NUMA affinity. Skip binding cpu.
+[ENGINE] (Worker_TP0 pid=678) INFO 11-11 10:05:52 [cpu_binding.py:539] [cpu_bind_mode] mode=topo_affinity rank=0 visible_npus=[0, 1]
+[ENGINE] (Worker_TP0 pid=678) WARNING 11-11 10:05:52 [worker.py:971] Bind cpus failed in rank0: CPUs available in 'Cpus_allowed_list' conflict with NUMA affinity. Skip binding cpu.
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:52 [core.py:379] init engine (profile, create kv cache, warmup model) took 18.24 s
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:53 [factory.py:62] Creating v1 connector with name: DynamoConnector and engine_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:53 [base.py:217] Initializing KVConnectorBase_V1. This API is experimental and subject to change in the future as we iterate the design.
+[ENGINE] (EngineCore pid=654) KvConnectorLeader initialized with engine_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] [2m2026-11-11T10:05:53.774905Z[0m [32m INFO[0m [2m_core::block_manager::vllm::connector::leader[0m[2m:[0m KvConnectorLeader initialized with worker_id: 0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2
+[ENGINE] [2m2026-11-11T10:05:53.774889Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m ZmqActiveMessageLeader: Bound to pub: tcp://127.0.0.1:21498 and pull: tcp://127.0.0.1:21453
+[ENGINE] [2m2026-11-11T10:05:53.775032Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m Handshake: requesting worker device configs...
+[ENGINE] [2m2026-11-11T10:05:55.776324Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m Handshake: requesting worker device configs...
+[ENGINE] [2m2026-11-11T10:05:55.777128Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m Handshake: received 2 worker metadata replies in this round.
+[ENGINE] [2m2026-11-11T10:05:55.777146Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m Handshake: broadcasting allocation config to workers...
+[ENGINE] [2m2026-11-11T10:05:55.777499Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::zmq[0m[2m:[0m Handshake: all workers acked allocation config.
+[ENGINE] [2m2026-11-11T10:05:55.777732Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] [2m2026-11-11T10:05:55.778057Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] [2m2026-11-11T10:05:55.920546Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m allocation finished; worker is ping-ACK-able
+[ENGINE] [2m2026-11-11T10:05:56.279712Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m Reported ping-ready after first ACK
+[ENGINE] [2m2026-11-11T10:05:56.279789Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m worker layout allocation finished.
+[ENGINE] [2m2026-11-11T10:05:56.279763Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] [2m2026-11-11T10:05:56.780837Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] [2m2026-11-11T10:05:57.281669Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] [2m2026-11-11T10:05:57.783790Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m KVBM worker is under initialization. It could take a while if set with large CPU or DISK cache size. Please wait...
+[ENGINE] [2m2026-11-11T10:05:57.947043Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m allocation finished; worker is ping-ACK-able
+[ENGINE] [2m2026-11-11T10:05:58.285791Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m Reported ping-ready after first ACK
+[ENGINE] [2m2026-11-11T10:05:58.285878Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::worker[0m[2m:[0m worker layout allocation finished.
+[ENGINE] [2m2026-11-11T10:05:58.285879Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::distributed::leader[0m[2m:[0m ZMQ handshake complete; workers allocation ready
+[ENGINE] [2m2026-11-11T10:05:58.286034Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::state::resources[0m[2m:[0m Using NullEventManager
+[ENGINE] [2m2026-11-11T10:05:58.286087Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::pool::managed[0m[2m:[0m building block pool
+[ENGINE] [2m2026-11-11T10:05:58.286428Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::pool::managed[0m[2m:[0m building block pool
+[ENGINE] [2m2026-11-11T10:05:58.286546Z[0m [33m WARN[0m [2mdynamo_llm::block_manager::offload[0m[2m:[0m Host to Disk offload filter is not provided. All blocks in host will be offloaded to disk. This may result in excessive disk offloading and accelerated SSD degradation.
+[ENGINE] [2m2026-11-11T10:05:58.286576Z[0m [32m INFO[0m [2mdynamo_llm::block_manager::offload[0m[2m:[0m Configured offload transfer settings [3mmax_concurrent_transfers[0m[2m=[0m4 [3mmax_transfer_batch_size[0m[2m=[0m16
+[ENGINE] [2m2026-11-11T10:05:58.286911Z[0m [32m INFO[0m [2m_core::block_manager::vllm::connector::leader[0m[2m:[0m KvConnectorLeader init complete.
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:58 [vllm.py:1547] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:58 [vllm.py:1570] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:58 [kernel.py:416] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:58 [vllm.py:1780] Cudagraph is disabled under eager mode
+[ENGINE] (EngineCore pid=654) WARNING 11-11 10:05:59 [indexer_topk.py:29] Failed to import the DeepSelect extension (vllm._deepselect_C): No module named 'vllm._deepselect_C'
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:59 [utils.py:225] No quantization signature detected from model files for "/models/Qwen3-0.6B". The model will be loaded as float. To force a quantization method, pass "--quantization <method>" explicitly.
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:59 [platform.py:945] The timeout interval of the HCCL operator is 1836s. Timeout in seconds for execute_model RPC calls in multiprocessing must be greater than 1836s, Set VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS=3000
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:59 [platform.py:1219] Compilation disabled, using eager mode by default
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:59 [platform.py:1464] Set PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:05:59 [compilation.py:336] Enabled custom fusions: norm_quant, act_quant
+[ENGINE] (APIServer pid=416) INFO 11-11 10:05:59 [entry.py:135] Supported tasks: ['generate']
+[ENGINE] (APIServer pid=416) INFO 11-11 10:05:59 [factories.py:76] Scale-out endpoints are disabled. Set --enable-scale-out to enable them.
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [hf.py:642] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:06:00 [model.py:1772] Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [entry.py:139] Starting vLLM server on http://127.0.0.1:21055
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:61] Available routes are:
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /openapi.json, Methods: GET, HEAD
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /docs, Methods: GET, HEAD
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /docs/oauth2-redirect, Methods: GET, HEAD
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /redoc, Methods: GET, HEAD
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /load, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /version, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /health, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /metrics, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /tokenize, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /detokenize, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/models, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /ping, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /ping, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /invocations, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/chat/completions, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/chat/completions/batch, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/responses, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/responses/{response_id}, Methods: GET
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/responses/{response_id}/cancel, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/completions, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/messages, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /v1/messages/count_tokens, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /generative_scoring, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /scale_elastic_ep, Methods: POST
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:00 [launcher.py:70] Route: /is_scaling_elastic_ep, Methods: POST
+[ENGINE] (APIServer pid=416) INFO:     Started server process [416]
+[ENGINE] (APIServer pid=416) INFO:     Waiting for application startup.
+[ENGINE] (APIServer pid=416) INFO:     Application startup complete.
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:50082 - "GET /health HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:50086 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:06.840717Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:06.880305Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:11 [loggers.py:315] Engine 000: Avg prompt throughput: 51.5 tokens/s, Avg generation throughput: 0.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, NPU KV cache usage: 37.5%, Prefix cache hit rate: 0.0%, External prefix cache hit rate: 0.0%
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:50098 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:33868 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:13.589501Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:13.624648Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:33870 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:33872 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:16.357964Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:16.426369Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:18.288607Z[0m [32m INFO[0m [2m_core::block_manager::cache_stats[0m[2m:[0m KVBM [worker-0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2] Cache Hit Rates - Host: 16.7% (1/6), Disk: 0.0% (0/6)
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:33884 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37236 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:18.959746Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:19.037614Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37250 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37262 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:21 [loggers.py:315] Engine 000: Avg prompt throughput: 204.8 tokens/s, Avg generation throughput: 12.1 tokens/s, Running: 1 reqs, Waiting: 0 reqs, NPU KV cache usage: 37.5%, Prefix cache hit rate: 16.0%, External prefix cache hit rate: 0.0%
+[ENGINE] [2m2026-11-11T10:06:21.566659Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:21.583039Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37274 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37288 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:24.014616Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m1
+[ENGINE] [2m2026-11-11T10:06:24.071299Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m1
+[ENGINE] [2m2026-11-11T10:06:24.109571Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m11
+[ENGINE] [2m2026-11-11T10:06:24.183864Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m11
+[ENGINE] [2m2026-11-11T10:06:24.202222Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m10
+[ENGINE] [2m2026-11-11T10:06:24.277394Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m10
+[ENGINE] [2m2026-11-11T10:06:24.296183Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m9
+[ENGINE] [2m2026-11-11T10:06:24.296301Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:24.392326Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m9
+[ENGINE] [2m2026-11-11T10:06:24.392412Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:24.535116Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:24.554052Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37300 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37312 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:27.227083Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:27.243674Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:28.288406Z[0m [32m INFO[0m [2m_core::block_manager::cache_stats[0m[2m:[0m KVBM [worker-0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2] Cache Hit Rates - Host: 23.1% (6/26), Disk: 0.0% (0/26)
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37326 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37936 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:29.838705Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:29.910753Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:31 [loggers.py:315] Engine 000: Avg prompt throughput: 38.4 tokens/s, Avg generation throughput: 11.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, NPU KV cache usage: 37.5%, Prefix cache hit rate: 30.0%, External prefix cache hit rate: 14.3%
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37950 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37962 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:32.530469Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m15
+[ENGINE] [2m2026-11-11T10:06:32.543182Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m15
+[ENGINE] [2m2026-11-11T10:06:32.628160Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m14
+[ENGINE] [2m2026-11-11T10:06:32.657876Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m14
+[ENGINE] [2m2026-11-11T10:06:32.725783Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m13
+[ENGINE] [2m2026-11-11T10:06:32.771563Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m13
+[ENGINE] [2m2026-11-11T10:06:32.820938Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m12
+[ENGINE] [2m2026-11-11T10:06:32.821029Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:32.879231Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m12
+[ENGINE] [2m2026-11-11T10:06:32.879336Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:33.023198Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:33.050495Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37972 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37982 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:35.592237Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m3
+[ENGINE] [2m2026-11-11T10:06:35.606039Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m3
+[ENGINE] [2m2026-11-11T10:06:35.692883Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m4
+[ENGINE] [2m2026-11-11T10:06:35.719571Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m4
+[ENGINE] [2m2026-11-11T10:06:35.812882Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m6
+[ENGINE] [2m2026-11-11T10:06:35.836776Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m6
+[ENGINE] [2m2026-11-11T10:06:35.935350Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m5
+[ENGINE] [2m2026-11-11T10:06:35.935442Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:35.939599Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m5
+[ENGINE] [2m2026-11-11T10:06:35.939718Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:36.103983Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:36.105857Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:38.288404Z[0m [32m INFO[0m [2m_core::block_manager::cache_stats[0m[2m:[0m KVBM [worker-0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2] Cache Hit Rates - Host: 39.4% (13/33), Disk: 0.0% (0/33)
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:37994 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54938 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:38.663782Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m7
+[ENGINE] [2m2026-11-11T10:06:38.667743Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m7
+[ENGINE] [2m2026-11-11T10:06:38.785096Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m16
+[ENGINE] [2m2026-11-11T10:06:38.800539Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m16
+[ENGINE] [2m2026-11-11T10:06:38.902758Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m9
+[ENGINE] [2m2026-11-11T10:06:38.938860Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m9
+[ENGINE] [2m2026-11-11T10:06:39.022539Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m10
+[ENGINE] [2m2026-11-11T10:06:39.022637Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:39.060095Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m10
+[ENGINE] [2m2026-11-11T10:06:39.060199Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:39.193044Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:39.329400Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:41 [loggers.py:315] Engine 000: Avg prompt throughput: 38.4 tokens/s, Avg generation throughput: 10.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, NPU KV cache usage: 37.5%, Prefix cache hit rate: 21.8%, External prefix cache hit rate: 37.2%
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54946 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54950 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:41.819223Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m1
+[ENGINE] [2m2026-11-11T10:06:41.838444Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m1
+[ENGINE] [2m2026-11-11T10:06:41.935931Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m2
+[ENGINE] [2m2026-11-11T10:06:41.958638Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m2
+[ENGINE] [2m2026-11-11T10:06:42.051090Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m12
+[ENGINE] [2m2026-11-11T10:06:42.078231Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m12
+[ENGINE] [2m2026-11-11T10:06:42.166544Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m13
+[ENGINE] [2m2026-11-11T10:06:42.166647Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:42.194978Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m13
+[ENGINE] [2m2026-11-11T10:06:42.195073Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:42.343123Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:42.386888Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:43.288431Z[0m [32m INFO[0m [2m_core::block_manager::cache_stats[0m[2m:[0m KVBM [worker-0bed5652-1089-4b8f-9296-caccd12abb05-4dd7a2a4da1146648bcf45a4fce139b2] Cache Hit Rates - Host: 53.5% (23/43), Disk: 0.0% (0/43)
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54958 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54962 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54964 - "GET /metrics HTTP/1.1" 200 OK
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54972 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:45.320493Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:45.368004Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54986 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:46.418030Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:46.492193Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:54998 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] [2m2026-11-11T10:06:47.511324Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:47.602171Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m5 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:48.380994Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m1
+[ENGINE] [2m2026-11-11T10:06:48.390591Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m1
+[ENGINE] [2m2026-11-11T10:06:48.491426Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m4
+[ENGINE] [2m2026-11-11T10:06:48.505762Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m4
+[ENGINE] [2m2026-11-11T10:06:48.581974Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m6
+[ENGINE] [2m2026-11-11T10:06:48.597467Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m6
+[ENGINE] [2m2026-11-11T10:06:48.679040Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m5
+[ENGINE] [2m2026-11-11T10:06:48.679145Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:48.712043Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM reload byte verification passed [3mblock[0m[2m=[0m5
+[ENGINE] [2m2026-11-11T10:06:48.712115Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mHost [3mtarget[0m[2m=[0mDevice [3mblocks[0m[2m=[0m4 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:48.869195Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] [2m2026-11-11T10:06:48.883630Z[0m [34mDEBUG[0m [2mdynamo_llm::block_manager::distributed::platform[0m[2m:[0m platform KVBM transfer completed [3msource[0m[2m=[0mDevice [3mtarget[0m[2m=[0mHost [3mblocks[0m[2m=[0m1 [3mbytes_per_block[0m[2m=[0m7340032
+[ENGINE] (APIServer pid=416) INFO:     127.0.0.1:53836 - "POST /v1/completions HTTP/1.1" 200 OK
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:06:51 [core.py:1342] [shutdown] EngineCore: trigger received signal=SIGTERM
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [launcher.py:129] [shutdown] API server: shutdown triggered
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [launcher.py:145] [shutdown] API server: stopping engine client mode=abort timeout=0s
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [core_client.py:744] [shutdown] MPClient: start timeout=0s
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:06:51 [core.py:1493] [shutdown] EngineCore: start mode=abort timeout=0s
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [core_client.py:746] [shutdown] MPClient: stopping engine manager
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [utils.py:632] [shutdown] Process manager: send sigterm to process EngineCore
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:06:51 [utils.py:652] [shutdown] Process manager: force killing remaining processes count=1
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:06:51 [core.py:1342] [shutdown] EngineCore: trigger received signal=SIGTERM
+[ENGINE] (APIServer pid=416) WARNING 11-11 10:06:51 [utils.py:657] [shutdown] Process manager: force killing remaining process EngineCore pid 654
+[ENGINE] (EngineCore pid=654) INFO 11-11 10:06:51 [core.py:1493] [shutdown] EngineCore: start mode=abort timeout=0s
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [core_client.py:748] [shutdown] MPClient: engine manager stopped
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [core_client.py:749] [shutdown] MPClient: cleaning up background resources
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [core_client.py:751] [shutdown] MPClient: complete
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [launcher.py:154] [shutdown] API server: engine client stopped
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [launcher.py:157] [shutdown] API server: signalling HTTP server shutdown
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [launcher.py:179] [shutdown] API server: shutting down FastAPI HTTP server
+[ENGINE] (APIServer pid=416) INFO:     Shutting down
+[ENGINE] (APIServer pid=416) INFO 11-11 10:06:51 [loggers.py:315] Engine 000: Avg prompt throughput: 217.3 tokens/s, Avg generation throughput: 7.1 tokens/s, Running: 0 reqs, Waiting: 0 reqs, NPU KV cache usage: 0.0%, Prefix cache hit rate: 15.0%, External prefix cache hit rate: 35.3%
+[ENGINE] (APIServer pid=416) INFO:     Waiting for application shutdown.
+[ENGINE] (APIServer pid=416) INFO:     Application shutdown complete.
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 2 leaked semaphore objects to clean up at shutdown
+[ENGINE]   warnings.warn('resource_tracker: There appear to be %d '
+[ENGINE] /usr/local/python3.12.16/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 4 leaked shared_memory objects to clean up at shutdown
+[ENGINE]   warnings.warn('resource_tracker: There appear to be %d '

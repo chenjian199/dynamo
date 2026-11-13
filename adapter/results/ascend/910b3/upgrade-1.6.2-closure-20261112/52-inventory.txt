@@ -1,0 +1,67 @@
+master-02
+NAME                 STATUS     ROLES                       AGE    VERSION        INTERNAL-IP    EXTERNAL-IP    OS-IMAGE                                        KERNEL-VERSION                                  CONTAINER-RUNTIME
+master               Ready      control-plane,etcd,master   279d   v1.32.2+k3s1   192.168.7.5    192.168.7.5    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+master-01-ccba701b   Ready      control-plane,etcd,master   279d   v1.32.2+k3s1   192.168.7.3    192.168.7.3    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+master-02-45d4a763   Ready      control-plane,etcd,master   279d   v1.32.2+k3s1   192.168.7.7    192.168.7.7    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+worker-00-08f52c98   NotReady   <none>                      278d   v1.32.2+k3s1   192.168.7.2    192.168.7.2    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+worker-01-72473f05   Ready      <none>                      279d   v1.32.2+k3s1   192.168.7.6    192.168.7.6    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+worker-02-3d2920e3   Ready      <none>                      279d   v1.32.2+k3s1   192.168.7.4    192.168.7.4    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+worker-03-bc9a4f90   Ready      <none>                      279d   v1.32.2+k3s1   192.168.7.9    192.168.7.9    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+worker-04-d0e43515   Ready      <none>                      278d   v1.32.2+k3s1   192.168.7.8    192.168.7.8    BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+worker-05-5a0583cf   Ready      <none>                      279d   v1.32.2+k3s1   192.168.7.10   192.168.7.10   BigCloud Enterprise Linux For Euler 22.10 LTS   5.10.0-136.49.0.127.10.oe2203.bclinux.aarch64   containerd://2.0.2-k3s2
+NAME                                                              READY   STATUS    RESTARTS   AGE   IP            NODE                 NOMINATED NODE   READINESS GATES
+heyi-upgrade162-dynamo-operator-controller-manager-86cb9cbxb7gh   1/1     Running   0          16h   10.42.5.213   master-02-45d4a763   <none>           <none>
+docker.io/heyi/dynamo-operator:1.6.2-heyi-upgrade-1aabe435ad-arm64                                                            application/vnd.oci.image.manifest.v1+json                sha256:6305e303fe4803965f20e1ca99f52d8419169f888eebbc6588ca34f8b7b31c23 227.1 MiB linux/arm64                                                                    io.cri-containerd.image=managed 
+docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-dev                                                                         application/vnd.oci.image.manifest.v1+json                sha256:d078e0be9aba08aa57fcba347af95e1b54e3fa9d9c4ff94e1e5e396ad607e339 24.1 GiB  linux/arm64                                                                    io.cri-containerd.image=managed 
+docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime                                                                     application/vnd.oci.image.manifest.v1+json                sha256:88fb8a13e64b7802bd55e02407b87ba819de106eb475b2f42f41f93cf52502b7 23.0 GiB  linux/arm64                                                                    io.cri-containerd.image=managed 
+docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-tools                                                                       application/vnd.oci.image.manifest.v1+json                sha256:f6340f1c6b47a37d5b34071d1a8992f2dacf687419c0d3186de05ee6ec907385 25.5 GiB  linux/arm64                                                                    io.cri-containerd.image=managed 
++------------------------------------------------------------------------------------------------+
+| npu-smi 24.1.rc3                 Version: 24.1.rc3                                             |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B3               | OK            | 92.7        37                0    / 0             |
+| 0                         | 0000:C1:00.0  | 0           0    / 0          3451 / 65536         |
++===========================+===============+====================================================+
+| 1     910B3               | OK            | 90.1        37                0    / 0             |
+| 0                         | 0000:C2:00.0  | 0           0    / 0          3450 / 65536         |
++===========================+===============+====================================================+
+| 2     910B3               | OK            | 90.5        36                0    / 0             |
+| 0                         | 0000:81:00.0  | 0           0    / 0          3450 / 65536         |
++===========================+===============+====================================================+
+| 3     910B3               | OK            | 94.7        36                0    / 0             |
+| 0                         | 0000:82:00.0  | 0           0    / 0          3450 / 65536         |
++===========================+===============+====================================================+
+| 4     910B3               | OK            | 95.0        41                0    / 0             |
+| 0                         | 0000:01:00.0  | 0           0    / 0          3456 / 65536         |
++===========================+===============+====================================================+
+| 5     910B3               | OK            | 103.1       41                0    / 0             |
+| 0                         | 0000:02:00.0  | 0           0    / 0          3450 / 65536         |
++===========================+===============+====================================================+
+| 6     910B3               | OK            | 93.8        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          3450 / 65536         |
++===========================+===============+====================================================+
+| 7     910B3               | OK            | 92.1        40                0    / 0             |
+| 0                         | 0000:42:00.0  | 0           0    / 0          3449 / 65536         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 1                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 2                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 3                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 4                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 5                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 6                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 7                                                            |
++===========================+===============+====================================================+
+b61ad956b1d13c3c3c84e4da97d1881de5a9fba4c49c895675c6060d0050afae  /data/weight/Qwen3-0.6B/heyi-upgrade-162-manifest-ae67e66d6a53.json

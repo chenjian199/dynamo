@@ -1,0 +1,1582 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "kai.scheduler/skip-podgrouper": "true",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-operator-origin-version": "1.6.2",
+          "pod-group-name": "upgrade-grove-final-r1-0-1794401518998157083",
+          "received-resource-type": "Regular"
+        },
+        "creationTimestamp": "2026-11-11T12:52:04Z",
+        "generateName": "upgrade-grove-final-r1-0-frontend-",
+        "labels": {
+          "app.kubernetes.io/component": "pcs-podclique",
+          "app.kubernetes.io/managed-by": "grove-operator",
+          "app.kubernetes.io/name": "upgrade-grove-final-r1-0-frontend",
+          "app.kubernetes.io/part-of": "upgrade-grove-final-r1",
+          "grove.io/pod-template-hash": "586f549bb4778b8f6c5b",
+          "grove.io/podclique": "upgrade-grove-final-r1-0-frontend",
+          "grove.io/podclique-pod-index": "0",
+          "grove.io/podcliqueset-replica-index": "0",
+          "grove.io/podgang": "upgrade-grove-final-r1-0-1794401518998157083",
+          "kai.scheduler/queue": "default-queue",
+          "kai.scheduler/subgroup-name": "upgrade-grove-final-r1-0-frontend",
+          "nvidia.com/dynamo-component": "frontend",
+          "nvidia.com/dynamo-component-type": "frontend",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-discovery-enabled": "true",
+          "nvidia.com/dynamo-graph-deployment-name": "upgrade-grove-final-r1",
+          "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-grove-final-r1",
+          "nvidia.com/metrics-enabled": "true",
+          "nvidia.com/selector": "upgrade-grove-final-r1-frontend"
+        },
+        "name": "upgrade-grove-final-r1-0-frontend-k92nl",
+        "namespace": "heyi-upgrade162",
+        "ownerReferences": [
+          {
+            "apiVersion": "grove.io/v1alpha1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "PodClique",
+            "name": "upgrade-grove-final-r1-0-frontend",
+            "uid": "7bbfa47b-64a6-4ecc-a955-e55a8c897183"
+          }
+        ],
+        "resourceVersion": "298432160",
+        "uid": "f71365e7-5857-48e7-b16a-0dfc81e85906"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "python",
+              "-m",
+              "dynamo.frontend",
+              "--router-mode",
+              "kv"
+            ],
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh"
+            ],
+            "env": [
+              {
+                "name": "GROVE_PCS_NAME",
+                "value": "upgrade-grove-final-r1"
+              },
+              {
+                "name": "GROVE_PCS_INDEX",
+                "value": "0"
+              },
+              {
+                "name": "GROVE_PCLQ_NAME",
+                "value": "upgrade-grove-final-r1-0-frontend"
+              },
+              {
+                "name": "GROVE_HEADLESS_SERVICE",
+                "value": "upgrade-grove-final-r1-0.heyi-upgrade162.svc.cluster.local"
+              },
+              {
+                "name": "GROVE_PCLQ_POD_INDEX",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.labels['grove.io/podclique-pod-index']"
+                  }
+                }
+              },
+              {
+                "name": "DYNAMO_PORT",
+                "value": "8000"
+              },
+              {
+                "name": "DYN_COMPONENT",
+                "value": "frontend"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "kubernetes"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_HTTP_PORT",
+                "value": "8000"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "heyi-upgrade162-upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_NAMESPACE_PREFIX",
+                "value": "heyi-upgrade162-upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_NAMESPACE_PREFIX_STRICT",
+                "value": "true"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAME",
+                "value": "upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                "value": "heyi-upgrade162"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "cpu"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_ROUTER_USE_KV_EVENTS",
+                "value": "true"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              }
+            ],
+            "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+            "imagePullPolicy": "Never",
+            "livenessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/live",
+                "port": "http",
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 15,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 1
+            },
+            "name": "main",
+            "ports": [
+              {
+                "containerPort": 8000,
+                "name": "http",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/health",
+                "port": "http",
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 3
+            },
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "memory": "2Gi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "models",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-6n4dd",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "hostname": "upgrade-grove-final-r1-0-frontend-0",
+        "nodeName": "master-02-45d4a763",
+        "nodeSelector": {
+          "kubernetes.io/arch": "arm64",
+          "kubernetes.io/hostname": "master-02-45d4a763"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "kai-scheduler",
+        "securityContext": {
+          "fsGroup": 1000
+        },
+        "serviceAccount": "upgrade-grove-final-r1-k8s-service-discovery",
+        "serviceAccountName": "upgrade-grove-final-r1-k8s-service-discovery",
+        "subdomain": "upgrade-grove-final-r1-0",
+        "terminationGracePeriodSeconds": 90,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "hostPath": {
+              "path": "/data/weight/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "models"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "8Gi"
+            },
+            "name": "shared-memory"
+          },
+          {
+            "name": "kube-api-access-6n4dd",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:08Z",
+            "message": "Pod bound successfully to node master-02-45d4a763",
+            "reason": "Bound",
+            "status": "True",
+            "type": "PodBound"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:09Z",
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:08Z",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:20Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:20Z",
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:08Z",
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "containerID": "containerd://158132f2d6077493097a29d6058cd83fa2716b24679886bb363a1938b7ae6774",
+            "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+            "imageID": "sha256:3ffd28fee081ae257f16d33102f39a611784bc174a0c8ebe8f1a46e47c71b311",
+            "lastState": {},
+            "name": "main",
+            "ready": true,
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-11T12:53:09Z"
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "models",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-6n4dd",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.7.7",
+        "hostIPs": [
+          {
+            "ip": "192.168.7.7"
+          }
+        ],
+        "phase": "Running",
+        "podIP": "10.42.5.18",
+        "podIPs": [
+          {
+            "ip": "10.42.5.18"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-11-11T12:53:08Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "ascend.kubectl.kubernetes.io/ascend-910-configuration": "{\"pod_name\":\"upgrade-grove-final-r1-0-worker-kn6jw\",\"server_id\":\"192.168.7.7\",\"super_pod_id\":-1,\"devices\":[{\"device_id\":\"4\",\"device_ip\":\"10.52.11.39\",\"super_device_id\":\"4291821572\"}]}",
+          "huawei.com/AscendReal": "Ascend910-4",
+          "huawei.com/kltDev": "Ascend910-4",
+          "kai.scheduler/skip-podgrouper": "true",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-operator-origin-version": "1.6.2",
+          "pod-group-name": "upgrade-grove-final-r1-0-1794401518998157083",
+          "received-resource-type": "Regular"
+        },
+        "creationTimestamp": "2026-11-11T12:52:04Z",
+        "generateName": "upgrade-grove-final-r1-0-worker-",
+        "labels": {
+          "app.kubernetes.io/component": "pcs-podclique",
+          "app.kubernetes.io/managed-by": "grove-operator",
+          "app.kubernetes.io/name": "upgrade-grove-final-r1-0-worker",
+          "app.kubernetes.io/part-of": "upgrade-grove-final-r1",
+          "grove.io/pod-template-hash": "5c9ff6f654c778dbf9b",
+          "grove.io/podclique": "upgrade-grove-final-r1-0-worker",
+          "grove.io/podclique-pod-index": "1",
+          "grove.io/podcliqueset-replica-index": "0",
+          "grove.io/podgang": "upgrade-grove-final-r1-0-1794401518998157083",
+          "kai.scheduler/queue": "default-queue",
+          "kai.scheduler/subgroup-name": "upgrade-grove-final-r1-0-worker",
+          "nvidia.com/dynamo-component": "worker",
+          "nvidia.com/dynamo-component-type": "worker",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-discovery-enabled": "true",
+          "nvidia.com/dynamo-graph-deployment-name": "upgrade-grove-final-r1",
+          "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-grove-final-r1",
+          "nvidia.com/dynamo-worker-hash": "9f8b27d7",
+          "nvidia.com/metrics-enabled": "true",
+          "nvidia.com/selector": "upgrade-grove-final-r1-worker"
+        },
+        "name": "upgrade-grove-final-r1-0-worker-kn6jw",
+        "namespace": "heyi-upgrade162",
+        "ownerReferences": [
+          {
+            "apiVersion": "grove.io/v1alpha1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "PodClique",
+            "name": "upgrade-grove-final-r1-0-worker",
+            "uid": "3b2ec296-7eec-4063-b60d-9a567e742751"
+          }
+        ],
+        "resourceVersion": "298433207",
+        "uid": "fd7454ff-7539-4d85-a3fb-a62969a33790"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "python",
+              "-m",
+              "dynamo.vllm",
+              "--model",
+              "/models/Qwen3-0.6B",
+              "--served-model-name",
+              "m08-model",
+              "--enforce-eager",
+              "--tensor-parallel-size",
+              "1",
+              "--max-model-len",
+              "8192",
+              "--max-num-seqs",
+              "8",
+              "--gpu-memory-utilization",
+              "0.3",
+              "--block-size",
+              "128",
+              "--disable-custom-all-reduce",
+              "--kv-events-config",
+              "{\"enable_kv_cache_events\": true, \"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\"}",
+              "--enable-prefix-caching"
+            ],
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh"
+            ],
+            "env": [
+              {
+                "name": "GROVE_PCS_NAME",
+                "value": "upgrade-grove-final-r1"
+              },
+              {
+                "name": "GROVE_PCS_INDEX",
+                "value": "0"
+              },
+              {
+                "name": "GROVE_PCLQ_NAME",
+                "value": "upgrade-grove-final-r1-0-worker"
+              },
+              {
+                "name": "GROVE_HEADLESS_SERVICE",
+                "value": "upgrade-grove-final-r1-0.heyi-upgrade162.svc.cluster.local"
+              },
+              {
+                "name": "GROVE_PCLQ_POD_INDEX",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.labels['grove.io/podclique-pod-index']"
+                  }
+                }
+              },
+              {
+                "name": "ASCEND_TRANSFER_TIMEOUT",
+                "value": "30000"
+              },
+              {
+                "name": "DYN_COMPONENT",
+                "value": "worker"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "kubernetes"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_FORWARDPASS_METRIC_PORT",
+                "value": "20380"
+              },
+              {
+                "name": "DYN_HEALTH_CHECK_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "heyi-upgrade162-upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_NAMESPACE_WORKER_SUFFIX",
+                "value": "9f8b27d7"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAME",
+                "value": "upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                "value": "heyi-upgrade162"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "ascend"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_ROUTER_USE_KV_EVENTS",
+                "value": "true"
+              },
+              {
+                "name": "DYN_SYSTEM_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "9090"
+              },
+              {
+                "name": "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+                "value": "[\"generate\"]"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "NIXL_TELEMETRY_ENABLE",
+                "value": "n"
+              },
+              {
+                "name": "NIXL_TELEMETRY_EXPORTER",
+                "value": "prometheus"
+              },
+              {
+                "name": "NIXL_TELEMETRY_PROMETHEUS_PORT",
+                "value": "19090"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "VLLM_HOST_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                "value": "60"
+              },
+              {
+                "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                "value": "20090"
+              }
+            ],
+            "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+            "imagePullPolicy": "Never",
+            "livenessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "name": "main",
+            "ports": [
+              {
+                "containerPort": 9090,
+                "name": "system",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 19090,
+                "name": "nixl",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/health",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "huawei.com/Ascend910": "1",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "huawei.com/Ascend910": "1",
+                "memory": "2Gi"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 720,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "models",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/usr/local/Ascend/driver",
+                "name": "ascend-driver",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/usr/local/dcmi",
+                "name": "ascend-dcmi",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/usr/local/sbin/npu-smi",
+                "name": "ascend-smi",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-7xpd5",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "hostname": "upgrade-grove-final-r1-0-worker-1",
+        "nodeName": "master-02-45d4a763",
+        "nodeSelector": {
+          "kubernetes.io/arch": "arm64",
+          "kubernetes.io/hostname": "master-02-45d4a763"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "kai-scheduler",
+        "securityContext": {
+          "fsGroup": 1000
+        },
+        "serviceAccount": "upgrade-grove-final-r1-k8s-service-discovery",
+        "serviceAccountName": "upgrade-grove-final-r1-k8s-service-discovery",
+        "subdomain": "upgrade-grove-final-r1-0",
+        "terminationGracePeriodSeconds": 90,
+        "tolerations": [
+          {
+            "effect": "NoSchedule",
+            "key": "huawei.com/Ascend910",
+            "operator": "Exists"
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "hostPath": {
+              "path": "/data/weight/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "models"
+          },
+          {
+            "hostPath": {
+              "path": "/usr/local/Ascend/driver",
+              "type": "Directory"
+            },
+            "name": "ascend-driver"
+          },
+          {
+            "hostPath": {
+              "path": "/usr/local/dcmi",
+              "type": "Directory"
+            },
+            "name": "ascend-dcmi"
+          },
+          {
+            "hostPath": {
+              "path": "/usr/local/bin/npu-smi",
+              "type": "File"
+            },
+            "name": "ascend-smi"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "8Gi"
+            },
+            "name": "shared-memory"
+          },
+          {
+            "name": "kube-api-access-7xpd5",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:08Z",
+            "message": "Pod bound successfully to node master-02-45d4a763",
+            "reason": "Bound",
+            "status": "True",
+            "type": "PodBound"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:09Z",
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:08Z",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:55:39Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:55:39Z",
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:53:08Z",
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "containerID": "containerd://e7c77f8e121cd34d07bb426d9f68697f45273dc5c3a7da98d71dae101af352ea",
+            "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+            "imageID": "sha256:3ffd28fee081ae257f16d33102f39a611784bc174a0c8ebe8f1a46e47c71b311",
+            "lastState": {},
+            "name": "main",
+            "ready": true,
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-11T12:53:09Z"
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "models",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/usr/local/Ascend/driver",
+                "name": "ascend-driver",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/usr/local/dcmi",
+                "name": "ascend-dcmi",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/usr/local/sbin/npu-smi",
+                "name": "ascend-smi",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-7xpd5",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.7.7",
+        "hostIPs": [
+          {
+            "ip": "192.168.7.7"
+          }
+        ],
+        "phase": "Running",
+        "podIP": "10.42.5.20",
+        "podIPs": [
+          {
+            "ip": "10.42.5.20"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-11-11T12:53:08Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "ascend.kubectl.kubernetes.io/ascend-910-configuration": "{\"pod_name\":\"upgrade-grove-final-r1-0-worker-qrl22\",\"server_id\":\"192.168.7.7\",\"super_pod_id\":-1,\"devices\":[{\"device_id\":\"6\",\"device_ip\":\"10.52.11.37\",\"super_device_id\":\"4292345862\"}]}",
+          "huawei.com/AscendReal": "Ascend910-6",
+          "huawei.com/kltDev": "Ascend910-6",
+          "kai.scheduler/skip-podgrouper": "true",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-operator-origin-version": "1.6.2",
+          "pod-group-name": "upgrade-grove-final-r1-0-1794401518998157083",
+          "received-resource-type": "Regular"
+        },
+        "creationTimestamp": "2026-11-11T12:59:52Z",
+        "generateName": "upgrade-grove-final-r1-0-worker-",
+        "labels": {
+          "app.kubernetes.io/component": "pcs-podclique",
+          "app.kubernetes.io/managed-by": "grove-operator",
+          "app.kubernetes.io/name": "upgrade-grove-final-r1-0-worker",
+          "app.kubernetes.io/part-of": "upgrade-grove-final-r1",
+          "grove.io/pod-template-hash": "5c9ff6f654c778dbf9b",
+          "grove.io/podclique": "upgrade-grove-final-r1-0-worker",
+          "grove.io/podclique-pod-index": "0",
+          "grove.io/podcliqueset-replica-index": "0",
+          "grove.io/podgang": "upgrade-grove-final-r1-0-1794401518998157083",
+          "kai.scheduler/queue": "default-queue",
+          "kai.scheduler/subgroup-name": "upgrade-grove-final-r1-0-worker",
+          "nvidia.com/dynamo-component": "worker",
+          "nvidia.com/dynamo-component-type": "worker",
+          "nvidia.com/dynamo-discovery-backend": "kubernetes",
+          "nvidia.com/dynamo-discovery-enabled": "true",
+          "nvidia.com/dynamo-graph-deployment-name": "upgrade-grove-final-r1",
+          "nvidia.com/dynamo-namespace": "heyi-upgrade162-upgrade-grove-final-r1",
+          "nvidia.com/dynamo-worker-hash": "9f8b27d7",
+          "nvidia.com/metrics-enabled": "true",
+          "nvidia.com/selector": "upgrade-grove-final-r1-worker"
+        },
+        "name": "upgrade-grove-final-r1-0-worker-qrl22",
+        "namespace": "heyi-upgrade162",
+        "ownerReferences": [
+          {
+            "apiVersion": "grove.io/v1alpha1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "PodClique",
+            "name": "upgrade-grove-final-r1-0-worker",
+            "uid": "3b2ec296-7eec-4063-b60d-9a567e742751"
+          }
+        ],
+        "resourceVersion": "298436368",
+        "uid": "b661dfe1-bcda-4be4-9e25-a4e7191125b3"
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "python",
+              "-m",
+              "dynamo.vllm",
+              "--model",
+              "/models/Qwen3-0.6B",
+              "--served-model-name",
+              "m08-model",
+              "--enforce-eager",
+              "--tensor-parallel-size",
+              "1",
+              "--max-model-len",
+              "8192",
+              "--max-num-seqs",
+              "8",
+              "--gpu-memory-utilization",
+              "0.3",
+              "--block-size",
+              "128",
+              "--disable-custom-all-reduce",
+              "--kv-events-config",
+              "{\"enable_kv_cache_events\": true, \"publisher\": \"zmq\", \"topic\": \"kv-events\", \"endpoint\": \"tcp://*:20080\"}",
+              "--enable-prefix-caching"
+            ],
+            "command": [
+              "/opt/dynamo/bin/entrypoint.sh"
+            ],
+            "env": [
+              {
+                "name": "GROVE_PCS_NAME",
+                "value": "upgrade-grove-final-r1"
+              },
+              {
+                "name": "GROVE_PCS_INDEX",
+                "value": "0"
+              },
+              {
+                "name": "GROVE_PCLQ_NAME",
+                "value": "upgrade-grove-final-r1-0-worker"
+              },
+              {
+                "name": "GROVE_HEADLESS_SERVICE",
+                "value": "upgrade-grove-final-r1-0.heyi-upgrade162.svc.cluster.local"
+              },
+              {
+                "name": "GROVE_PCLQ_POD_INDEX",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.labels['grove.io/podclique-pod-index']"
+                  }
+                }
+              },
+              {
+                "name": "ASCEND_TRANSFER_TIMEOUT",
+                "value": "30000"
+              },
+              {
+                "name": "DYN_COMPONENT",
+                "value": "worker"
+              },
+              {
+                "name": "DYN_DISCOVERY_BACKEND",
+                "value": "kubernetes"
+              },
+              {
+                "name": "DYN_EVENT_PLANE",
+                "value": "zmq"
+              },
+              {
+                "name": "DYN_FORWARDPASS_METRIC_PORT",
+                "value": "20380"
+              },
+              {
+                "name": "DYN_HEALTH_CHECK_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "DYN_NAMESPACE",
+                "value": "heyi-upgrade162-upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_NAMESPACE_WORKER_SUFFIX",
+                "value": "9f8b27d7"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAME",
+                "value": "upgrade-grove-final-r1"
+              },
+              {
+                "name": "DYN_PARENT_DGD_K8S_NAMESPACE",
+                "value": "heyi-upgrade162"
+              },
+              {
+                "name": "DYN_PLATFORM",
+                "value": "ascend"
+              },
+              {
+                "name": "DYN_REQUEST_PLANE",
+                "value": "tcp"
+              },
+              {
+                "name": "DYN_ROUTER_USE_KV_EVENTS",
+                "value": "true"
+              },
+              {
+                "name": "DYN_SYSTEM_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "DYN_SYSTEM_PORT",
+                "value": "9090"
+              },
+              {
+                "name": "DYN_SYSTEM_USE_ENDPOINT_HEALTH_STATUS",
+                "value": "[\"generate\"]"
+              },
+              {
+                "name": "GOMAXPROCS",
+                "value": "4"
+              },
+              {
+                "name": "HF_HUB_OFFLINE",
+                "value": "1"
+              },
+              {
+                "name": "NIXL_TELEMETRY_ENABLE",
+                "value": "n"
+              },
+              {
+                "name": "NIXL_TELEMETRY_EXPORTER",
+                "value": "prometheus"
+              },
+              {
+                "name": "NIXL_TELEMETRY_PROMETHEUS_PORT",
+                "value": "19090"
+              },
+              {
+                "name": "OMP_NUM_THREADS",
+                "value": "4"
+              },
+              {
+                "name": "POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              },
+              {
+                "name": "POD_UID",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.uid"
+                  }
+                }
+              },
+              {
+                "name": "PYTHONUNBUFFERED",
+                "value": "1"
+              },
+              {
+                "name": "SPT_NOENV",
+                "value": "1"
+              },
+              {
+                "name": "VLLM_HOST_IP",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "status.podIP"
+                  }
+                }
+              },
+              {
+                "name": "VLLM_MOONCAKE_ABORT_REQUEST_TIMEOUT",
+                "value": "60"
+              },
+              {
+                "name": "VLLM_MOONCAKE_BOOTSTRAP_PORT",
+                "value": "20090"
+              }
+            ],
+            "image": "heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+            "imagePullPolicy": "Never",
+            "livenessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "name": "main",
+            "ports": [
+              {
+                "containerPort": 9090,
+                "name": "system",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 19090,
+                "name": "nixl",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 3,
+              "httpGet": {
+                "path": "/health",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "huawei.com/Ascend910": "1",
+                "memory": "32Gi"
+              },
+              "requests": {
+                "cpu": "1",
+                "huawei.com/Ascend910": "1",
+                "memory": "2Gi"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 720,
+              "httpGet": {
+                "path": "/live",
+                "port": "system",
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "models",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/usr/local/Ascend/driver",
+                "name": "ascend-driver",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/usr/local/dcmi",
+                "name": "ascend-dcmi",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/usr/local/sbin/npu-smi",
+                "name": "ascend-smi",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hhdbw",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "hostname": "upgrade-grove-final-r1-0-worker-0",
+        "nodeName": "master-02-45d4a763",
+        "nodeSelector": {
+          "kubernetes.io/arch": "arm64",
+          "kubernetes.io/hostname": "master-02-45d4a763"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "kai-scheduler",
+        "securityContext": {
+          "fsGroup": 1000
+        },
+        "serviceAccount": "upgrade-grove-final-r1-k8s-service-discovery",
+        "serviceAccountName": "upgrade-grove-final-r1-k8s-service-discovery",
+        "subdomain": "upgrade-grove-final-r1-0",
+        "terminationGracePeriodSeconds": 90,
+        "tolerations": [
+          {
+            "effect": "NoSchedule",
+            "key": "huawei.com/Ascend910",
+            "operator": "Exists"
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "hostPath": {
+              "path": "/data/weight/Qwen3-0.6B",
+              "type": "Directory"
+            },
+            "name": "models"
+          },
+          {
+            "hostPath": {
+              "path": "/usr/local/Ascend/driver",
+              "type": "Directory"
+            },
+            "name": "ascend-driver"
+          },
+          {
+            "hostPath": {
+              "path": "/usr/local/dcmi",
+              "type": "Directory"
+            },
+            "name": "ascend-dcmi"
+          },
+          {
+            "hostPath": {
+              "path": "/usr/local/bin/npu-smi",
+              "type": "File"
+            },
+            "name": "ascend-smi"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "8Gi"
+            },
+            "name": "shared-memory"
+          },
+          {
+            "name": "kube-api-access-hhdbw",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:59:53Z",
+            "message": "Pod bound successfully to node master-02-45d4a763",
+            "reason": "Bound",
+            "status": "True",
+            "type": "PodBound"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:59:54Z",
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:59:53Z",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T13:02:23Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T13:02:23Z",
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-11T12:59:53Z",
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "containerID": "containerd://12fd89da1b267ebddfc63fd5ef591c5eb360d5c43ecb47f074767527caa85507",
+            "image": "docker.io/heyi/dynamo:1.6.2-ascend0.30-1aabe435ad-runtime",
+            "imageID": "sha256:3ffd28fee081ae257f16d33102f39a611784bc174a0c8ebe8f1a46e47c71b311",
+            "lastState": {},
+            "name": "main",
+            "ready": true,
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-11T12:59:54Z"
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/models/Qwen3-0.6B",
+                "name": "models",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/usr/local/Ascend/driver",
+                "name": "ascend-driver",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/usr/local/dcmi",
+                "name": "ascend-dcmi",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/usr/local/sbin/npu-smi",
+                "name": "ascend-smi",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "shared-memory"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-hhdbw",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "192.168.7.7",
+        "hostIPs": [
+          {
+            "ip": "192.168.7.7"
+          }
+        ],
+        "phase": "Running",
+        "podIP": "10.42.5.22",
+        "podIPs": [
+          {
+            "ip": "10.42.5.22"
+          }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-11-11T12:59:53Z"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

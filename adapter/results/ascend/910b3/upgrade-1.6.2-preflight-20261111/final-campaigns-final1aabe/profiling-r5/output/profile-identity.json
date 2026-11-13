@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "kind": "planner-bootstrap",
+  "identity": {
+    "schema_version": 1,
+    "platform": "ascend",
+    "device_model": "Ascend 910B3",
+    "driver": "24.1.rc3",
+    "sdk": "CANN 9.2.1",
+    "engine": "vllm",
+    "engine_version": "0.30.0+empty",
+    "plugin_version": "0.30.0",
+    "model": "/models/Qwen3-0.6B",
+    "model_revision": "sha256:ae67e66d6a53418daf36d4197840b13109a672f8fae6f4608d96deb76b878ff2",
+    "precision": "bfloat16",
+    "parallelism": {
+      "prefill_tp": 1,
+      "decode_tp": 1
+    },
+    "kv_config": {
+      "cache_bytes": 536870912,
+      "block_size": 128,
+      "max_model_len": 4096,
+      "max_num_seqs": 8,
+      "pd_transports": {
+        "prefill": {
+          "kv_connector": "MooncakeConnector",
+          "kv_role": "kv_producer",
+          "kv_connector_module_path": "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector",
+          "kv_port": 20090,
+          "kv_connector_extra_config": {
+            "prefill": {
+              "tp_size": 1,
+              "dp_size": 1
+            },
+            "decode": {
+              "tp_size": 1,
+              "dp_size": 1
+            }
+          }
+        },
+        "decode": {
+          "kv_connector": "MooncakeConnector",
+          "kv_role": "kv_consumer",
+          "kv_connector_module_path": "vllm_ascend.distributed.kv_transfer.kv_p2p.mooncake_connector",
+          "kv_port": 20090,
+          "kv_connector_extra_config": {
+            "prefill": {
+              "tp_size": 1,
+              "dp_size": 1
+            },
+            "decode": {
+              "tp_size": 1,
+              "dp_size": 1
+            }
+          }
+        }
+      }
+    },
+    "topology": {
+      "nodes": [
+        "master-02-45d4a763"
+      ],
+      "npu_model": "910B3",
+      "gpus_per_node": 8
+    },
+    "runtime_image": "sha256:3ffd28fee081ae257f16d33102f39a611784bc174a0c8ebe8f1a46e47c71b311"
+  },
+  "fingerprint": "7237a1f7e7e1968d4a718b98f161d95b6bbfb2a7f25618bb00383915cd9e1e5a",
+  "created_at": 1794398334.7524664,
+  "files": {
+    "selected_prefill_interpolation/raw_data.npz": "451329cd3e0b373537fed0e3ab60bf6fd3ac9dab7ac3fdf0754dfaa2900245f7",
+    "selected_decode_interpolation/raw_data.npz": "4b335d3c8f309a14d28e3ffb29bd0d2e24cc611ac1d65eb33e4d301c071534b1"
+  }
+}

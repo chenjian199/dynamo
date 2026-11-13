@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "started": "2026-11-12T08:08:33Z",
+  "command": [
+    "bash",
+    "/harness/adapter/modules/m03-engine-integration/common/engine/serve.sh",
+    "--pipeline-parallel-size",
+    "1"
+  ],
+  "environment": {
+    "PLATFORM": "ascend",
+    "TP": "1",
+    "DP": "1",
+    "DEVICES": "0",
+    "MODEL_PATH": "/models/Qwen3-0.6B"
+  },
+  "source_mode": "installed",
+  "source_commit": "64815280cf5ec3db7a7c0570197f585ea004d323",
+  "installed_source_manifest_sha256": "ba3c151d54533232cfe7cb096754f38fd51e1adf7c9930afa039d795c7758522",
+  "packages": {
+    "vllm": "0.30.0+empty",
+    "torch": "2.10.0+cpu",
+    "ai-dynamo": "1.6.2",
+    "vllm-ascend": "0.30.0"
+  },
+  "harness_sha256": {
+    "adapter/modules/m03-engine-integration/common/engine/advanced-smoke.py": "51bdfc19e4b70d82daf87c7101e813c8673034ede50ef6f93e8a1b5d8bc85719",
+    "adapter/modules/m03-engine-integration/common/engine/create-lora.py": "8269ebd876bce6bfbedad861fefbc7d94f201bc37bccc839db57029a86dda976",
+    "adapter/modules/m03-engine-integration/common/engine/create-quantized.py": "4a141e6cde7a95599a57839cc2f0221b0daaab05a57de2f58ea97d06dc89ff9c",
+    "adapter/modules/m03-engine-integration/common/engine/rank-smoke.py": "50a3268585bc3ae1aee36e8ac336b31d25c0efb59d341f185ba4a30ff7d803cb",
+    "adapter/modules/m03-engine-integration/common/engine/run-case.py": "77f22bc5b98adff4a91b1ec8102eee626ee2c3f79835227e36ca9acf70aeb79d",
+    "adapter/modules/m03-engine-integration/common/engine/serve.sh": "bcc7e18ebca5f27472fd097a33301995bd9a54b196f1a2a8677bf13f264f2d85",
+    "adapter/modules/m07-gms-multimodal/common/media/collect-followup.py": "389c1c7cad91d1f8fb8063273e40f7aa9e8785704aa03ec18109504e9d126d10",
+    "adapter/modules/m07-gms-multimodal/common/media/collect.py": "1c14e1869d2a7724a369f9ccf02b27096e743018b418146b680a696c98e9e838",
+    "adapter/modules/m07-gms-multimodal/common/media/make-video.sh": "4af02cf28c3f416f0675bdfee89f73c6415ff6aaa1cf3c20ef61714389502a83",
+    "adapter/modules/m07-gms-multimodal/common/media/omni-check.py": "e62e9246c925d20eab25f3203e4b9a53766ef06dd9043986754675211b9331f9",
+    "adapter/modules/m07-gms-multimodal/common/media/omni_soak.py": "eb3472f77e8848a6591b84d13a652c65c0bc9857cdfef0687b8a3ce0764ed47c",
+    "adapter/modules/m07-gms-multimodal/common/media/prepare-omni.sh": "94cc0a123cbb6f99b9578e6a79469ec85813bb1e226f3c8cc6de96e7b0f90005",
+    "adapter/modules/m07-gms-multimodal/common/media/probe.sh": "5474384567486de6c0f33e0d52c21b55ebb1f662a9f0a0ca5fd495e76284a7a8",
+    "adapter/modules/m07-gms-multimodal/common/media/run.py": "ddfe48022eb5d40f156b05cc02800e083ca14d1c91fbc3773d57b285da89f1da",
+    "adapter/modules/m07-gms-multimodal/common/media/sample-gpu.py": "7fe6f0575d9a634afa62496eb0d3d42268e5b9c5e57e4e19515dad1260b20147",
+    "adapter/modules/m07-gms-multimodal/common/media/serve-mm.sh": "6a380fc987a5678212ad3e7a6edab94fafcd1adfd3753c5ea3e68964a9bc8dea",
+    "adapter/modules/m07-gms-multimodal/common/media/summarize-omni-soak.py": "34ff1fe240d074a9ea5e90a1c849b90d6520581625275c6bdb5355f44d73a684",
+    "adapter/modules/m07-gms-multimodal/common/media/test_multimodal.py": "8c82f207d5dbfbdeec943249429435a5366e6b03c375a594bd0f63949265e9bf",
+    "adapter/modules/m07-gms-multimodal/common/media/video-check.py": "c80f5a007530818f3097ca7c484262dcca935bbaf0948fbbc781b7d41c9c7227"
+  },
+  "model_config": {
+    "architectures": [
+      "Qwen3ForCausalLM"
+    ],
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "bos_token_id": 151643,
+    "eos_token_id": 151645,
+    "head_dim": 128,
+    "hidden_act": "silu",
+    "hidden_size": 1024,
+    "initializer_range": 0.02,
+    "intermediate_size": 3072,
+    "max_position_embeddings": 40960,
+    "max_window_layers": 28,
+    "model_type": "qwen3",
+    "num_attention_heads": 16,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 8,
+    "rms_norm_eps": 1e-06,
+    "rope_scaling": null,
+    "rope_theta": 1000000,
+    "sliding_window": null,
+    "tie_word_embeddings": true,
+    "torch_dtype": "bfloat16",
+    "transformers_version": "4.51.0",
+    "use_cache": true,
+    "use_sliding_window": false,
+    "vocab_size": 151936
+  },
+  "model_config_sha256": "660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+  "model_files": {
+    "model.safetensors": {
+      "size": 1503300328,
+      "mtime_ns": 1775533998892000000
+    }
+  },
+  "engine_blocks_per_rank": 73,
+  "shutdown": "exited",
+  "server_returncode": 0,
+  "shutdown_passed": true,
+  "server_log": {
+    "path": "/evidence/case/server.log",
+    "sha256": "97c75e8b646fba39484fbc8cfa1d146f59754876195150a4554fc4c52cb54e21"
+  }
+}

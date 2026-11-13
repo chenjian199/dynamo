@@ -1,0 +1,46 @@
+{"mode": "CPU import smoke against prior tools image; not final-image qualification", "argv": ["env", "DOCKER_HOST=unix:///run/dynamo-m10-docker.sock", "/data/dynamo-m10/docker-bin/docker", "run", "--rm", "--name", "heyi-upgrade162-profile-api-bbb8", "--network", "none", "--mount", "type=bind,src=/data/dynamo-upgrade-1.6.2-20261111/closure-api-bbb8c6f7fe,dst=/probe,readonly", "--entrypoint", "/bin/bash", "sha256:643bed1bcd146bc302ae58dea8e1f0ff28a7d91031d560193e92b22e39225c02", "-c", "set -eu; for script in /probe/*.py; do echo \"CHECK $script\"; /opt/dynamo/tools-venv/bin/python \"$script\" --help; done"]}
+CHECK /probe/check_offline_profile.py
+usage: check_offline_profile.py [-h] --profile PROFILE [--assembly ASSEMBLY]
+                                --output OUTPUT --mdc MDC
+                                [--prefill-mdc PREFILL_MDC]
+
+Prove file bootstrap can initialize predictive models without live FPMs.
+
+options:
+  -h, --help            show this help message and exit
+  --profile PROFILE
+  --assembly ASSEMBLY
+  --output OUTPUT
+  --mdc MDC
+  --prefill-mdc PREFILL_MDC
+CHECK /probe/offline_profile.py
+[transformers] PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+usage: offline_profile.py [-h] --input INPUT --output OUTPUT [--reuse-profile]
+                          [--resume-decode-url RESUME_DECODE_URL]
+                          [--resume-max-kv-tokens RESUME_MAX_KV_TOKENS]
+
+Run the production interpolation and artifact assembly paths on fixed PD
+picks. Candidate search was tested separately; this run certifies
+persistence/consumption, not optimality of the TP1 baseline. Run in the
+platform tools pod.
+
+options:
+  -h, --help            show this help message and exit
+  --input INPUT
+  --output OUTPUT
+  --reuse-profile
+  --resume-decode-url RESUME_DECODE_URL
+  --resume-max-kv-tokens RESUME_MAX_KV_TOKENS
+CHECK /probe/replay_qwen_readiness.py
+usage: replay_qwen_readiness.py [-h] --case CASE --planner PLANNER --output
+                                OUTPUT
+
+Reconstruct the CUDA Qwen32 readiness symptom from retained rounded FPM logs.
+
+options:
+  -h, --help         show this help message and exit
+  --case CASE
+  --planner PLANNER
+  --output OUTPUT
+
+EXIT=0

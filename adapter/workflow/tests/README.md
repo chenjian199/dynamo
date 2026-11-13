@@ -25,3 +25,5 @@ python3 -m pytest -c adapter/workflow/tests/pytest.ini -q adapter/workflow/tests
 ```
 
 离线包完整性另有 [M10 test_delivery.py](../../modules/m10-validation/common/offline/test_delivery.py)。真实执行器控制与镜像往返材料在 [results/workflow](../../results/workflow/README.md)，当前验收范围见 [validation.md](../validation.md)。
+
+`test_upgrade.py` 覆盖上游自动升级：临时真实 Git 分支/冲突、镜像就绪门禁、候选隔离、审查与检查失效、配对条件/阈值/哈希，以及缺失硬件证据时禁止生成发布提案。测试不会拉镜像或访问 GPU。
